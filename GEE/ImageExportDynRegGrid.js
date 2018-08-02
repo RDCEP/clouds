@@ -269,7 +269,7 @@ Export.image.toDrive(
 );
 
 Export.table.toDrive({
-    // Export statistics grid 
+    // Export statistics grid
     collection: ee.FeatureCollection(combined),
     description:date_label+'_'+modis_coll+'_stats_'+'grid_size'+grid_size,
     folder: gDriveFolder,
