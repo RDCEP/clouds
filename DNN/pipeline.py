@@ -47,7 +47,7 @@ def read_tiff_gen(tiff_files, side):
             cols -= cols % side
 
             for xoff in range(0, rows, side):
-                for yoff in range(0, rows, side):
+                for yoff in range(0, cols, side):
                     bands = []
                     for b in range(data.RasterCount):
                         band = data.GetRasterBand(b + 1).ReadAsArray(
@@ -55,9 +55,10 @@ def read_tiff_gen(tiff_files, side):
                         )
                         bands.append(band)
 
-                    if all(band is not None for band in bands):
-                        img = np.stack(bands, axis=-1)
-                        if (img != 0).any():
-                            yield img
+                    assert all(band is not None for band in bands), "index err"
+
+                    img = np.stack(bands, axis=-1)
+                    if (img != 0).any():
+                        yield img
 
     return gen
