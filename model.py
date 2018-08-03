@@ -23,8 +23,8 @@ def autoencoder(shape, n_layers=3):
         x = UpSampling2D(2)(x)
 
     ## Dumb hack to get numbers to work out
-    x = Conv2D(depth, 3, activation='relu')(x)
-    x = Conv2D(depth, 3, activation='relu')(x)
+    # x = Conv2D(depth, 3, activation='relu')(x)
+    # x = Conv2D(depth, 3, activation='relu')(x)
 
     decoded = Conv2D(shape[-1], 3, activation='relu', padding='same')(x)
 
