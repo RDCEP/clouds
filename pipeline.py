@@ -1,4 +1,7 @@
 import tensorflow as tf
+from osgeo import gdal
+import numpy as np
+
 
 def load_dataset(file_names, side, n_bands):
     """
@@ -30,6 +33,33 @@ def load_dataset(file_names, side, n_bands):
         .prefetch(tf.contrib.data.AUTOTUNE))
 
 
-def tiff_pipeline(file_names, side):
-    """Pipeline where the inputs are Tiff files
+def read_tiff_gen(tiff_files, side):
+    """Returns an initializable generator that reads (side, side, bands) squares
+    in the tiff files.
     """
+    def gen():
+        for f in tiff_files:
+            data = gdal.Open(f)
+            rows = data.RasterXSize
+            cols = data.RasterYSize
+
+            rows -= rows % side
+            cols -= cols % side
+
+            for xoff in range(0, rows, side):
+                for yoff in range(0, rows, side):
+                    bands = []
+                    for b in range(data.RasterCount):
+                        band = data.GetRasterBand(b+1).ReadAsArray(
+                            xoff=xoff,
+                            yoff=yoff,
+                            win_xsize=side,
+                            win_ysize=side
+                        )
+                        bands.append(band)
+
+                    if all(band is not None for band in bands):
+                        img = np.stack(bands, axis=-1)
+                        if (img != 0).any():
+                            yield img
+    return gen
