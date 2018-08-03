@@ -13,30 +13,30 @@ def load_dataset(file_names, side, n_bands):
     Returns:
         tensorflow iterator over the dataset
     """
+
     def parser(serialized):
         """Define mask of exported GEE kernels.
         """
         features = {
-            f'b{i+1}': tf.FixedLenFeature((side, side), dtype=tf.float32)
+            f"b{i+1}": tf.FixedLenFeature((side, side), dtype=tf.float32)
             for i in range(n_bands)
         }
         parsed_features = tf.parse_single_example(serialized, features)
-        return tf.stack(
-            [parsed_features[f'b{i+1}'] for i in range(n_bands)],
-            axis=2
-        )
+        return tf.stack([parsed_features[f"b{i+1}"] for i in range(n_bands)], axis=2)
 
-    return (tf.data
-        .TFRecordDataset(tf.constant(file_names))
+    return (
+        tf.data.TFRecordDataset(tf.constant(file_names))
         .apply(tf.contrib.data.shuffle_and_repeat(1000))
         .map(parser)
-        .prefetch(tf.contrib.data.AUTOTUNE))
+        .prefetch(tf.contrib.data.AUTOTUNE)
+    )
 
 
 def read_tiff_gen(tiff_files, side):
     """Returns an initializable generator that reads (side, side, bands) squares
     in the tiff files.
     """
+
     def gen():
         for f in tiff_files:
             data = gdal.Open(f)
@@ -50,11 +50,8 @@ def read_tiff_gen(tiff_files, side):
                 for yoff in range(0, rows, side):
                     bands = []
                     for b in range(data.RasterCount):
-                        band = data.GetRasterBand(b+1).ReadAsArray(
-                            xoff=xoff,
-                            yoff=yoff,
-                            win_xsize=side,
-                            win_ysize=side
+                        band = data.GetRasterBand(b + 1).ReadAsArray(
+                            xoff=xoff, yoff=yoff, win_xsize=side, win_ysize=side
                         )
                         bands.append(band)
 
@@ -62,4 +59,5 @@ def read_tiff_gen(tiff_files, side):
                         img = np.stack(bands, axis=-1)
                         if (img != 0).any():
                             yield img
+
     return gen
