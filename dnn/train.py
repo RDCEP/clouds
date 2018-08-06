@@ -2,73 +2,67 @@ import argparse
 import tensorflow as tf
 import tensorflow.keras as keras
 import pipeline
+import model
+import os
 
-
-parser = argparse.ArgumentParser()
-
-parser.add_argument(
-    short="-sh",
-    long="--shape"
-    help="Shape of input image"
-    default=(64, 64, 7)
+# Parse Arguments
+p = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+p.add_argument("data", help="/path/to/data.tiff")
+p.add_argument(
+    "model_dir",
+    help="/path/to/model/ to load and train or to save new model",
+    default=None,
+)
+p.add_argument("-b", "--batch_size", type=int, help=" ", default=32)
+p.add_argument("-o", "--optimizer", help="gradient descent optimizer", default="adam")
+p.add_argument("-l", "--loss", help=" ", default="mean_squared_error")
+p.add_argument(
+    "-e", "--epochs", type=int, help="number of epochs (1000 batches)", default=10
+)
+p.add_argument(
+    "-sh",
+    "--shape",
+    nargs=3,
+    type=int,
+    help="Shape of input image",
+    default=(64, 64, 7),
 )
 
-parser.add_argument(
-    short="-d",
-    long="--data"
-    help="/path/to/data.tiff"
-)
-parser.add_argument(
-    short="-ct",
-    long="--continue_training",
-    help="/path/to/model json and h5 file to continue training from",
-    default=None
-)
+FLAGS = p.parse_args()
+if FLAGS.model_dir[-1] != "/":
+    FLAGS.model_dir += "/"
 
-flags = parser.parse_args()
 
 # Load Data
-img_width, img_height, n_bands = flags.shape
-del img_height # Unused TODO maybe use it?
+img_width, img_height, n_bands = FLAGS.shape
+del img_height  # Unused TODO maybe use it?
 
-data = (tf.data.Dataset
-        .from_generator(
-            pipeline.read_tiff_gen([flags.data], img_width),
-            tf.float32,
-            (img_width, img_width, n_bands)
-        )
-        .apply(tf.contrib.data.shuffle_and_repeat(100))
-       )
+data = tf.data.Dataset.from_generator(
+    pipeline.read_tiff_gen([FLAGS.data], img_width),
+    tf.float32,
+    (img_width, img_width, n_bands),
+).apply(tf.contrib.data.shuffle_and_repeat(100))
 
 
 # Load or Define Model
+if not os.path.isdir(FLAGS.model_dir):
+    os.mkdir(FLAGS.model_dir)
 
-if flags.continue_training:
-    path = flags.continue_training
-    with open(path + ".json", "r") as f:
-        model = keras.models.model_from_json(f.read())
-    model.load_weights(path + ".h5")
-
+if os.path.exists(FLAGS.model_dir + "model.h5"):
+    print("Loading existing model")
+    ae = keras.models.load_model(FLAGS.model_dir + "model.h5")
 else:
-    model = autoencoder(shape)
+    print("Defining new model")
+    _, ae = model.autoencoder(FLAGS.shape)
 
+ckpt = keras.callbacks.ModelCheckpoint(FLAGS.model_dir + "model.h5")
 
+ae.compile(FLAGS.optimizer, loss=FLAGS.loss, metrics=["mae"])
 
-parser.parse_args()
-
-
-
-data = (tf.data.Dataset
-        .from_generator(
-            pipeline.read_tiff_gen(tiff_files, img_width),
-            tf.float32,
-            (img_width, img_width, n_bands)
-        )
-        .apply(tf.contrib.data.shuffle_and_repeat(100))
-       )
-
-
-
-model.save_weights("model.h5")
-
-loaded_model.load_weights("model.h5")
+ae.fit(
+    x=data.zip((data, data)).batch(FLAGS.batch_size),
+    steps_per_epoch=1000,
+    epochs=FLAGS.epochs,
+    verbose=2,
+    callbacks=[ckpt],
+)

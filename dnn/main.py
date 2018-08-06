@@ -15,6 +15,7 @@ print("Starting")
 
 import tensorflow as tf
 import numpy as np
+
 # get_ipython().run_line_magic('matplotlib', 'inline')
 
 
@@ -44,14 +45,11 @@ n_bands = 7
 
 
 # data = pipeline.load_dataset(file_names, img_width, n_bands)
-data = (tf.data.Dataset
-        .from_generator(
-            pipeline.read_tiff_gen(tiff_files, img_width),
-            tf.float32,
-            (img_width, img_width, n_bands)
-        )
-        .apply(tf.contrib.data.shuffle_and_repeat(100))
-       )
+data = tf.data.Dataset.from_generator(
+    pipeline.read_tiff_gen(tiff_files, img_width),
+    tf.float32,
+    (img_width, img_width, n_bands),
+).apply(tf.contrib.data.shuffle_and_repeat(100))
 
 
 # In[5]:
@@ -67,7 +65,7 @@ with tf.Session() as sess:
         xs.append(sess.run(x))
 
 print("Samples extracted, making subplot")
-fig, ax = plt.subplots(figsize=(20,20), nrows=examples, ncols=n_bands)
+fig, ax = plt.subplots(figsize=(20, 20), nrows=examples, ncols=n_bands)
 
 for i in range(examples):
     for j in range(n_bands):
@@ -77,15 +75,14 @@ print("Subplots made, saving")
 fig.savefig(OUT + "examples.png")
 
 
-
 # #### Training Parameters
 
 # In[6]:
 
 
-optimizer = 'adam'
-loss = 'mean_squared_error'
-metrics = ['accuracy']
+optimizer = "adam"
+loss = "mean_squared_error"
+metrics = ["accuracy"]
 
 
 # In[7]:
@@ -94,12 +91,8 @@ print("compiling autoencoder")
 
 en, ae = model.autoencoder((img_width, img_width, n_bands))
 
-en.compile('adam', loss='mse')
-ae.compile(
-    optimizer='adam',
-    loss='mean_squared_error',
-    metrics=['accuracy']
-)
+en.compile("adam", loss="mse")
+ae.compile(optimizer="adam", loss="mean_squared_error", metrics=["accuracy"])
 
 ae.summary()
 
@@ -108,10 +101,7 @@ ae.summary()
 print("Model compiled. Fitting...")
 
 history = ae.fit(
-    x=data.zip((data, data)).batch(32),
-    epochs=10,
-    steps_per_epoch=700,
-    verbose=2,
+    x=data.zip((data, data)).batch(32), epochs=10, steps_per_epoch=700, verbose=2
 )
 
 print("Model fit. Pulling data back...")
@@ -121,10 +111,7 @@ print("Model fit. Pulling data back...")
 # In[157]:
 
 
-x = (data
-    .batch(700)
-    .make_one_shot_iterator()
-    .get_next())
+x = data.batch(700).make_one_shot_iterator().get_next()
 
 with tf.Session() as sess:
     x = sess.run(x)
@@ -134,10 +121,7 @@ print("Data back in numpy. Predicting with autoencoder...")
 # # In[158]:
 
 
-en = tf.keras.models.Model(
-    inputs=ae.input,
-    outputs=ae.get_layer('conv2d_3').output
-)
+en = tf.keras.models.Model(inputs=ae.input, outputs=ae.get_layer("conv2d_3").output)
 e = en.predict(x)
 y = ae.predict(x)
 
@@ -164,27 +148,25 @@ print("ae output saved. Plotting kmeans and encoded state pca projected")
 # In[251]:
 
 
-
-
 # In[ ]:
 
 
-K = 3 # Number of means
+K = 3  # Number of means
 
 
 # In[250]:
 
-e_ = e - e.mean(axis=)
+# e_ = e - e.mean(axis=)
 
 pc = analysis.PCA(e_)
 proj = pc.project(e_, 2)
 codebook, distortion = kmeans(e_, K)
 
-fig , ax = analysis.img_scatter(proj, x.mean(axis=3), zoom = 0.5)
+fig, ax = analysis.img_scatter(proj, x.mean(axis=3), zoom=0.5)
 
-xs, ys = pc.project(codebook,2).transpose()
+xs, ys = pc.project(codebook, 2).transpose()
 
-ax.scatter(xs, ys, s=100, c='r', zorder=1000)
+ax.scatter(xs, ys, s=100, c="r", zorder=1000)
 
 fig.savefig(OUT + "pca.png")
 print("Image saved")
