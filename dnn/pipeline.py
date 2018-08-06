@@ -59,6 +59,6 @@ def read_tiff_gen(tiff_files, side):
 
                     img = np.stack(bands, axis=-1)
                     if (img != 0).any():
-                        yield img
+                        yield img.astype(np.float32)
 
     return gen
