@@ -1,0 +1,21 @@
+Defining new model
+Epoch 1/10
+ - 201s - loss: 5107073.4255 - mean_absolute_error: 1679.0757
+Epoch 2/10
+ - 175s - loss: 4559626.8311 - mean_absolute_error: 1641.9471
+Epoch 3/10
+ - 170s - loss: 4559600.7910 - mean_absolute_error: 1656.4561
+Epoch 4/10
+ - 177s - loss: 4426318.5702 - mean_absolute_error: 1641.4418
+Epoch 5/10
+ - 169s - loss: 4457863.8526 - mean_absolute_error: 1652.8983
+Epoch 6/10
+ - 175s - loss: 4415568.1435 - mean_absolute_error: 1644.2777
+Epoch 7/10
+ - 171s - loss: 4466606.1469 - mean_absolute_error: 1657.3648
+Epoch 8/10
+ - 178s - loss: 4407250.9537 - mean_absolute_error: 1650.3726
+Epoch 9/10
+ - 167s - loss: 4452793.9354 - mean_absolute_error: 1657.7206
+Epoch 10/10
+ - 172s - loss: 4419848.7222 - mean_absolute_error: 1656.8835
