@@ -1,6 +1,7 @@
 import argparse
 import tensorflow as tf
 import tensorflow.keras as keras
+from tensorflow.python.client import timeline
 import pipeline
 import model
 import os
@@ -55,10 +56,20 @@ else:
     print("Defining new model")
     _, ae = model.autoencoder(FLAGS.shape)
 
+# Saving
 ckpt = keras.callbacks.ModelCheckpoint(FLAGS.model_dir + "model.h5")
+# Profiling
+run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+run_metadata = tf.RunMetadata()
 
-ae.compile(FLAGS.optimizer, loss=FLAGS.loss, metrics=["mae"])
-
+# Compile and train
+ae.compile(
+    FLAGS.optimizer,
+    loss=FLAGS.loss,
+    metrics=["mae"],
+    options=run_options,
+    run_metadata=run_metadata,
+)
 ae.fit(
     x=data.zip((data, data)).batch(FLAGS.batch_size),
     steps_per_epoch=1000,
@@ -66,3 +77,7 @@ ae.fit(
     verbose=2,
     callbacks=[ckpt],
 )
+# Save profiling information
+trace = timeline.Timeline(step_stats=run_metadata.step_stats)
+with open(FLAGS.model_dir + "timeline.ctf.json", "w") as f:
+    f.write(trace.generate_chrome_trace_format())

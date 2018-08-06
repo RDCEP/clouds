@@ -22,7 +22,7 @@ def autoencoder(shape, n_layers=3):
     for i in range(n_layers):
         depth = 16 * 2 ** (n_layers - i - 1)
         x = Conv2D(depth, 3, activation="relu", padding="same")(x)
-        x = Conv2DTranspose(depth, 3, 2, activation="relu",padding="same")(x)
+        x = Conv2DTranspose(depth, 3, 2, activation="relu", padding="same")(x)
         # x = UpSampling2D(2)(x)
 
     ## Dumb hack to get numbers to work out
