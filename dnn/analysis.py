@@ -41,6 +41,9 @@ class PCA:
         centered = vectors - self.mean
         cov = centered.transpose().dot(centered) / centered.shape[0]
         self.evals, self.evecs = np.linalg.eigh(cov)
+        # So PCA projection also whitens data for viewing
+        for i in range(self.evals.shape[0]):
+            self.evecs[:, i] /= self.evals[i]
 
     def project(self, vectors, dim):
         """Project centered vectors onto leading `dim` eigenvectors
