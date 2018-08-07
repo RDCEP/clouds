@@ -14,4 +14,4 @@ module load ImageMagick
 module load cuda/9.0
 source activate clouds
 
-python train.py foo.tif m4 -nm dilated_ae
+python train.py foo.tif out/m4 -nm dilated_ae
