@@ -1,0 +1,58 @@
+Tensorflow version: 1.9.0
+Current Git Commit: b'5e30e57'
+Flags:
+	data:                 foo.tif
+	model_dir:            m4/
+	batch_size:           32
+	optimizer:            adam
+	loss:                 mean_squared_error
+	steps_per_epoch:      1000
+	epochs:               10
+	new_model:            dilated_ae
+	shape:                (64, 64, 7)
+Defining new model from <function dilated_ae at 0x7f316876bc80>
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+ae_input (InputLayer)        (None, 64, 64, 7)         0         
+_________________________________________________________________
+conv2d (Conv2D)              (None, 64, 64, 16)        1024      
+_________________________________________________________________
+conv2d_1 (Conv2D)            (None, 64, 64, 32)        4640      
+_________________________________________________________________
+conv2d_2 (Conv2D)            (None, 64, 64, 64)        18496     
+_________________________________________________________________
+conv2d_transpose (Conv2DTran (None, 64, 64, 128)       73856     
+_________________________________________________________________
+conv2d_transpose_1 (Conv2DTr (None, 64, 64, 64)        73792     
+_________________________________________________________________
+conv2d_transpose_2 (Conv2DTr (None, 64, 64, 32)        18464     
+_________________________________________________________________
+conv2d_transpose_3 (Conv2DTr (None, 64, 64, 16)        4624      
+_________________________________________________________________
+conv2d_3 (Conv2D)            (None, 64, 64, 7)         1015      
+=================================================================
+Total params: 195,911
+Trainable params: 195,911
+Non-trainable params: 0
+_________________________________________________________________
+Epoch 1/10
+ - 249s - loss: 4959157.2177 - mean_absolute_error: 1677.3597
+Epoch 2/10
+ - 234s - loss: 4482356.3736 - mean_absolute_error: 1648.3144
+Epoch 3/10
+ - 227s - loss: 4483902.5893 - mean_absolute_error: 1656.8585
+Epoch 4/10
+ - 234s - loss: 4385532.3874 - mean_absolute_error: 1642.2030
+Epoch 5/10
+ - 229s - loss: 4449579.9989 - mean_absolute_error: 1657.6406
+Epoch 6/10
+ - 234s - loss: 4391488.2912 - mean_absolute_error: 1645.4080
+Epoch 7/10
+ - 227s - loss: 4437988.3982 - mean_absolute_error: 1660.2901
+Epoch 8/10
+ - 234s - loss: 4378580.4198 - mean_absolute_error: 1651.4422
+Epoch 9/10
+ - 227s - loss: 4455972.8077 - mean_absolute_error: 1659.7053
+Epoch 10/10
+ - 228s - loss: 4368558.4656 - mean_absolute_error: 1652.1128
