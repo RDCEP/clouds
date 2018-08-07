@@ -4,6 +4,7 @@ import tensorflow.keras as keras
 from tensorflow.python.client import timeline
 import pipeline
 import model
+import subprocess
 import os
 
 # Parse Arguments
@@ -17,8 +18,12 @@ p.add_argument(
 p.add_argument("-b", "--batch_size", type=int, help=" ", default=32)
 p.add_argument("-o", "--optimizer", help="gradient descent optimizer", default="adam")
 p.add_argument("-l", "--loss", help=" ", default="mean_squared_error")
+p.add_argument("-spe", "--steps_per_epoch", help=" ", type=int, default=1000)
 p.add_argument(
     "-e", "--epochs", type=int, help="number of epochs (1000 batches)", default=10
+)
+p.add_argument(
+    "-nm", "--new_model", help="Name of model in model.py to use"
 )
 p.add_argument(
     "-sh",
@@ -32,6 +37,14 @@ p.add_argument(
 FLAGS = p.parse_args()
 if FLAGS.model_dir[-1] != "/":
     FLAGS.model_dir += "/"
+
+# Log meta data
+commit = subprocess.check_output(["git", "describe", "--always"]).strip()
+print(f"Tensorflow version: {tf.__version__}")
+print(f"Current Git Commit: {commit}")
+print("Flags:")
+for f in FLAGS.__dict__:
+    print(f"\t{f}:{(20-len(f)) * ' '} {FLAGS.__dict__[f]}")
 
 
 # Load Data
@@ -49,35 +62,50 @@ data = tf.data.Dataset.from_generator(
 if not os.path.isdir(FLAGS.model_dir):
     os.mkdir(FLAGS.model_dir)
 
-if os.path.exists(FLAGS.model_dir + "model.h5"):
-    print("Loading existing model")
-    ae = keras.models.load_model(FLAGS.model_dir + "model.h5")
+model_file = FLAGS.model_dir + "model.h5"
+
+if os.path.exists(model_file):
+    print(f"Loading existing model")
+    ae = keras.models.load_model(model_file)
 else:
-    print("Defining new model")
-    _, ae = model.autoencoder(FLAGS.shape)
+    model_builder = getattr(model, FLAGS.new_model, "autoencoder")
+    print(f"Defining new model from {model_builder}")
+    _, ae = model_builder(FLAGS.shape)
+
+ae.summary()
 
 # Saving
-ckpt = keras.callbacks.ModelCheckpoint(FLAGS.model_dir + "model.h5")
-# Profiling
-run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
-run_metadata = tf.RunMetadata()
+ckpt = keras.callbacks.ModelCheckpoint(model_file)
+# # Profiling
+# # Pending https://github.com/tensorflow/tensorflow/issues/19911
+# run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+# run_metadata = tf.RunMetadata()
+# Tensorboard
+tensorboard = keras.callbacks.TensorBoard(
+    log_dir=FLAGS.model_dir + "/tb_logs",
+    histogram_freq=0,
+    batch_size=FLAGS.batch_size,
+    write_graph=True,
+    write_grads=False,
+    write_images=True,
+)
 
 # Compile and train
 ae.compile(
     FLAGS.optimizer,
     loss=FLAGS.loss,
     metrics=["mae"],
-    options=run_options,
-    run_metadata=run_metadata,
+    # options=run_options,
+    # run_metadata=run_metadata,
 )
 ae.fit(
     x=data.zip((data, data)).batch(FLAGS.batch_size),
-    steps_per_epoch=1000,
+    steps_per_epoch=FLAGS.steps_per_epoch,
     epochs=FLAGS.epochs,
     verbose=2,
-    callbacks=[ckpt],
+    callbacks=[ckpt, tensorboard],
 )
 # Save profiling information
-trace = timeline.Timeline(step_stats=run_metadata.step_stats)
-with open(FLAGS.model_dir + "timeline.ctf.json", "w") as f:
-    f.write(trace.generate_chrome_trace_format())
+# trace = timeline.Timeline(step_stats=run_metadata.step_stats)
+# with open(FLAGS.model_dir + "timeline.ctf.json", "w") as f:
+#     f.write(trace.generate_chrome_trace_format())
