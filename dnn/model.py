@@ -25,7 +25,6 @@ def autoencoder(shape, n_layers=3):
         x = Conv2DTranspose(depth, 3, 2, activation="relu", padding="same")(x)
         # x = UpSampling2D(2)(x)
 
-
     decoded = Conv2D(shape[-1], 3, activation="relu", padding="same")(x)
 
     return Model(inp, encoded), Model(inp, decoded)

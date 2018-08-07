@@ -22,9 +22,7 @@ p.add_argument("-spe", "--steps_per_epoch", help=" ", type=int, default=1000)
 p.add_argument(
     "-e", "--epochs", type=int, help="number of epochs (1000 batches)", default=10
 )
-p.add_argument(
-    "-nm", "--new_model", help="Name of model in model.py to use"
-)
+p.add_argument("-nm", "--new_model", help="Name of model in model.py to use")
 p.add_argument(
     "-sh",
     "--shape",
@@ -49,14 +47,23 @@ for f in FLAGS.__dict__:
 
 # Load Data
 img_width, img_height, n_bands = FLAGS.shape
-del img_height  # Unused TODO maybe use it?
 
-data = tf.data.Dataset.from_generator(
-    pipeline.read_tiff_gen([FLAGS.data], img_width),
-    tf.float32,
-    (img_width, img_width, n_bands),
-).apply(tf.contrib.data.shuffle_and_repeat(100))
+features = {
+    f"b{i+1}": tf.FixedLenFeature((img_width, img_height), tf.float32)
+    for i in range(n_bands)
+}
 
+def stack_bands(x):
+    tf.stack([x[f"b{i+1}"] for i in range(n_bands)])
+
+
+data = (
+    tf.data.TFRecordDataset(FLAGS.data)
+    .apply(tf.contrib.data.shuffle_and_repeat(500))
+    .map(lambda serialized: tf.parse_single_example(serialized, features))
+    .map(stack_bands)
+    .batch(FLAGS.batch_size)
+)
 
 # Load or Define Model
 if not os.path.isdir(FLAGS.model_dir):
@@ -68,9 +75,13 @@ if os.path.exists(model_file):
     print(f"Loading existing model")
     ae = keras.models.load_model(model_file)
 else:
-    model_builder = getattr(model, FLAGS.new_model, "autoencoder")
-    print(f"Defining new model from {model_builder}")
-    _, ae = model_builder(FLAGS.shape)
+    if FLAGS.new_model:
+        build_model = getattr(model, FLAGS.new_model)
+    else:
+        build_model = model.autoencoder
+
+    print(f"Defining new model from {build_model}")
+    _, ae = build_model(FLAGS.shape)
 
 ae.summary()
 
@@ -94,12 +105,12 @@ tensorboard = keras.callbacks.TensorBoard(
 ae.compile(
     FLAGS.optimizer,
     loss=FLAGS.loss,
-    metrics=["mae"],
+    metrics=["mae", "mse"],
     # options=run_options,
     # run_metadata=run_metadata,
 )
 ae.fit(
-    x=data.zip((data, data)).batch(FLAGS.batch_size),
+    x=data.zip((data, data)),
     steps_per_epoch=FLAGS.steps_per_epoch,
     epochs=FLAGS.epochs,
     verbose=2,
