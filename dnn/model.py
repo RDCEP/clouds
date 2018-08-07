@@ -25,9 +25,28 @@ def autoencoder(shape, n_layers=3):
         x = Conv2DTranspose(depth, 3, 2, activation="relu", padding="same")(x)
         # x = UpSampling2D(2)(x)
 
-    ## Dumb hack to get numbers to work out
-    # x = Conv2D(depth, 3, activation='relu')(x)
-    # x = Conv2D(depth, 3, activation='relu')(x)
+
+    decoded = Conv2D(shape[-1], 3, activation="relu", padding="same")(x)
+
+    return Model(inp, encoded), Model(inp, decoded)
+
+
+def dilated_ae(shape, n_layers=3):
+    x = inp = Input(shape=shape, name="ae_input")
+
+    # Encoder
+    for i in range(n_layers):
+        depth = 16 * 2 ** i
+        x = Conv2D(depth, 3, dilation_rate=2 ** i, activation="relu", padding="same")(x)
+
+    encoded = x
+
+    # Decoder
+    for i in range(n_layers, -1, -1):
+        depth = 16 * 2 ** i
+        x = Conv2DTranspose(
+            depth, 3, dilation_rate=2 ** i, activation="relu", padding="same"
+        )(x)
 
     decoded = Conv2D(shape[-1], 3, activation="relu", padding="same")(x)
 
