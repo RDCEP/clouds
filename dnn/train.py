@@ -59,16 +59,17 @@ else:
 # Saving
 ckpt = keras.callbacks.ModelCheckpoint(FLAGS.model_dir + "model.h5")
 # Profiling
-run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
-run_metadata = tf.RunMetadata()
+# Pending https://github.com/tensorflow/tensorflow/issues/19911
+#run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+#run_metadata = tf.RunMetadata()
 
 # Compile and train
 ae.compile(
     FLAGS.optimizer,
     loss=FLAGS.loss,
     metrics=["mae"],
-    options=run_options,
-    run_metadata=run_metadata,
+    #options=run_options,
+    #run_metadata=run_metadata,
 )
 ae.fit(
     x=data.zip((data, data)).batch(FLAGS.batch_size),
