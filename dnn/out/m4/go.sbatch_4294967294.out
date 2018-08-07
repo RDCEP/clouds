@@ -1,8 +1,8 @@
 Tensorflow version: 1.9.0
-Current Git Commit: b'5e30e57'
+Current Git Commit: b'b3615fe'
 Flags:
 	data:                 foo.tif
-	model_dir:            m4/
+	model_dir:            out/m4/
 	batch_size:           32
 	optimizer:            adam
 	loss:                 mean_squared_error
@@ -10,7 +10,7 @@ Flags:
 	epochs:               10
 	new_model:            dilated_ae
 	shape:                (64, 64, 7)
-Defining new model from <function dilated_ae at 0x7f316876bc80>
+Loading existing model
 _________________________________________________________________
 Layer (type)                 Output Shape              Param #   
 =================================================================
@@ -37,22 +37,22 @@ Trainable params: 195,911
 Non-trainable params: 0
 _________________________________________________________________
 Epoch 1/10
- - 249s - loss: 4959157.2177 - mean_absolute_error: 1677.3597
+ - 245s - loss: 4463949.0154 - mean_absolute_error: 1668.9424
 Epoch 2/10
- - 234s - loss: 4482356.3736 - mean_absolute_error: 1648.3144
+ - 236s - loss: 4391875.4259 - mean_absolute_error: 1647.4822
 Epoch 3/10
- - 227s - loss: 4483902.5893 - mean_absolute_error: 1656.8585
+ - 229s - loss: 4446075.5506 - mean_absolute_error: 1662.9256
 Epoch 4/10
- - 234s - loss: 4385532.3874 - mean_absolute_error: 1642.2030
+ - 236s - loss: 4369535.3312 - mean_absolute_error: 1650.2376
 Epoch 5/10
- - 229s - loss: 4449579.9989 - mean_absolute_error: 1657.6406
+ - 231s - loss: 4468013.1785 - mean_absolute_error: 1668.7994
 Epoch 6/10
- - 234s - loss: 4391488.2912 - mean_absolute_error: 1645.4080
+ - 238s - loss: 4358591.3024 - mean_absolute_error: 1650.4838
 Epoch 7/10
- - 227s - loss: 4437988.3982 - mean_absolute_error: 1660.2901
+ - 232s - loss: 4466037.8383 - mean_absolute_error: 1664.6805
 Epoch 8/10
- - 234s - loss: 4378580.4198 - mean_absolute_error: 1651.4422
+ - 238s - loss: 4413097.5756 - mean_absolute_error: 1657.9384
 Epoch 9/10
- - 227s - loss: 4455972.8077 - mean_absolute_error: 1659.7053
+ - 230s - loss: 4471257.5210 - mean_absolute_error: 1668.0458
 Epoch 10/10
- - 228s - loss: 4368558.4656 - mean_absolute_error: 1652.1128
+ - 231s - loss: 4416098.8449 - mean_absolute_error: 1662.7773
