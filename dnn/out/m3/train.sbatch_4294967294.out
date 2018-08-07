@@ -1,0 +1,21 @@
+Loading existing model
+Epoch 1/10
+ - 189s - loss: 4441412.1009 - mean_absolute_error: 1661.8938
+Epoch 2/10
+ - 176s - loss: 4370313.2227 - mean_absolute_error: 1643.9236
+Epoch 3/10
+ - 170s - loss: 4438167.9172 - mean_absolute_error: 1660.2335
+Epoch 4/10
+ - 175s - loss: 4379534.7879 - mean_absolute_error: 1645.7320
+Epoch 5/10
+ - 171s - loss: 4451331.2301 - mean_absolute_error: 1664.2155
+Epoch 6/10
+ - 176s - loss: 4390009.7670 - mean_absolute_error: 1649.0163
+Epoch 7/10
+ - 169s - loss: 4488906.1646 - mean_absolute_error: 1666.1546
+Epoch 8/10
+ - 175s - loss: 4408837.0201 - mean_absolute_error: 1655.3647
+Epoch 9/10
+ - 171s - loss: 4464688.9840 - mean_absolute_error: 1663.4345
+Epoch 10/10
+ - 176s - loss: 4456173.8474 - mean_absolute_error: 1663.4952

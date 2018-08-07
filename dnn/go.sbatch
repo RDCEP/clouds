@@ -14,4 +14,4 @@ module load ImageMagick
 module load cuda/9.0
 source activate clouds
 
-python main.py
+python train.py foo.tif m3  -l mae
