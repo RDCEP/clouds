@@ -5,7 +5,7 @@ from tensorflow.python.client import timeline
 import pipeline
 import model
 import subprocess
-import os
+from os import path, mkdir
 
 # Parse Arguments
 p = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -53,25 +53,27 @@ features = {
     for i in range(n_bands)
 }
 
+
 def stack_bands(x):
-    tf.stack([x[f"b{i+1}"] for i in range(n_bands)])
+    return tf.stack([x[f"b{i+1}"] for i in range(n_bands)])
 
 
 data = (
-    tf.data.TFRecordDataset(FLAGS.data)
+    tf.list_files(FLAGS.data)
     .apply(tf.contrib.data.shuffle_and_repeat(500))
+    .flatmap(tf.data.TFRecordDataset)
     .map(lambda serialized: tf.parse_single_example(serialized, features))
     .map(stack_bands)
     .batch(FLAGS.batch_size)
 )
 
 # Load or Define Model
-if not os.path.isdir(FLAGS.model_dir):
-    os.mkdir(FLAGS.model_dir)
+if not path.isdir(FLAGS.model_dir):
+    mkdir(FLAGS.model_dir)
 
-model_file = FLAGS.model_dir + "model.h5"
+model_file = path.join(FLAGS.model_dir, "model.h5")
 
-if os.path.exists(model_file):
+if path.exists(model_file):
     print(f"Loading existing model")
     ae = keras.models.load_model(model_file)
 else:
@@ -93,7 +95,7 @@ ckpt = keras.callbacks.ModelCheckpoint(model_file)
 # run_metadata = tf.RunMetadata()
 # Tensorboard
 tensorboard = keras.callbacks.TensorBoard(
-    log_dir=FLAGS.model_dir + "/tb_logs",
+    log_dir=path.join(FLAGS.model_dir, "/tb_logs"),
     histogram_freq=0,
     batch_size=FLAGS.batch_size,
     write_graph=True,
