@@ -1,17 +1,37 @@
-/tmp/slurmd/job48228269/slurm_script: line 0: unalias: pine: not found
-/tmp/slurmd/job48228269/slurm_script: line 0: unalias: quota: not found
-/tmp/slurmd/job48228269/slurm_script: line 0: unalias: chsh: not found
-/tmp/slurmd/job48228269/slurm_script: line 0: unalias: grpe: not found
-/tmp/slurmd/job48228269/slurm_script: line 0: unalias: alloc: not found
-/tmp/slurmd/job48228269/slurm_script: line 0: unalias: vi: not found
-/tmp/slurmd/job48228269/slurm_script: line 0: unalias: chfn: not found
-2018-08-07 14:45:33.131918: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
-2018-08-07 14:45:33.376902: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1392] Found device 0 with properties: 
-name: Tesla K80 major: 3 minor: 7 memoryClockRate(GHz): 0.8235
-pciBusID: 0000:89:00.0
-totalMemory: 11.17GiB freeMemory: 11.10GiB
-2018-08-07 14:45:33.376983: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1471] Adding visible gpu devices: 0
-2018-08-07 14:45:48.078667: I tensorflow/core/common_runtime/gpu/gpu_device.cc:952] Device interconnect StreamExecutor with strength 1 edge matrix:
-2018-08-07 14:45:48.078729: I tensorflow/core/common_runtime/gpu/gpu_device.cc:958]      0 
-2018-08-07 14:45:48.078752: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] 0:   N 
-2018-08-07 14:45:48.079220: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1084] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 10761 MB memory) -> physical GPU (device: 0, name: Tesla K80, pci bus id: 0000:89:00.0, compute capability: 3.7)
+/tmp/slurmd/job48230645/slurm_script: line 0: unalias: pine: not found
+/tmp/slurmd/job48230645/slurm_script: line 0: unalias: quota: not found
+/tmp/slurmd/job48230645/slurm_script: line 0: unalias: chsh: not found
+/tmp/slurmd/job48230645/slurm_script: line 0: unalias: grpe: not found
+/tmp/slurmd/job48230645/slurm_script: line 0: unalias: alloc: not found
+/tmp/slurmd/job48230645/slurm_script: line 0: unalias: vi: not found
+/tmp/slurmd/job48230645/slurm_script: line 0: unalias: chfn: not found
+Traceback (most recent call last):
+  File "train.py", line 64, in <module>
+    .map(stack_bands)
+  File "/home/casperneo/.local/lib/python3.6/site-packages/tensorflow/python/data/ops/dataset_ops.py", line 880, in map
+    return MapDataset(self, map_func)
+  File "/home/casperneo/.local/lib/python3.6/site-packages/tensorflow/python/data/ops/dataset_ops.py", line 1868, in __init__
+    self._map_func.add_to_graph(ops.get_default_graph())
+  File "/home/casperneo/.local/lib/python3.6/site-packages/tensorflow/python/framework/function.py", line 475, in add_to_graph
+    self._create_definition_if_needed()
+  File "/home/casperneo/.local/lib/python3.6/site-packages/tensorflow/python/framework/function.py", line 331, in _create_definition_if_needed
+    self._create_definition_if_needed_impl()
+  File "/home/casperneo/.local/lib/python3.6/site-packages/tensorflow/python/framework/function.py", line 340, in _create_definition_if_needed_impl
+    self._capture_by_value, self._caller_device)
+  File "/home/casperneo/.local/lib/python3.6/site-packages/tensorflow/python/framework/function.py", line 804, in func_graph_from_py_func
+    outputs = func(*func_graph.inputs)
+  File "/home/casperneo/.local/lib/python3.6/site-packages/tensorflow/python/data/ops/dataset_ops.py", line 1853, in tf_map_func
+    for t in nest.flatten(ret)
+  File "/home/casperneo/.local/lib/python3.6/site-packages/tensorflow/python/data/ops/dataset_ops.py", line 1853, in <listcomp>
+    for t in nest.flatten(ret)
+  File "/home/casperneo/.local/lib/python3.6/site-packages/tensorflow/python/framework/ops.py", line 1011, in convert_to_tensor
+    as_ref=False)
+  File "/home/casperneo/.local/lib/python3.6/site-packages/tensorflow/python/framework/ops.py", line 1107, in internal_convert_to_tensor
+    ret = conversion_func(value, dtype=dtype, name=name, as_ref=as_ref)
+  File "/home/casperneo/.local/lib/python3.6/site-packages/tensorflow/python/framework/constant_op.py", line 217, in _constant_tensor_conversion_function
+    return constant(v, dtype=dtype, name=name)
+  File "/home/casperneo/.local/lib/python3.6/site-packages/tensorflow/python/framework/constant_op.py", line 196, in constant
+    value, dtype=dtype, shape=shape, verify_shape=verify_shape))
+  File "/home/casperneo/.local/lib/python3.6/site-packages/tensorflow/python/framework/tensor_util.py", line 424, in make_tensor_proto
+    raise ValueError("None values not supported.")
+ValueError: None values not supported.
