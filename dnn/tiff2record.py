@@ -52,6 +52,7 @@ def convert(data_gen, filename):
         data_gen: Iterator yielding 3D numpy arrays (chunks of tiff file)
         filename: Name of tf record output
     """
+    count = 0
     with tf.python_io.TFRecordWriter(filename) as writer:
         for img in data_gen:
             rows, cols, bands = img.shape
@@ -66,6 +67,8 @@ def convert(data_gen, filename):
                 )
             )
             writer.write(example.SerializeToString())
+            count += 1
+    return count
 
 
 def targets(tif_dir, size, rank):
@@ -92,4 +95,5 @@ if __name__ == "__main__":
 
     tfr_file = os.path.join(FLAGS.tfr_dir, f"{rank + 1}_of_{size}.tfrecords")
 
-    convert(tiff_imgs, tfr_file)
+    count = convert(tiff_imgs, tfr_file)
+    print(f"rank {rank} finished and saved {count} patches.")

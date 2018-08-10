@@ -94,7 +94,7 @@ ckpt = keras.callbacks.ModelCheckpoint(model_file)
 # run_metadata = tf.RunMetadata()
 # Tensorboard
 tensorboard = keras.callbacks.TensorBoard(
-    log_dir=path.join(FLAGS.model_dir, "/tb_logs"),
+    log_dir=path.join(FLAGS.model_dir, "tb_logs"),
     histogram_freq=0,
     batch_size=FLAGS.batch_size,
     write_graph=True,
