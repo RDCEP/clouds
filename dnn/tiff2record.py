@@ -93,3 +93,6 @@ if __name__ == "__main__":
     tfr_file = os.path.join(FLAGS.tfr_dir, f"{rank + 1}_of_{size}.tfrecords")
 
     convert(tiff_imgs, tfr_file)
+
+    print(f"{rank} finished")
+
