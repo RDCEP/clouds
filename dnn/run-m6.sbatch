@@ -14,7 +14,8 @@ module load ImageMagick
 module load cuda/9.0
 source activate clouds
 
-DATA=/project/foster/clouds/geotfr/\*.tfrecords
+# Be sure to double escape * as its substituted twice before python
+DATA=/project/foster/clouds/geotfr/\\*.tfrecords
 MODEL_PATH=out/m6
 
 python train.py $DATA $MODEL_PATH -e 200
