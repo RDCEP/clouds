@@ -18,11 +18,12 @@ features = {
 def stack_bands(x):
     return tf.stack([x[f"b{i+1}"] for i in range(n_bands)])
 
+
 batch_size = 32
 
 data = (
     tf.data.Dataset.list_files(FLAGS.data_glob)
-    #.apply(tf.contrib.data.shuffle_ad_repeat(500))
+    # .apply(tf.contrib.data.shuffle_ad_repeat(500))
     .flat_map(tf.data.TFRecordDataset)
     .map(lambda serialized: tf.parse_single_example(serialized, features))
     .map(stack_bands)

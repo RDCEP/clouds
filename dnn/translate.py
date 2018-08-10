@@ -11,9 +11,4 @@ saver = tf.train.Saver()
 sess = tf.keras.backend.get_session()
 saver.save(sess, FLAGS.model_dir)
 
-tf.train.write_graph(
-    sess.graph_def,
-    FLAGS.model_dir,
-    "model.GraphDef",
-    as_text=True
-)
+tf.train.write_graph(sess.graph_def, FLAGS.model_dir, "model.GraphDef", as_text=True)
