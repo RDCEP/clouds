@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow.python.keras.layers import *
-from tensorflow.python.keras.models import Model
+from tensorflow.python.keras.models import Model, Sequential
 
 
 def autoencoder(shape, n_layers=3):
@@ -11,7 +11,7 @@ def autoencoder(shape, n_layers=3):
 
     # Encoder
     for i in range(n_layers):
-        depth = 16 * 2 ** i
+        depth = 32 * 2 ** i
         x = Conv2D(depth, 3, activation="relu", padding="same")(x)
         x = Conv2D(depth, 3, 2, activation="relu", padding="same")(x)
         # x = MaxPool2D(2, padding="same")(x)
@@ -28,6 +28,22 @@ def autoencoder(shape, n_layers=3):
     decoded = Conv2D(shape[-1], 3, activation="relu", padding="same")(x)
 
     return Model(inp, encoded), Model(inp, decoded)
+
+
+def discriminator(shape, n_layers=3):
+    """Image -> probability network
+    """
+    x = inp = Input(shape=shape, name="disc_input")
+
+    for i in range(n_layers):
+        depth = 32 * 2 ** i
+        x = Conv2D(depth, 3, activation="relu", padding="same")(x)
+        x = Conv2D(depth, 3, 2, activation="relu", padding="same")(x)
+
+    x = Conv2D(1, 3)(x)
+    x = GlobalAveragePooling2D(x)
+
+    return Model(inp, x)
 
 
 def dilated_ae(shape, n_layers=3):
