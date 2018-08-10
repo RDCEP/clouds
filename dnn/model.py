@@ -11,7 +11,7 @@ def autoencoder(shape, n_layers=3):
 
     # Encoder
     for i in range(n_layers):
-        depth = 16 * 2 ** i
+        depth = 32 * 2 ** i
         x = Conv2D(depth, 3, activation="relu", padding="same")(x)
         x = Conv2D(depth, 3, 2, activation="relu", padding="same")(x)
         # x = MaxPool2D(2, padding="same")(x)
