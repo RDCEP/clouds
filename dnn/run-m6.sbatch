@@ -18,4 +18,4 @@ source activate clouds
 DATA=/project/foster/clouds/geotfr/\\*.tfrecords
 MODEL_PATH=out/m6
 
-python train.py $DATA $MODEL_PATH -e 200
+python train.py $MODEL_PATH --data --epochs 200
