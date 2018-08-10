@@ -9,7 +9,7 @@ from os import path, mkdir
 
 # Parse Arguments
 p = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-p.add_argument("data_glob", help="pattern to pick up tf records files")
+p.add_argument("-d", "--data", nargs='+', help="list of records files", required=True)
 p.add_argument(
     "model_dir",
     help="/path/to/model/ to load and train or to save new model",
@@ -59,8 +59,8 @@ def stack_bands(x):
 
 
 data = (
-    tf.data.Dataset.list_files(FLAGS.data_glob)
-    .flat_map(tf.data.TFRecordDataset)
+    tf.data.TFRecordDataset(FLAGS.data)
+    .apply(tf.contrib.data.shuffle_and_repeat(500))
     .map(lambda serialized: tf.parse_single_example(serialized, features))
     .map(stack_bands)
     .batch(FLAGS.batch_size)
