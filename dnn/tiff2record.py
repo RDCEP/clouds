@@ -95,4 +95,3 @@ if __name__ == "__main__":
     convert(tiff_imgs, tfr_file)
 
     print(f"{rank} finished")
-

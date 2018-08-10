@@ -15,7 +15,7 @@ module load cuda/9.0
 source activate clouds
 
 # Be sure to double escape * as its substituted twice before python
-DATA=/project/foster/clouds/geotfr/\\*.tfrecords
+DATA=/project/foster/clouds/geotfr/*.tfrecords
 MODEL_PATH=out/m6
 
-python train.py $MODEL_PATH --data --epochs 200
+python train.py $MODEL_PATH --data $DATA --epochs 200

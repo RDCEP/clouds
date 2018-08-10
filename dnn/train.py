@@ -9,7 +9,7 @@ from os import path, mkdir
 
 # Parse Arguments
 p = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-p.add_argument("-d", "--data", nargs='+', help="list of records files", required=True)
+p.add_argument("-d", "--data", nargs="+", help="list of records files", required=True)
 p.add_argument(
     "model_dir",
     help="/path/to/model/ to load and train or to save new model",
@@ -48,21 +48,31 @@ for f in FLAGS.__dict__:
 # Load Data
 img_width, img_height, n_bands = FLAGS.shape
 
-features = {
-    f"b{i+1}": tf.FixedLenFeature((img_width, img_height), tf.float32)
-    for i in range(n_bands)
-}
 
-
-def stack_bands(x):
+def parse_tiff(serialized):
+    features = {
+        f"b{i+1}": tf.FixedLenFeature((img_width, img_height), tf.float32)
+        for i in range(n_bands)
+    }
+    x = tf.parse_single_example(serialized, features)
     return tf.stack([x[f"b{i+1}"] for i in range(n_bands)], axis=2)
+
+
+def parse_tfr(serialized):
+    features = {
+        "rows": tf.FixedLenFeature([], tf.int64),
+        "cols": tf.FixedLenFeature([], tf.int64),
+        "bands": tf.FixedLenFeature([], tf.int64),
+        "vals": tf.FixedLenFeature((img_width, img_height, n_bands), tf.float32),
+    }
+    x = tf.parse_single_example(serialized, features)
+    return x["vals"]
 
 
 data = (
     tf.data.TFRecordDataset(FLAGS.data)
     .apply(tf.contrib.data.shuffle_and_repeat(500))
-    .map(lambda serialized: tf.parse_single_example(serialized, features))
-    .map(stack_bands)
+    .map(parse_tfr)
     .batch(FLAGS.batch_size)
 )
 
