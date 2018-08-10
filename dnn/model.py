@@ -27,7 +27,7 @@ def autoencoder(shape, n_layers=3):
 
     decoded = Conv2D(shape[-1], 3, activation="relu", padding="same")(x)
 
-    return Model(inp, encoded), Model(inp, decoded)
+    return Model(inp, [encoded, decoded])
 
 
 def discriminator(shape, n_layers=3):
@@ -41,7 +41,7 @@ def discriminator(shape, n_layers=3):
         x = Conv2D(depth, 3, 2, activation="relu", padding="same")(x)
 
     x = Conv2D(1, 3)(x)
-    x = GlobalAveragePooling2D(x)
+    x = GlobalAveragePooling2D()(x)
 
     return Model(inp, x)
 

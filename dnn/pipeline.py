@@ -62,3 +62,33 @@ def read_tiff_gen(tiff_files, side):
                         yield img.astype(np.float32)
 
     return gen
+
+
+def parse_tiff_fn(img_shape):
+    img_width, img_height, n_bands = img_shape
+
+    def parser(serialized):
+        features = {
+            f"b{i+1}": tf.FixedLenFeature((img_width, img_height), tf.float32)
+            for i in range(n_bands)
+        }
+        x = tf.parse_single_example(serialized, features)
+        return tf.stack([x[f"b{i+1}"] for i in range(n_bands)], axis=2)
+
+    return parser
+
+
+def parse_tfr_fn(img_shape):
+    img_width, img_height, n_bands = img_shape
+
+    def parser(serialized):
+        features = {
+            "rows": tf.FixedLenFeature([], tf.int64),
+            "cols": tf.FixedLenFeature([], tf.int64),
+            "bands": tf.FixedLenFeature([], tf.int64),
+            "vals": tf.FixedLenFeature((img_width, img_height, n_bands), tf.float32),
+        }
+        x = tf.parse_single_example(serialized, features)
+        return x["vals"]
+
+    return parser
