@@ -9,7 +9,7 @@ from os import path, mkdir
 
 # Parse Arguments
 p = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-p.add_argument("data_glob", help="pattern to pick up tf records files")
+p.add_argument("-d", "--data", nargs="+", help="list of records files", required=True)
 p.add_argument(
     "model_dir",
     help="/path/to/model/ to load and train or to save new model",
@@ -48,21 +48,11 @@ for f in FLAGS.__dict__:
 # Load Data
 img_width, img_height, n_bands = FLAGS.shape
 
-features = {
-    f"b{i+1}": tf.FixedLenFeature((img_width, img_height), tf.float32)
-    for i in range(n_bands)
-}
-
-
-def stack_bands(x):
-    return tf.stack([x[f"b{i+1}"] for i in range(n_bands)], axis=2)
-
 
 data = (
-    tf.data.Dataset.list_files(FLAGS.data_glob)
-    .flat_map(tf.data.TFRecordDataset)
-    .map(lambda serialized: tf.parse_single_example(serialized, features))
-    .map(stack_bands)
+    tf.data.TFRecordDataset(FLAGS.data)
+    .apply(tf.contrib.data.shuffle_and_repeat(500))
+    .map(pipeline.parse_tfr_fn(FLAGS.shape), args)
     .batch(FLAGS.batch_size)
 )
 
