@@ -43,7 +43,7 @@ class PCA:
         self.evals, self.evecs = np.linalg.eigh(cov)
         # So PCA projection also whitens data for viewing
         for i in range(self.evals.shape[0]):
-            self.evecs[:, i] /= self.evals[i]
+            self.evecs[:, i] /= self.evals[i] + 0.00001
 
     def project(self, vectors, dim):
         """Project centered vectors onto leading `dim` eigenvectors
@@ -113,7 +113,10 @@ if __name__ == "__main__":
     if FLAGS.model_dir[-1] != "/":
         FLAGS.model_dir += "/"
 
-    ae = tf.keras.models.load_model(FLAGS.model_dir + "model.h5")
+    # TODO path join
+    with open(FLAGS.model_dir + "ae.json", "r") as f:
+        ae = tf.keras.models.model_from_json(f.read())
+    ae.load_weights(FLAGS.model_dir + "ae.h5")
 
     img_width, img_height, n_bands = FLAGS.shape
     del img_height  # Unused TODO maybe use it?
@@ -133,9 +136,13 @@ if __name__ == "__main__":
         x = sess.run(x)
 
     # TODO how to pick hidden layer?
-    en = tf.keras.models.Model(inputs=ae.input, outputs=ae.get_layer("conv2d_3").output)
-    e = en.predict(x)
-    y = ae.predict(x)
+    # en = tf.keras.models.Model(inputs=ae.input, outputs=ae.get_layer("conv2d_3").output)
+    # e = en.predict(x)
+    # y = ae.predict(x)[0]
+    e, y = ae.predict(x)
+
+    # from IPython import embed
+    # embed()
 
     # Save autoencoder output
     plot_ae_output(x, y, 2, n_bands)

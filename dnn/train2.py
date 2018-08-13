@@ -98,7 +98,7 @@ def load_model(model_dir, name):
 
     if path.exists(json) and path.exists(weights):
         with open(json, "r") as f:
-            model = tf.keras.models.load_from_json(f)
+            model = tf.keras.models.model_from_json(f.read())
         model.load_weights(weights)
         return model
 
@@ -132,6 +132,11 @@ if __name__ == "__main__":
     )
     tf.summary.image(
         "ae_img", tf.expand_dims(tf.reduce_mean(ae_img, axis=3), axis=-1), max_outputs=5
+    )
+    tf.summary.image(
+        "difference",
+        tf.expand_dims(tf.reduce_mean(ae_img - img, axis=3), axis=-1),
+        max_outputs=5
     )
 
     loss_ae = mse = tf.reduce_mean(tf.square(img - ae_img))
