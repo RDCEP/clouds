@@ -113,6 +113,7 @@ if __name__ == "__main__":
     if FLAGS.model_dir[-1] != "/":
         FLAGS.model_dir += "/"
 
+    # TODO path join
     with open(FLAGS.model_dir + "ae.json", "r") as f:
         ae = tf.keras.models.model_from_json(f.read())
     ae.load_weights(FLAGS.model_dir + "ae.h5")

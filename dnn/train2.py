@@ -98,7 +98,7 @@ def load_model(model_dir, name):
 
     if path.exists(json) and path.exists(weights):
         with open(json, "r") as f:
-            model = tf.keras.models.load_from_json(f)
+            model = tf.keras.models.model_from_json(f.read())
         model.load_weights(weights)
         return model
 
