@@ -13,7 +13,7 @@ import os
 def get_flags():
     p = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     p.add_argument(
-        "-d", "--data", help="pattern to pick up tf records files", required=True
+        "-d", "--data", help="pattern to pick up tf records files", required=True, nargs="+",
     )
     p.add_argument("-b", "--batch_size", type=int, help=" ", default=32)
     p.add_argument(

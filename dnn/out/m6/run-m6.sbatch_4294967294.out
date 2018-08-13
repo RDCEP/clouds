@@ -1,0 +1,448 @@
+Tensorflow version: 1.9.0
+Current Git Commit: b'192671a'
+Flags:
+	data:                 ['/project/foster/clouds/geotfr/1_of_8.tfrecords', '/project/foster/clouds/geotfr/2_of_8.tfrecords', '/project/foster/clouds/geotfr/3_of_8.tfrecords', '/project/foster/clouds/geotfr/4_of_8.tfrecords', '/project/foster/clouds/geotfr/5_of_8.tfrecords', '/project/foster/clouds/geotfr/6_of_8.tfrecords', '/project/foster/clouds/geotfr/7_of_8.tfrecords', '/project/foster/clouds/geotfr/8_of_8.tfrecords']
+	model_dir:            out/m6/
+	batch_size:           32
+	optimizer:            adam
+	loss:                 mean_squared_error
+	steps_per_epoch:      1000
+	epochs:               200
+	new_model:            None
+	shape:                (64, 64, 7)
+Loading existing model
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+ae_input (InputLayer)        (None, 64, 64, 7)         0         
+_________________________________________________________________
+conv2d (Conv2D)              (None, 64, 64, 32)        2048      
+_________________________________________________________________
+conv2d_1 (Conv2D)            (None, 32, 32, 32)        9248      
+_________________________________________________________________
+conv2d_2 (Conv2D)            (None, 32, 32, 64)        18496     
+_________________________________________________________________
+conv2d_3 (Conv2D)            (None, 16, 16, 64)        36928     
+_________________________________________________________________
+conv2d_4 (Conv2D)            (None, 16, 16, 128)       73856     
+_________________________________________________________________
+conv2d_5 (Conv2D)            (None, 8, 8, 128)         147584    
+_________________________________________________________________
+conv2d_6 (Conv2D)            (None, 8, 8, 128)         147584    
+_________________________________________________________________
+conv2d_transpose (Conv2DTran (None, 16, 16, 128)       147584    
+_________________________________________________________________
+conv2d_7 (Conv2D)            (None, 16, 16, 64)        73792     
+_________________________________________________________________
+conv2d_transpose_1 (Conv2DTr (None, 32, 32, 64)        36928     
+_________________________________________________________________
+conv2d_8 (Conv2D)            (None, 32, 32, 32)        18464     
+_________________________________________________________________
+conv2d_transpose_2 (Conv2DTr (None, 64, 64, 32)        9248      
+_________________________________________________________________
+conv2d_9 (Conv2D)            (None, 64, 64, 7)         2023      
+=================================================================
+Total params: 723,783
+Trainable params: 723,783
+Non-trainable params: 0
+_________________________________________________________________
+Epoch 1/200
+ - 71s - loss: 7716296.5849 - mean_absolute_error: 2183.9720 - mean_squared_error: 7716296.5705
+Epoch 2/200
+ - 62s - loss: 7124999.9230 - mean_absolute_error: 2146.4351 - mean_squared_error: 7124999.9025
+Epoch 3/200
+ - 62s - loss: 7267311.4600 - mean_absolute_error: 2148.8411 - mean_squared_error: 7267311.4512
+Epoch 4/200
+ - 63s - loss: 8283757.5870 - mean_absolute_error: 2303.0075 - mean_squared_error: 8283757.5685
+Epoch 5/200
+ - 63s - loss: 6679683.0105 - mean_absolute_error: 2043.0263 - mean_squared_error: 6679683.0235
+Epoch 6/200
+ - 63s - loss: 6487136.8352 - mean_absolute_error: 2010.9509 - mean_squared_error: 6487136.8398
+Epoch 7/200
+ - 63s - loss: 6342000.4534 - mean_absolute_error: 2024.1151 - mean_squared_error: 6342000.4654
+Epoch 8/200
+ - 63s - loss: 7183984.8650 - mean_absolute_error: 2192.6557 - mean_squared_error: 7183984.8708
+Epoch 9/200
+ - 62s - loss: 6528720.0625 - mean_absolute_error: 2050.5091 - mean_squared_error: 6528720.0675
+Epoch 10/200
+ - 63s - loss: 7802531.1635 - mean_absolute_error: 2247.2028 - mean_squared_error: 7802531.1745
+Epoch 11/200
+ - 62s - loss: 6640204.1557 - mean_absolute_error: 2083.0598 - mean_squared_error: 6640204.1423
+Epoch 12/200
+ - 63s - loss: 5738713.6771 - mean_absolute_error: 1890.2591 - mean_squared_error: 5738713.6790
+Epoch 13/200
+ - 63s - loss: 6243659.4092 - mean_absolute_error: 2021.3553 - mean_squared_error: 6243659.4041
+Epoch 14/200
+ - 63s - loss: 7272776.6185 - mean_absolute_error: 2234.6296 - mean_squared_error: 7272776.6217
+Epoch 15/200
+ - 63s - loss: 5991276.0785 - mean_absolute_error: 1974.5067 - mean_squared_error: 5991276.0730
+Epoch 16/200
+ - 63s - loss: 7552473.2915 - mean_absolute_error: 2226.6042 - mean_squared_error: 7552473.2998
+Epoch 17/200
+ - 62s - loss: 7172696.8320 - mean_absolute_error: 2177.0777 - mean_squared_error: 7172696.8115
+Epoch 18/200
+ - 63s - loss: 5922554.2085 - mean_absolute_error: 1919.6072 - mean_squared_error: 5922554.2133
+Epoch 19/200
+ - 63s - loss: 6089278.8451 - mean_absolute_error: 2017.0354 - mean_squared_error: 6089278.8315
+Epoch 20/200
+ - 63s - loss: 6699967.3970 - mean_absolute_error: 2123.2044 - mean_squared_error: 6699967.4025
+Epoch 21/200
+ - 62s - loss: 6200440.6910 - mean_absolute_error: 2029.0518 - mean_squared_error: 6200440.6868
+Epoch 22/200
+ - 62s - loss: 6924475.3375 - mean_absolute_error: 2125.3159 - mean_squared_error: 6924475.3325
+Epoch 23/200
+ - 63s - loss: 7425995.4392 - mean_absolute_error: 2206.6801 - mean_squared_error: 7425995.4318
+Epoch 24/200
+ - 63s - loss: 6190090.9277 - mean_absolute_error: 1994.6675 - mean_squared_error: 6190090.9445
+Epoch 25/200
+ - 63s - loss: 5995641.7140 - mean_absolute_error: 1963.6455 - mean_squared_error: 5995641.7031
+Epoch 26/200
+ - 63s - loss: 6089555.9875 - mean_absolute_error: 2015.1005 - mean_squared_error: 6089555.9893
+Epoch 27/200
+ - 62s - loss: 6707686.5568 - mean_absolute_error: 2129.1978 - mean_squared_error: 6707686.5608
+Epoch 28/200
+ - 63s - loss: 6576641.4725 - mean_absolute_error: 2082.2841 - mean_squared_error: 6576641.4672
+Epoch 29/200
+ - 63s - loss: 7384193.1688 - mean_absolute_error: 2189.7912 - mean_squared_error: 7384193.1780
+Epoch 30/200
+ - 63s - loss: 6377348.6698 - mean_absolute_error: 2047.9845 - mean_squared_error: 6377348.6667
+Epoch 31/200
+ - 63s - loss: 5672817.7474 - mean_absolute_error: 1904.7641 - mean_squared_error: 5672817.7546
+Epoch 32/200
+ - 63s - loss: 6056861.6027 - mean_absolute_error: 2007.9761 - mean_squared_error: 6056861.5970
+Epoch 33/200
+ - 63s - loss: 6663118.5440 - mean_absolute_error: 2150.1838 - mean_squared_error: 6663118.5543
+Epoch 34/200
+ - 63s - loss: 5759515.2990 - mean_absolute_error: 1983.9843 - mean_squared_error: 5759515.2890
+Epoch 35/200
+ - 63s - loss: 6859926.4080 - mean_absolute_error: 2140.0558 - mean_squared_error: 6859926.4043
+Epoch 36/200
+ - 62s - loss: 6413715.4575 - mean_absolute_error: 2077.1367 - mean_squared_error: 6413715.4505
+Epoch 37/200
+ - 63s - loss: 5468799.0343 - mean_absolute_error: 1877.8513 - mean_squared_error: 5468799.0412
+Epoch 38/200
+ - 63s - loss: 5888704.8941 - mean_absolute_error: 2011.7966 - mean_squared_error: 5888704.9105
+Epoch 39/200
+ - 63s - loss: 26726730.9260 - mean_absolute_error: 2172.4740 - mean_squared_error: 26726732.9754
+Epoch 40/200
+ - 63s - loss: 5592253.3180 - mean_absolute_error: 1950.7807 - mean_squared_error: 5592253.3295
+Epoch 41/200
+ - 62s - loss: 6421376.1233 - mean_absolute_error: 2077.6533 - mean_squared_error: 6421376.1332
+Epoch 42/200
+ - 63s - loss: 6909411.9605 - mean_absolute_error: 2153.4224 - mean_squared_error: 6909411.9630
+Epoch 43/200
+ - 63s - loss: 5789181.0103 - mean_absolute_error: 1950.1870 - mean_squared_error: 5789181.0085
+Epoch 44/200
+ - 63s - loss: 5787048.0918 - mean_absolute_error: 1989.1883 - mean_squared_error: 5787048.0790
+Epoch 45/200
+ - 63s - loss: 5942319.8098 - mean_absolute_error: 2017.5444 - mean_squared_error: 5942319.8020
+Epoch 46/200
+ - 62s - loss: 6083405.2303 - mean_absolute_error: 2035.6599 - mean_squared_error: 6083405.2150
+Epoch 47/200
+ - 63s - loss: 6282430.3152 - mean_absolute_error: 2076.9669 - mean_squared_error: 6282430.3068
+Epoch 48/200
+ - 63s - loss: 6771073.2708 - mean_absolute_error: 2110.5364 - mean_squared_error: 6771073.2815
+Epoch 49/200
+ - 63s - loss: 6016618.3118 - mean_absolute_error: 2002.4459 - mean_squared_error: 6016618.3152
+Epoch 50/200
+ - 63s - loss: 5584965.7727 - mean_absolute_error: 1927.4420 - mean_squared_error: 5584965.7899
+Epoch 51/200
+ - 63s - loss: 6120223.3081 - mean_absolute_error: 2030.0784 - mean_squared_error: 6120223.3185
+Epoch 52/200
+ - 63s - loss: 6283604.2697 - mean_absolute_error: 2087.9061 - mean_squared_error: 6283604.2915
+Epoch 53/200
+ - 63s - loss: 5771113.7040 - mean_absolute_error: 1982.2987 - mean_squared_error: 5771113.7140
+Epoch 54/200
+ - 63s - loss: 6840194.9097 - mean_absolute_error: 2119.8064 - mean_squared_error: 6840194.9135
+Epoch 55/200
+ - 62s - loss: 6275303.4755 - mean_absolute_error: 2064.6762 - mean_squared_error: 6275303.4930
+Epoch 56/200
+ - 63s - loss: 5394234.2780 - mean_absolute_error: 1866.0012 - mean_squared_error: 5394234.2612
+Epoch 57/200
+ - 63s - loss: 5807559.1511 - mean_absolute_error: 1996.5934 - mean_squared_error: 5807559.1430
+Epoch 58/200
+ - 63s - loss: 6796301.7765 - mean_absolute_error: 2179.2489 - mean_squared_error: 6796301.7709
+Epoch 59/200
+ - 63s - loss: 5380270.1170 - mean_absolute_error: 1897.0803 - mean_squared_error: 5380270.1100
+Epoch 60/200
+ - 63s - loss: 6581457.2705 - mean_absolute_error: 2106.1102 - mean_squared_error: 6581457.2495
+Epoch 61/200
+ - 62s - loss: 6879738.2062 - mean_absolute_error: 2164.7660 - mean_squared_error: 6879738.2075
+Epoch 62/200
+ - 63s - loss: 5663758.5417 - mean_absolute_error: 1913.8652 - mean_squared_error: 5663758.5417
+Epoch 63/200
+ - 64s - loss: 5967101.6375 - mean_absolute_error: 2032.8825 - mean_squared_error: 5967101.6440
+Epoch 64/200
+ - 63s - loss: 6169205.3276 - mean_absolute_error: 2051.3907 - mean_squared_error: 6169205.3293
+Epoch 65/200
+ - 62s - loss: 5931589.2867 - mean_absolute_error: 2005.3187 - mean_squared_error: 5931589.2818
+Epoch 66/200
+ - 63s - loss: 6130375.4238 - mean_absolute_error: 2045.7847 - mean_squared_error: 6130375.4333
+Epoch 67/200
+ - 63s - loss: 6914824.4733 - mean_absolute_error: 2143.6800 - mean_squared_error: 6914824.4955
+Epoch 68/200
+ - 63s - loss: 5937774.4482 - mean_absolute_error: 1983.8036 - mean_squared_error: 5937774.4342
+Epoch 69/200
+ - 63s - loss: 5814318.7260 - mean_absolute_error: 1975.6406 - mean_squared_error: 5814318.7107
+Epoch 70/200
+ - 63s - loss: 5889922.0609 - mean_absolute_error: 1995.9980 - mean_squared_error: 5889922.0716
+Epoch 71/200
+ - 63s - loss: 6385191.3462 - mean_absolute_error: 2100.5245 - mean_squared_error: 6385191.3348
+Epoch 72/200
+ - 63s - loss: 5903981.5053 - mean_absolute_error: 2015.4124 - mean_squared_error: 5903981.4987
+Epoch 73/200
+ - 63s - loss: 6904458.9470 - mean_absolute_error: 2127.4790 - mean_squared_error: 6904458.9500
+Epoch 74/200
+ - 63s - loss: 6108718.6672 - mean_absolute_error: 2032.4436 - mean_squared_error: 6108718.6410
+Epoch 75/200
+ - 63s - loss: 5395180.6617 - mean_absolute_error: 1879.2036 - mean_squared_error: 5395180.6751
+Epoch 76/200
+ - 63s - loss: 6041139.8770 - mean_absolute_error: 2029.5359 - mean_squared_error: 6041139.8851
+Epoch 77/200
+ - 63s - loss: 6823492.6458 - mean_absolute_error: 2189.4602 - mean_squared_error: 6823492.6528
+Epoch 78/200
+ - 63s - loss: 5578221.3955 - mean_absolute_error: 1941.6217 - mean_squared_error: 5578221.3893
+Epoch 79/200
+ - 63s - loss: 6799671.5920 - mean_absolute_error: 2142.5795 - mean_squared_error: 6799671.5795
+Epoch 80/200
+ - 62s - loss: 6553871.3367 - mean_absolute_error: 2107.1601 - mean_squared_error: 6553871.3395
+Epoch 81/200
+ - 63s - loss: 5654866.7800 - mean_absolute_error: 1912.8730 - mean_squared_error: 5654866.7732
+Epoch 82/200
+ - 64s - loss: 5854502.2389 - mean_absolute_error: 2013.9192 - mean_squared_error: 5854502.2423
+Epoch 83/200
+ - 63s - loss: 6541046.5850 - mean_absolute_error: 2129.3557 - mean_squared_error: 6541046.5867
+Epoch 84/200
+ - 62s - loss: 5757291.1032 - mean_absolute_error: 1974.5007 - mean_squared_error: 5757291.0968
+Epoch 85/200
+ - 63s - loss: 6343797.6132 - mean_absolute_error: 2079.0325 - mean_squared_error: 6343797.6270
+Epoch 86/200
+ - 63s - loss: 6827265.6517 - mean_absolute_error: 2130.9434 - mean_squared_error: 6827265.6540
+Epoch 87/200
+ - 63s - loss: 5902280.6550 - mean_absolute_error: 1979.6603 - mean_squared_error: 5902280.6450
+Epoch 88/200
+ - 64s - loss: 5783775.4915 - mean_absolute_error: 1970.2949 - mean_squared_error: 5783775.4897
+Epoch 89/200
+ - 63s - loss: 6053777.5642 - mean_absolute_error: 2040.7984 - mean_squared_error: 6053777.5568
+Epoch 90/200
+ - 62s - loss: 6236803.7845 - mean_absolute_error: 2068.7132 - mean_squared_error: 6236803.7950
+Epoch 91/200
+ - 63s - loss: 6181104.8383 - mean_absolute_error: 2066.5565 - mean_squared_error: 6181104.8202
+Epoch 92/200
+ - 63s - loss: 6827814.8262 - mean_absolute_error: 2115.2214 - mean_squared_error: 6827814.8127
+Epoch 93/200
+ - 63s - loss: 6054184.1470 - mean_absolute_error: 2018.2309 - mean_squared_error: 6054184.1575
+Epoch 94/200
+ - 63s - loss: 5498069.6568 - mean_absolute_error: 1906.8753 - mean_squared_error: 5498069.6756
+Epoch 95/200
+ - 63s - loss: 6165823.0265 - mean_absolute_error: 2054.1961 - mean_squared_error: 6165823.0395
+Epoch 96/200
+ - 63s - loss: 6648767.4178 - mean_absolute_error: 2154.4478 - mean_squared_error: 6648767.4263
+Epoch 97/200
+ - 63s - loss: 5779288.0090 - mean_absolute_error: 1992.6727 - mean_squared_error: 5779288.0143
+Epoch 98/200
+ - 63s - loss: 6848938.1223 - mean_absolute_error: 2137.4426 - mean_squared_error: 6848938.1353
+Epoch 99/200
+ - 63s - loss: 6404803.5833 - mean_absolute_error: 2077.4433 - mean_squared_error: 6404803.5632
+Epoch 100/200
+ - 63s - loss: 5477785.6913 - mean_absolute_error: 1887.0061 - mean_squared_error: 5477785.6959
+Epoch 101/200
+ - 63s - loss: 6019902.8820 - mean_absolute_error: 2040.0255 - mean_squared_error: 6019902.8766
+Epoch 102/200
+ - 63s - loss: 6736961.5323 - mean_absolute_error: 2172.3990 - mean_squared_error: 6736961.5297
+Epoch 103/200
+ - 63s - loss: 5579767.8725 - mean_absolute_error: 1949.6144 - mean_squared_error: 5579767.8750
+Epoch 104/200
+ - 63s - loss: 6443953.3532 - mean_absolute_error: 2083.8770 - mean_squared_error: 6443953.3503
+Epoch 105/200
+ - 63s - loss: 6915182.5000 - mean_absolute_error: 2154.2079 - mean_squared_error: 6915182.4915
+Epoch 106/200
+ - 63s - loss: 5776180.3638 - mean_absolute_error: 1947.2616 - mean_squared_error: 5776180.3492
+Epoch 107/200
+ - 63s - loss: 5846150.5029 - mean_absolute_error: 2002.6800 - mean_squared_error: 5846150.5160
+Epoch 108/200
+ - 63s - loss: 6186515.2214 - mean_absolute_error: 2067.2194 - mean_squared_error: 6186515.2235
+Epoch 109/200
+ - 63s - loss: 6099593.1685 - mean_absolute_error: 2040.2025 - mean_squared_error: 6099593.1942
+Epoch 110/200
+ - 63s - loss: 6304647.2845 - mean_absolute_error: 2084.5098 - mean_squared_error: 6304647.2750
+Epoch 111/200
+ - 63s - loss: 6777314.8312 - mean_absolute_error: 2111.9761 - mean_squared_error: 6777314.8300
+Epoch 112/200
+ - 63s - loss: 6040483.4688 - mean_absolute_error: 2007.9585 - mean_squared_error: 6040483.4690
+Epoch 113/200
+ - 64s - loss: 5638614.5015 - mean_absolute_error: 1944.6996 - mean_squared_error: 5638614.5049
+Epoch 114/200
+ - 64s - loss: 6365490.3243 - mean_absolute_error: 2092.3893 - mean_squared_error: 6365490.3211
+Epoch 115/200
+ - 63s - loss: 6377796.7290 - mean_absolute_error: 2109.7107 - mean_squared_error: 6377796.7335
+Epoch 116/200
+ - 63s - loss: 5863690.7020 - mean_absolute_error: 2008.0456 - mean_squared_error: 5863690.7250
+Epoch 117/200
+ - 63s - loss: 6881330.9560 - mean_absolute_error: 2127.1897 - mean_squared_error: 6881330.9447
+Epoch 118/200
+ - 63s - loss: 6254002.9102 - mean_absolute_error: 2063.3108 - mean_squared_error: 6254002.9003
+Epoch 119/200
+ - 64s - loss: 5453926.5983 - mean_absolute_error: 1883.0844 - mean_squared_error: 5453926.5935
+Epoch 120/200
+ - 64s - loss: 6012044.9344 - mean_absolute_error: 2048.9407 - mean_squared_error: 6012044.9442
+Epoch 121/200
+ - 63s - loss: 7000140.1295 - mean_absolute_error: 2220.7969 - mean_squared_error: 7000140.1307
+Epoch 122/200
+ - 63s - loss: 5488272.8617 - mean_absolute_error: 1922.9058 - mean_squared_error: 5488272.8752
+Epoch 123/200
+ - 63s - loss: 6638234.1520 - mean_absolute_error: 2118.3904 - mean_squared_error: 6638234.1645
+Epoch 124/200
+ - 63s - loss: 6909622.1488 - mean_absolute_error: 2171.2126 - mean_squared_error: 6909622.1415
+Epoch 125/200
+ - 63s - loss: 5696644.4377 - mean_absolute_error: 1919.5538 - mean_squared_error: 5696644.4280
+Epoch 126/200
+ - 65s - loss: 6041103.2480 - mean_absolute_error: 2056.0228 - mean_squared_error: 6041103.2435
+Epoch 127/200
+ - 63s - loss: 6434043.5632 - mean_absolute_error: 2117.2339 - mean_squared_error: 6434043.5625
+Epoch 128/200
+ - 64s - loss: 5986799.7697 - mean_absolute_error: 2019.2630 - mean_squared_error: 5986799.7685
+Epoch 129/200
+ - 65s - loss: 6214819.9797 - mean_absolute_error: 2066.8442 - mean_squared_error: 6214819.9805
+Epoch 130/200
+ - 65s - loss: 6961497.9052 - mean_absolute_error: 2152.2193 - mean_squared_error: 6961497.8982
+Epoch 131/200
+ - 65s - loss: 5945672.5920 - mean_absolute_error: 1987.5736 - mean_squared_error: 5945672.5997
+Epoch 132/200
+ - 71s - loss: 5876033.7440 - mean_absolute_error: 1991.7919 - mean_squared_error: 5876033.7336
+Epoch 133/200
+ - 69s - loss: 6072464.1610 - mean_absolute_error: 2045.7565 - mean_squared_error: 6072464.1738
+Epoch 134/200
+ - 71s - loss: 6441442.8870 - mean_absolute_error: 2110.6630 - mean_squared_error: 6441442.8777
+Epoch 135/200
+ - 71s - loss: 6042792.4180 - mean_absolute_error: 2050.4248 - mean_squared_error: 6042792.4178
+Epoch 136/200
+ - 71s - loss: 6947870.0860 - mean_absolute_error: 2135.6062 - mean_squared_error: 6947870.0658
+Epoch 137/200
+ - 73s - loss: 6128612.1340 - mean_absolute_error: 2037.6257 - mean_squared_error: 6128612.1490
+Epoch 138/200
+ - 71s - loss: 5454570.9928 - mean_absolute_error: 1895.2601 - mean_squared_error: 5454570.9875
+Epoch 139/200
+ - 72s - loss: 6229466.6252 - mean_absolute_error: 2079.4464 - mean_squared_error: 6229466.6290
+Epoch 140/200
+ - 71s - loss: 6866944.9040 - mean_absolute_error: 2200.9631 - mean_squared_error: 6866944.8992
+Epoch 141/200
+ - 73s - loss: 5704496.7517 - mean_absolute_error: 1969.7805 - mean_squared_error: 5704496.7570
+Epoch 142/200
+ - 73s - loss: 6860666.8123 - mean_absolute_error: 2157.9602 - mean_squared_error: 6860666.8130
+Epoch 143/200
+ - 74s - loss: 6561966.9520 - mean_absolute_error: 2108.2620 - mean_squared_error: 6561966.9423
+Epoch 144/200
+ - 75s - loss: 5655756.1025 - mean_absolute_error: 1915.9096 - mean_squared_error: 5655756.1008
+Epoch 145/200
+ - 75s - loss: 5905944.5085 - mean_absolute_error: 2032.1516 - mean_squared_error: 5905944.5070
+Epoch 146/200
+ - 73s - loss: 6714138.0610 - mean_absolute_error: 2170.4467 - mean_squared_error: 6714138.0515
+Epoch 147/200
+ - 71s - loss: 5787545.3645 - mean_absolute_error: 1983.8873 - mean_squared_error: 5787545.3595
+Epoch 148/200
+ - 73s - loss: 6414735.1145 - mean_absolute_error: 2096.3366 - mean_squared_error: 6414735.1170
+Epoch 149/200
+ - 72s - loss: 6884049.0110 - mean_absolute_error: 2139.7271 - mean_squared_error: 6884049.0103
+Epoch 150/200
+ - 68s - loss: 5899289.1655 - mean_absolute_error: 1979.7742 - mean_squared_error: 5899289.1692
+Epoch 151/200
+ - 66s - loss: 5825649.8355 - mean_absolute_error: 1984.7668 - mean_squared_error: 5825649.8520
+Epoch 152/200
+ - 66s - loss: 6231368.2507 - mean_absolute_error: 2085.7594 - mean_squared_error: 6231368.2425
+Epoch 153/200
+ - 64s - loss: 6255508.8077 - mean_absolute_error: 2073.8777 - mean_squared_error: 6255508.8110
+Epoch 154/200
+ - 65s - loss: 6267621.1030 - mean_absolute_error: 2087.1016 - mean_squared_error: 6267621.0940
+Epoch 155/200
+ - 65s - loss: 6846095.0017 - mean_absolute_error: 2121.6705 - mean_squared_error: 6846094.9947
+Epoch 156/200
+ - 65s - loss: 6034142.3252 - mean_absolute_error: 2013.4804 - mean_squared_error: 6034142.3278
+Epoch 157/200
+ - 66s - loss: 5519138.4326 - mean_absolute_error: 1911.7392 - mean_squared_error: 5519138.4287
+Epoch 158/200
+ - 65s - loss: 6214760.1421 - mean_absolute_error: 2066.9081 - mean_squared_error: 6214760.1314
+Epoch 159/200
+ - 65s - loss: 6639875.2887 - mean_absolute_error: 2154.6718 - mean_squared_error: 6639875.2860
+Epoch 160/200
+ - 65s - loss: 5847717.2992 - mean_absolute_error: 2009.3943 - mean_squared_error: 5847717.2907
+Epoch 161/200
+ - 65s - loss: 6860627.0030 - mean_absolute_error: 2138.3035 - mean_squared_error: 6860627.0115
+Epoch 162/200
+ - 64s - loss: 6414849.7420 - mean_absolute_error: 2081.6060 - mean_squared_error: 6414849.7723
+Epoch 163/200
+ - 65s - loss: 5485340.5063 - mean_absolute_error: 1891.4291 - mean_squared_error: 5485340.5020
+Epoch 164/200
+ - 65s - loss: 6109675.5585 - mean_absolute_error: 2065.5388 - mean_squared_error: 6109675.5610
+Epoch 165/200
+ - 64s - loss: 6833407.7572 - mean_absolute_error: 2194.6675 - mean_squared_error: 6833407.7588
+Epoch 166/200
+ - 64s - loss: 5618992.6362 - mean_absolute_error: 1956.7215 - mean_squared_error: 5618992.6205
+Epoch 167/200
+ - 64s - loss: 6477572.2441 - mean_absolute_error: 2092.1259 - mean_squared_error: 6477572.2520
+Epoch 168/200
+ - 64s - loss: 6922784.3813 - mean_absolute_error: 2158.5889 - mean_squared_error: 6922784.3780
+Epoch 169/200
+ - 64s - loss: 5763100.3868 - mean_absolute_error: 1943.8068 - mean_squared_error: 5763100.3805
+Epoch 170/200
+ - 65s - loss: 5891253.3312 - mean_absolute_error: 2010.9860 - mean_squared_error: 5891253.3343
+Epoch 171/200
+ - 64s - loss: 6249149.5034 - mean_absolute_error: 2085.1860 - mean_squared_error: 6249149.5024
+Epoch 172/200
+ - 64s - loss: 6146223.9268 - mean_absolute_error: 2048.6839 - mean_squared_error: 6146223.9120
+Epoch 173/200
+ - 64s - loss: 6330418.9250 - mean_absolute_error: 2092.7900 - mean_squared_error: 6330418.9122
+Epoch 174/200
+ - 64s - loss: 6855523.9200 - mean_absolute_error: 2127.4146 - mean_squared_error: 6855523.9222
+Epoch 175/200
+ - 65s - loss: 6056976.9555 - mean_absolute_error: 2010.1542 - mean_squared_error: 6056976.9817
+Epoch 176/200
+ - 65s - loss: 5686872.5702 - mean_absolute_error: 1955.3401 - mean_squared_error: 5686872.5747
+Epoch 177/200
+ - 65s - loss: 6401324.1753 - mean_absolute_error: 2108.0797 - mean_squared_error: 6401324.1667
+Epoch 178/200
+ - 65s - loss: 6416021.5332 - mean_absolute_error: 2117.9016 - mean_squared_error: 6416021.5232
+Epoch 179/200
+ - 66s - loss: 5897475.5627 - mean_absolute_error: 2015.0660 - mean_squared_error: 5897475.5702
+Epoch 180/200
+ - 65s - loss: 6916424.6060 - mean_absolute_error: 2133.6298 - mean_squared_error: 6916424.6113
+Epoch 181/200
+ - 65s - loss: 6240584.1185 - mean_absolute_error: 2062.6419 - mean_squared_error: 6240584.1155
+Epoch 182/200
+ - 66s - loss: 5477192.3220 - mean_absolute_error: 1889.8549 - mean_squared_error: 5477192.3165
+Epoch 183/200
+ - 66s - loss: 6051522.8650 - mean_absolute_error: 2060.2498 - mean_squared_error: 6051522.8697
+Epoch 184/200
+ - 65s - loss: 7026398.1950 - mean_absolute_error: 2228.5738 - mean_squared_error: 7026398.1808
+Epoch 185/200
+ - 66s - loss: 5531757.4460 - mean_absolute_error: 1931.3205 - mean_squared_error: 5531757.4487
+Epoch 186/200
+ - 65s - loss: 6717434.7487 - mean_absolute_error: 2133.2745 - mean_squared_error: 6717434.7685
+Epoch 187/200
+ - 65s - loss: 6852321.7960 - mean_absolute_error: 2164.1400 - mean_squared_error: 6852321.7990
+Epoch 188/200
+ - 65s - loss: 5717616.2323 - mean_absolute_error: 1922.4528 - mean_squared_error: 5717616.2330
+Epoch 189/200
+ - 65s - loss: 6046583.5093 - mean_absolute_error: 2060.1614 - mean_squared_error: 6046583.5035
+Epoch 190/200
+ - 65s - loss: 6482336.9990 - mean_absolute_error: 2130.9328 - mean_squared_error: 6482337.0127
+Epoch 191/200
+ - 65s - loss: 5983126.2988 - mean_absolute_error: 2020.2032 - mean_squared_error: 5983126.2945
+Epoch 192/200
+ - 65s - loss: 6217365.4280 - mean_absolute_error: 2064.9375 - mean_squared_error: 6217365.4215
+Epoch 193/200
+ - 65s - loss: 6945714.7050 - mean_absolute_error: 2149.0049 - mean_squared_error: 6945714.7120
+Epoch 194/200
+ - 65s - loss: 5936967.1050 - mean_absolute_error: 1986.6116 - mean_squared_error: 5936967.1070
+Epoch 195/200
+ - 65s - loss: 5881067.4511 - mean_absolute_error: 1995.6076 - mean_squared_error: 5881067.4564
+Epoch 196/200
+ - 65s - loss: 6142565.0585 - mean_absolute_error: 2064.8313 - mean_squared_error: 6142565.0485
+Epoch 197/200
+ - 65s - loss: 6424820.5532 - mean_absolute_error: 2106.8900 - mean_squared_error: 6424820.5638
+Epoch 198/200
+ - 65s - loss: 6120753.6503 - mean_absolute_error: 2068.5237 - mean_squared_error: 6120753.6595
+Epoch 199/200
+ - 65s - loss: 6938165.8862 - mean_absolute_error: 2133.4876 - mean_squared_error: 6938165.8933
+Epoch 200/200
+ - 165s - loss: 6132007.4300 - mean_absolute_error: 2038.3444 - mean_squared_error: 6132007.4185
