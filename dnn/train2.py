@@ -133,6 +133,11 @@ if __name__ == "__main__":
     tf.summary.image(
         "ae_img", tf.expand_dims(tf.reduce_mean(ae_img, axis=3), axis=-1), max_outputs=5
     )
+    tf.summary.image(
+        "difference",
+        tf.expand_dims(tf.reduce_mean(ae_img - img, axis=3), axis=-1),
+        max_outputs=5
+    )
 
     loss_ae = mse = tf.reduce_mean(tf.square(img - ae_img))
 
