@@ -69,7 +69,8 @@ def HDFtoTFRecord(url_folder,file_name,file_extension):
     # for key in datafields:
 
     # print(json.dumps(record_dict, ensure_ascii=False))
-    example = tf.train.Example(features=tf.train.Features(feature=record_dict))
+    features_TF_obj = tf.train.Features(feature=record_dict)
+    example = tf.train.SequenceExample(features=features_TF_obj)
     writer.write(example.SerializeToString())
     return
 
