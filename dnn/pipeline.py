@@ -32,6 +32,77 @@ def load_dataset(file_names, side, n_bands):
     )
 
 
+def full_tiff_pipeline(filenames, shape, batch_size=32):
+    """Hopefully boosts performance of tiff file extraction by amortizing
+    opening costs. Warning: if the number of bands in `shape` is less than the
+    number of bands in the tiff file, then the bands will be randomly_cropped.
+    """
+    return (
+        tf.data.Dataset.from_tensor_slices(filenames)
+        .apply(tf.contrib.data.shuffle_and_repeat(10000))
+        .map(
+            lambda filename: tf.py_func(
+                lambda f: gdal.Open(f).ReadAsArray(),
+                [filename],
+                tf.int16,
+                stateful=False,
+            )
+        )
+        .map(
+            lambda images: tf.extract_image_patches(
+                tf.expand_dims(images, 0),
+                ksizes=[1, shape[0], shape[1], 1],
+                strides=[1, shape[0] // 2, shape[1] // 2, 1],
+                rates=[1, 1, 1, 1],
+                padding="VALID",
+            )
+        )
+        .interleave(
+            lambda imgs: tf.data.Dataset.from_tensor_slices(
+                tf.reshape(imgs, [-1, *shape])
+            ),
+            cycle_length=4,
+        )
+        .apply(tf.contrib.data.shuffle_and_repeat(10000))
+        .apply(tf.contrib.data.batch_and_drop_remainder(batch_size))
+        .prefetch(1)
+    )
+
+
+def crop_fn(crop_height, crop_width):
+    """Returns a function that randomly crops an input image repeatedly. Number
+    of output crops depends on how big the image is relative to the crop size.
+    """
+
+    def output_fn(full_tiff, height, width, bands):
+        count = tf.constant(0)
+        crop_list = tf.Variable([], shape=[None, crop_height, crop_width, None])
+
+        # As many random crops as you can fit nicely grid aligned crops
+        max_crops = height * width / crop_height / crop_width
+
+        def condition(count, _):
+            return count < max_crops
+
+        def append_random_crop(_, crops):
+            crop = tf.random_crop(full_tiff, [crop_height, crop_width, bands])
+            crops = tf.concat([crops, [crop]], 0)
+            return count + 1, crops
+
+        index, crop_list = tf.while_loop(
+            condition,
+            append_random_crop,
+            [count, crop_list],
+            shape_invariants=[
+                count.get_shape(),
+                tf.TensorShape([None, crop_height, crop_width, None]),
+            ],
+        )
+        return tf.data.Dataset.from_tensor_slices(crop_list)
+
+    return output_fn
+
+
 def read_tiff_gen(tiff_files, side):
     """Returns an initializable generator that reads (side, side, bands) squares
     in the tiff files.
