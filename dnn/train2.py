@@ -11,58 +11,132 @@ import os
 
 
 def get_flags():
-    p = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    p.add_argument(
-        "-d", "--data", help="pattern to pick up tf records files", required=True, nargs="+",
+    p = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        description=(
+            "This program trains an autoencoder on satellite image data of clouds. "
+            "It uses a convolutional autoencoder trying ot minimize "
+            "mean-squared-error plus configurable loss from a discriminator or "
+            "perceptual difference given a pretrained network."
+        ),
     )
-    p.add_argument("-b", "--batch_size", type=int, help=" ", default=32)
+    p.add_argument(
+        "--data", help="pattern to pick up tf records files", required=True, nargs="+"
+    )
+    p.add_argument("--batch_size", type=int, help=" ", default=32)
     p.add_argument(
         "model_dir",
         help="/path/to/model/ to load and train or to save new model",
         default=None,
     )
     p.add_argument(
-        "-o",
         "--optimizer",
-        help="type of optimizer to use for gradient descent",
+        help="type of optimizer to use for gradient descent. TODO (unused flag)",
         default="adam",
     )
     p.add_argument(
-        "-spe",
         "--steps_per_epoch",
+        metavar="N",
         help="Number of steps to train in each epoch ",
         type=int,
         default=1000,
     )
     p.add_argument(
-        "-e", "--epochs", type=int, help="Number of epochs to train for", default=10
-    )
-    p.add_argument(
-        "-nm", "--new_model", help="Name of model in model.py to use", default=""
-    )
-    p.add_argument(
-        "-sh",
-        "--shape",
-        nargs=3,
+        "--n_layers",
+        help="number of strided convolution layers in AE / disc",
         type=int,
-        help="Shape of input image",
-        default=(64, 64, 7),
+        default=3,
+    )
+    p.add_argument(
+        "--epochs", type=int, help="Number of epochs to train for", default=10
+    )
+    p.add_argument(
+        "--new_model",
+        default="",
+        help=(
+            "Name of model in model.py to use for the autoencoder. Flag "
+            "unused if the training in a directory with a saved autoencoder."
+        ),
+    )
+    p.add_argument(
+        "--shape", nargs=3, type=int, help="Shape of input image", default=(64, 64, 7)
     )
     p.add_argument(
         "--discriminator",
         default="",
-        help="Augment autoencoder loss with a discriminator",
+        help=(
+            "Augment autoencoder loss with the discriminator with this name"
+            "defaults to models.discriminator(...) if name is invalid. "
+            "Flag unused if continuing training in a directory with a saved "
+            "discriminator."
+        ),
     )
-    p.add_argument("-ld", "--lambda_disc", type=float, default=0.01)
-    p.add_argument("-lgp", "--lambda_gradient_penalty", type=float, default=10)
     p.add_argument(
-        "-nc",
+        "--lambda_disc",
+        type=float,
+        default=0.01,
+        help="Weight of discriminative loss on AE objective",
+    )
+    p.add_argument(
+        "--lambda_gradient_penalty",
+        type=float,
+        default=10,
+        help="Weight of 1-lipschitz constraint on discriminator objective",
+    )
+    p.add_argument(
         "--n_critic",
         type=int,
         default=5,
         help="number of discriminator updates per autoencoder update",
     )
-    p.add_argument("--perceptual", help="Pretrained")
+    p.add_argument(
+        "--lambda_per", help="Weight of perceptual loss on AE objective", default=1.0
+    )
+    p.add_argument(
+        "--perceptual",
+        action="store_true",
+        help="Pretrained classifier for perceptual loss",
+    )
+    p.add_argument(
+        "--display_imgs",
+        metavar="N",
+        type=int,
+        default=8,
+        help="Number of images to display on tensorboard",
+    )
+    p.add_argument(
+        "--red_bands",
+        type=int,
+        metavar="r",
+        nargs="+",
+        default=[1, 4, 5, 6],
+        help=(
+            "0-indexed bands to map to red for tensorboard display and for input"
+            " to pretrained classifiers"
+        ),
+    )
+    p.add_argument(
+        "--green_bands",
+        type=int,
+        metavar="g",
+        nargs="+",
+        default=[0],
+        help=(
+            "0-indexed bands to map to green for tensorboard display and for "
+            "input to pretrained classifiers"
+        ),
+    )
+    p.add_argument(
+        "--blue_bands",
+        type=int,
+        metavar="b",
+        nargs="+",
+        default=[2, 3],
+        help=(
+            "0-indexed bands to map to red for tensorboard display and for "
+            "input to pretrained classifiers"
+        ),
+    )
 
     FLAGS = p.parse_args()
     if FLAGS.model_dir[-1] != "/":
@@ -80,6 +154,32 @@ def get_flags():
         os.mkdir(FLAGS.model_dir)
 
     return FLAGS
+
+
+class ColorMap:
+    def __init__(self, green_bands, red_bands, blue_bands):
+        self.greens = green_bands
+        self.reds = red_bands
+        self.blues = blue_bands
+
+    def __call__(self, t):
+        """Converts the input tensor channels to RGB channels
+        [batch, height, width, bands] -> [batch, height, width, rgb]
+        """
+        r = tf.reduce_mean(select_channels(t, self.reds), axis=3)
+        g = tf.reduce_mean(select_channels(t, self.greens), axis=3)
+        b = tf.reduce_mean(select_channels(t, self.blues), axis=3)
+        return tf.stack([r, g, b], axis=3)
+
+
+def select_channels(t, chans):
+    """Select `chans` channels from the last dimension of a tensor.
+    Equivalent to array[:,:,..,chans]
+    """
+    t = tf.transpose(t)
+    t = tf.gather(t, chans)
+    t = tf.transpose(t)
+    return t
 
 
 def load_data(data_files, shape, batch_size):
@@ -100,14 +200,15 @@ def load_model(model_dir, name):
         with open(json, "r") as f:
             model = tf.keras.models.model_from_json(f.read())
         model.load_weights(weights)
+        print(f"model loaded from {model_dir} {name}")
         return model
 
     return None
 
 
-def define_model(new_model, default, shape):
+def define_model(new_model, default, shape, n_layers):
     builder = getattr(our_models, new_model, getattr(our_models, default))
-    return builder(shape)
+    return builder(shape, n_layers)
 
 
 if __name__ == "__main__":
@@ -120,24 +221,20 @@ if __name__ == "__main__":
 
     dataset = load_data(FLAGS.data, FLAGS.shape, FLAGS.batch_size)
 
+    cmap = ColorMap(FLAGS.red_bands, FLAGS.green_bands, FLAGS.blue_bands)
+
     with tf.name_scope("autoencoder"):
         ae = load_model(FLAGS.model_dir, "ae")
         if not ae:
-            ae = define_model(FLAGS.new_model, "autoencoder", FLAGS.shape)
+            ae = define_model(
+                FLAGS.new_model, "autoencoder", FLAGS.shape, FLAGS.n_layers
+            )
 
     _, ae_img = ae(img)
 
-    tf.summary.image(
-        "img", tf.expand_dims(tf.reduce_mean(img, axis=3), axis=-1), max_outputs=5
-    )
-    tf.summary.image(
-        "ae_img", tf.expand_dims(tf.reduce_mean(ae_img, axis=3), axis=-1), max_outputs=5
-    )
-    tf.summary.image(
-        "difference",
-        tf.expand_dims(tf.reduce_mean(ae_img - img, axis=3), axis=-1),
-        max_outputs=5
-    )
+    tf.summary.image("original", cmap(img), FLAGS.display_imgs)
+    tf.summary.image("autoencoded", cmap(ae_img), FLAGS.display_imgs)
+    tf.summary.image("difference", cmap(img) - cmap(ae_img), FLAGS.display_imgs)
 
     loss_ae = mse = tf.reduce_mean(tf.square(img - ae_img))
 
@@ -151,7 +248,9 @@ if __name__ == "__main__":
         with tf.name_scope("discriminator"):
             disc = load_model(FLAGS.model_dir, "disc")
             if not disc:
-                disc = define_model(FLAGS.discriminator, "discriminator", FLAGS.shape)
+                disc = define_model(
+                    FLAGS.discriminator, "discriminator", FLAGS.shape, FLAGS.n_layers
+                )
 
         di = disc(img)
         da = disc(ae_img)
@@ -175,12 +274,15 @@ if __name__ == "__main__":
         train_ops += [train_disc] * FLAGS.n_critic
 
     if FLAGS.perceptual:
-        per = define_model(FLAGS.perceptual, "perceptual", FLAGS.shape)
-
-        pi = per(img)
-        pa = per(ae_img)
+        # There is a minimum shape thats 139 or so but we only need early layers
+        inp_shape = None, None, 3
+        per = our_models.classifier(inp_shape)
+        rgb_img = cmap(img)
+        rgb_ae_img = cmap(ae_img)
+        pi = per(rgb_img)
+        pa = per(rgb_ae_img)
         loss_per = tf.reduce_mean(tf.square(pi - pa))
-        loss_ae += loss_per
+        loss_ae += loss_per * FLAGS.lambda_per
 
         tf.summary.scalar("loss_per", loss_per)
 

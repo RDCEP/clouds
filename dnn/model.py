@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow.python.keras.layers import *
 from tensorflow.python.keras.models import Model, Sequential
+import tensorflow.keras.applications as pretrained
 
 
 def autoencoder(shape, n_layers=3):
@@ -44,6 +45,13 @@ def discriminator(shape, n_layers=3):
     x = GlobalAveragePooling2D()(x)
 
     return Model(inp, x)
+
+
+def classifier(shape, layer_name="mixed5"):
+    # 1 4 3 RGB
+    p = pretrained.InceptionV3(include_top=False, input_shape=shape)
+    out = p.get_layer(layer_name).output
+    return Model(p.inputs, out)
 
 
 def dilated_ae(shape, n_layers=3):

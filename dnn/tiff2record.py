@@ -15,7 +15,7 @@ def _float_feature(value):
     return tf.train.Feature(float_list=tf.train.FloatList(value=value))
 
 
-def reader(tiff_files, side_len):
+def patch_reader(tiff_files, side_len):
     """Yields `side_len` by `side_len` sized chunks of every tiff file.
     Note there will be an edge effect to the right/bottom of each tiff.
     """
@@ -29,21 +29,20 @@ def reader(tiff_files, side_len):
 
         for xoff in range(0, rows, side_len):
             for yoff in range(0, cols, side_len):
-                bands = []
-                for b in range(data.RasterCount):
-                    band = data.GetRasterBand(b + 1).ReadAsArray(
-                        xoff=xoff, yoff=yoff, win_xsize=side_len, win_ysize=side_len
-                    )
-                    bands.append(band)
+                data.ReadAsArray(xoff, yoff, side_len, side_len)
+                data = np.rollaxis(data, 0, 3)
 
-                if any(band is None for band in bands):
-                    raise IndexError(
-                        f"In {f} at {(xoff, yoff)} with side_len {side_len}"
-                    )
-
-                img = np.stack(bands, axis=-1)
                 if (img != 0).any():
                     yield img.astype(np.float32)
+
+
+def whole_tif_reader(tiff_files):
+    """Yields entire tif file read into numpy
+    """
+    for f in tiff_files:
+        data = gdal.Open(f).ReadAsArray()
+        data = np.rollaxis(data, 0, 3)
+        yield data
 
 
 def convert(data_gen, filename):
@@ -72,28 +71,31 @@ def convert(data_gen, filename):
 
 
 def targets(tif_dir, size, rank):
-    tifs = os.listdir(tif_dir)
+    tifs = []
+    for f in os.listdir(tif_dir):
+        if f.split(".")[-1] == "tif":
+            tifs.append(os.path.join(tif_dir, f))
     tifs.sort()
-    return [os.path.join(tif_dir, f) for i, f in enumerate(tifs) if i % size == rank]
+    return [f for i, f in enumerate(tifs) if i % size == rank]
 
 
 if __name__ == "__main__":
     p = ArgumentParser(ArgumentDefaultsHelpFormatter)
     p.add_argument("tif_dir", help="Directory of tif files to extract from")
     p.add_argument("tfr_dir", help="Directory to put tf record")
-    p.add_argument(
-        "--side_len", help="side length of each patch.", type=int, default=64
-    )
+    p.add_argument("--side_len", help="side length of each patch.", type=int)
     FLAGS = p.parse_args()
     comm = MPI.COMM_WORLD
     size = comm.Get_size()
     rank = comm.Get_rank()
 
     tiff_files = targets(FLAGS.tif_dir, size, rank)
-
-    tiff_imgs = reader(tiff_files, FLAGS.side_len)
-
     tfr_file = os.path.join(FLAGS.tfr_dir, f"{rank + 1}_of_{size}.tfrecords")
+
+    if FLAGS.side_len:
+        tiff_imgs = patch_reader(tiff_files, FLAGS.side_len)
+    else:
+        tiff_imgs = whole_tif_reader(tiff_files)
 
     count = convert(tiff_imgs, tfr_file)
     print(f"rank {rank} finished and saved {count} patches.")
