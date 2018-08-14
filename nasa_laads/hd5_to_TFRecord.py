@@ -33,17 +33,17 @@ def HDFtoTFRecord(url_folder, file_name, file_extension):
         shapelist.append(singlefield[:].shape)
 
         if len(shapelist[idx]) == 1:
-            parameters = datafields[idx], max(shapelist[idx]), 1, 1, None
+            parameters = datafields[idx], max(shapelist[idx]), 1, 1, HDFobj.select(datafields[idx])[:]
             tf_dict = dimension_dict(parameters)
             js_dict = json_dict(parameters)
 
         if len(shapelist[idx]) == 2:
-            parameters = datafields[idx], max(shapelist[idx]), min(shapelist[idx]), 1, None
+            parameters = datafields[idx], max(shapelist[idx]), min(shapelist[idx]), 1, HDFobj.select(datafields[idx])[:]
             tf_dict = dimension_dict(parameters)
             js_dict = json_dict(parameters)
 
         elif len(shapelist[idx]) == 3:
-            parameters = datafields[idx], max(shapelist[idx]), median(shapelist[idx]), min(shapelist[idx]), None
+            parameters = datafields[idx], max(shapelist[idx]), median(shapelist[idx]), min(shapelist[idx]), HDFobj.select(datafields[idx])[:]
             tf_dict = dimension_dict(parameters)
             js_dict = json_dict(parameters)
 
@@ -58,7 +58,7 @@ def HDFtoTFRecord(url_folder, file_name, file_extension):
         ###################
 
     # print(record_dict)
-    print(json_buffer)
+    # print(json_buffer)
     features_TF_obj = tf.train.Features(feature=record_dict)
     example = tf.train.Example(features=features_TF_obj)
     writer.write(example.SerializeToString())
@@ -74,7 +74,7 @@ def dimension_dict(tuple):
     hdffield=tuple[0]
     binaryvalues=tuple[4]
     dictionary = {
-        hdffield + '_binary_raw': bytes_feature(np.zeros(1).tobytes())
+        hdffield + '_binary_raw': bytes_feature(np.array(binaryvalues).tobytes()) # bytes_feature(np.zeros(1).tobytes()) -- test without data dump
     }
 
     return dictionary
