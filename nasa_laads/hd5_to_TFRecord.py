@@ -11,11 +11,58 @@ from mpi4py import MPI
 from os import path
 from argparse import ArgumentParser
 import os
+from IPython import embed # DEBUG
+
+def hdf2tfr(hdf_file):
+    print(hdf_file)
+
+    data = SD(hdf_file, SDC.READ)
+    meta = {}
+    tfr_features = {}
+
+    for field in data.datasets().keys():
+        values = data.select(field)[:] # Index to get it as np array
+        shape = values.shape
+
+        if len(shape) == 1:
+            shape = max(shape), 1, 1
+        elif len(shape) == 2:
+            shape = max(shape), min(shape), 1
+        elif len(shape) == 3:
+            shape = max(shape), median(shape), min(shape)
+        else:
+            print("Warining: Encountered rank 4 field %s" % field)
+            continue
+
+        meta[field] = shape
+        # Wow such boilerplate google... all these types and kwargs are needed?
+        tfr_features[field] = tf.train.Feature(
+            float_list=tf.train.FloatList(
+                value=values.astype(np.float32).flatten()
+            )
+        )
+    example = tf.train.Example(
+        features=tf.train.Features(
+            feature=tfr_features
+        )
+    )
+
+    base, _ = path.splitext(hdf_file)
+    json_file = base + ".json"
+    tfr_file = base + ".tfrecord"
+
+    with open(json_file, "w") as f:
+        json.dump(meta, f)
+
+    with tf.python_io.TFRecordWriter(tfr_file) as f:
+        f.write(example.SerializeToString())
+
+    print("Recorded %s" % base)
+
 
 
 def HDFtoTFRecord(url_folder, file_name, file_extension):
-    fileURL = path.join(url_folder, file_name) # + file_extension
-    #print(fileURL)
+    fileURL = path.join(url_folder, file_name)
 
     # Get file and create pyHDF object
     HDFobj = SD(fileURL, SDC.READ)
@@ -116,20 +163,16 @@ p = ArgumentParser()
 p.add_argument("--hdf_dir", required=True)
 
 FLAGS = p.parse_args()
-
+FLAGS.hdf_dir = path.abspath(FLAGS.hdf_dir)
 
 comm = MPI.COMM_WORLD
 size = comm.Get_size()
 rank = comm.Get_rank()
 
 targets = os.listdir(FLAGS.hdf_dir)
-targets = [t for t in targets if t[-4:] == ".hdf"]
+targets = [path.join(FLAGS.hdf_dir, t) for t in targets if t[-4:] == ".hdf"]
 targets.sort()
 targets = [t for i,t in enumerate(targets) if i % size == rank]
 for t in targets:
-    HDFtoTFRecord(FLAGS.hdf_dir, t, '.hdf')
-
-
-
-
-
+    # HDFtoTFRecord(FLAGS.out_dir, t, '.hdf')
+    hdf2tfr(path.join(FLAGS.hdf_dir, t))
