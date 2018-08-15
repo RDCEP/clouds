@@ -41,7 +41,7 @@ def discriminator(shape, n_layers=3):
         x = Conv2D(depth, 3, activation="relu", padding="same")(x)
         x = Conv2D(depth, 3, 2, activation="relu", padding="same")(x)
 
-    x = Conv2D(1, 3)(x)
+    x = Conv2D(1, 1)(x)
     x = GlobalAveragePooling2D()(x)
 
     return Model(inp, x)

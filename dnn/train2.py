@@ -166,6 +166,8 @@ class ColorMap:
         """Converts the input tensor channels to RGB channels
         [batch, height, width, bands] -> [batch, height, width, rgb]
         """
+        # TODO Consider adding batchnorm here to whiten output bands, because
+        # reflectances are in [-100, 16000] while tf rgb is probably [0, 1]
         r = tf.reduce_mean(select_channels(t, self.reds), axis=3)
         g = tf.reduce_mean(select_channels(t, self.greens), axis=3)
         b = tf.reduce_mean(select_channels(t, self.blues), axis=3)
@@ -277,13 +279,10 @@ if __name__ == "__main__":
         # There is a minimum shape thats 139 or so but we only need early layers
         inp_shape = None, None, 3
         per = our_models.classifier(inp_shape)
-        rgb_img = cmap(img)
-        rgb_ae_img = cmap(ae_img)
-        pi = per(rgb_img)
-        pa = per(rgb_ae_img)
+        pi = per(cmap(img))
+        pa = per(cmap(ae_img))
         loss_per = tf.reduce_mean(tf.square(pi - pa))
         loss_ae += loss_per * FLAGS.lambda_per
-
         tf.summary.scalar("loss_per", loss_per)
 
     tf.summary.scalar("loss_ae", loss_ae)
@@ -301,7 +300,7 @@ if __name__ == "__main__":
 
         log_dir = path.join(FLAGS.model_dir, "summary")
         summary_writer = tf.summary.FileWriter(
-            log_dir, graph=sess.graph if path.exists(log_dir) else None
+            log_dir, graph=sess.graph if not path.exists(log_dir) else None
         )
 
         for e in range(FLAGS.epochs):
