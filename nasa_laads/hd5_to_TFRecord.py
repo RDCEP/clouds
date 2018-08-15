@@ -14,7 +14,9 @@ import os
 
 
 def HDFtoTFRecord(url_folder, file_name, file_extension):
-    fileURL = url_folder + file_name + file_extension
+    fileURL = path.join(url_folder, file_name) # + file_extension
+    #print(fileURL)
+
     # Get file and create pyHDF object
     HDFobj = SD(fileURL, SDC.READ)
 
@@ -108,15 +110,10 @@ def int64_feature(value):
 
 ##################
 
-# # Testing routine
-# url_folder = '/home/rlourenco/'
-# file_name = 'MOD06_L2.A2017001.0115.061.2017312163804'
-# file_extension = '.hdf5'
-# HDFtoTFRecord(url_folder, file_name, file_extension)
+
 
 p = ArgumentParser()
 p.add_argument("--hdf_dir", required=True)
-# p.add_argument("--out_dir", required=True)
 
 FLAGS = p.parse_args()
 
@@ -126,11 +123,12 @@ size = comm.Get_size()
 rank = comm.Get_rank()
 
 targets = os.listdir(FLAGS.hdf_dir)
-# targets = [path.join(FLAGS.hdf_dir, t) for t in targets if t[-4:] == ".hdf"]
+targets = [t for t in targets if t[-4:] == ".hdf"]
 targets.sort()
 targets = [t for i,t in enumerate(targets) if i % size == rank]
 for t in targets:
-    HDFtoTFRecord(FLAGS.out_dir, t, '.hdf')
+    HDFtoTFRecord(FLAGS.hdf_dir, t, '.hdf')
+
 
 
 
