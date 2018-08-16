@@ -49,7 +49,6 @@ def hdf2tfr(hdf_file, target_fields, as_bytes):
                 float_list=tf.train.FloatList(value=values.astype(np.float32).ravel())
             )
 
-
     example = tf.train.Example(features=tf.train.Features(feature=tfr_features))
 
     base, _ = path.splitext(hdf_file)

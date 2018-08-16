@@ -23,6 +23,20 @@ def get_flags():
     p.add_argument(
         "--data", help="pattern to pick up tf records files", required=True, nargs="+"
     )
+    p.add_argument(
+        "--hdf_fields",
+        nargs="+",
+        help=(
+            "fields to select from hdf tf record. If no fields are provided "
+            "then tf records are parsed with field names b0...bK where K is the"
+            "number of dimensions indicated by `shape` I.e. tiff data. For hdf "
+            "data, the number of channels will be determined consulting meta_json"
+        ),
+    )
+    p.add_argument(
+        "--meta_json",
+        help="json file giving hdf meta-data describing dimensionality of hdf data.",
+    )
     p.add_argument("--batch_size", type=int, help=" ", default=32)
     p.add_argument(
         "model_dir",
@@ -142,6 +156,9 @@ def get_flags():
     if FLAGS.model_dir[-1] != "/":
         FLAGS.model_dir += "/"
 
+    if bool(FLAGS.hdf_fields) != bool(FLAGS.meta_json):
+        raise ValueError("`--meta_json` must be used with `--hdf_fields`")
+
     commit = subprocess.check_output(["git", "describe", "--always"]).strip()
     print(f"Tensorflow version: {tf.__version__}")
     print(f"Current Git Commit: {commit}")
@@ -184,12 +201,25 @@ def select_channels(t, chans):
     return t
 
 
-def load_data(data_files, shape, batch_size):
-    img_width, img_height, n_bands = shape
+def load_tif_data(data_files, shape, batch_size):
     return (
         tf.data.TFRecordDataset(data_files)
         .apply(shuffle_and_repeat(500))
         .map(pipeline.parse_tfr_fn(shape))
+        .apply(batch_and_drop_remainder(batch_size))
+    )
+
+
+def load_hdf_data(data_files, shape, batch_size, hdf_fields, meta_json):
+
+    chans, parser = pipeline.hdf_tfr_fn(hdf_fields, meta_json)
+
+    return chans, (
+        tf.data.TFRecordDataset(data_files)
+        .apply(shuffle_and_repeat(500))
+        .map(parser)
+        .interleave(pipeline.patchify_fn(shape[0], shape[1], chans), cycle_length=4)
+        .shuffle(10000)
         .apply(batch_and_drop_remainder(batch_size))
     )
 
@@ -215,15 +245,33 @@ def define_model(new_model, default, shape, n_layers):
 
 if __name__ == "__main__":
     FLAGS = get_flags()
-    img = (
-        load_data(FLAGS.data, FLAGS.shape, FLAGS.batch_size)
-        .make_one_shot_iterator()
-        .get_next()
-    )
 
-    dataset = load_data(FLAGS.data, FLAGS.shape, FLAGS.batch_size)
+    if FLAGS.hdf_fields:
+        chans, dataset = load_hdf_data(
+            FLAGS.data, FLAGS.shape, FLAGS.batch_size, FLAGS.hdf_fields, FLAGS.meta_json
+        )
+        if FLAGS.shape[-1] != chans:
+            print(
+                "WARNING: provided channels do not match hdf choices. "
+                "Correcting to %d channels..." % chans
+            )
+        FLAGS.shape = (*FLAGS.shape[:2], chans)
 
+    else:
+        dataset = load_tif_data(FLAGS.data, FLAGS.shape, FLAGS.batch_size)
+
+    img = dataset.make_one_shot_iterator().get_next()
+
+    # Colormap object maps our channels to normal rgb channels
     cmap = ColorMap(FLAGS.red_bands, FLAGS.green_bands, FLAGS.blue_bands)
+
+    ### For each submodel (AE, Disc, Perceptual)
+    # - Load or define it
+    # - Define its losses and maybe add it to loss_ae
+    # - Add the loss to tf summary
+    # - Optimize it and add that to `train_ops`
+    # - Add model to `save_models` so it will end up being saved.
+    # Except for pretained models which do not need to be trained or saved
 
     with tf.name_scope("autoencoder"):
         ae = load_model(FLAGS.model_dir, "ae")
@@ -234,24 +282,17 @@ if __name__ == "__main__":
 
     _, ae_img = ae(img)
 
+    loss_ae = mse = tf.reduce_mean(tf.square(img - ae_img))
+
     tf.summary.image("original", cmap(img), FLAGS.display_imgs)
     tf.summary.image("autoencoded", cmap(ae_img), FLAGS.display_imgs)
     tf.summary.image("difference", cmap(img) - cmap(ae_img), FLAGS.display_imgs)
-
-    loss_ae = mse = tf.reduce_mean(tf.square(img - ae_img))
-
-    ### For each submodel
-    # 1. Load or define it
-    # 2. Define its losses and either add it to loss_ae or make its own train_op
-    # 3. Add the loss to tf summary
-    # 4. Add model to `save_models` so it will end up being saved.
-    # Except for pretained models which do not need to be trained or saved
-
     save_models = {"ae": ae}
-    # summary_imgs = {"img": tf.Variable(img), "ae_img": tf.Variable(ae_img)}
     tf.summary.scalar("mse", mse)
+
     optimizer = tf.train.AdamOptimizer()  # TODO flag
     train_ops = []
+
 
     if FLAGS.discriminator:
         with tf.name_scope("discriminator"):
@@ -269,7 +310,9 @@ if __name__ == "__main__":
 
         save_models["disc"] = disc
         tf.summary.scalar("loss_disc", loss_disc)
-        # Enforce Lipschitz discriminator scores between natural and autoencoded manifolds
+        # Enforce Lipschitz discriminator scores between natural and autoencoded
+        # manifolds by penalizing magnitude of gradient in this zone.
+        # arxiv.org/pdf/1704.00028.pdf
         i = tf.random_uniform([1])
         between = img * i - ae_img * (1 - i)
         grad = tf.gradients(disc(between), between)[0]
@@ -282,8 +325,10 @@ if __name__ == "__main__":
         train_disc = optimizer.minimize(loss_disc, var_list=disc.trainable_weights)
         train_ops += [train_disc] * FLAGS.n_critic
 
+
     if FLAGS.perceptual:
         # There is a minimum shape thats 139 or so but we only need early layers
+        # Set input height / width to None so Keras doesn't complain
         inp_shape = None, None, 3
         per = our_models.classifier(inp_shape)
         pi = per(cmap(img))
@@ -291,6 +336,7 @@ if __name__ == "__main__":
         loss_per = tf.reduce_mean(tf.square(pi - pa))
         loss_ae += loss_per * FLAGS.lambda_per
         tf.summary.scalar("loss_per", loss_per)
+
 
     tf.summary.scalar("loss_ae", loss_ae)
     train_ops.append(optimizer.minimize(loss_ae, var_list=ae.trainable_weights))
@@ -302,6 +348,7 @@ if __name__ == "__main__":
 
     summary_op = tf.summary.merge_all()
 
+    # Begin training
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
 
