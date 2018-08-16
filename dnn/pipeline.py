@@ -1,6 +1,7 @@
 import tensorflow as tf
 from osgeo import gdal
 import numpy as np
+import json
 
 
 def load_dataset(file_names, side, n_bands):
@@ -163,3 +164,43 @@ def parse_tfr_fn(img_shape):
         return x["vals"]
 
     return parser
+
+
+def hdf_tfr_fn(hdf_fields, meta_json):
+    """Parses tfrecord example with chosen fields.
+    """
+    hdf_fields.sort()
+    with open(meta_json, "r") as f:
+        meta = json.load(f)
+
+    features = {}
+    chans = 0
+    for field in hdf_fields:
+        h, w, c, _ = meta[field]
+        features[field] = tf.FixedLenFeature((h, w, c), tf.float32)
+        chans += c
+
+    def parser(ser):
+        x = tf.parse_single_example(ser, features)
+        return tf.concat([x[f] for f in hdf_fields], axis=2)
+    print("CHANS", chans)
+
+    return chans, parser
+
+
+def patchify_fn(height, width, chans):
+    """Breaks up a big image into many half overlaping images.
+    """
+    def fn(img):
+        print(img)
+        imgs = tf.extract_image_patches(
+            images=tf.expand_dims(img, 0),
+            ksizes=[1, height, width, 1],
+            strides=[1, height // 2, width // 2, 1],
+            rates=[1, 1, 1, 1],
+            padding="VALID",
+        )
+        imgs = tf.reshape(imgs, [-1, height, width, chans])
+        return tf.data.Dataset.from_tensor_slices(imgs)
+
+    return fn
