@@ -240,6 +240,13 @@ if __name__ == "__main__":
 
     loss_ae = mse = tf.reduce_mean(tf.square(img - ae_img))
 
+    ### For each submodel
+    # 1. Load or define it
+    # 2. Define its losses and either add it to loss_ae or make its own train_op
+    # 3. Add the loss to tf summary
+    # 4. Add model to `save_models` so it will end up being saved.
+    # Except for pretained models which do not need to be trained or saved
+
     save_models = {"ae": ae}
     # summary_imgs = {"img": tf.Variable(img), "ae_img": tf.Variable(ae_img)}
     tf.summary.scalar("mse", mse)
