@@ -14,12 +14,16 @@ import os
 from IPython import embed  # DEBUG
 
 
-def hdf2tfr(hdf_file):
+def hdf2tfr(hdf_file, target_fields, as_bytes):
     data = SD(hdf_file, SDC.READ)
     meta = {}
     tfr_features = {}
 
     for field in data.datasets().keys():
+
+        if target_fields and field not in target_fields:
+            continue
+
         values = data.select(field)[:]  # Index to get it as np array
 
         # Make sure every field is of rank 4
@@ -36,9 +40,16 @@ def hdf2tfr(hdf_file):
         meta[field] = [*values.shape, str(values.dtype)]
 
         # Wow such boilerplate google... all these types and kwargs are needed?
-        tfr_features[field] = tf.train.Feature(
-            bytes_list=tf.train.BytesList(value=[values.ravel().tobytes()])
-        )
+        if as_bytes:
+            tfr_features[field] = tf.train.Feature(
+                bytes_list=tf.train.BytesList(value=[values.ravel().tobytes()])
+            )
+        else:
+            tfr_features[field] = tf.train.Feature(
+                float_list=tf.train.FloatList(value=values.astype(np.float32).ravel())
+            )
+
+
     example = tf.train.Example(features=tf.train.Features(feature=tfr_features))
 
     base, _ = path.splitext(hdf_file)
@@ -55,9 +66,23 @@ def hdf2tfr(hdf_file):
 if __name__ == "__main__":
     p = ArgumentParser()
     p.add_argument("--hdf_dir", required=True)
+    p.add_argument(
+        "--fields",
+        nargs="+",
+        help="Specific fields to record. If none are provided then all fields are recorded.",
+    )
+    p.add_argument(
+        "--bytes",
+        action="store_true",
+        help="each field is stored as bytes as opposed to cast to float32",
+    )
 
     FLAGS = p.parse_args()
     FLAGS.hdf_dir = path.abspath(FLAGS.hdf_dir)
+
+    for f in FLAGS.__dict__:
+        print(f"\t{f}:{(25-len(f)) * ' '} {FLAGS.__dict__[f]}")
+    print("\n")
 
     comm = MPI.COMM_WORLD
     size = comm.Get_size()
@@ -69,4 +94,4 @@ if __name__ == "__main__":
     targets = [t for i, t in enumerate(targets) if i % size == rank]
     for t in targets:
         # HDFtoTFRecord(FLAGS.out_dir, t, '.hdf')
-        hdf2tfr(path.join(FLAGS.hdf_dir, t))
+        hdf2tfr(path.join(FLAGS.hdf_dir, t), FLAGS.fields, FLAGS.bytes)
