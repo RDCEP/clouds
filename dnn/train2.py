@@ -203,8 +203,11 @@ def select_channels(t, chans):
 
 def load_tif_data(data_files, shape, batch_size):
     return (
-        tf.data.TFRecordDataset(data_files)
-        .apply(shuffle_and_repeat(500))
+        tf.data.Dataset.from_tensor_slices(data_files)
+        .apply(shuffle_and_repeat(100))
+        .flat_map(tf.data.TFRecordDataset)
+        # tf.data.TFRecordDataset(data_files)
+        # .apply(shuffle_and_repeat(500))
         .map(pipeline.parse_tfr_fn(shape))
         .apply(batch_and_drop_remainder(batch_size))
     )
@@ -214,13 +217,19 @@ def load_hdf_data(data_files, shape, batch_size, hdf_fields, meta_json):
 
     chans, parser = pipeline.hdf_tfr_fn(hdf_fields, meta_json)
 
-    return chans, (
-        tf.data.TFRecordDataset(data_files)
-        .apply(shuffle_and_repeat(500))
-        .map(parser)
-        .interleave(pipeline.patchify_fn(shape[0], shape[1], chans), cycle_length=4)
-        .shuffle(10000)
-        .apply(batch_and_drop_remainder(batch_size))
+    return (
+        chans,
+        (
+            tf.data.Dataset.from_tensor_slices(data_files)
+            .apply(shuffle_and_repeat(100))
+            .flat_map(tf.data.TFRecordDataset)
+            # tf.data.TFRecordDataset(data_files)
+            # .apply(shuffle_and_repeat(500))
+            .map(parser)
+            .interleave(pipeline.patchify_fn(shape[0], shape[1], chans), cycle_length=4)
+            .shuffle(10000)
+            .apply(batch_and_drop_remainder(batch_size))
+        ),
     )
 
 
@@ -293,7 +302,6 @@ if __name__ == "__main__":
     optimizer = tf.train.AdamOptimizer()  # TODO flag
     train_ops = []
 
-
     if FLAGS.discriminator:
         with tf.name_scope("discriminator"):
             disc = load_model(FLAGS.model_dir, "disc")
@@ -325,7 +333,6 @@ if __name__ == "__main__":
         train_disc = optimizer.minimize(loss_disc, var_list=disc.trainable_weights)
         train_ops += [train_disc] * FLAGS.n_critic
 
-
     if FLAGS.perceptual:
         # There is a minimum shape thats 139 or so but we only need early layers
         # Set input height / width to None so Keras doesn't complain
@@ -336,7 +343,6 @@ if __name__ == "__main__":
         loss_per = tf.reduce_mean(tf.square(pi - pa))
         loss_ae += loss_per * FLAGS.lambda_per
         tf.summary.scalar("loss_per", loss_per)
-
 
     tf.summary.scalar("loss_ae", loss_ae)
     train_ops.append(optimizer.minimize(loss_ae, var_list=ae.trainable_weights))
