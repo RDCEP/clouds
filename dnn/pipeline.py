@@ -183,7 +183,6 @@ def hdf_tfr_fn(hdf_fields, meta_json):
     def parser(ser):
         x = tf.parse_single_example(ser, features)
         return tf.concat([x[f] for f in hdf_fields], axis=2)
-    print("CHANS", chans)
 
     return chans, parser
 
@@ -192,7 +191,6 @@ def patchify_fn(height, width, chans):
     """Breaks up a big image into many half overlaping images.
     """
     def fn(img):
-        print(img)
         imgs = tf.extract_image_patches(
             images=tf.expand_dims(img, 0),
             ksizes=[1, height, width, 1],
