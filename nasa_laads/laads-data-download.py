@@ -94,9 +94,7 @@ def geturl(url, token=None, out=None):
 ################################################################################
 
 
-DESC = (
-    "This script will recursively download all files if they don't exist from a LAADS URL and stores them to the specified path"
-)
+DESC = "This script will recursively download all files if they don't exist from a LAADS URL and stores them to the specified path"
 
 
 def sync(src, dest, tok):
