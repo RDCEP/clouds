@@ -190,6 +190,7 @@ def hdf_tfr_fn(hdf_fields, meta_json):
 def patchify_fn(height, width, chans):
     """Breaks up a big image into many half overlaping images.
     """
+
     def fn(img):
         imgs = tf.extract_image_patches(
             images=tf.expand_dims(img, 0),
