@@ -18,8 +18,6 @@ module load cuda/9.0
 
 source activate clouds
 
-TIF_DATA=/project/foster/clouds/geotiff
-TFR_DATA=/project/foster/clouds/geotfr
 SIDE_LEN=64
 NPROCS=8
 DATA=/project/foster/clouds/nasa_laads/mod06_l2/order501256920
