@@ -11,7 +11,7 @@ from mpi4py import MPI
 from os import path
 from argparse import ArgumentParser
 import os
-from IPython import embed  # DEBUG
+#from IPython import embed  # DEBUG
 
 
 def hdf2tfr(hdf_file, target_fields, as_bytes):
