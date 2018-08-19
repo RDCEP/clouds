@@ -1,7 +1,10 @@
 #!/bin/sh
 #SBATCH --nodes=1
 #SBATCH --ntasks=8
+#SBATCH --mem-per-cpu=8000
 #SBATCH --partition=gpu2
+#SBATCH --account=pi-foster
+###SBATCH --time=06:00:00
 
 export KERAS_BACKEND=tensorflow
 
