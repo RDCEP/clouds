@@ -11,7 +11,8 @@ from mpi4py import MPI
 from os import path
 from argparse import ArgumentParser
 import os
-from IPython import embed  # DEBUG
+
+# from IPython import embed  # DEBUG
 
 
 def _int64_feature(value):
@@ -66,7 +67,7 @@ def hdf2tfr(hdf_file, target_fields, as_bytes, with_meta):
             height, width, channels, = values.shape
             tfr_features[field + "/shape"] = _int64_feature(values.shape)
             # FIXME field unused if not `as_bytes` since type is cast to float
-            ty = str(values.dtype).encode('utf_8')
+            ty = str(values.dtype).encode("utf_8")
             tfr_features[field + "/type"] = _bytes_feature(ty)
 
         if as_bytes:
