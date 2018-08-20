@@ -14,7 +14,27 @@ import os
 from IPython import embed  # DEBUG
 
 
-def hdf2tfr(hdf_file, target_fields, as_bytes):
+def _int64_feature(value):
+    return tf.train.Feature(int64_list=tf.train.Int64List(value=value))
+
+
+def _bytes_feature(value):
+    return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
+
+
+def _float_feature(value):
+    return tf.train.Feature(float_list=tf.train.FloatList(value=value))
+
+
+def hdf2tfr(hdf_file, target_fields, as_bytes, with_meta):
+    """Converts HDF file into a tf record by serializing all fields and
+    names to a record. Also outputs a json file holding the meta data.
+    Arguments:
+        hdf_file: File to convert into a tf record
+        target_fields: List of specified fields to convert
+        as_bytes: Write data as bytes (as opposed to converting everything to floats)
+        with_meta: Keep shape and type information in tfrecord too
+    """
     data = SD(hdf_file, SDC.READ)
     meta = {}
     tfr_features = {}
@@ -29,8 +49,11 @@ def hdf2tfr(hdf_file, target_fields, as_bytes):
         # Make sure every field is of rank 4
         while len(values.shape) < 3:
             values = np.expand_dims(values, -1)
-        if len(values.shape) == 4:
-            print("Warning, encountered rank 4 field %s" % field)
+        if len(values.shape) > 3:
+            print(
+                "Warning, encountered high rank field %s with shape%s"
+                % (field, values.shape)
+            )
             continue
 
         # Reorder dimensions such that it is longest dimension first
@@ -39,15 +62,19 @@ def hdf2tfr(hdf_file, target_fields, as_bytes):
         values = values.transpose(rank_order)
         meta[field] = [*values.shape, str(values.dtype)]
 
-        # Wow such boilerplate google... all these types and kwargs are needed?
+        if with_meta:
+            height, width, channels, = values.shape
+            tfr_features[field + "/shape"] = _int64_feature(values.shape)
+            # FIXME field unused if not `as_bytes` since type is cast to float
+            ty = str(values.dtype).encode('utf_8')
+            tfr_features[field + "/type"] = _bytes_feature(ty)
+
         if as_bytes:
-            tfr_features[field] = tf.train.Feature(
-                bytes_list=tf.train.BytesList(value=[values.ravel().tobytes()])
-            )
+            x = values.ravel().tobytes()
+            tfr_features[field] = _bytes_feature(x)
         else:
-            tfr_features[field] = tf.train.Feature(
-                float_list=tf.train.FloatList(value=values.astype(np.float32).ravel())
-            )
+            x = values.astype(np.float32).ravel()
+            tfr_features[field] = _float_feature(x)
 
     example = tf.train.Example(features=tf.train.Features(feature=tfr_features))
 
@@ -55,8 +82,9 @@ def hdf2tfr(hdf_file, target_fields, as_bytes):
     json_file = base + ".json"
     tfr_file = base + ".tfrecord"
 
-    with open(json_file, "w") as f:
-        json.dump(meta, f)
+    if not with_meta:
+        with open(json_file, "w") as f:
+            json.dump(meta, f)
 
     with tf.python_io.TFRecordWriter(tfr_file) as f:
         f.write(example.SerializeToString())
@@ -74,6 +102,11 @@ if __name__ == "__main__":
         "--bytes",
         action="store_true",
         help="each field is stored as bytes as opposed to cast to float32",
+    )
+    p.add_argument(
+        "--with_meta",
+        action="store_true",
+        help="Store field metadata inside of tfrecord",
     )
 
     FLAGS = p.parse_args()
@@ -93,4 +126,4 @@ if __name__ == "__main__":
     targets = [t for i, t in enumerate(targets) if i % size == rank]
     for t in targets:
         # HDFtoTFRecord(FLAGS.out_dir, t, '.hdf')
-        hdf2tfr(path.join(FLAGS.hdf_dir, t), FLAGS.fields, FLAGS.bytes)
+        hdf2tfr(path.join(FLAGS.hdf_dir, t), FLAGS.fields, FLAGS.bytes, FLAGS.with_meta)
