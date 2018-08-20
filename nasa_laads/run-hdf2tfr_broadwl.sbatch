@@ -29,4 +29,4 @@ SIDE_LEN=64
 NPROCS=8
 DATA=/project/foster/clouds/nasa_laads/mod06_l2/2017_01_01
 
-mpiexec -n $NPROCS python3 hd5_to_TFRecord.py --hdf_dir $DATA
+mpiexec -n $NPROCS python3 hd5_to_TFRecord.py --with_meta --bytes --hdf_dir $DATA
