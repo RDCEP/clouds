@@ -221,10 +221,8 @@ def load_hdf_data(data_files, shape, batch_size, hdf_fields, meta_json):
         chans,
         (
             tf.data.Dataset.from_tensor_slices(data_files)
-            .apply(shuffle_and_repeat(100))
+            .apply(shuffle_and_repeat(1000))
             .flat_map(tf.data.TFRecordDataset)
-            # tf.data.TFRecordDataset(data_files)
-            # .apply(shuffle_and_repeat(500))
             .map(parser)
             .interleave(pipeline.patchify_fn(shape[0], shape[1], chans), cycle_length=4)
             .shuffle(10000)

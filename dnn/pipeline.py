@@ -166,23 +166,61 @@ def parse_tfr_fn(img_shape):
     return parser
 
 
-def hdf_tfr_fn(hdf_fields, meta_json):
+def hdf_tfr_fn(hdf_fields, meta_json, saved_as_bytes=True):
     """Parses tfrecord example with chosen fields.
+    Note that the shape is not consistent between fields or even between records
+    as such you should use the meta_json associated with the particular record
+    or pass a record that has been saved with the meta data and as bytes. This
+    will fail if `hdf_fields` are not the same shape as they cannot be
+    concatenated (FIXME with up/down sampling to align shapes?).
+
+    Arguments:
+        hdf_fields: Fields to select from record
+        meta_json: path to json meta datafile mapping fields to shape and type
+        saved_as_bytes: boolean that indicates the tf record contains shape info
+            and is saved as bytes
+    Returns:
+        chans: The number of channels of the output image, the sum of channels
+            in selected fields.
+        parser:  Returns a 3d tensor from a serialized tf-record.
     """
     hdf_fields.sort()
     with open(meta_json, "r") as f:
         meta = json.load(f)
 
+    type_map = {
+        "float32": tf.float32,
+        "float64": tf.float64,
+        "int8": tf.int8,
+        "int16": tf.int16,
+    }
+
     features = {}
     chans = 0
     for field in hdf_fields:
-        h, w, c, _ = meta[field]
-        features[field] = tf.FixedLenFeature((h, w, c), tf.float32)
+        h, w, c, ty = meta[field]
+        if saved_as_bytes:
+            features[field] = tf.FixedLenFeature([], tf.string)
+            features[field + "/shape"] = tf.FixedLenFeature([3], tf.int64)
+        else:
+            features[field] = tf.FixedLenFeature((h, w, c), tf.float32)
         chans += c
 
-    def parser(ser):
-        x = tf.parse_single_example(ser, features)
-        return tf.concat([x[f] for f in hdf_fields], axis=2)
+    if saved_as_bytes:
+        def parser(ser):
+            record = tf.parse_single_example(ser, features)
+            res = []
+            for f in hdf_fields:
+                sh = record[f + "/shape"]
+                ty = type_map[meta[f][-1]]
+                decoded = tf.decode_raw(record[f], ty)
+                res.append(tf.reshape(decoded, sh))
+            return tf.cast(tf.concat(res, axis=2), tf.float32)
+
+    else:
+        def parser(ser):
+            x = tf.parse_single_example(ser, features)
+            return tf.concat([x[f] for f in hdf_fields], axis=2)
 
     return chans, parser
 
