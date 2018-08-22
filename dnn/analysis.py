@@ -3,11 +3,9 @@ import matplotlib.pyplot as plt
 import scipy as sp
 from scipy.cluster.vq import kmeans
 import tensorflow as tf
-import pipeline
-
 import matplotlib
 
-matplotlib.use("agg")  # This avoids RuntimeError Invalid DISPLAY variable
+# matplotlib.use("agg")  # This avoids RuntimeError Invalid DISPLAY variable
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
@@ -61,10 +59,10 @@ class PCA:
         return centered.dot(self.evecs[-dim:].transpose())
 
 
-def img_scatter(points, images, zoom=0.5):
+def img_scatter(points, images, zoom=0.5, figsize=(20, 20)):
     """Scatter plot where points are overlaid with images
     """
-    fig, ax = plt.subplots(figsize=(20, 20))
+    fig, ax = plt.subplots(figsize=figsize)
 
     for ((x, y), img) in zip(points, images):
         im = OffsetImage(img, zoom=zoom, cmap="copper")
@@ -101,6 +99,7 @@ def plot_kmeans_and_image_scatter(original, encoded, K=3):
 
 if __name__ == "__main__":
     import argparse
+    import pipeline
 
     # TODO Dont repeat common loading stuff in this section and in train.py
     p = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
