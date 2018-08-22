@@ -1,5 +1,5 @@
 import tensorflow as tf
-from osgeo import gdal
+from osgeo import gdal, ogr
 import numpy as np
 import json
 
@@ -134,6 +134,47 @@ def read_tiff_gen(tiff_files, side):
                         yield img.astype(np.float32)
 
     return gen
+
+def read_tiff_gen_withloc(tiff_files, side):
+    """Returns an initializable generator that reads (side, side, bands) squares
+    in the tiff files. Same version as above, with geolocation of the patches
+    """
+
+    def gen():
+        for f in tiff_files:
+            data = gdal.Open(f)
+            rows = data.RasterXSize
+            cols = data.RasterYSize
+
+            rows -= rows % side
+            cols -= cols % side
+
+            for xoff in range(0, rows, side):
+                for yoff in range(0, cols, side):
+                    bands = []
+                    centroids = []
+                    for b in range(data.RasterCount):
+                        band = data.GetRasterBand(b + 1).ReadAsArray(
+                            xoff=xoff, yoff=yoff, win_xsize=side, win_ysize=side
+                        )
+                        #TODO: Implement the centroid extraction. Option would be combining with OGR.
+                        #TODO: Option two get using rasterio...
+                        #centroids.append(data.Centroid())
+
+                        bands.append(band)
+
+                    assert all(band is not None for band in bands), "index err"
+
+                    img = np.stack(bands, axis=-1)
+                    if (img != 0).any():
+                        yield img.astype(np.float32)
+
+                    # Get coordinates of patch centroid
+
+                    print(centroids)
+
+    return gen
+
 
 
 def parse_tiff_fn(img_shape):
