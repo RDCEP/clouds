@@ -233,6 +233,20 @@ def load_tif_data(data_files, shape, batch_size):
     )
 
 
+def heterogenous_bands(threshold):
+    """Returns True if a band in the image does not have 1 value in `threshold`
+    fraction of the image. Presumably this value is a null or an invalid flag as
+    real data will be more heterogenous.
+    """
+    def fn(img):
+        has_data = []
+        for band in tf.unstack(img, axis=-1):
+            _, _, count = tf.unique_with_counts(tf.reshape(band, [-1]))
+            has_data.append(tf.reduce_max(count) / tf.size(band) < threshold)
+        return tf.reduce_any(has_data)
+    return fn
+
+
 def load_hdf_data(data_files, shape, batch_size, hdf_fields, meta_json):
 
     chans, parser = pipeline.hdf_tfr_fn(hdf_fields, meta_json)
@@ -245,6 +259,7 @@ def load_hdf_data(data_files, shape, batch_size, hdf_fields, meta_json):
             .flat_map(tf.data.TFRecordDataset)
             .map(parser)
             .interleave(pipeline.patchify_fn(shape[0], shape[1], chans), cycle_length=4)
+            .filter(heterogenous_bands(0.5)) # TODO flag for threshold
             .shuffle(10000)
             .apply(batch_and_drop_remainder(batch_size))
         ),
