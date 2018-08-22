@@ -25,7 +25,7 @@ def autoencoder(shape, n_layers=3, base=32, variational=False):
             + arg[0],
             name="sampling",
         )([mn, lv])
-        outputs.extend([mn, sd])
+        outputs.extend([mn, lv])
 
     # Hidden vector
     outputs.append(x)
@@ -36,7 +36,7 @@ def autoencoder(shape, n_layers=3, base=32, variational=False):
         x = Conv2D(depth, 3, activation="relu", padding="same")(x)
         x = Conv2DTranspose(depth, 3, 2, activation="relu", padding="same")(x)
 
-    x = Conv2D(shape[-1], 3, activation="relu", padding="same", name="reconstructed")(x)
+    x = Conv2D(shape[-1], 1, activation="relu", padding="same", name="reconstructed")(x)
     outputs.append(x)
 
     return Model(inp, outputs)

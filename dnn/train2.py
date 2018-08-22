@@ -203,12 +203,13 @@ class ColorMap:
         """Converts the input tensor channels to RGB channels
         [batch, height, width, bands] -> [batch, height, width, rgb]
         """
-        # TODO Consider adding batchnorm here to whiten output bands, because
-        # reflectances are in [-100, 16000] while tf rgb is probably [0, 1]
-        r = tf.reduce_mean(select_channels(t, self.reds), axis=3)
-        g = tf.reduce_mean(select_channels(t, self.greens), axis=3)
-        b = tf.reduce_mean(select_channels(t, self.blues), axis=3)
-        return tf.stack([r, g, b], axis=3)
+        with tf.variable_scope("cmap"):
+            # Whiten data with batchnorm so colors are more meaningful
+            t = tf.keras.layers.BatchNormalization()(t)
+            r = tf.reduce_mean(select_channels(t, self.reds), axis=3)
+            g = tf.reduce_mean(select_channels(t, self.greens), axis=3)
+            b = tf.reduce_mean(select_channels(t, self.blues), axis=3)
+            return tf.stack([r, g, b], axis=3)
 
 
 def select_channels(t, chans):
@@ -226,9 +227,8 @@ def load_tif_data(data_files, shape, batch_size):
         tf.data.Dataset.from_tensor_slices(data_files)
         .apply(shuffle_and_repeat(100))
         .flat_map(tf.data.TFRecordDataset)
-        # tf.data.TFRecordDataset(data_files)
-        # .apply(shuffle_and_repeat(500))
         .map(pipeline.parse_tfr_fn(shape))
+        .shuffle(10000)
         .apply(batch_and_drop_remainder(batch_size))
     )
 
@@ -309,6 +309,7 @@ if __name__ == "__main__":
                 shape=FLAGS.shape,
                 n_layers=FLAGS.n_layers,
                 variational=FLAGS.variational,
+                # TODO add base flag
             )
 
     if FLAGS.variational:
@@ -316,9 +317,7 @@ if __name__ == "__main__":
         kl_div = -0.5 * tf.reduce_sum(
             1 + latent_logvar - latent_mean ** 2 - tf.exp(latent_logvar)
         )
-
         tf.summary.scalar("kl_div", kl_div)
-
         loss_ae = mse = tf.reduce_mean(tf.square(img - ae_img))
         loss_ae += FLAGS.vae_beta * kl_div
 
@@ -326,9 +325,11 @@ if __name__ == "__main__":
         _, ae_img = ae(img)
         loss_ae = mse = tf.reduce_mean(tf.square(img - ae_img))
 
-    tf.summary.image("original", cmap(img), FLAGS.display_imgs)
-    tf.summary.image("autoencoded", cmap(ae_img), FLAGS.display_imgs)
-    tf.summary.image("difference", cmap(img) - cmap(ae_img), FLAGS.display_imgs)
+    cimg = cmap(img)
+    camg = cmap(ae_img)
+    tf.summary.image("original", cimg, FLAGS.display_imgs)
+    tf.summary.image("autoencoded", camg, FLAGS.display_imgs)
+    tf.summary.image("difference", cimg - camg, FLAGS.display_imgs)
     save_models = {"ae": ae}
     tf.summary.scalar("mse", mse)
 
