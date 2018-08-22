@@ -2,6 +2,7 @@ import argparse
 import tensorflow as tf
 import tensorflow.keras as keras
 from tensorflow.python.client import timeline
+from tensorflow.profiler import ProfileOptionBuilder, Profiler
 import pipeline
 import model as our_models
 import subprocess
@@ -65,6 +66,13 @@ def get_flags():
         "--epochs", type=int, help="Number of epochs to train for", default=10
     )
     p.add_argument(
+        "--summary_every",
+        type=int,
+        metavar="s",
+        default=250,
+        help="Number of steps per summary step",
+    )
+    p.add_argument(
         "--new_model",
         default="",
         help=(
@@ -76,13 +84,25 @@ def get_flags():
         "--shape", nargs=3, type=int, help="Shape of input image", default=(64, 64, 7)
     )
     p.add_argument(
+        "--variational",
+        default=False,
+        action="store_true",
+        help="Use a variational autoencoder.",
+    )
+    p.add_argument(
+        "--vae_beta",
+        default=1.0,
+        type=float,
+        help="Weight of KL-Divergence on VAE objective. Unused if not `variational`",
+    )
+    p.add_argument(
         "--discriminator",
-        default="",
+        default=None,
         help=(
-            "Augment autoencoder loss with the discriminator with this name"
-            "defaults to models.discriminator(...) if name is invalid. "
-            "Flag unused if continuing training in a directory with a saved "
-            "discriminator."
+            "Augment autoencoder loss with the discriminator with this name "
+            "defaults to models.discriminator if name is invalid, so you can "
+            "pass `--discriminator 1` to get the default. Flag unused if "
+            "continuing training in a directory with a saved discriminator."
         ),
     )
     p.add_argument(
@@ -245,9 +265,9 @@ def load_model(model_dir, name):
     return None
 
 
-def define_model(new_model, default, shape, n_layers):
+def define_model(new_model, default, **kwargs):
     builder = getattr(our_models, new_model, getattr(our_models, default))
-    return builder(shape, n_layers)
+    return builder(**kwargs)
 
 
 if __name__ == "__main__":
@@ -284,12 +304,27 @@ if __name__ == "__main__":
         ae = load_model(FLAGS.model_dir, "ae")
         if not ae:
             ae = define_model(
-                FLAGS.new_model, "autoencoder", FLAGS.shape, FLAGS.n_layers
+                FLAGS.new_model,
+                "autoencoder",
+                shape=FLAGS.shape,
+                n_layers=FLAGS.n_layers,
+                variational=FLAGS.variational,
             )
 
-    _, ae_img = ae(img)
+    if FLAGS.variational:
+        latent_mean, latent_logvar, _, ae_img = ae(img)
+        kl_div = -0.5 * tf.reduce_sum(
+            1 + latent_logvar - latent_mean ** 2 - tf.exp(latent_logvar)
+        )
 
-    loss_ae = mse = tf.reduce_mean(tf.square(img - ae_img))
+        tf.summary.scalar("kl_div", kl_div)
+
+        loss_ae = mse = tf.reduce_mean(tf.square(img - ae_img))
+        loss_ae += FLAGS.vae_beta * kl_div
+
+    else:
+        _, ae_img = ae(img)
+        loss_ae = mse = tf.reduce_mean(tf.square(img - ae_img))
 
     tf.summary.image("original", cmap(img), FLAGS.display_imgs)
     tf.summary.image("autoencoded", cmap(ae_img), FLAGS.display_imgs)
@@ -305,7 +340,10 @@ if __name__ == "__main__":
             disc = load_model(FLAGS.model_dir, "disc")
             if not disc:
                 disc = define_model(
-                    FLAGS.discriminator, "discriminator", FLAGS.shape, FLAGS.n_layers
+                    FLAGS.discriminator,
+                    "discriminator",
+                    shape=FLAGS.shape,
+                    n_layers=FLAGS.n_layers,
                 )
 
         di = disc(img)
@@ -354,7 +392,15 @@ if __name__ == "__main__":
 
     # Begin training
     with tf.Session() as sess:
-        sess.run(tf.global_variables_initializer())
+        options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+        run_metadata = tf.RunMetadata()
+        profiler = Profiler(sess.graph)
+
+        sess.run(
+            tf.global_variables_initializer(),
+            options=options,
+            run_metadata=run_metadata,
+        )
 
         log_dir = path.join(FLAGS.model_dir, "summary")
         summary_writer = tf.summary.FileWriter(
@@ -365,14 +411,34 @@ if __name__ == "__main__":
             print("Starting epoch %d" % e)
 
             for s in range(FLAGS.steps_per_epoch):
-                sess.run(train_ops)
+                sess.run(train_ops, options=options, run_metadata=run_metadata)
 
-                if s % 50 == 0:
-                    summary_writer.add_summary(sess.run(summary_op))
+                if s % FLAGS.summary_every == 0:
+                    total_step = e * FLAGS.steps_per_epoch + s
+                    summary_writer.add_summary(sess.run(summary_op), total_step)
+                    # summary_writer.add_run_metadata(run_metadata, "step%d" % total_step)
+                    profiler.add_step(total_step, run_metadata)
+                    opts = (
+                        ProfileOptionBuilder(ProfileOptionBuilder.time_and_memory())
+                        .with_step(total_step)
+                        .with_timeline_output(
+                            path.join(FLAGS.model_dir, "timeline.json")
+                        )
+                        .build()
+                    )
+                    profiler.profile_graph(options=opts)
 
             for m in save_models:
                 save_models[m].save_weights(path.join(FLAGS.model_dir, f"{m}.h5"))
 
-    with tf.Session() as sess:
-        sess.run(tf.global_variables_initializer())
-        print(sess.run(ae_img))
+            ALL_ADVICE = {
+                "ExpensiveOperationChecker": {},
+                "AcceleratorUtilizationChecker": {},
+                "JobChecker": {},  # Only available internally.
+                "OperationChecker": {},
+            }
+            profiler.advise(ALL_ADVICE)
+            # with open(path.join(FLAGS.model_dir, 'timeline.json'), 'w') as f:
+            #     tl = timeline.Timeline(run_metadata.step_stats)
+            #     ctf = tl.generate_chrome_trace_format()
+            #     f.write(ctf)

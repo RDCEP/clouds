@@ -14,6 +14,7 @@ python dnn/train2.py $MODEL_PATH \
     --meta_json $HDF_META \
     --epochs 1 \
     --steps_per_epoch 100 \
+    --variational \
     --summary_every 25 \
     --n_layers 2 \
     --red_bands 0 \

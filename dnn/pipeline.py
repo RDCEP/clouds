@@ -248,6 +248,7 @@ def hdf_tfr_fn(hdf_fields, meta_json, saved_as_bytes=True):
         chans += c
 
     if saved_as_bytes:
+
         def parser(ser):
             record = tf.parse_single_example(ser, features)
             res = []
@@ -259,6 +260,7 @@ def hdf_tfr_fn(hdf_fields, meta_json, saved_as_bytes=True):
             return tf.cast(tf.concat(res, axis=2), tf.float32)
 
     else:
+
         def parser(ser):
             x = tf.parse_single_example(ser, features)
             return tf.concat([x[f] for f in hdf_fields], axis=2)
