@@ -4,31 +4,42 @@ from tensorflow.python.keras.models import Model, Sequential
 import tensorflow.keras.applications as pretrained
 
 
-def autoencoder(shape, n_layers=3, base=32):
+def autoencoder(shape, n_layers=3, base=32, variational=False):
     """
     Returns an encoder model and autoencoder model
     """
     x = inp = Input(shape=shape, name="ae_input")
+    outputs = []
 
     # Encoder
     for i in range(n_layers):
         depth = base * 2 ** i
         x = Conv2D(depth, 3, activation="relu", padding="same")(x)
         x = Conv2D(depth, 3, 2, activation="relu", padding="same")(x)
-        # x = MaxPool2D(2, padding="same")(x)
 
-    encoded = x
+    if variational:
+        mn = Conv2D(depth, 1, name="latent_mean")(x)
+        lv = Conv2D(depth, 1, name="latent_log_var", kernel_initializer="zeros")(x)
+        x = Lambda(
+            lambda arg: tf.random_normal(arg[0].shape[1:]) * tf.exp(arg[1] / 2)
+            + arg[0],
+            name="sampling",
+        )([mn, lv])
+        outputs.extend([mn, sd])
+
+    # Hidden vector
+    outputs.append(x)
 
     # Decoder
     for i in range(n_layers):
         depth = base * 2 ** (n_layers - i - 1)
         x = Conv2D(depth, 3, activation="relu", padding="same")(x)
         x = Conv2DTranspose(depth, 3, 2, activation="relu", padding="same")(x)
-        # x = UpSampling2D(2)(x)
 
-    decoded = Conv2D(shape[-1], 3, activation="relu", padding="same")(x)
+    x = Conv2D(shape[-1], 3, activation="relu", padding="same", name="reconstructed")(x)
+    outputs.append(x)
 
-    return Model(inp, [encoded, decoded])
+    return Model(inp, outputs)
 
 
 def discriminator(shape, n_layers=3):
