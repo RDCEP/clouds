@@ -3,11 +3,11 @@ import matplotlib.pyplot as plt
 import scipy as sp
 from scipy.cluster.vq import kmeans
 import tensorflow as tf
-import pipeline
+from dnn import pipeline
 
 import matplotlib
 
-matplotlib.use("agg")  # This avoids RuntimeError Invalid DISPLAY variable
+#matplotlib.use("agg")  # This avoids RuntimeError Invalid DISPLAY variable
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
