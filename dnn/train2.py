@@ -189,6 +189,7 @@ def get_flags():
 
     if not path.isdir(FLAGS.model_dir):
         os.mkdir(FLAGS.model_dir)
+        os.mkdir(path.join(FLAGS.model_dir, "timelines"))
 
     return FLAGS
 
@@ -260,6 +261,7 @@ def load_hdf_data(data_files, shape, batch_size, hdf_fields, meta_json):
             .map(parser)
             .interleave(pipeline.patchify_fn(shape[0], shape[1], chans), cycle_length=4)
             .filter(heterogenous_bands(0.5)) # TODO flag for threshold
+            .map(lambda x: tf.clip_by_value(x, 0, 1e10)) # zero imputate -9999s
             .shuffle(10000)
             .apply(batch_and_drop_remainder(batch_size))
         ),
@@ -438,7 +440,7 @@ if __name__ == "__main__":
                         ProfileOptionBuilder(ProfileOptionBuilder.time_and_memory())
                         .with_step(total_step)
                         .with_timeline_output(
-                            path.join(FLAGS.model_dir, "timeline.json")
+                            path.join(FLAGS.model_dir, "timelines", "t.json")
                         )
                         .build()
                     )
