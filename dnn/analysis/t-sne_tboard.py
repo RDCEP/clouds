@@ -114,6 +114,7 @@ LOG_DIR = PATH + '/project-tensorboard/log-'+datetime.datetime.fromtimestamp(ts)
 if not os.path.exists(LOG_DIR):
     os.makedirs(LOG_DIR)
     print("Created directory: "+LOG_DIR)
+    print("Run tensorboard as: tensorboard --logdir="+LOG_DIR)
 
 ## TensorFlow Variable from data
 tf_data = tf.Variable(df_pca)
