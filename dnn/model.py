@@ -4,7 +4,7 @@ from tensorflow.python.keras.models import Model, Sequential
 import tensorflow.keras.applications as pretrained
 
 
-def autoencoder(shape, n_layers=3, base=32, variational=False):
+def autoencoder(shape, n_layers=3, base=32, variational=False, batchnorm=False):
     """
     Returns an encoder model and autoencoder model
     """
@@ -15,7 +15,11 @@ def autoencoder(shape, n_layers=3, base=32, variational=False):
     for i in range(n_layers):
         depth = base * 2 ** i
         x = Conv2D(depth, 3, activation="relu", padding="same")(x)
+        if batchnorm:
+            x = BatchNormalization()(x)
         x = Conv2D(depth, 3, 2, activation="relu", padding="same")(x)
+        if batchnorm:
+            x = BatchNormalization()(x)
 
     if variational:
         mn = Conv2D(depth, 1, name="latent_mean")(x)
@@ -34,7 +38,11 @@ def autoencoder(shape, n_layers=3, base=32, variational=False):
     for i in range(n_layers):
         depth = base * 2 ** (n_layers - i - 1)
         x = Conv2D(depth, 3, activation="relu", padding="same")(x)
+        if batchnorm:
+            x = BatchNormalization()(x)
         x = Conv2DTranspose(depth, 3, 2, activation="relu", padding="same")(x)
+        if batchnorm:
+            x = BatchNormalization()(x)
 
     x = Conv2D(shape[-1], 1, activation="relu", padding="same", name="reconstructed")(x)
     outputs.append(x)

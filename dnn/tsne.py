@@ -1,45 +1,45 @@
-# Adapted example for interactive T-SNE using TensorBoard
-#-- Import TBoard
-# import os
-# import tensorflow as tf
-from tensorflow.contrib.tensorboard.plugins import projector
-# import numpy as np
-# import pandas as pd
-# from sklearn.preprocessing import StandardScaler
-# from sklearn.decomposition import PCA
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+p = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
+p.add_argument("model_dir")
+p.add_argument("--tif_files", nargs="*", default=[])
+p.add_argument("--hdf_files", nargs="*", default=[])
+p.add_argument("--img_width", default=64)
+p.add_argument("--n_bands", default=7)
+p.add_argument("--batch_size", default=32)
+p.add_argument("--use_hdf_data", action="store_true", default=False)
+FLAGS = p.parse_args()
 
-#-- Import Clouds
-from dnn import pipeline
-from dnn.analysis import img_scatter
+import pipeline
+from analysis import img_scatter
 import os
 import tensorflow as tf
 from tensorflow.contrib.data import shuffle_and_repeat, batch_and_drop_remainder
 from matplotlib import pyplot as plt
 import numpy as np
 from sklearn.manifold import TSNE
+from tensorflow.contrib.tensorboard.plugins import projector
 
 ### Load Data
 
-# Parameter setup
-img_width = 64
-batch_size = 32
-use_hdf_data = False
 
-tiff_files = ["/Users/ricardobarroslourenco/PycharmProjects/Rdcep_clouds/data/tif/2017-01-01_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif"]
-n_bands = 7
-tif_fields = ["b%d"%(i+1) for i in range(n_bands)]
+if bool(FLAGS.tif_files) == bool(FLAGS.hdf_files):
+    print("Must provied either --tif_files or --hdf_files")
+    exit(1)
+
+tif_fields = ["b%d"%(i+1) for i in range(FLAGS.n_bands)]
 tif_dataset = (
     tf.data.Dataset.from_generator(
-        pipeline.read_tiff_gen(tiff_files, img_width), #TODO: Shift for read_tiff_gen
+        pipeline.read_tiff_gen(FLAGS.tif_files, FLAGS.img_width), #TODO: Shift for read_tiff_gen
         tf.int16,
-        (img_width, img_width, n_bands)
+        (FLAGS.img_width, FLAGS.img_width, FLAGS.n_bands)
     )
     .apply(tf.contrib.data.shuffle_and_repeat(100))
-    .apply(batch_and_drop_remainder(batch_size))
+    .apply(batch_and_drop_remainder(FLAGS.batch_size))
 )
 
-if use_hdf_data:
+if FLAGS.hdf_files:
     print("HDF not loaded...")
+    exit(1)
     # dataset = hdf_dataset
     # fields = hdf_fields
 else:
@@ -51,11 +51,10 @@ with tf.Session() as sess:
     y = sess.run(x)
 
 #-- Load DNN model
-model_dir = "/Users/ricardobarroslourenco/PycharmProjects/Rdcep_clouds/dnn/out/m9/"
 
-with open(model_dir  + "ae.json", "r") as f:
+with open(FLAGS.model_dir  + "ae.json", "r") as f:
     ae = tf.keras.models.model_from_json(f.read())
-ae.load_weights(model_dir + "ae.h5")
+ae.load_weights(FLAGS.model_dir + "ae.h5")
 print(ae.summary()) # Prints model summary
 
 #-- Use AE for prediction
@@ -67,7 +66,7 @@ n = 3200 # Number of patches retrieved
 ys = []
 encodings = []
 with tf.Session() as sess:
-    for _ in range(n // batch_size):
+    for _ in range(n // FLAGS.batch_size):
         ys.append(sess.run(x))
 ys_ = []
 for y in ys:
