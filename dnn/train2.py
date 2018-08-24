@@ -63,6 +63,16 @@ def get_flags():
         default=3,
     )
     p.add_argument(
+        "--base_dim",
+        type=int,
+        default=3,
+        help="Depth of the first convolution, each block depth doubles"
+    )
+    p.add_argument(
+        "",
+        type=int
+    )
+    p.add_argument(
         "--epochs", type=int, help="Number of epochs to train for", default=10
     )
     p.add_argument(

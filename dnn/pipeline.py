@@ -256,8 +256,10 @@ def hdf_tfr_fn(hdf_fields, meta_json, saved_as_bytes=True):
                 sh = record[f + "/shape"]
                 ty = type_map[meta[f][-1]]
                 decoded = tf.decode_raw(record[f], ty)
-                res.append(tf.reshape(decoded, sh))
-            return tf.cast(tf.concat(res, axis=2), tf.float32)
+                decoded = tf.reshape(decoded, sh)
+                decoded = tf.cast(decoded, tf.float32)
+                res.append(decoded)
+            return tf.concat(res, axis=2)
 
     else:
 
