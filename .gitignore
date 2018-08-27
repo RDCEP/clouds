@@ -108,3 +108,4 @@ dnn/debugging/*
 *.hdf
 *.tfrecord
 *.local
+timelines/*

@@ -3,7 +3,7 @@ MODEL_PATH=experimental/test/foo
 DATA_DIR=/Users/casperneo/work/cloud-research/clouds/experimental/test
 HDF_DATA=$DATA_DIR/ex.tfrecord
 HDF_META=$DATA_DIR/ex.json
-FIELDS='Cloud_Optical_Thickness Cloud_Water_Path Cirrus_Reflectance'
+FIELDS='Cloud_Optical_Thickness Cloud_Water_Path Cloud_Effective_Radius'
 
 rm -rf $MODEL_PATH
 
@@ -16,6 +16,7 @@ python reproduction/train.py $MODEL_PATH \
     --summary_every 25 \
     --n_layers 3 \
     --red_bands 0 \
-    --blue_bands 0 \
-    --green_bands 0 \
-    --variational
+    --blue_bands 1 \
+    --green_bands 2 \
+    --base_dim 8 \
+    --discriminator \

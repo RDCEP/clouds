@@ -4,7 +4,7 @@ import tensorflow.keras as keras
 from tensorflow.python.client import timeline
 from tensorflow.profiler import ProfileOptionBuilder, Profiler
 from pipeline import load as pipeline
-import models as our_models
+import models
 import subprocess
 from tensorflow.contrib.data import shuffle_and_repeat, batch_and_drop_remainder
 from os import path, mkdir
@@ -66,7 +66,7 @@ def get_flags():
     p.add_argument(
         "--base_dim",
         type=int,
-        default=3,
+        default=16,
         help="Depth of the first convolution, each block depth doubles",
     )
     p.add_argument(
@@ -104,12 +104,12 @@ def get_flags():
     )
     p.add_argument(
         "--discriminator",
-        default=None,
+        action="store_true",
+        default=False,
         help=(
-            "Augment autoencoder loss with the discriminator with this name "
-            "defaults to models.discriminator if name is invalid, so you can "
-            "pass `--discriminator 1` to get the default. Flag unused if "
-            "continuing training in a directory with a saved discriminator."
+            "Augment autoencoder loss with the discriminator. Flag unused if "
+            "continuing training in a directory with a saved discriminator as "
+            "that will be loaded."
         ),
     )
     p.add_argument(
@@ -306,13 +306,11 @@ if __name__ == "__main__":
     with tf.name_scope("autoencoder"):
         ae = load_model(FLAGS.model_dir, "ae")
         if not ae:
-            ae = define_model(
-                FLAGS.new_model,
-                "autoencoder",
+            ae = models.autoencoder(
                 shape=FLAGS.shape,
                 n_layers=FLAGS.n_layers,
                 variational=FLAGS.variational,
-                # TODO add base flag
+                base=FLAGS.base_dim
             )
 
     if FLAGS.variational:
@@ -343,9 +341,7 @@ if __name__ == "__main__":
         with tf.name_scope("discriminator"):
             disc = load_model(FLAGS.model_dir, "disc")
             if not disc:
-                disc = define_model(
-                    FLAGS.discriminator,
-                    "discriminator",
+                disc = models.discriminator(
                     shape=FLAGS.shape,
                     n_layers=FLAGS.n_layers,
                 )
