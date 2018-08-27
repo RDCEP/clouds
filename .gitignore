@@ -107,3 +107,4 @@ dnn/debugging/*
 .DS_Store
 *.hdf
 *.tfrecord
+*.local

@@ -3,8 +3,8 @@ import tensorflow as tf
 import tensorflow.keras as keras
 from tensorflow.python.client import timeline
 from tensorflow.profiler import ProfileOptionBuilder, Profiler
-import pipeline
-import model as our_models
+from pipeline import load as pipeline
+import models as our_models
 import subprocess
 from tensorflow.contrib.data import shuffle_and_repeat, batch_and_drop_remainder
 from os import path, mkdir
@@ -67,10 +67,6 @@ def get_flags():
         type=int,
         default=3,
         help="Depth of the first convolution, each block depth doubles"
-    )
-    p.add_argument(
-        "",
-        type=int
     )
     p.add_argument(
         "--epochs", type=int, help="Number of epochs to train for", default=10
