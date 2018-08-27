@@ -1,16 +1,15 @@
 
-MODEL_PATH=foo
-DATA_DIR=/Users/casperneo/work/cloud-research/clouds
+MODEL_PATH=experimental/test/foo
+DATA_DIR=/Users/casperneo/work/cloud-research/clouds/experimental/test
 HDF_DATA=$DATA_DIR/ex.tfrecord
 HDF_META=$DATA_DIR/ex.json
 FIELDS='Cloud_Optical_Thickness Cloud_Water_Path Cirrus_Reflectance'
 
-
 rm -rf $MODEL_PATH
 
-python dnn/train2.py $MODEL_PATH \
+python reproduction/train.py $MODEL_PATH \
     --data $HDF_DATA \
-    --hdf_fields $FIELDS \
+    --fields $FIELDS \
     --meta_json $HDF_META \
     --epochs 1 \
     --steps_per_epoch 100 \
@@ -19,3 +18,4 @@ python dnn/train2.py $MODEL_PATH \
     --red_bands 0 \
     --blue_bands 0 \
     --green_bands 0 \
+    --variational

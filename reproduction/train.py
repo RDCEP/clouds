@@ -25,18 +25,19 @@ def get_flags():
         "--data", help="pattern to pick up tf records files", required=True, nargs="+"
     )
     p.add_argument(
-        "--hdf_fields",
+        "--fields",
         nargs="+",
         help=(
-            "fields to select from hdf tf record. If no fields are provided "
-            "then tf records are parsed with field names b0...bK where K is the"
-            "number of dimensions indicated by `shape` I.e. tiff data. For hdf "
-            "data, the number of channels will be determined consulting meta_json"
+            "fields to select from tf record. For tif data, it should be b1..bN "
+            "where N is the number of bands. For hdf data, it should be the "
+            "names of the fields"
         ),
+        required=True,
     )
     p.add_argument(
         "--meta_json",
-        help="json file giving hdf meta-data describing dimensionality of hdf data.",
+        help="json file mapping field name to number of channels and type.",
+        required=True,
     )
     p.add_argument("--batch_size", type=int, help=" ", default=32)
     p.add_argument(
@@ -66,7 +67,7 @@ def get_flags():
         "--base_dim",
         type=int,
         default=3,
-        help="Depth of the first convolution, each block depth doubles"
+        help="Depth of the first convolution, each block depth doubles",
     )
     p.add_argument(
         "--epochs", type=int, help="Number of epochs to train for", default=10
@@ -87,7 +88,7 @@ def get_flags():
         ),
     )
     p.add_argument(
-        "--shape", nargs=3, type=int, help="Shape of input image", default=(64, 64, 7)
+        "--shape", nargs=2, type=int, help="Shape of input image", default=(64, 64)
     )
     p.add_argument(
         "--variational",
@@ -182,9 +183,6 @@ def get_flags():
     if FLAGS.model_dir[-1] != "/":
         FLAGS.model_dir += "/"
 
-    if bool(FLAGS.hdf_fields) != bool(FLAGS.meta_json):
-        raise ValueError("`--meta_json` must be used with `--hdf_fields`")
-
     commit = subprocess.check_output(["git", "describe", "--always"]).strip()
     print(f"Tensorflow version: {tf.__version__}")
     print(f"Current Git Commit: {commit}")
@@ -229,34 +227,25 @@ def select_channels(t, chans):
     return t
 
 
-def load_tif_data(data_files, shape, batch_size):
-    return (
-        tf.data.Dataset.from_tensor_slices(data_files)
-        .apply(shuffle_and_repeat(100))
-        .flat_map(tf.data.TFRecordDataset)
-        .map(pipeline.parse_tfr_fn(shape))
-        .shuffle(10000)
-        .apply(batch_and_drop_remainder(batch_size))
-    )
-
-
 def heterogenous_bands(threshold):
     """Returns True if a band in the image does not have 1 value in `threshold`
     fraction of the image. Presumably this value is a null or an invalid flag as
     real data will be more heterogenous.
     """
+
     def fn(img):
         has_data = []
         for band in tf.unstack(img, axis=-1):
             _, _, count = tf.unique_with_counts(tf.reshape(band, [-1]))
             has_data.append(tf.reduce_max(count) / tf.size(band) < threshold)
         return tf.reduce_any(has_data)
+
     return fn
 
 
-def load_hdf_data(data_files, shape, batch_size, hdf_fields, meta_json):
+def load_data(data_files, shape, batch_size, fields, meta_json):
 
-    chans, parser = pipeline.hdf_tfr_fn(hdf_fields, meta_json)
+    chans, parser = pipeline.main_parser(fields, meta_json)
 
     return (
         chans,
@@ -266,8 +255,8 @@ def load_hdf_data(data_files, shape, batch_size, hdf_fields, meta_json):
             .flat_map(tf.data.TFRecordDataset)
             .map(parser)
             .interleave(pipeline.patchify_fn(shape[0], shape[1], chans), cycle_length=4)
-            .filter(heterogenous_bands(0.5)) # TODO flag for threshold
-            .map(lambda x: tf.clip_by_value(x, 0, 1e10)) # zero imputate -9999s
+            .filter(heterogenous_bands(0.5))  # TODO flag for threshold
+            .map(lambda x: tf.clip_by_value(x, 0, 1e10))  # zero imputate -9999s
             .shuffle(10000)
             .apply(batch_and_drop_remainder(batch_size))
         ),
@@ -296,19 +285,10 @@ def define_model(new_model, default, **kwargs):
 if __name__ == "__main__":
     FLAGS = get_flags()
 
-    if FLAGS.hdf_fields:
-        chans, dataset = load_hdf_data(
-            FLAGS.data, FLAGS.shape, FLAGS.batch_size, FLAGS.hdf_fields, FLAGS.meta_json
-        )
-        if FLAGS.shape[-1] != chans:
-            print(
-                "WARNING: provided channels do not match hdf choices. "
-                "Correcting to %d channels..." % chans
-            )
-        FLAGS.shape = (*FLAGS.shape[:2], chans)
-
-    else:
-        dataset = load_tif_data(FLAGS.data, FLAGS.shape, FLAGS.batch_size)
+    chans, dataset = load_data(
+        FLAGS.data, FLAGS.shape, FLAGS.batch_size, FLAGS.fields, FLAGS.meta_json
+    )
+    FLAGS.shape = (*FLAGS.shape[:2], chans)
 
     img = dataset.make_one_shot_iterator().get_next()
 

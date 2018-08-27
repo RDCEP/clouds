@@ -11,6 +11,7 @@ from mpi4py import MPI
 from os import path
 from argparse import ArgumentParser
 import os
+from osgeo import gdal
 
 # from IPython import embed  # DEBUG
 
@@ -27,104 +28,145 @@ def _float_feature(value):
     return tf.train.Feature(float_list=tf.train.FloatList(value=value))
 
 
-def hdf2tfr(hdf_file, target_fields, as_bytes, with_meta):
+def save_example_and_metadata(original, features, meta):
+    """Saves tf record from examples and json meta data using original name but
+    changing file extension.
+    """
+    examples = [
+        tf.train.Example(features=tf.train.Features(feature=f)) for f in features
+    ]
+
+    base, _ = path.splitext(original)
+    json_file = base + ".json"
+    tfr_file = base + ".tfrecord"
+
+    with open(json_file, "w") as f:
+        json.dump(meta, f)
+
+    with tf.python_io.TFRecordWriter(tfr_file) as f:
+        for example in examples:
+            f.write(example.SerializeToString())
+
+
+def tif2tfr(tif_file, stride=2048):
+    tif = gdal.Open(tif_file)
+
+    x_tot = tif.RasterXSize
+    y_tot = tif.RasterYSize
+    feature_list = []
+    meta = {}
+
+    for x_off in range(0, x_tot, stride):
+        for y_off in range(0, y_tot, stride):
+            features = {}
+            sx = min(stride, x_tot - x_off)
+            sy = min(stride, y_tot - y_off)
+            data = tif.ReadAsArray(x_off, y_off, sx, sy)
+            n_bands, height, width = data.shape
+
+            for b in range(n_bands):
+                field = "b%d" % (b + 1)
+                meta[field] = [1, str(data.dtype)]
+                features[field + "/shape"] = _int64_feature([height, width, 1])
+                features[field] = _bytes_feature(data[b].tobytes())
+
+            feature_list.append(features)
+
+    save_example_and_metadata(tif_file, feature_list, meta)
+
+
+def hdf2tfr(hdf_file, target_fields):
     """Converts HDF file into a tf record by serializing all fields and
     names to a record. Also outputs a json file holding the meta data.
     Arguments:
         hdf_file: File to convert into a tf record
         target_fields: List of specified fields to convert
-        as_bytes: Write data as bytes (as opposed to converting everything to floats)
-        with_meta: Keep shape and type information in tfrecord too
     """
-    data = SD(hdf_file, SDC.READ)
+    hdf = SD(hdf_file, SDC.READ)
     meta = {}
-    tfr_features = {}
+    features = {}
 
-    for field in data.datasets().keys():
-
+    for field in hdf.datasets().keys():
         if target_fields and field not in target_fields:
             continue
 
-        values = data.select(field)[:]  # Index to get it as np array
+        data = hdf.select(field)[:]  # Index to get it as np array
 
         # Make sure every field is of rank 4
-        while len(values.shape) < 3:
-            values = np.expand_dims(values, -1)
-        if len(values.shape) > 3:
+        while len(data.shape) < 3:
+            data = np.expand_dims(data, -1)
+        if len(data.shape) > 3:
             print(
-                "Warning, encountered high rank field %s with shape%s"
-                % (field, values.shape)
+                "Warning, encountered high rank field %s with shape %s"
+                % (field, data.shape)
             )
             continue
 
         # Reorder dimensions such that it is longest dimension first
-        rank_order = list(np.argsort(values.shape))
+        # Assumes height > width > channels
+        rank_order = list(np.argsort(data.shape))
         rank_order.reverse()
-        values = values.transpose(rank_order)
-        meta[field] = [*values.shape, str(values.dtype)]
+        data = data.transpose(rank_order)
 
-        if with_meta:
-            height, width, channels, = values.shape
-            tfr_features[field + "/shape"] = _int64_feature(values.shape)
-            # FIXME field unused if not `as_bytes` since type is cast to float
-            ty = str(values.dtype).encode("utf_8")
-            tfr_features[field + "/type"] = _bytes_feature(ty)
+        ty = str(data.dtype)
+        meta[field] = [data.shape[-1], ty]
+        features[field + "/shape"] = _int64_feature(data.shape)
+        features[field + "/type"] = _bytes_feature(ty.encode("utf_8"))
+        features[field] = _bytes_feature(data.tobytes())
 
-        if as_bytes:
-            x = values.ravel().tobytes()
-            tfr_features[field] = _bytes_feature(x)
-        else:
-            x = values.astype(np.float32).ravel()
-            tfr_features[field] = _float_feature(x)
-
-    example = tf.train.Example(features=tf.train.Features(feature=tfr_features))
-
-    base, _ = path.splitext(hdf_file)
-    json_file = base + ".json"
-    tfr_file = base + ".tfrecord"
-
-    if not with_meta:
-        with open(json_file, "w") as f:
-            json.dump(meta, f)
-
-    with tf.python_io.TFRecordWriter(tfr_file) as f:
-        f.write(example.SerializeToString())
+    save_example_and_metadata(hdf_file, [features], meta)
 
 
-if __name__ == "__main__":
+def get_args():
     p = ArgumentParser()
-    p.add_argument("--hdf_dir", required=True)
+    p.add_argument("--hdf_dir")
+    p.add_argument("--tif_dir")
     p.add_argument(
         "--fields",
         nargs="+",
-        help="Specific fields to record. If none are provided then all fields are recorded.",
-    )
-    p.add_argument(
-        "--bytes",
-        action="store_true",
-        help="each field is stored as bytes as opposed to cast to float32",
-    )
-    p.add_argument(
-        "--with_meta",
-        action="store_true",
-        help="Store field metadata inside of tfrecord",
+        help=(
+            "Specific fields to record. If none are provided then all fields "
+            "are recorded. This only applies when translating hdf files. For "
+            "tif files, all fields are translated as b0..bN."
+        ),
     )
 
     FLAGS = p.parse_args()
-    FLAGS.hdf_dir = path.abspath(FLAGS.hdf_dir)
+
+    if bool(FLAGS.hdf_dir) == bool(FLAGS.tif_dir):
+        print("Please specify either --hdf_dir or --tif_dir.")
+        exit(1)
+    elif FLAGS.hdf_dir:
+        is_hdf = True
+        data_dir = path.abspath(FLAGS.hdf_dir)
+    else:
+        is_hdf = False
+        data_dir = path.abspath(FLAGS.tif_dir)
 
     for f in FLAGS.__dict__:
         print(f"\t{f}:{(25-len(f)) * ' '} {FLAGS.__dict__[f]}")
     print("\n")
 
+    return data_dir, is_hdf, FLAGS.fields
+
+
+if __name__ == "__main__":
+    data_dir, is_hdf, fields = get_args()
+
     comm = MPI.COMM_WORLD
     size = comm.Get_size()
     rank = comm.Get_rank()
 
-    targets = os.listdir(FLAGS.hdf_dir)
-    targets = [path.join(FLAGS.hdf_dir, t) for t in targets if t[-4:] == ".hdf"]
+    ext = ".hdf" if is_hdf else ".tif"
+    targets = [t for t in os.listdir(data_dir) if t[-4:] == ext]
     targets.sort()
     targets = [t for i, t in enumerate(targets) if i % size == rank]
+
     for t in targets:
-        # HDFtoTFRecord(FLAGS.out_dir, t, '.hdf')
-        hdf2tfr(path.join(FLAGS.hdf_dir, t), FLAGS.fields, FLAGS.bytes, FLAGS.with_meta)
+        print("Rank %d converting %s" % (rank, t))
+        if is_hdf:
+            hdf2tfr(path.join(data_dir, t), fields)
+        else:
+            tif2tfr(path.join(data_dir, t))
+
+    print("Rank %d done." % rank)
