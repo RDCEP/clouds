@@ -11,13 +11,10 @@ p.add_argument("--use_hdf_data", action="store_true", default=False)
 FLAGS = p.parse_args()
 
 import pipeline
-from analysis import img_scatter
 import os
 import tensorflow as tf
 from tensorflow.contrib.data import shuffle_and_repeat, batch_and_drop_remainder
-from matplotlib import pyplot as plt
 import numpy as np
-from sklearn.manifold import TSNE
 from tensorflow.contrib.tensorboard.plugins import projector
 
 ### Load Data
