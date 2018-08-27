@@ -128,12 +128,12 @@ df_pca = out_pca.values
 
 # -- Send to TBoard
 ## Get working directory
-PATH = os.getcwd()
+PATH = FLAGS.model_dir #os.getcwd()
 
 ## Path to save the embedding and checkpoints generated
 LOG_DIR = (
     PATH
-    + "/project-tensorboard/log-"
+    + "/tensorboard-runs/log-"
     + datetime.datetime.fromtimestamp(ts).strftime("%Y-%m-%d_%H:%M:%S")
     + "/"
 )
