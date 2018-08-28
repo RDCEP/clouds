@@ -315,10 +315,11 @@ if __name__ == "__main__":
 
     if FLAGS.variational:
         latent_mean, latent_logvar, _, ae_img = ae(img)
-        kl_div = -0.5 * tf.reduce_sum(
-            1 + latent_logvar - latent_mean ** 2 - tf.exp(latent_logvar)
-        )
-        tf.summary.scalar("kl_div", kl_div)
+        with tf.name_scope("kl_div")
+            kl_div = -0.5 * tf.reduce_sum(
+                1 + latent_logvar - latent_mean ** 2 - tf.exp(latent_logvar)
+            )
+            tf.summary.scalar("kl_div", kl_div)
         loss_ae = mse = tf.reduce_mean(tf.square(img - ae_img))
         loss_ae += FLAGS.vae_beta * kl_div
 
@@ -345,25 +346,26 @@ if __name__ == "__main__":
                     shape=FLAGS.shape,
                     n_layers=FLAGS.n_layers,
                 )
+        with tf.name_scope("disc_loss"):
+            di = disc(img)
+            da = disc(ae_img)
+            loss_disc = tf.reduce_mean(di - da)
+            save_models["disc"] = disc
+            tf.summary.scalar("loss_disc", loss_disc)
 
-        di = disc(img)
-        da = disc(ae_img)
-
-        loss_disc = tf.reduce_mean(di - da)
         loss_ae += FLAGS.lambda_disc * tf.reduce_mean(da)
-
-        save_models["disc"] = disc
-        tf.summary.scalar("loss_disc", loss_disc)
         # Enforce Lipschitz discriminator scores between natural and autoencoded
         # manifolds by penalizing magnitude of gradient in this zone.
         # arxiv.org/pdf/1704.00028.pdf
-        i = tf.random_uniform([1])
-        between = img * i - ae_img * (1 - i)
-        grad = tf.gradients(disc(between), between)[0]
-        grad_norm = tf.reduce_mean(grad ** 2, axis=[1, 2, 3])
-        penalty = tf.reduce_mean((grad_norm - 1) ** 2)
+        with tf.name_scope("gradient_penalty"):
+            i = tf.random_uniform([1])
+            between = img * i - ae_img * (1 - i)
+            grad = tf.gradients(disc(between), between)[0]
+            grad_norm = tf.reduce_mean(grad ** 2, axis=[1, 2, 3])
+            penalty = tf.reduce_mean((grad_norm - 1) ** 2)
+            tf.summary.scalar("gradient_penalty", penalty)
+
         loss_disc += penalty * FLAGS.lambda_gradient_penalty
-        tf.summary.scalar("gradient_penalty", penalty)
 
         # Discriminator should be trained more to provide useful feedback
         train_disc = optimizer.minimize(loss_disc, var_list=disc.trainable_weights)
@@ -374,11 +376,12 @@ if __name__ == "__main__":
         # Set input height / width to None so Keras doesn't complain
         inp_shape = None, None, 3
         per = our_models.classifier(inp_shape)
-        pi = per(cmap(img))
-        pa = per(cmap(ae_img))
-        loss_per = tf.reduce_mean(tf.square(pi - pa))
-        loss_ae += loss_per * FLAGS.lambda_per
-        tf.summary.scalar("loss_per", loss_per)
+        with tf.name_scope("perceptual_loss"):
+            pi = per(cmap(img))
+            pa = per(cmap(ae_img))
+            loss_per = tf.reduce_mean(tf.square(pi - pa))
+            loss_ae += loss_per * FLAGS.lambda_per
+            tf.summary.scalar("loss_per", loss_per)
 
     tf.summary.scalar("loss_ae", loss_ae)
     train_ops.append(optimizer.minimize(loss_ae, var_list=ae.trainable_weights))

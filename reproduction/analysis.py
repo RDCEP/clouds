@@ -9,6 +9,61 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
+def plot_cluster_channel_distributions(imgs, labels, fields=None, width=3):
+    """Plot histograms of channel values for each cluster.
+    """
+    n_bands = imgs.shape[-1]
+    assert not fields or len(fields) == n_bands, "Number of field labels do not match number of channels"
+    n_clusters = len(set(labels))
+
+    fig, ax = plt.subplots(
+        nrows=n_bands,
+        ncols=n_clusters,
+        figsize=(n_clusters * width, n_bands * width)
+    )
+
+    for i in range(n_bands):
+        for j in range(n_clusters):
+            a = ax[i, j]
+            a.hist(imgs[labels == j, :, :, i].ravel())
+            a.set_yticks([])
+            a.set_xlim(left=imgs[:,:,:,i].min(), right=imgs[:,:,:,i].max())
+
+
+    for i in range(n_bands):
+        ax[i, 0].set_ylabel(fields[i] if fields else "band %d"%i)
+
+    for j in range(n_clusters):
+        ax[0, j].set_title("cluster %d"%j)
+
+    return fig, ax
+
+
+def plot_cluster_samples(imgs, labels, samples=8, width=3, channel=3):
+    n_clusters = len(set(labels))
+    samples = 8
+    width = 3
+    channel = 3
+
+    fig, ax = plt.subplots(
+        nrows=samples,
+        ncols=n_clusters,
+        figsize=(n_clusters * width, samples * width)
+    )
+    plt.subplots_adjust(wspace=0.01, hspace=0.01)
+
+    for i in range(n_clusters):
+        n = (labels == i).sum()
+        ax[0,i].set_title("cluster %d"%i)
+
+        for j, k in enumerate(np.random.choice(n, samples, replace=False)):
+            a = ax[j,i]
+            img = imgs[labels == i][k]
+            a.imshow(img[:,:,channel])
+            a.set_yticks([])
+            a.set_xticks([])
+
+    return fig, ax
 
 def plot_ae_output(dataset, predictions, n_samples, n_bands, height=4, width=4):
     """
