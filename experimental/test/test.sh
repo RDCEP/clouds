@@ -19,4 +19,4 @@ python reproduction/train.py $MODEL_PATH \
     --blue_bands 1 \
     --green_bands 2 \
     --base_dim 8 \
-    --discriminator \
+    --variational \

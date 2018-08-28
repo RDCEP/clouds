@@ -2,9 +2,10 @@ import tensorflow as tf
 from tensorflow.python.keras.layers import *
 from tensorflow.python.keras.models import Model, Sequential
 import tensorflow.keras.applications as pretrained
+import numpy as np
 
 
-def autoencoder(shape, n_layers=3, base=32, variational=False, batchnorm=False):
+def autoencoder(shape, n_layers, base, variational=False, batchnorm=False):
     """
     Returns an encoder model and autoencoder model
     """
@@ -22,13 +23,17 @@ def autoencoder(shape, n_layers=3, base=32, variational=False, batchnorm=False):
             x = BatchNormalization()(x)
 
     if variational:
-        mn = Conv2D(depth, 1, name="latent_mean")(x)
-        lv = Conv2D(depth, 1, name="latent_log_var", kernel_initializer="zeros")(x)
+        sh = x.shape.as_list()[1:]
+        x = Flatten()(x)
+        mn = Dense(depth, name="latent_mean")(x)
+        lv = Dense(depth, name="latent_log_var", kernel_initializer="zeros")(x)
         x = Lambda(
             lambda arg: tf.random_normal(arg[0].shape[1:]) * tf.exp(arg[1] / 2)
             + arg[0],
             name="sampling",
         )([mn, lv])
+        x = Dense(np.product(sh))(x)
+        x = Reshape(sh)(x)
         outputs.extend([mn, lv])
 
     # Hidden vector

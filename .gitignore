@@ -109,3 +109,4 @@ dnn/debugging/*
 *.tfrecord
 *.local
 timelines/*
+experimental/test/foo/
