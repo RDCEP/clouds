@@ -4,20 +4,21 @@ p = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
 p.add_argument("model_dir")
 p.add_argument("--tif_files", nargs="*", default=[])
 p.add_argument("--hdf_files", nargs="*", default=[])
+p.add_argument("--hdf_json", default=[])
+p.add_argument("--hdf_dims", default=[])
+p.add_argument("--hdf_interleave_files", default=4)
 p.add_argument("--img_width", default=64)
 p.add_argument("--n_bands", default=7)
 p.add_argument("--batch_size", default=32)
+p.add_argument("--shuffle_repeat", default=100)
 p.add_argument("--use_hdf_data", action="store_true", default=False)
 FLAGS = p.parse_args()
 
-import pipeline
-from analysis import img_scatter
+import pipeline.load as pipeline
 import os
 import tensorflow as tf
 from tensorflow.contrib.data import shuffle_and_repeat, batch_and_drop_remainder
-from matplotlib import pyplot as plt
 import numpy as np
-from sklearn.manifold import TSNE
 from tensorflow.contrib.tensorboard.plugins import projector
 
 ### Load Data
@@ -27,6 +28,7 @@ if bool(FLAGS.tif_files) == bool(FLAGS.hdf_files):
     print("Must provied either --tif_files or --hdf_files")
     exit(1)
 
+# GeoTIFF files
 tif_fields = ["b%d" % (i + 1) for i in range(FLAGS.n_bands)]
 tif_dataset = (
     tf.data.Dataset.from_generator(
@@ -36,15 +38,32 @@ tif_dataset = (
         tf.int16,
         (FLAGS.img_width, FLAGS.img_width, FLAGS.n_bands),
     )
-    .apply(tf.contrib.data.shuffle_and_repeat(100))
+    .apply(tf.contrib.data.shuffle_and_repeat(FLAGS.shuffle_repeat))
+    .apply(batch_and_drop_remainder(FLAGS.batch_size))
+)
+
+# HDF Files
+meta_json = FLAGS.hdf_json #"experimental/test/ex.json"
+hdf_fields = FLAGS.hdf_dims #['Cloud_Optical_Thickness', "Cloud_Water_Path", "Cloud_Effective_Radius"]
+data_files = FLAGS.hdf_files #["experimental/test/ex.tfrecord"]
+
+chans, parser = pipeline.main_parser(hdf_fields, meta_json)
+hdf_dataset = (
+    tf.data.Dataset.from_tensor_slices(data_files)
+    .apply(shuffle_and_repeat(FLAGS.shuffle_repeat))
+    .flat_map(tf.data.TFRecordDataset)
+    .map(parser)
+    .interleave(pipeline.patchify_fn(FLAGS.img_width, FLAGS.img_width, FLAGS.n_bands), cycle_length=FLAGS.hdf_interleave_files)
+    .map(lambda x: tf.clip_by_value(x, 0, 15000))
+    .shuffle(10000)
     .apply(batch_and_drop_remainder(FLAGS.batch_size))
 )
 
 if FLAGS.hdf_files:
-    print("HDF not loaded...")
-    exit(1)
-    # dataset = hdf_dataset
-    # fields = hdf_fields
+    # print("HDF not loaded...")
+    # exit(1)
+    dataset = hdf_dataset
+    fields = hdf_fields
 else:
     dataset = tif_dataset
     fields = tif_fields
@@ -109,12 +128,12 @@ df_pca = out_pca.values
 
 # -- Send to TBoard
 ## Get working directory
-PATH = os.getcwd()
+PATH = FLAGS.model_dir #os.getcwd()
 
 ## Path to save the embedding and checkpoints generated
 LOG_DIR = (
     PATH
-    + "/project-tensorboard/log-"
+    + "/tensorboard-runs/log-"
     + datetime.datetime.fromtimestamp(ts).strftime("%Y-%m-%d_%H:%M:%S")
     + "/"
 )
