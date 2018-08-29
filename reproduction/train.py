@@ -232,6 +232,7 @@ def heterogenous_bands(threshold):
     `threshold` fraction of the image. Presumably this value represents no cloud
     as clouds will be more heterogenous.
     """
+
     def fn(img):
         has_data = []
         for band in tf.unstack(img, axis=-1):
@@ -241,9 +242,11 @@ def heterogenous_bands(threshold):
 
     return fn
 
+
 def normalizer(x):
     corrected = tf.clip_by_value(x, 0, 1e10)
-    return corrected / tf.reduce_max(corrected, axis=(0,1,2))
+    return corrected / tf.reduce_max(corrected, axis=(0, 1, 2))
+
 
 def load_data(data_files, shape, batch_size, fields, meta_json):
     chans, parser = pipeline.main_parser(fields, meta_json)
@@ -311,12 +314,12 @@ if __name__ == "__main__":
                 shape=FLAGS.shape,
                 n_layers=FLAGS.n_layers,
                 variational=FLAGS.variational,
-                base=FLAGS.base_dim
+                base=FLAGS.base_dim,
             )
 
     if FLAGS.variational:
         latent_mean, latent_logvar, _, ae_img = ae(img)
-        with tf.name_scope("kl_div")
+        with tf.name_scope("kl_div"):
             kl_div = -0.5 * tf.reduce_sum(
                 1 + latent_logvar - latent_mean ** 2 - tf.exp(latent_logvar)
             )
@@ -343,10 +346,7 @@ if __name__ == "__main__":
         with tf.name_scope("discriminator"):
             disc = load_model(FLAGS.model_dir, "disc")
             if not disc:
-                disc = models.discriminator(
-                    shape=FLAGS.shape,
-                    n_layers=FLAGS.n_layers,
-                )
+                disc = models.discriminator(shape=FLAGS.shape, n_layers=FLAGS.n_layers)
         with tf.name_scope("disc_loss"):
             di = disc(img)
             da = disc(ae_img)
