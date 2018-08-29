@@ -57,7 +57,7 @@ def plot_cluster_samples(imgs, labels, samples=8, width=3, channel=3):
         for j, k in enumerate(np.random.choice(n, samples, replace=False)):
             a = ax[j, i]
             img = imgs[labels == i][k]
-            a.imshow(img[:, :, channel])
+            a.imshow(img[:, :, channel], cmap="bone")
             a.set_yticks([])
             a.set_xticks([])
 

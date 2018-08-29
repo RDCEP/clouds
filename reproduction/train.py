@@ -146,6 +146,11 @@ def get_flags():
         help="Number of images to display on tensorboard",
     )
     p.add_argument(
+        "--shuffle_buffer_size",
+        type=int,
+        default=10000,
+    )
+    p.add_argument(
         "--red_bands",
         type=int,
         metavar="r",
@@ -248,7 +253,7 @@ def normalizer(x):
     return corrected / tf.reduce_max(corrected, axis=(0, 1, 2))
 
 
-def load_data(data_files, shape, batch_size, fields, meta_json):
+def load_data(data_files, shape, batch_size, fields, meta_json, shuffle_buffer_size):
     chans, parser = pipeline.main_parser(fields, meta_json)
     return (
         chans,
@@ -261,7 +266,7 @@ def load_data(data_files, shape, batch_size, fields, meta_json):
             .interleave(pipeline.patchify_fn(shape[0], shape[1], chans), cycle_length=4)
             .filter(heterogenous_bands(0.5))  # TODO flag for threshold
             .map(lambda x: tf.clip_by_value(x, 0, 1e10))  # zero imputate -9999s
-            .shuffle(10000)
+            .shuffle(shuffle_buffer_size)
             .apply(batch_and_drop_remainder(batch_size))
         ),
     )
@@ -290,7 +295,7 @@ if __name__ == "__main__":
     FLAGS = get_flags()
 
     chans, dataset = load_data(
-        FLAGS.data, FLAGS.shape, FLAGS.batch_size, FLAGS.fields, FLAGS.meta_json
+        FLAGS.data, FLAGS.shape, FLAGS.batch_size, FLAGS.fields, FLAGS.meta_json, FLAGS.shuffle_buffer_size
     )
     FLAGS.shape = (*FLAGS.shape[:2], chans)
 
