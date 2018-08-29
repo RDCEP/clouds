@@ -109,7 +109,7 @@ def main_parser(fields, meta_json, saved_as_bytes=True):
     features = {}
     chans = 0
     for field in fields:
-        c, ty = meta[field]
+        c, ty = meta[field][-2:]
         features[field] = tf.FixedLenFeature([], tf.string)
         features[field + "/shape"] = tf.FixedLenFeature([3], tf.int64)
         chans += c
