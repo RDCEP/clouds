@@ -228,11 +228,10 @@ def select_channels(t, chans):
 
 
 def heterogenous_bands(threshold):
-    """Returns True if a band in the image does not have 1 value in `threshold`
-    fraction of the image. Presumably this value is a null or an invalid flag as
-    real data will be more heterogenous.
+    """Returns True if a band in the image has too much of a single value in
+    `threshold` fraction of the image. Presumably this value represents no cloud
+    as clouds will be more heterogenous.
     """
-
     def fn(img):
         has_data = []
         for band in tf.unstack(img, axis=-1):
@@ -242,11 +241,12 @@ def heterogenous_bands(threshold):
 
     return fn
 
+def normalizer(x):
+    corrected = tf.clip_by_value(x, 0, 1e10)
+    return corrected / tf.reduce_max(corrected, axis=(0,1,2))
 
 def load_data(data_files, shape, batch_size, fields, meta_json):
-
     chans, parser = pipeline.main_parser(fields, meta_json)
-
     return (
         chans,
         (
@@ -254,6 +254,7 @@ def load_data(data_files, shape, batch_size, fields, meta_json):
             .apply(shuffle_and_repeat(1000))
             .flat_map(tf.data.TFRecordDataset)
             .map(parser)
+            .map(normalizer)
             .interleave(pipeline.patchify_fn(shape[0], shape[1], chans), cycle_length=4)
             .filter(heterogenous_bands(0.5))  # TODO flag for threshold
             .map(lambda x: tf.clip_by_value(x, 0, 1e10))  # zero imputate -9999s
