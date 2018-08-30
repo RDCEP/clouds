@@ -20,3 +20,6 @@ python reproduction/train.py $MODEL_PATH \
     --green_bands 2 \
     --base_dim 8 \
     --variational \
+    --shuffle_buffer_size 200 \
+    --shape 256 256 \
+    --batchnorm \

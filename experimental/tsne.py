@@ -43,9 +43,11 @@ tif_dataset = (
 )
 
 # HDF Files
-meta_json = FLAGS.hdf_json #"experimental/test/ex.json"
-hdf_fields = FLAGS.hdf_dims #['Cloud_Optical_Thickness', "Cloud_Water_Path", "Cloud_Effective_Radius"]
-data_files = FLAGS.hdf_files #["experimental/test/ex.tfrecord"]
+meta_json = FLAGS.hdf_json  # "experimental/test/ex.json"
+hdf_fields = (
+    FLAGS.hdf_dims
+)  # ['Cloud_Optical_Thickness', "Cloud_Water_Path", "Cloud_Effective_Radius"]
+data_files = FLAGS.hdf_files  # ["experimental/test/ex.tfrecord"]
 
 chans, parser = pipeline.main_parser(hdf_fields, meta_json)
 hdf_dataset = (
@@ -53,7 +55,10 @@ hdf_dataset = (
     .apply(shuffle_and_repeat(FLAGS.shuffle_repeat))
     .flat_map(tf.data.TFRecordDataset)
     .map(parser)
-    .interleave(pipeline.patchify_fn(FLAGS.img_width, FLAGS.img_width, FLAGS.n_bands), cycle_length=FLAGS.hdf_interleave_files)
+    .interleave(
+        pipeline.patchify_fn(FLAGS.img_width, FLAGS.img_width, FLAGS.n_bands),
+        cycle_length=FLAGS.hdf_interleave_files,
+    )
     .map(lambda x: tf.clip_by_value(x, 0, 15000))
     .shuffle(10000)
     .apply(batch_and_drop_remainder(FLAGS.batch_size))
@@ -128,7 +133,7 @@ df_pca = out_pca.values
 
 # -- Send to TBoard
 ## Get working directory
-PATH = FLAGS.model_dir #os.getcwd()
+PATH = FLAGS.model_dir  # os.getcwd()
 
 ## Path to save the embedding and checkpoints generated
 LOG_DIR = (

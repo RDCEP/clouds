@@ -58,6 +58,9 @@ def get_flags():
         default=1000,
     )
     p.add_argument(
+        "--shape", nargs=2, type=int, help="Shape of input image", default=(64, 64)
+    )
+    p.add_argument(
         "--n_layers",
         help="number of strided convolution layers in AE / disc",
         type=int,
@@ -69,6 +72,7 @@ def get_flags():
         default=16,
         help="Depth of the first convolution, each block depth doubles",
     )
+    p.add_argument("--batchnorm", action="store_true", default=False)
     p.add_argument(
         "--epochs", type=int, help="Number of epochs to train for", default=10
     )
@@ -86,9 +90,6 @@ def get_flags():
             "Name of model in model.py to use for the autoencoder. Flag "
             "unused if the training in a directory with a saved autoencoder."
         ),
-    )
-    p.add_argument(
-        "--shape", nargs=2, type=int, help="Shape of input image", default=(64, 64)
     )
     p.add_argument(
         "--variational",
@@ -145,11 +146,7 @@ def get_flags():
         default=8,
         help="Number of images to display on tensorboard",
     )
-    p.add_argument(
-        "--shuffle_buffer_size",
-        type=int,
-        default=10000,
-    )
+    p.add_argument("--shuffle_buffer_size", type=int, default=10000)
     p.add_argument(
         "--red_bands",
         type=int,
@@ -286,6 +283,7 @@ def load_model(model_dir, name):
     return None
 
 
+# TODO depricate
 def define_model(new_model, default, **kwargs):
     builder = getattr(our_models, new_model, getattr(our_models, default))
     return builder(**kwargs)
@@ -295,7 +293,12 @@ if __name__ == "__main__":
     FLAGS = get_flags()
 
     chans, dataset = load_data(
-        FLAGS.data, FLAGS.shape, FLAGS.batch_size, FLAGS.fields, FLAGS.meta_json, FLAGS.shuffle_buffer_size
+        FLAGS.data,
+        FLAGS.shape,
+        FLAGS.batch_size,
+        FLAGS.fields,
+        FLAGS.meta_json,
+        FLAGS.shuffle_buffer_size,
     )
     FLAGS.shape = (*FLAGS.shape[:2], chans)
 
@@ -317,9 +320,10 @@ if __name__ == "__main__":
         if not ae:
             ae = models.autoencoder(
                 shape=FLAGS.shape,
+                base=FLAGS.base_dim,
+                batchnorm=FLAGS.batchnorm,
                 n_layers=FLAGS.n_layers,
                 variational=FLAGS.variational,
-                base=FLAGS.base_dim,
             )
 
     if FLAGS.variational:

@@ -5,7 +5,7 @@ import tensorflow.keras.applications as pretrained
 import numpy as np
 
 
-def autoencoder(shape, n_layers, base, variational=False, batchnorm=False):
+def autoencoder(shape, n_layers, base, batchnorm, variational):
     """
     Returns an encoder model and autoencoder model
     """
