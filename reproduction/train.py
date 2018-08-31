@@ -9,6 +9,7 @@ import subprocess
 from tensorflow.contrib.data import shuffle_and_repeat, batch_and_drop_remainder
 from os import path, mkdir
 import os
+import sys
 
 
 def get_flags():
@@ -192,6 +193,8 @@ def get_flags():
     for f in FLAGS.__dict__:
         print(f"\t{f}:{(25-len(f)) * ' '} {FLAGS.__dict__[f]}")
     print("\n")
+    # Need to flush when redirecting to a file
+    sys.stdout.flush()
 
     if not path.isdir(FLAGS.model_dir):
         os.mkdir(FLAGS.model_dir)
@@ -255,16 +258,19 @@ def load_data(data_files, shape, batch_size, fields, meta_json, shuffle_buffer_s
     return (
         chans,
         (
-            tf.data.Dataset.from_tensor_slices(data_files)
-            .apply(shuffle_and_repeat(1000))
-            .flat_map(tf.data.TFRecordDataset)
-            .map(parser)
+            # tf.data.Dataset.from_tensor_slices(data_files)
+            # .apply(shuffle_and_repeat(1000))
+            # .flat_map(tf.data.TFRecordDataset)
+            tf.data.TFRecordDataset(data_files, num_parallel_reads=4)
+            .map(parser, num_parallel_calls=4)
             .map(normalizer)
             .interleave(pipeline.patchify_fn(shape[0], shape[1], chans), cycle_length=4)
             .filter(heterogenous_bands(0.5))  # TODO flag for threshold
             .map(lambda x: tf.clip_by_value(x, 0, 1e10))  # zero imputate -9999s
-            .shuffle(shuffle_buffer_size)
+            .apply(shuffle_and_repeat(shuffle_buffer_size))
+            # .shuffle(shuffle_buffer_size)
             .apply(batch_and_drop_remainder(batch_size))
+            .prefetch(1)
         ),
     )
 
