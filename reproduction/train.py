@@ -147,6 +147,7 @@ def get_flags():
         default=8,
         help="Number of images to display on tensorboard",
     )
+    p.add_argument("--read_threads", type=int, default=4)
     p.add_argument("--shuffle_buffer_size", type=int, default=10000)
     p.add_argument(
         "--red_bands",
@@ -253,7 +254,7 @@ def normalizer(x):
     return corrected / tf.reduce_max(corrected, axis=(0, 1, 2))
 
 
-def load_data(data_files, shape, batch_size, fields, meta_json, shuffle_buffer_size):
+def load_data(data_files, shape, batch_size, fields, meta_json, num_threads, shuffle_buffer_size):
     chans, parser = pipeline.main_parser(fields, meta_json)
     return (
         chans,
@@ -261,10 +262,10 @@ def load_data(data_files, shape, batch_size, fields, meta_json, shuffle_buffer_s
             # tf.data.Dataset.from_tensor_slices(data_files)
             # .apply(shuffle_and_repeat(1000))
             # .flat_map(tf.data.TFRecordDataset)
-            tf.data.TFRecordDataset(data_files, num_parallel_reads=4)
-            .map(parser, num_parallel_calls=4)
+            tf.data.TFRecordDataset(data_files, num_parallel_reads=num_threads)
+            .map(parser, num_parallel_calls=num_threads)
             .map(normalizer)
-            .interleave(pipeline.patchify_fn(shape[0], shape[1], chans), cycle_length=4)
+            .interleave(pipeline.patchify_fn(shape[0], shape[1], chans), cycle_length=num_threads)
             .filter(heterogenous_bands(0.5))  # TODO flag for threshold
             .map(lambda x: tf.clip_by_value(x, 0, 1e10))  # zero imputate -9999s
             .apply(shuffle_and_repeat(shuffle_buffer_size))
@@ -304,6 +305,7 @@ if __name__ == "__main__":
         FLAGS.batch_size,
         FLAGS.fields,
         FLAGS.meta_json,
+        FLAGS.read_threads,
         FLAGS.shuffle_buffer_size,
     )
     FLAGS.shape = (*FLAGS.shape[:2], chans)
@@ -409,6 +411,22 @@ if __name__ == "__main__":
 
     summary_op = tf.summary.merge_all()
 
+    # Profiler options
+    p_opts = (
+        ProfileOptionBuilder(ProfileOptionBuilder.time_and_memory())
+        .with_step(total_step)
+        .with_timeline_output(
+            path.join(FLAGS.model_dir, "timelines", "t.json")
+        )
+        .build()
+    )
+    ALL_ADVICE = {
+        "ExpensiveOperationChecker": {},
+        "AcceleratorUtilizationChecker": {},
+        "JobChecker": {},  # Only available internally.
+        "OperationChecker": {},
+    }
+
     # Begin training
     with tf.Session() as sess:
         options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
@@ -435,29 +453,9 @@ if __name__ == "__main__":
                 if s % FLAGS.summary_every == 0:
                     total_step = e * FLAGS.steps_per_epoch + s
                     summary_writer.add_summary(sess.run(summary_op), total_step)
-                    # summary_writer.add_run_metadata(run_metadata, "step%d" % total_step)
                     profiler.add_step(total_step, run_metadata)
-                    opts = (
-                        ProfileOptionBuilder(ProfileOptionBuilder.time_and_memory())
-                        .with_step(total_step)
-                        .with_timeline_output(
-                            path.join(FLAGS.model_dir, "timelines", "t.json")
-                        )
-                        .build()
-                    )
-                    profiler.profile_graph(options=opts)
+                    profiler.profile_graph(options=p_opts)
+                    profiler.advise(ALL_ADVICE)
 
             for m in save_models:
                 save_models[m].save_weights(path.join(FLAGS.model_dir, f"{m}.h5"))
-
-            ALL_ADVICE = {
-                "ExpensiveOperationChecker": {},
-                "AcceleratorUtilizationChecker": {},
-                "JobChecker": {},  # Only available internally.
-                "OperationChecker": {},
-            }
-            profiler.advise(ALL_ADVICE)
-            # with open(path.join(FLAGS.model_dir, 'timeline.json'), 'w') as f:
-            #     tl = timeline.Timeline(run_metadata.step_stats)
-            #     ctf = tl.generate_chrome_trace_format()
-            #     f.write(ctf)
