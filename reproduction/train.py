@@ -45,6 +45,7 @@ def get_flags():
         required=True,
     )
     p.add_argument("--read_threads", type=int, default=4)
+    p.add_argument("--prefetch", type=int, default=1, help="Size of prefetch buffers in pipeline")
     p.add_argument("--shuffle_buffer_size", type=int, default=10000)
     p.add_argument(
         "--normalization",
@@ -297,6 +298,7 @@ def load_data(
     meta_json,
     normalization,
     num_threads,
+    prefetch,
     shuffle_buffer_size,
 ):
     print("loading data...", flush=True)
@@ -305,7 +307,7 @@ def load_data(
         tf.data.TFRecordDataset(data_files, num_parallel_reads=num_threads)
         .map(parser, num_parallel_calls=num_threads)
         .map(normalizer_fn(normalization))
-        .prefetch(1)
+        .prefetch(prefetch)
         .interleave(
             pipeline.patchify_fn(shape[0], shape[1], chans), cycle_length=num_threads
         )
@@ -313,7 +315,7 @@ def load_data(
         .map(random_flip_udlr)
         .apply(shuffle_and_repeat(shuffle_buffer_size))
         .apply(batch_and_drop_remainder(batch_size))
-        .prefetch(1)
+        .prefetch(prefetch)
     )
     return chans, dataset
 
@@ -349,6 +351,7 @@ if __name__ == "__main__":
         FLAGS.meta_json,
         FLAGS.normalization,
         FLAGS.read_threads,
+        FLAGS.prefetch,
         FLAGS.shuffle_buffer_size,
     )
     FLAGS.shape = (*FLAGS.shape[:2], chans)
