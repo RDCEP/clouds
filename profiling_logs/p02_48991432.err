@@ -1,0 +1,130 @@
+/tmp/slurmd/job48991432/slurm_script: line 0: unalias: pine: not found
+/tmp/slurmd/job48991432/slurm_script: line 0: unalias: quota: not found
+/tmp/slurmd/job48991432/slurm_script: line 0: unalias: chsh: not found
+/tmp/slurmd/job48991432/slurm_script: line 0: unalias: grpe: not found
+/tmp/slurmd/job48991432/slurm_script: line 0: unalias: alloc: not found
+/tmp/slurmd/job48991432/slurm_script: line 0: unalias: vi: not found
+/tmp/slurmd/job48991432/slurm_script: line 0: unalias: chfn: not found
+2018-08-31 11:45:48.472178: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2018-08-31 11:45:48.785733: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1392] Found device 0 with properties: 
+name: Tesla K80 major: 3 minor: 7 memoryClockRate(GHz): 0.8235
+pciBusID: 0000:08:00.0
+totalMemory: 11.17GiB freeMemory: 11.10GiB
+2018-08-31 11:45:48.965313: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1392] Found device 1 with properties: 
+name: Tesla K80 major: 3 minor: 7 memoryClockRate(GHz): 0.8235
+pciBusID: 0000:09:00.0
+totalMemory: 11.17GiB freeMemory: 11.10GiB
+2018-08-31 11:45:49.158600: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1392] Found device 2 with properties: 
+name: Tesla K80 major: 3 minor: 7 memoryClockRate(GHz): 0.8235
+pciBusID: 0000:88:00.0
+totalMemory: 11.17GiB freeMemory: 11.10GiB
+2018-08-31 11:45:49.351470: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1392] Found device 3 with properties: 
+name: Tesla K80 major: 3 minor: 7 memoryClockRate(GHz): 0.8235
+pciBusID: 0000:89:00.0
+totalMemory: 11.17GiB freeMemory: 11.10GiB
+2018-08-31 11:45:49.352275: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1471] Adding visible gpu devices: 0, 1, 2, 3
+2018-08-31 11:45:50.562719: I tensorflow/core/common_runtime/gpu/gpu_device.cc:952] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-08-31 11:45:50.562802: I tensorflow/core/common_runtime/gpu/gpu_device.cc:958]      0 1 2 3 
+2018-08-31 11:45:50.562814: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] 0:   N Y N N 
+2018-08-31 11:45:50.562822: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] 1:   Y N N N 
+2018-08-31 11:45:50.562830: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] 2:   N N N Y 
+2018-08-31 11:45:50.562837: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] 3:   N N Y N 
+2018-08-31 11:45:50.563853: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1084] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 10761 MB memory) -> physical GPU (device: 0, name: Tesla K80, pci bus id: 0000:08:00.0, compute capability: 3.7)
+2018-08-31 11:45:50.756111: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1084] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:1 with 10761 MB memory) -> physical GPU (device: 1, name: Tesla K80, pci bus id: 0000:09:00.0, compute capability: 3.7)
+2018-08-31 11:45:50.947279: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1084] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:2 with 10761 MB memory) -> physical GPU (device: 2, name: Tesla K80, pci bus id: 0000:88:00.0, compute capability: 3.7)
+2018-08-31 11:45:51.136927: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1084] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:3 with 10761 MB memory) -> physical GPU (device: 3, name: Tesla K80, pci bus id: 0000:89:00.0, compute capability: 3.7)
+2018-08-31 11:45:53.346780: I tensorflow/stream_executor/dso_loader.cc:151] successfully opened CUDA library libcupti.so.9.0 locally
+2018-08-31 11:46:04.476492: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:95] Filling up shuffle buffer (this may take a while): 54 of 200
+2018-08-31 11:46:14.542768: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:95] Filling up shuffle buffer (this may take a while): 130 of 200
+2018-08-31 11:46:23.854128: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:131] Shuffle buffer filled.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+Incomplete shape.
+70 ops no flops stats due to incomplete shapes.
+Node gradients/model/reconstructed/Conv2D_grad/Conv2DBackpropInput incompatible shapes: Dimension 1 in both shapes must be equal, but are 64 and 8. Shapes are [8,64,64,8] and [8,8,64,64]..
+Node gradients/model/conv2d_8/Conv2D_grad/Conv2DBackpropInput incompatible shapes: Dimension 1 in both shapes must be equal, but are 32 and 16. Shapes are [8,32,32,16] and [8,16,32,32]..
+Node gradients/model/conv2d_7/Conv2D_grad/Conv2DBackpropInput incompatible shapes: Dimension 1 in both shapes must be equal, but are 16 and 32. Shapes are [8,16,16,32] and [8,32,16,16]..
+Node gradients/model/conv2d_6/Conv2D_grad/Conv2DBackpropInput incompatible shapes: Dimension 1 in both shapes must be equal, but are 8 and 32. Shapes are [8,8,8,32] and [8,32,8,8]..
+Node gradients/model/conv2d_5/Conv2D_grad/Conv2DBackpropInput incompatible shapes: Dimension 1 in both shapes must be equal, but are 16 and 32. Shapes are [8,16,16,32] and [8,32,16,16]..
+Node gradients/model/conv2d_3/Conv2D_grad/Conv2DBackpropInput incompatible shapes: Dimension 1 in both shapes must be equal, but are 32 and 16. Shapes are [8,32,32,16] and [8,16,32,32]..
+Node gradients/model/conv2d_2/Conv2D_grad/Conv2DBackpropInput incompatible shapes: Dimension 1 in both shapes must be equal, but are 32 and 8. Shapes are [8,32,32,8] and [8,8,32,32]..
+Node gradients/model/conv2d_1/Conv2D_grad/Conv2DBackpropInput incompatible shapes: Dimension 1 in both shapes must be equal, but are 64 and 8. Shapes are [8,64,64,8] and [8,8,64,64]..
+Cannot parse returned proto: Error parsing message.
+Cannot parse returned proto: Error parsing message.
+Cannot parse returned proto: Error parsing message.
+Cannot parse returned proto: Error parsing message.
+Cannot parse returned proto: Error parsing message.
+Cannot parse returned proto: Error parsing message.
+Cannot parse returned proto: Error parsing message.
+Cannot parse returned proto: Error parsing message.

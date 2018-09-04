@@ -265,6 +265,7 @@ def load_data(data_files, shape, batch_size, fields, meta_json, num_threads, shu
             tf.data.TFRecordDataset(data_files, num_parallel_reads=num_threads)
             .map(parser, num_parallel_calls=num_threads)
             .map(normalizer)
+            .prefetch(1)
             .interleave(pipeline.patchify_fn(shape[0], shape[1], chans), cycle_length=num_threads)
             .filter(heterogenous_bands(0.5))  # TODO flag for threshold
             .map(lambda x: tf.clip_by_value(x, 0, 1e10))  # zero imputate -9999s
@@ -412,14 +413,6 @@ if __name__ == "__main__":
     summary_op = tf.summary.merge_all()
 
     # Profiler options
-    p_opts = (
-        ProfileOptionBuilder(ProfileOptionBuilder.time_and_memory())
-        .with_step(total_step)
-        .with_timeline_output(
-            path.join(FLAGS.model_dir, "timelines", "t.json")
-        )
-        .build()
-    )
     ALL_ADVICE = {
         "ExpensiveOperationChecker": {},
         "AcceleratorUtilizationChecker": {},
@@ -428,7 +421,7 @@ if __name__ == "__main__":
     }
 
     # Begin training
-    with tf.Session() as sess:
+    with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
         options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
         run_metadata = tf.RunMetadata()
         profiler = Profiler(sess.graph)
@@ -454,6 +447,14 @@ if __name__ == "__main__":
                     total_step = e * FLAGS.steps_per_epoch + s
                     summary_writer.add_summary(sess.run(summary_op), total_step)
                     profiler.add_step(total_step, run_metadata)
+                    p_opts = (
+                        ProfileOptionBuilder(ProfileOptionBuilder.time_and_memory())
+                        .with_step(total_step)
+                        .with_timeline_output(
+                            path.join(FLAGS.model_dir, "timelines", "t.json")
+                        )
+                        .build()
+                    )
                     profiler.profile_graph(options=p_opts)
                     profiler.advise(ALL_ADVICE)
 
