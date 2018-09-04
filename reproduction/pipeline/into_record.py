@@ -48,7 +48,7 @@ def save_example_and_metadata(original, features, meta):
             f.write(example.SerializeToString())
 
 
-def tif2tfr(tif_file, stride=2048):
+def tif2tfr(tif_file, out_dir, stride=2048):
     tif = gdal.Open(tif_file)
 
     x_tot = tif.RasterXSize
@@ -72,10 +72,11 @@ def tif2tfr(tif_file, stride=2048):
 
             feature_list.append(features)
 
-    save_example_and_metadata(tif_file, feature_list, meta)
+    out_file = path.join(out_dir, path.basename(tif_file))
+    save_example_and_metadata(out_file, feature_list, meta)
 
 
-def hdf2tfr(hdf_file, target_fields):
+def hdf2tfr(hdf_file, out_dir, target_fields):
     """Converts HDF file into a tf record by serializing all fields and
     names to a record. Also outputs a json file holding the meta data.
     Arguments:
@@ -114,20 +115,38 @@ def hdf2tfr(hdf_file, target_fields):
         features[field + "/type"] = _bytes_feature(ty.encode("utf_8"))
         features[field] = _bytes_feature(data.tobytes())
 
-    save_example_and_metadata(hdf_file, [features], meta)
+    out_file = path.join(out_dir, path.basename(hdf_file))
+    save_example_and_metadata(out_file, [features], meta)
 
 
 def get_args():
-    p = ArgumentParser()
+    p = ArgumentParser(
+        description=(
+            "Reads HDF or TIF files and translates them into tf records and json "
+            "meta data files. Parallelized with MPI4py.\n"
+            "The tfrecord format is "
+            "{'field': bytes, 'field/shape': [height, width, channels]}, where "
+            "height, width, and channels are int64. The JSON format is "
+            "{'field': [channels, type]}."
+        )
+    )
     p.add_argument("--hdf_dir")
     p.add_argument("--tif_dir")
+    p.add_argument(
+        "--out_dir",
+        help=(
+            "Directory to save results, if unprovided, then tfrecords and json "
+            "meta data are saved to the same directory as the source data."
+        ),
+    )
     p.add_argument(
         "--fields",
         nargs="+",
         help=(
-            "Specific fields to record. If none are provided then all fields "
-            "are recorded. This only applies when translating hdf files. For "
-            "tif files, all fields are translated as b0..bN."
+            "This is only used when translating hdf files, it specifies which "
+            "fields to record. If none are provided then all fields are "
+            "recorded. For tif files, all fields are translated as b0..bN and "
+            "this flag is ignored."
         ),
     )
 
@@ -136,22 +155,21 @@ def get_args():
     if bool(FLAGS.hdf_dir) == bool(FLAGS.tif_dir):
         print("Please specify either --hdf_dir or --tif_dir.")
         exit(1)
-    elif FLAGS.hdf_dir:
-        is_hdf = True
-        data_dir = path.abspath(FLAGS.hdf_dir)
-    else:
-        is_hdf = False
-        data_dir = path.abspath(FLAGS.tif_dir)
+
+    is_hdf = bool(FLAGS.hdf_dir)
+    data_dir = path.abspath(FLAGS.hdf_dir if is_hdf else FLAGS.tif_dir)
 
     for f in FLAGS.__dict__:
         print(f"\t{f}:{(25-len(f)) * ' '} {FLAGS.__dict__[f]}")
     print("\n")
 
-    return data_dir, is_hdf, FLAGS.fields
+    out_dir = path.abspath(FLAGS.out_dir) if FLAGS.out_dir else data_dir
+
+    return data_dir, is_hdf, FLAGS.fields, out_dir
 
 
 if __name__ == "__main__":
-    data_dir, is_hdf, fields = get_args()
+    data_dir, is_hdf, fields, out_dir = get_args()
 
     comm = MPI.COMM_WORLD
     size = comm.Get_size()
@@ -161,12 +179,13 @@ if __name__ == "__main__":
     targets = [t for t in os.listdir(data_dir) if t[-4:] == ext]
     targets.sort()
     targets = [t for i, t in enumerate(targets) if i % size == rank]
+    os.mkdir(out_dir)
 
     for t in targets:
         print("Rank %d converting %s" % (rank, t))
         if is_hdf:
-            hdf2tfr(path.join(data_dir, t), fields)
+            hdf2tfr(path.join(data_dir, t), out_dir, fields)
         else:
-            tif2tfr(path.join(data_dir, t))
+            tif2tfr(path.join(data_dir, t), out_dir)
 
     print("Rank %d done." % rank)
