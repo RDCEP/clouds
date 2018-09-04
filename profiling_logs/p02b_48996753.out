@@ -1,0 +1,1077 @@
+Modules loaded
+running...
+Tensorflow version: 1.9.0
+Current Git Commit: b'8249508'
+Flags:
+	data:                      ['/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0000.061.2017312163938.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0005.061.2017312164120.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0010.061.2017312163717.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0015.061.2017312163647.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0020.061.2017312164026.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0025.061.2017312170014.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0030.061.2017312170322.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0035.061.2017312170308.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0040.061.2017312170906.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0045.061.2017312170007.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0050.061.2017312170825.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0055.061.2017312170034.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0100.061.2017312164411.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0105.061.2017312164429.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0110.061.2017312164415.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0115.061.2017312163804.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0120.061.2017312163833.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0125.061.2017312163816.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0130.061.2017312163931.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0135.061.2017312164019.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0140.061.2017312164010.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0145.061.2017312163913.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0150.061.2017312163742.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0155.061.2017312163752.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0200.061.2017312164207.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0205.061.2017312170745.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0210.061.2017312165925.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0215.061.2017312170645.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0220.061.2017312170213.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0225.061.2017312165117.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0230.061.2017312170320.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0235.061.2017312171514.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0240.061.2017312164710.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0245.061.2017312164508.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0250.061.2017312164113.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0255.061.2017312163752.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0300.061.2017312164019.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0305.061.2017312164025.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0310.061.2017312163928.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0315.061.2017312164106.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0320.061.2017312164215.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0325.061.2017312164104.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0330.061.2017312163820.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0335.061.2017312163810.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0340.061.2017312164555.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0345.061.2017312165645.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0350.061.2017312170229.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0355.061.2017312170104.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0400.061.2017312170319.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0405.061.2017312170209.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0410.061.2017312171142.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0415.061.2017312165945.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0420.061.2017312164312.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0425.061.2017312164627.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0430.061.2017312163906.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0435.061.2017312163953.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0440.061.2017312164003.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0445.061.2017312163932.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0450.061.2017312163851.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0455.061.2017312164002.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0500.061.2017312163941.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0505.061.2017312163903.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0510.061.2017312163825.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0515.061.2017312164057.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0520.061.2017312165037.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0525.061.2017312165647.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0530.061.2017312165508.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0535.061.2017312170404.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0540.061.2017312170047.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0545.061.2017312170440.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0550.061.2017312170941.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0555.061.2017312165627.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0600.061.2017312164727.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0605.061.2017312164446.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0610.061.2017312163945.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0615.061.2017312164229.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0620.061.2017312163953.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0625.061.2017312163945.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0630.061.2017312164321.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0635.061.2017312164422.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0640.061.2017312164046.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0645.061.2017312163919.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0650.061.2017312163924.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0655.061.2017312164141.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0700.061.2017312165939.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0705.061.2017312170047.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0710.061.2017312165209.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0715.061.2017312165157.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0720.061.2017312165856.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0725.061.2017312170224.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0730.061.2017312170909.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0735.061.2017312165412.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0740.061.2017312165106.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0745.061.2017312164453.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0750.061.2017312164017.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0755.061.2017312164325.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0800.061.2017312164433.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0805.061.2017312164024.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0810.061.2017312164157.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0815.061.2017312164150.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0820.061.2017312164235.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0825.061.2017312163951.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0830.061.2017312164023.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0835.061.2017312164454.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0840.061.2017312170341.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0845.061.2017312170040.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0850.061.2017312170531.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0855.061.2017312171316.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0900.061.2017312170952.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0905.061.2017312171148.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0910.061.2017312171737.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0915.061.2017312170633.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0920.061.2017312170210.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0925.061.2017312165628.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0930.061.2017312165116.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0935.061.2017312165151.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0940.061.2017312165436.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0945.061.2017312165509.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0950.061.2017312165523.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0955.061.2017312165710.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1000.061.2017312165350.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1005.061.2017312165249.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1010.061.2017312165232.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1015.061.2017312170003.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1020.061.2017312171051.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1025.061.2017312170946.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1030.061.2017312171310.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1035.061.2017312171221.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1040.061.2017312170826.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1045.061.2017312172343.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1050.061.2017312171554.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1055.061.2017312170459.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1100.061.2017312170512.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1105.061.2017312165519.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1110.061.2017312165331.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1115.061.2017312165432.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1120.061.2017312165255.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1125.061.2017312165618.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1130.061.2017312165317.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1135.061.2017312165610.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1140.061.2017312165334.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1145.061.2017312165151.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1150.061.2017312165725.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1155.061.2017312170346.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1200.061.2017312171747.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1205.061.2017312172245.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1210.061.2017312172746.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1215.061.2017312170557.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1220.061.2017312171239.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1225.061.2017312172007.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1230.061.2017312171025.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1235.061.2017312170453.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1240.061.2017312171012.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1245.061.2017312165433.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1250.061.2017312165537.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1255.061.2017312165427.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1300.061.2017312165750.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1305.061.2017312165721.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1310.061.2017312165638.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1315.061.2017312165452.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1320.061.2017312165300.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1325.061.2017312165315.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1330.061.2017312170038.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1335.061.2017312172349.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1340.061.2017312171741.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1345.061.2017312172416.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1350.061.2017312173112.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1355.061.2017312171910.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1400.061.2017312170659.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1405.061.2017312171619.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1410.061.2017312171331.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1415.061.2017312170522.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1420.061.2017312165756.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1425.061.2017312165457.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1430.061.2017312165644.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1435.061.2017312165416.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1440.061.2017312165554.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1445.061.2017312165632.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1450.061.2017312165349.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1455.061.2017312165621.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1500.061.2017312165434.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1505.061.2017312165353.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1510.061.2017312165641.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1515.061.2017312172418.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1520.061.2017312173034.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1525.061.2017312170737.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1530.061.2017312171445.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1535.061.2017312171139.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1540.061.2017312171127.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1545.061.2017312172152.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1550.061.2017312171147.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1555.061.2017312171122.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1600.061.2017312170116.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1605.061.2017312165607.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1610.061.2017312165451.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1615.061.2017312165759.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1620.061.2017312165745.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1625.061.2017312165346.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1630.061.2017312165538.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1635.061.2017312165610.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1640.061.2017312165510.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1645.061.2017312165515.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1650.061.2017312170108.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1655.061.2017312170757.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1700.061.2017312171226.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1705.061.2017312171028.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1710.061.2017312172330.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1715.061.2017312171534.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1720.061.2017312171925.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1725.061.2017312173551.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1730.061.2017312171859.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1735.061.2017312170717.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1740.061.2017312165852.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1745.061.2017312165641.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1750.061.2017312165440.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1755.061.2017312165547.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1800.061.2017312165635.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1805.061.2017312165542.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1810.061.2017312165711.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1815.061.2017312165548.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1820.061.2017312165503.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1825.061.2017312165358.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1830.061.2017312170059.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1835.061.2017312172323.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1840.061.2017312173037.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1845.061.2017312171646.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1850.061.2017312170757.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1855.061.2017312171840.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1900.061.2017312172902.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1905.061.2017312173141.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1910.061.2017312170742.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1915.061.2017312165744.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1920.061.2017312165507.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1925.061.2017312170007.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1930.061.2017312165941.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1935.061.2017312165738.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1940.061.2017312165514.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1945.061.2017312165726.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1950.061.2017312165747.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.1955.061.2017312165648.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2000.061.2017312165734.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2005.061.2017312165815.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2010.061.2017312171118.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2015.061.2017312173902.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2020.061.2017312172611.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2025.061.2017312171055.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2030.061.2017312171239.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2035.061.2017312171943.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2040.061.2017312172036.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2045.061.2017312172041.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2050.061.2017312170259.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2055.061.2017312165807.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2100.061.2017312165634.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2105.061.2017312165830.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2110.061.2017312165734.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2115.061.2017312165701.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2120.061.2017312165622.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2125.061.2017312165803.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2130.061.2017312165846.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2135.061.2017312165700.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2140.061.2017312165534.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2145.061.2017312165905.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2150.061.2017312172819.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2155.061.2017312173201.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2200.061.2017312172149.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2205.061.2017312172636.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2210.061.2017312171822.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2215.061.2017312171310.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2220.061.2017312172247.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2225.061.2017312170916.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2230.061.2017312170049.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2235.061.2017312165827.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2240.061.2017312165627.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2245.061.2017312165756.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2250.061.2017312165721.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2255.061.2017312165820.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2300.061.2017312165616.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2305.061.2017312165713.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2310.061.2017312165815.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2315.061.2017312165720.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2320.061.2017312165639.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2325.061.2017312170032.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2330.061.2017312171440.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2335.061.2017312171515.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2340.061.2017312171516.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2345.061.2017312172715.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2350.061.2017312171342.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.2355.061.2017312172203.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0000.061.2017312161233.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0005.061.2017312154955.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0010.061.2017312154137.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0015.061.2017312154513.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0020.061.2017312154921.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0025.061.2017312154535.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0030.061.2017312154947.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0035.061.2017312155158.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0040.061.2017312154613.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0045.061.2017312154754.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0050.061.2017312154802.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0055.061.2017312154818.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0100.061.2017312154415.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0105.061.2017312155948.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0110.061.2017312160938.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0115.061.2017312160533.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0120.061.2017312161008.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0125.061.2017312160947.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0130.061.2017312160015.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0135.061.2017312160311.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0140.061.2017312160325.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0145.061.2017312154847.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0150.061.2017312154749.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0155.061.2017312154809.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0200.061.2017312154440.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0205.061.2017312154539.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0210.061.2017312154204.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0215.061.2017312154517.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0220.061.2017312154532.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0225.061.2017312154521.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0230.061.2017312154425.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0235.061.2017312154145.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0240.061.2017312154252.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0245.061.2017312155202.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0250.061.2017312160123.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0255.061.2017312160656.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0300.061.2017312160723.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0305.061.2017312160134.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0310.061.2017312155926.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0315.061.2017312160804.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0320.061.2017312155927.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0325.061.2017312154432.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0330.061.2017312154633.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0335.061.2017312154404.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0340.061.2017312154211.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0345.061.2017312154112.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0350.061.2017312154323.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0355.061.2017312154136.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0400.061.2017312154454.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0405.061.2017312154303.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0410.061.2017312154247.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0415.061.2017312155218.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0420.061.2017312154312.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0425.061.2017312155752.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0430.061.2017312160533.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0435.061.2017312161400.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0440.061.2017312162238.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0445.061.2017312160609.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0450.061.2017312161717.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0455.061.2017312162834.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0500.061.2017312160647.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0505.061.2017312155448.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0510.061.2017312155125.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0515.061.2017312154453.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0520.061.2017312154641.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0525.061.2017312154703.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0530.061.2017312154655.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0535.061.2017312154636.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0540.061.2017312155050.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0545.061.2017312154727.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0550.061.2017312154733.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0555.061.2017312154416.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0600.061.2017312154321.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0605.061.2017312155822.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0610.061.2017312155911.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0615.061.2017312155128.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0620.061.2017312155346.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0625.061.2017312155820.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0630.061.2017312160623.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0635.061.2017312160842.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0640.061.2017312155332.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0645.061.2017312155121.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0650.061.2017312154514.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0655.061.2017312154458.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0700.061.2017312154429.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0705.061.2017312154422.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0710.061.2017312154223.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0715.061.2017312154305.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0720.061.2017312154212.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0725.061.2017312154300.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0730.061.2017312154110.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0735.061.2017312154125.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0740.061.2017312154518.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0745.061.2017312155835.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0750.061.2017312155651.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0755.061.2017312155019.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0800.061.2017312155728.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0805.061.2017312155409.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0810.061.2017312161042.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0815.061.2017312160934.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0820.061.2017312154914.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0825.061.2017312154706.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0830.061.2017312154318.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0835.061.2017312154103.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0840.061.2017312154103.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0845.061.2017312154054.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0850.061.2017312154212.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0855.061.2017312154631.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0900.061.2017312153916.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0905.061.2017312154140.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0910.061.2017312154104.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0915.061.2017312154054.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0920.061.2017312155703.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0925.061.2017312155105.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0930.061.2017312155848.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0935.061.2017312160840.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0940.061.2017312161815.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0945.061.2017312160925.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0950.061.2017312161326.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.0955.061.2017312161210.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1000.061.2017312155504.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1005.061.2017312155622.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1010.061.2017312154233.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1015.061.2017312154323.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1020.061.2017312153721.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1025.061.2017312154540.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1030.061.2017312154604.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1035.061.2017312154712.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1040.061.2017312154556.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1045.061.2017312154404.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1050.061.2017312154342.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1055.061.2017312154717.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1100.061.2017312160646.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1105.061.2017312161447.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1110.061.2017312160124.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1115.061.2017312160308.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1120.061.2017312160110.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1125.061.2017312160822.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1130.061.2017312160506.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1135.061.2017312160205.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1140.061.2017312155127.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1145.061.2017312155059.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1150.061.2017312154308.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1155.061.2017312154128.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1200.061.2017312154437.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1205.061.2017312154408.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1210.061.2017312154134.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1215.061.2017312154432.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1220.061.2017312154342.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1225.061.2017312154206.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1230.061.2017312153821.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1235.061.2017312154417.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1240.061.2017312160305.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1245.061.2017312160645.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1250.061.2017312160903.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1255.061.2017312160622.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1300.061.2017312155114.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1305.061.2017312155621.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1310.061.2017312160704.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1315.061.2017312155459.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1320.061.2017312154940.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1325.061.2017312154129.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1330.061.2017312154102.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1335.061.2017312154106.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1340.061.2017312154249.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1345.061.2017312154425.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1350.061.2017312153458.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1355.061.2017312154117.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1400.061.2017312153856.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1405.061.2017312154040.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1410.061.2017312153752.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1415.061.2017312154250.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1420.061.2017312161229.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1425.061.2017312160910.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1430.061.2017312155417.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1435.061.2017312160002.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1440.061.2017312155537.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1445.061.2017312160043.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1450.061.2017312160820.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1455.061.2017312155344.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1500.061.2017312155710.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1505.061.2017312154459.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1510.061.2017312154307.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1515.061.2017312154134.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1520.061.2017312154141.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1525.061.2017312154416.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1530.061.2017312154416.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1535.061.2017312154310.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1540.061.2017312154205.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1545.061.2017312154345.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1550.061.2017312154144.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1555.061.2017312155501.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1600.061.2017312161314.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1605.061.2017312161010.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1610.061.2017312160541.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1615.061.2017312161006.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1620.061.2017312160928.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1625.061.2017312162203.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1630.061.2017312162318.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1635.061.2017312160614.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1640.061.2017312154600.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1645.061.2017312154412.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1650.061.2017312154505.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1655.061.2017312153946.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1700.061.2017312154224.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1705.061.2017312154059.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1710.061.2017312154024.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1715.061.2017312154250.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1720.061.2017312154125.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1725.061.2017312154020.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1730.061.2017312154038.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1735.061.2017312154811.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1740.061.2017312160442.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1745.061.2017312155121.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1750.061.2017312155836.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1755.061.2017312155503.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1800.061.2017312160509.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1805.061.2017312160151.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1810.061.2017312160003.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1815.061.2017312155006.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1820.061.2017312154114.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1825.061.2017312153644.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1830.061.2017312154044.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1835.061.2017312153913.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1840.061.2017312154046.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1845.061.2017312153947.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1850.061.2017312154214.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1855.061.2017312154205.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1900.061.2017312154049.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1905.061.2017312153822.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1910.061.2017312154256.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1915.061.2017312155024.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1920.061.2017312160631.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1925.061.2017312161242.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1930.061.2017312155223.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1935.061.2017312154509.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1940.061.2017312160432.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1945.061.2017312160030.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1950.061.2017312160236.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.1955.061.2017312154155.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2000.061.2017312154302.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2005.061.2017312154118.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2010.061.2017312153831.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2015.061.2017312155021.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2020.061.2017312153243.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2025.061.2017312154034.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2030.061.2017312154058.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2035.061.2017312154007.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2040.061.2017312154446.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2045.061.2017312154236.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2050.061.2017312154548.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2055.061.2017312161053.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2100.061.2017312160551.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2105.061.2017312155832.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2110.061.2017312155716.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2115.061.2017312161536.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2120.061.2017312161433.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2125.061.2017312162116.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2130.061.2017312160049.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2135.061.2017312154618.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2140.061.2017312154556.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2145.061.2017312154313.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2150.061.2017312153601.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2155.061.2017312154409.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2200.061.2017312154204.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2205.061.2017312154042.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2210.061.2017312154119.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2215.061.2017312154100.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2220.061.2017312153824.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2225.061.2017312153811.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2230.061.2017312154549.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2235.061.2017312160505.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2240.061.2017312160024.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2245.061.2017312160133.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2250.061.2017312160129.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2255.061.2017312155140.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2300.061.2017312160836.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2305.061.2017312160239.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2310.061.2017312154800.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2315.061.2017312154200.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2320.061.2017312154120.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2325.061.2017312154023.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2330.061.2017312153420.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2335.061.2017312153519.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2340.061.2017312153726.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2345.061.2017312153906.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2350.061.2017312154046.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_02/MOD06_L2.A2017002.2355.061.2017312153503.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0000.061.2017312153748.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0005.061.2017312153626.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0010.061.2017312154655.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0015.061.2017312155910.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0020.061.2017312155648.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0025.061.2017312160024.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0030.061.2017312160249.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0035.061.2017312155454.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0040.061.2017312155825.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0045.061.2017312155407.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0050.061.2017312154926.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0055.061.2017312153656.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0100.061.2017312153453.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0105.061.2017312154123.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0110.061.2017312153700.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0115.061.2017312153724.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0120.061.2017312154137.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0125.061.2017312153620.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0130.061.2017312153606.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0135.061.2017312154046.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0140.061.2017312153740.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0145.061.2017312154658.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0150.061.2017312154320.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0155.061.2017312155506.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0200.061.2017312161156.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0205.061.2017312160839.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0210.061.2017312160707.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0215.061.2017312155859.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0220.061.2017312161725.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0225.061.2017312155801.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0230.061.2017312154609.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0235.061.2017312154431.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0240.061.2017312153639.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0245.061.2017312153952.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0250.061.2017312153808.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0255.061.2017312154346.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0300.061.2017312154156.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0305.061.2017312154024.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0310.061.2017312153623.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0315.061.2017312154027.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0320.061.2017312154219.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0325.061.2017312154410.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0330.061.2017312155728.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0335.061.2017312161336.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0340.061.2017312160106.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0345.061.2017312160503.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0350.061.2017312155321.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0355.061.2017312160130.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0400.061.2017312160634.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0405.061.2017312154711.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0410.061.2017312154133.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0415.061.2017312154212.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0420.061.2017312153643.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0425.061.2017312153714.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0430.061.2017312154120.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0435.061.2017312153849.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0440.061.2017312154046.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0445.061.2017312154159.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0450.061.2017312153916.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0455.061.2017312154030.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0500.061.2017312153815.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0505.061.2017312153720.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0510.061.2017312155012.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0515.061.2017312155016.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0520.061.2017312155154.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0525.061.2017312155621.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0530.061.2017312154733.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0535.061.2017312155636.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0540.061.2017312155951.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0545.061.2017312154428.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0550.061.2017312153912.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0555.061.2017312153708.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0600.061.2017312153510.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0605.061.2017312153705.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0610.061.2017312153503.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0615.061.2017312153654.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0620.061.2017312154232.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0625.061.2017312153611.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0630.061.2017312153408.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0635.061.2017312154047.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0640.061.2017312153358.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0645.061.2017312154446.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0650.061.2017312155648.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0655.061.2017312154609.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0700.061.2017312154636.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0705.061.2017312154427.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0710.061.2017312155217.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0715.061.2017312160640.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0720.061.2017312160346.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0725.061.2017312154411.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0730.061.2017312154538.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0735.061.2017312153857.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0740.061.2017312153902.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0745.061.2017312153622.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0750.061.2017312153606.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0755.061.2017312153658.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0800.061.2017312153707.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0805.061.2017312153757.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0810.061.2017312154221.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0815.061.2017312153726.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0820.061.2017312154230.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0825.061.2017312155454.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0830.061.2017312155828.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0835.061.2017312155721.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0840.061.2017312155344.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0845.061.2017312160433.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0850.061.2017312160345.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0855.061.2017312161853.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0900.061.2017312160814.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0905.061.2017312154733.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0910.061.2017312154330.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0915.061.2017312154105.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0920.061.2017312153717.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0925.061.2017312153401.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0930.061.2017312154059.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0935.061.2017312153614.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0940.061.2017312153510.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0945.061.2017312153548.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0950.061.2017312153555.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.0955.061.2017312153331.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1000.061.2017312154744.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1005.061.2017312155006.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1010.061.2017312155135.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1015.061.2017312154753.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1020.061.2017312155401.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1025.061.2017312155226.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1030.061.2017312155544.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1035.061.2017312160726.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1040.061.2017312155202.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1045.061.2017312154607.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1050.061.2017312154000.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1055.061.2017312153510.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1100.061.2017312153511.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1105.061.2017312153627.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1110.061.2017312153632.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1115.061.2017312153556.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1120.061.2017312154246.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1125.061.2017312153824.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1130.061.2017312153501.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1135.061.2017312153450.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1140.061.2017312153714.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1145.061.2017312155801.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1150.061.2017312155357.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1155.061.2017312154655.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1200.061.2017312155458.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1205.061.2017312160008.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1210.061.2017312155353.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1215.061.2017312160446.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1220.061.2017312154720.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1225.061.2017312155043.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1230.061.2017312154036.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1235.061.2017312153504.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1240.061.2017312153655.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1245.061.2017312154155.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1250.061.2017312154131.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1255.061.2017312153428.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1300.061.2017312153752.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1305.061.2017312153553.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1310.061.2017312153638.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1315.061.2017312153452.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1320.061.2017312154240.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1325.061.2017312161329.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1330.061.2017312160724.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1335.061.2017312161439.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1340.061.2017312160521.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1345.061.2017312160336.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1350.061.2017312160252.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1355.061.2017312162001.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1400.061.2017312160110.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1405.061.2017312155600.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1410.061.2017312155016.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1415.061.2017312154827.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1420.061.2017312154714.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1425.061.2017312154851.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1430.061.2017312155123.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1435.061.2017312154618.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1440.061.2017312154746.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1445.061.2017312154533.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1450.061.2017312154659.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1455.061.2017312154658.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1500.061.2017312155714.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1505.061.2017312161439.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1510.061.2017312160529.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1515.061.2017312160617.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1520.061.2017312160344.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1525.061.2017312155924.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1530.061.2017312161151.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1535.061.2017312161125.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1540.061.2017312160832.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1545.061.2017312155008.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1550.061.2017312154746.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1555.061.2017312154801.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1600.061.2017312154659.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1605.061.2017312155052.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1610.061.2017312154657.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1615.061.2017312154810.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1620.061.2017312154959.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1625.061.2017312154556.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1630.061.2017312154734.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1635.061.2017312154707.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1640.061.2017312160100.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1645.061.2017312161001.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1650.061.2017312160155.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1655.061.2017312160513.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1700.061.2017312160422.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1705.061.2017312160637.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1710.061.2017312161700.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1715.061.2017312161104.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1720.061.2017312155819.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1725.061.2017312154836.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1730.061.2017312155009.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1735.061.2017312154637.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1740.061.2017312154736.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1745.061.2017312154612.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1750.061.2017312154727.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1755.061.2017312154802.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1800.061.2017312154720.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1805.061.2017312154746.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1810.061.2017312154724.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1815.061.2017312155046.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1820.061.2017312161115.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1825.061.2017312160737.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1830.061.2017312161130.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1835.061.2017312160731.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1840.061.2017312160701.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1845.061.2017312161442.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1850.061.2017312161047.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1855.061.2017312160557.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1900.061.2017312155418.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1905.061.2017312155054.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1910.061.2017312154819.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1915.061.2017312154808.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1920.061.2017312154948.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1925.061.2017312154914.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1930.061.2017312154746.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1935.061.2017312155022.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1940.061.2017312155006.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1945.061.2017312154908.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1950.061.2017312154844.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.1955.061.2017312155247.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2000.061.2017312160926.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2005.061.2017312161123.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2010.061.2017312161009.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2015.061.2017312160329.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2020.061.2017312161237.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2025.061.2017312161554.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2030.061.2017312161536.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2035.061.2017312160816.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2040.061.2017312155101.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2045.061.2017312154953.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2050.061.2017312155122.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2055.061.2017312154839.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2100.061.2017312154904.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2105.061.2017312154839.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2110.061.2017312154649.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2115.061.2017312155035.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2120.061.2017312155105.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2125.061.2017312154738.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2130.061.2017312154849.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2135.061.2017312160333.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2140.061.2017312161717.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2145.061.2017312161030.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2150.061.2017312162057.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2155.061.2017312160940.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2200.061.2017312160920.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2205.061.2017312161546.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2210.061.2017312162558.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2215.061.2017312155542.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2220.061.2017312155005.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2225.061.2017312155043.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2230.061.2017312154750.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2235.061.2017312155020.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2240.061.2017312154822.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2245.061.2017312154829.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2250.061.2017312154811.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2255.061.2017312154941.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2300.061.2017312154848.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2305.061.2017312154858.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2310.061.2017312154806.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2315.061.2017312160346.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2320.061.2017312162956.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2325.061.2017312161338.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2330.061.2017312161317.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2335.061.2017312161856.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2340.061.2017312160641.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2345.061.2017312162205.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2350.061.2017312161236.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_03/MOD06_L2.A2017003.2355.061.2017312155857.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0000.061.2017312155229.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0005.061.2017312154911.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0010.061.2017312155417.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0015.061.2017312155016.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0020.061.2017312155145.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0025.061.2017312155124.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0030.061.2017312155100.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0035.061.2017312155114.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0040.061.2017312154905.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0045.061.2017312155048.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0050.061.2017312155300.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0055.061.2017312161415.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0100.061.2017312162654.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0105.061.2017312162314.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0110.061.2017312161237.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0115.061.2017312160547.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0120.061.2017312160753.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0125.061.2017312161749.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0130.061.2017312155956.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0135.061.2017312155452.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0140.061.2017312155638.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0145.061.2017312155317.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0150.061.2017312155103.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0155.061.2017312155018.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0200.061.2017312155116.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0205.061.2017312155021.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0210.061.2017312155128.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0215.061.2017312155114.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0220.061.2017312155221.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0225.061.2017312155028.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0230.061.2017312155246.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0235.061.2017312160911.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0240.061.2017312162157.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0245.061.2017312162103.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0250.061.2017312162656.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0255.061.2017312160510.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0300.061.2017312162831.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0305.061.2017312162457.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0310.061.2017312160023.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0315.061.2017312155520.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0320.061.2017312155221.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0325.061.2017312154828.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0330.061.2017312154945.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0335.061.2017312155109.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0340.061.2017312155024.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0345.061.2017312155107.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0350.061.2017312155507.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0355.061.2017312155057.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0400.061.2017312154919.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0405.061.2017312154958.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0410.061.2017312155456.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0415.061.2017312160401.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0420.061.2017312160611.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0425.061.2017312162005.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0430.061.2017312162928.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0435.061.2017312161509.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0440.061.2017312161502.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0445.061.2017312161617.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0450.061.2017312155708.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0455.061.2017312155728.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0500.061.2017312155445.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0505.061.2017312155019.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0510.061.2017312155348.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0515.061.2017312155146.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0520.061.2017312155034.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0525.061.2017312155112.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0530.061.2017312155342.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0535.061.2017312155248.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0540.061.2017312155340.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0545.061.2017312154924.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0550.061.2017312160535.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0555.061.2017312161733.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0600.061.2017312161152.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0605.061.2017312161244.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0610.061.2017312161414.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0615.061.2017312160722.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0620.061.2017312161622.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0625.061.2017312161204.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0630.061.2017312160001.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0635.061.2017312155634.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0640.061.2017312155052.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0645.061.2017312155123.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0650.061.2017312155600.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0655.061.2017312155120.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0700.061.2017312155345.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0705.061.2017312155210.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0710.061.2017312155137.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0715.061.2017312155433.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0720.061.2017312155305.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0725.061.2017312155429.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0730.061.2017312160552.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0735.061.2017312160651.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0740.061.2017312160753.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0745.061.2017312160428.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0750.061.2017312160715.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0755.061.2017312161439.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0800.061.2017312162226.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0805.061.2017312161801.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0810.061.2017312155927.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0815.061.2017312155926.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0820.061.2017312155534.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0825.061.2017312155150.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0830.061.2017312155259.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0835.061.2017312155241.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0840.061.2017312155240.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0845.061.2017312155446.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0850.061.2017312155202.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0855.061.2017312155302.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0900.061.2017312155439.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0905.061.2017312155645.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0910.061.2017312160721.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0915.061.2017312160838.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0920.061.2017312160655.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0925.061.2017312161056.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0930.061.2017312162103.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0935.061.2017312161134.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0940.061.2017312161807.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0945.061.2017312160717.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0950.061.2017312160020.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.0955.061.2017312155503.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1000.061.2017312155325.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1005.061.2017312155329.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1010.061.2017312155241.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1015.061.2017312155454.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1020.061.2017312155315.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1025.061.2017312155455.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1030.061.2017312155408.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1035.061.2017312155250.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1040.061.2017312155249.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1045.061.2017312160036.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1050.061.2017312162018.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1055.061.2017312161318.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1100.061.2017312160746.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1105.061.2017312161650.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1110.061.2017312160808.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1115.061.2017312163349.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1120.061.2017312161920.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1125.061.2017312160857.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1130.061.2017312160523.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1135.061.2017312155647.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1140.061.2017312155403.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1145.061.2017312155418.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1150.061.2017312155333.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1155.061.2017312155335.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1200.061.2017312155338.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1205.061.2017312155413.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1210.061.2017312155225.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1215.061.2017312155213.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1220.061.2017312155330.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1225.061.2017312160400.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1230.061.2017312162012.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1235.061.2017312161746.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1240.061.2017312161626.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1245.061.2017312161824.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1250.061.2017312161918.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1255.061.2017312162756.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1300.061.2017312161656.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1305.061.2017312160359.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1310.061.2017312160310.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1315.061.2017312155222.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1320.061.2017312155231.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1325.061.2017312155242.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1330.061.2017312155455.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1335.061.2017312155357.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1340.061.2017312155343.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1345.061.2017312155351.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1350.061.2017312155311.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1355.061.2017312155405.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1400.061.2017312155307.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1405.061.2017312161139.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1410.061.2017312161926.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1415.061.2017312160834.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1420.061.2017312161354.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1425.061.2017312161125.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1430.061.2017312160445.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1435.061.2017312161533.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1440.061.2017312162739.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1445.061.2017312160731.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1450.061.2017312155916.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1455.061.2017312155434.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1500.061.2017312155229.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1505.061.2017312155335.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1510.061.2017312155537.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1515.061.2017312155554.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1520.061.2017312155540.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1525.061.2017312155651.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1530.061.2017312155142.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1535.061.2017312155336.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1540.061.2017312155445.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1545.061.2017312160836.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1550.061.2017312162157.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1555.061.2017312160748.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1600.061.2017312161329.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1605.061.2017312161615.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1610.061.2017312161706.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1615.061.2017312162152.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1620.061.2017312161720.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1625.061.2017312161459.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1630.061.2017312155759.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1635.061.2017312155340.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1640.061.2017312155431.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1645.061.2017312155421.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1650.061.2017312155705.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1655.061.2017312155446.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1700.061.2017312155624.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1705.061.2017312155450.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1710.061.2017312155314.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1715.061.2017312155413.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1720.061.2017312155629.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1725.061.2017312161029.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1730.061.2017312161355.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1735.061.2017312161020.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1740.061.2017312161508.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1745.061.2017312161419.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1750.061.2017312161810.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1755.061.2017312162532.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1800.061.2017312161520.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1805.061.2017312160106.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1810.061.2017312155611.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1815.061.2017312155623.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1820.061.2017312155639.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1825.061.2017312155620.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1830.061.2017312155614.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1835.061.2017312155421.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1840.061.2017312155645.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1845.061.2017312155458.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1850.061.2017312155426.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1855.061.2017312155422.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1900.061.2017312155937.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1905.061.2017312161154.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1910.061.2017312162300.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1915.061.2017312161225.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1920.061.2017312160840.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1925.061.2017312161602.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1930.061.2017312161938.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1935.061.2017312163008.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1940.061.2017312162257.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1945.061.2017312155927.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1950.061.2017312155850.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.1955.061.2017312155720.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2000.061.2017312155745.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2005.061.2017312155459.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2010.061.2017312155532.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2015.061.2017312155458.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2020.061.2017312155709.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2025.061.2017312155649.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2030.061.2017312155626.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2035.061.2017312155627.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2040.061.2017312161345.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2045.061.2017312162124.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2050.061.2017312161401.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2055.061.2017312161245.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2100.061.2017312161009.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2105.061.2017312161308.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2110.061.2017312162308.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2115.061.2017312161848.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2120.061.2017312161103.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2125.061.2017312155855.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2130.061.2017312155507.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2135.061.2017312155542.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2140.061.2017312155715.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2145.061.2017312155727.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2150.061.2017312155648.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2155.061.2017312155418.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2200.061.2017312155601.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2205.061.2017312155722.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2210.061.2017312155443.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2215.061.2017312155637.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2220.061.2017312161217.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2225.061.2017312162218.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2230.061.2017312161151.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2235.061.2017312161531.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2240.061.2017312162130.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2245.061.2017312161735.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2250.061.2017312162449.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2255.061.2017312162220.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2300.061.2017312160139.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2305.061.2017312160057.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2310.061.2017312155600.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2315.061.2017312155732.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2320.061.2017312155703.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2325.061.2017312155609.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2330.061.2017312155546.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2335.061.2017312155627.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2340.061.2017312155632.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2345.061.2017312155524.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2350.061.2017312155558.tfrecord', '/scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_04/MOD06_L2.A2017004.2355.061.2017312155741.tfrecord']
+	fields:                    ['Cloud_Optical_Thickness', 'Cloud_Water_Path', 'Cloud_Effective_Radius']
+	meta_json:                 /scratch/midway2/casperneo/data/nasa/mod06_l2//2017_01_01/MOD06_L2.A2017001.0625.061.2017312163945.json
+	batch_size:                8
+	model_dir:                 /project/foster/clouds/output/p02b/
+	optimizer:                 adam
+	steps_per_epoch:           1000
+	shape:                     (64, 64)
+	n_layers:                  3
+	base_dim:                  8
+	batchnorm:                 True
+	epochs:                    1
+	summary_every:             25
+	new_model:                 
+	variational:               False
+	vae_beta:                  1.0
+	discriminator:             False
+	lambda_disc:               0.01
+	lambda_gradient_penalty:   10
+	n_critic:                  5
+	lambda_per:                1.0
+	perceptual:                False
+	display_imgs:              8
+	read_threads:              8
+	shuffle_buffer_size:       200
+	red_bands:                 [0]
+	green_bands:               [2]
+	blue_bands:                [1]
+
+
+Parsing Inputs...
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_0.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 28.00sec, accelerator: 0us, total: 28.00sec (74.87%)
+top 2 operation type: Conv2D, cpu: 9.20sec, accelerator: 13.62ms, total: 9.22sec (24.64%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 33.22ms, accelerator: 29.19ms, total: 62.41ms (0.17%)
+top 1 graph node: IteratorGetNext, cpu: 28.00sec, accelerator: 0us, total: 28.00sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 28.07sec, accelerator: 0us, total: 28.07sec
+  iterator_ops.py:373:get_next, cpu: 28.00sec, accelerator: 0us, total: 28.00sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 61.88ms, accelerator: 0us, total: 61.88ms
+train.py:349:<module>, cpu: 9.21sec, accelerator: 15.40ms, total: 9.22sec
+train.py:349:<module> (gradient), cpu: 53.65ms, accelerator: 43.67ms, total: 97.31ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_25.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 14.43sec, accelerator: 0us, total: 14.43sec (75.38%)
+top 2 operation type: Conv2D, cpu: 4.60sec, accelerator: 7.48ms, total: 4.61sec (24.08%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 17.30ms, accelerator: 15.72ms, total: 33.02ms (0.17%)
+top 1 graph node: IteratorGetNext, cpu: 14.43sec, accelerator: 0us, total: 14.43sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 14.46sec, accelerator: 0us, total: 14.46sec
+  iterator_ops.py:373:get_next, cpu: 14.43sec, accelerator: 0us, total: 14.43sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 30.95ms, accelerator: 0us, total: 30.95ms
+train.py:349:<module>, cpu: 4.61sec, accelerator: 8.64ms, total: 4.61sec
+train.py:349:<module> (gradient), cpu: 29.65ms, accelerator: 24.55ms, total: 54.22ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.01
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_50.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 9.93sec, accelerator: 0us, total: 9.93sec (75.91%)
+top 2 operation type: Conv2D, cpu: 3.07sec, accelerator: 5.44ms, total: 3.07sec (23.50%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 12.01ms, accelerator: 11.23ms, total: 23.24ms (0.18%)
+top 1 graph node: IteratorGetNext, cpu: 9.93sec, accelerator: 0us, total: 9.93sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 9.95sec, accelerator: 0us, total: 9.95sec
+  iterator_ops.py:373:get_next, cpu: 9.93sec, accelerator: 0us, total: 9.93sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 20.64ms, accelerator: 0us, total: 20.64ms
+train.py:349:<module>, cpu: 3.07sec, accelerator: 6.39ms, total: 3.08sec
+train.py:349:<module> (gradient), cpu: 21.61ms, accelerator: 18.17ms, total: 39.81ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.01
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_75.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 7.70sec, accelerator: 0us, total: 7.70sec (76.47%)
+top 2 operation type: Conv2D, cpu: 2.30sec, accelerator: 4.42ms, total: 2.31sec (22.89%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 9.38ms, accelerator: 8.98ms, total: 18.37ms (0.18%)
+top 1 graph node: IteratorGetNext, cpu: 7.70sec, accelerator: 0us, total: 7.70sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 7.72sec, accelerator: 0us, total: 7.72sec
+  iterator_ops.py:373:get_next, cpu: 7.70sec, accelerator: 0us, total: 7.70sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 15.48ms, accelerator: 0us, total: 15.48ms
+train.py:349:<module>, cpu: 2.30sec, accelerator: 5.27ms, total: 2.31sec
+train.py:349:<module> (gradient), cpu: 17.73ms, accelerator: 14.99ms, total: 32.74ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.01
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_100.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 6.35sec, accelerator: 0us, total: 6.35sec (76.95%)
+top 2 operation type: Conv2D, cpu: 1.84sec, accelerator: 3.80ms, total: 1.85sec (22.37%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 7.79ms, accelerator: 7.63ms, total: 15.44ms (0.19%)
+top 1 graph node: IteratorGetNext, cpu: 6.35sec, accelerator: 0us, total: 6.35sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 6.36sec, accelerator: 0us, total: 6.36sec
+  iterator_ops.py:373:get_next, cpu: 6.35sec, accelerator: 0us, total: 6.35sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 12.39ms, accelerator: 0us, total: 12.39ms
+train.py:349:<module>, cpu: 1.84sec, accelerator: 4.59ms, total: 1.85sec
+train.py:349:<module> (gradient), cpu: 15.35ms, accelerator: 13.08ms, total: 28.45ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.01
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_125.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.01
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 5.40sec, accelerator: 0us, total: 5.40sec (77.26%)
+top 2 operation type: Conv2D, cpu: 1.54sec, accelerator: 3.39ms, total: 1.54sec (22.01%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 6.71ms, accelerator: 6.73ms, total: 13.45ms (0.19%)
+top 1 graph node: IteratorGetNext, cpu: 5.40sec, accelerator: 0us, total: 5.40sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 5.41sec, accelerator: 0us, total: 5.41sec
+  iterator_ops.py:373:get_next, cpu: 5.40sec, accelerator: 0us, total: 5.40sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 10.32ms, accelerator: 0us, total: 10.32ms
+train.py:349:<module>, cpu: 1.54sec, accelerator: 4.14ms, total: 1.54sec
+train.py:349:<module> (gradient), cpu: 13.62ms, accelerator: 11.79ms, total: 25.44ms
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_150.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 4.71sec, accelerator: 0us, total: 4.71sec (77.50%)
+top 2 operation type: Conv2D, cpu: 1.32sec, accelerator: 3.10ms, total: 1.32sec (21.73%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 5.99ms, accelerator: 6.09ms, total: 12.09ms (0.20%)
+top 1 graph node: IteratorGetNext, cpu: 4.71sec, accelerator: 0us, total: 4.71sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 4.71sec, accelerator: 0us, total: 4.71sec
+  iterator_ops.py:373:get_next, cpu: 4.71sec, accelerator: 0us, total: 4.71sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 8.85ms, accelerator: 0us, total: 8.85ms
+train.py:349:<module>, cpu: 1.32sec, accelerator: 3.82ms, total: 1.32sec
+train.py:349:<module> (gradient), cpu: 12.66ms, accelerator: 10.88ms, total: 23.57ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.02
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_175.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 4.20sec, accelerator: 0us, total: 4.20sec (77.78%)
+top 2 operation type: Conv2D, cpu: 1.15sec, accelerator: 2.88ms, total: 1.15sec (21.40%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 5.42ms, accelerator: 5.61ms, total: 11.04ms (0.20%)
+top 1 graph node: IteratorGetNext, cpu: 4.20sec, accelerator: 0us, total: 4.20sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 4.20sec, accelerator: 0us, total: 4.20sec
+  iterator_ops.py:373:get_next, cpu: 4.20sec, accelerator: 0us, total: 4.20sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 7.75ms, accelerator: 0us, total: 7.75ms
+train.py:349:<module>, cpu: 1.15sec, accelerator: 3.58ms, total: 1.16sec
+train.py:349:<module> (gradient), cpu: 11.80ms, accelerator: 10.20ms, total: 22.03ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.01
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_200.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 3.81sec, accelerator: 0us, total: 3.81sec (78.10%)
+top 2 operation type: Conv2D, cpu: 1.02sec, accelerator: 2.71ms, total: 1.03sec (21.05%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 4.97ms, accelerator: 5.24ms, total: 10.21ms (0.21%)
+top 1 graph node: IteratorGetNext, cpu: 3.81sec, accelerator: 0us, total: 3.81sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 3.82sec, accelerator: 0us, total: 3.82sec
+  iterator_ops.py:373:get_next, cpu: 3.81sec, accelerator: 0us, total: 3.81sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 6.89ms, accelerator: 0us, total: 6.89ms
+train.py:349:<module>, cpu: 1.03sec, accelerator: 3.40ms, total: 1.03sec
+train.py:349:<module> (gradient), cpu: 11.09ms, accelerator: 9.67ms, total: 20.79ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.01
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_225.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 3.51sec, accelerator: 0us, total: 3.51sec (78.44%)
+top 2 operation type: Conv2D, cpu: 921.71ms, accelerator: 2.57ms, total: 924.29ms (20.67%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 4.61ms, accelerator: 4.94ms, total: 9.55ms (0.21%)
+top 1 graph node: IteratorGetNext, cpu: 3.51sec, accelerator: 0us, total: 3.51sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 3.51sec, accelerator: 0us, total: 3.51sec
+  iterator_ops.py:373:get_next, cpu: 3.51sec, accelerator: 0us, total: 3.51sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 6.20ms, accelerator: 0us, total: 6.20ms
+train.py:349:<module>, cpu: 924.03ms, accelerator: 3.24ms, total: 927.28ms
+train.py:349:<module> (gradient), cpu: 10.55ms, accelerator: 9.25ms, total: 19.82ms
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_250.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 3.26sec, accelerator: 0us, total: 3.26sec (78.78%)
+top 2 operation type: Conv2D, cpu: 838.02ms, accelerator: 2.46ms, total: 840.49ms (20.30%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 4.32ms, accelerator: 4.69ms, total: 9.01ms (0.22%)
+top 1 graph node: IteratorGetNext, cpu: 3.26sec, accelerator: 0us, total: 3.26sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 3.27sec, accelerator: 0us, total: 3.27sec
+  iterator_ops.py:373:get_next, cpu: 3.26sec, accelerator: 0us, total: 3.26sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 5.64ms, accelerator: 0us, total: 5.64ms
+train.py:349:<module>, cpu: 840.26ms, accelerator: 3.12ms, total: 843.40ms
+train.py:349:<module> (gradient), cpu: 10.06ms, accelerator: 8.91ms, total: 18.99ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_275.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 3.04sec, accelerator: 0us, total: 3.04sec (79.03%)
+top 2 operation type: Conv2D, cpu: 768.31ms, accelerator: 2.37ms, total: 770.69ms (20.01%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 4.09ms, accelerator: 4.49ms, total: 8.59ms (0.22%)
+top 1 graph node: IteratorGetNext, cpu: 3.04sec, accelerator: 0us, total: 3.04sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 3.05sec, accelerator: 0us, total: 3.05sec
+  iterator_ops.py:373:get_next, cpu: 3.04sec, accelerator: 0us, total: 3.04sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 5.17ms, accelerator: 0us, total: 5.17ms
+train.py:349:<module>, cpu: 770.50ms, accelerator: 3.02ms, total: 773.53ms
+train.py:349:<module> (gradient), cpu: 9.75ms, accelerator: 8.61ms, total: 18.39ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_300.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 2.86sec, accelerator: 0us, total: 2.86sec (79.29%)
+top 2 operation type: Conv2D, cpu: 709.32ms, accelerator: 2.29ms, total: 711.61ms (19.71%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 3.90ms, accelerator: 4.31ms, total: 8.23ms (0.23%)
+top 1 graph node: IteratorGetNext, cpu: 2.86sec, accelerator: 0us, total: 2.86sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 2.87sec, accelerator: 0us, total: 2.87sec
+  iterator_ops.py:373:get_next, cpu: 2.86sec, accelerator: 0us, total: 2.86sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 4.77ms, accelerator: 0us, total: 4.77ms
+train.py:349:<module>, cpu: 711.46ms, accelerator: 2.93ms, total: 714.41ms
+train.py:349:<module> (gradient), cpu: 9.51ms, accelerator: 8.37ms, total: 17.90ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_325.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 2.71sec, accelerator: 0us, total: 2.71sec (79.54%)
+top 2 operation type: Conv2D, cpu: 658.79ms, accelerator: 2.18ms, total: 660.98ms (19.42%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 3.74ms, accelerator: 4.15ms, total: 7.89ms (0.23%)
+top 1 graph node: IteratorGetNext, cpu: 2.71sec, accelerator: 0us, total: 2.71sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 2.71sec, accelerator: 0us, total: 2.71sec
+  iterator_ops.py:373:get_next, cpu: 2.71sec, accelerator: 0us, total: 2.71sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 4.43ms, accelerator: 0us, total: 4.43ms
+train.py:349:<module>, cpu: 660.95ms, accelerator: 2.77ms, total: 663.75ms
+train.py:349:<module> (gradient), cpu: 9.28ms, accelerator: 8.14ms, total: 17.44ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_350.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 2.58sec, accelerator: 0us, total: 2.58sec (79.82%)
+top 2 operation type: Conv2D, cpu: 615.02ms, accelerator: 2.08ms, total: 617.11ms (19.11%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 3.59ms, accelerator: 3.97ms, total: 7.57ms (0.23%)
+top 1 graph node: IteratorGetNext, cpu: 2.58sec, accelerator: 0us, total: 2.58sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 2.58sec, accelerator: 0us, total: 2.58sec
+  iterator_ops.py:373:get_next, cpu: 2.58sec, accelerator: 0us, total: 2.58sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 4.14ms, accelerator: 0us, total: 4.14ms
+train.py:349:<module>, cpu: 617.24ms, accelerator: 2.65ms, total: 619.91ms
+train.py:349:<module> (gradient), cpu: 9.06ms, accelerator: 7.94ms, total: 17.03ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_375.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 2.46sec, accelerator: 0us, total: 2.46sec (80.09%)
+top 2 operation type: Conv2D, cpu: 576.70ms, accelerator: 2.02ms, total: 578.72ms (18.81%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 3.45ms, accelerator: 3.86ms, total: 7.32ms (0.24%)
+top 1 graph node: IteratorGetNext, cpu: 2.46sec, accelerator: 0us, total: 2.46sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 2.47sec, accelerator: 0us, total: 2.47sec
+  iterator_ops.py:373:get_next, cpu: 2.46sec, accelerator: 0us, total: 2.46sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 3.88ms, accelerator: 0us, total: 3.88ms
+train.py:349:<module>, cpu: 578.93ms, accelerator: 2.56ms, total: 581.51ms
+train.py:349:<module> (gradient), cpu: 8.85ms, accelerator: 7.78ms, total: 16.65ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_400.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 2.37sec, accelerator: 0us, total: 2.37sec (80.37%)
+top 2 operation type: Conv2D, cpu: 542.91ms, accelerator: 1.98ms, total: 544.89ms (18.50%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 3.34ms, accelerator: 3.77ms, total: 7.11ms (0.24%)
+top 1 graph node: IteratorGetNext, cpu: 2.37sec, accelerator: 0us, total: 2.37sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 2.37sec, accelerator: 0us, total: 2.37sec
+  iterator_ops.py:373:get_next, cpu: 2.37sec, accelerator: 0us, total: 2.37sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 3.65ms, accelerator: 0us, total: 3.65ms
+train.py:349:<module>, cpu: 545.19ms, accelerator: 2.52ms, total: 547.73ms
+train.py:349:<module> (gradient), cpu: 8.69ms, accelerator: 7.64ms, total: 16.36ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_425.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 2.30sec, accelerator: 0us, total: 2.30sec (80.73%)
+top 2 operation type: Conv2D, cpu: 512.87ms, accelerator: 1.91ms, total: 514.78ms (18.10%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 3.23ms, accelerator: 3.65ms, total: 6.88ms (0.24%)
+top 1 graph node: IteratorGetNext, cpu: 2.30sec, accelerator: 0us, total: 2.30sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 2.30sec, accelerator: 0us, total: 2.30sec
+  iterator_ops.py:373:get_next, cpu: 2.30sec, accelerator: 0us, total: 2.30sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 3.45ms, accelerator: 0us, total: 3.45ms
+train.py:349:<module>, cpu: 515.18ms, accelerator: 2.42ms, total: 517.63ms
+train.py:349:<module> (gradient), cpu: 8.55ms, accelerator: 7.49ms, total: 16.08ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_450.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 2.21sec, accelerator: 0us, total: 2.21sec (80.97%)
+top 2 operation type: Conv2D, cpu: 485.95ms, accelerator: 1.88ms, total: 487.84ms (17.84%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 3.14ms, accelerator: 3.57ms, total: 6.72ms (0.25%)
+top 1 graph node: IteratorGetNext, cpu: 2.21sec, accelerator: 0us, total: 2.21sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 2.22sec, accelerator: 0us, total: 2.22sec
+  iterator_ops.py:373:get_next, cpu: 2.21sec, accelerator: 0us, total: 2.21sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 3.27ms, accelerator: 0us, total: 3.27ms
+train.py:349:<module>, cpu: 488.25ms, accelerator: 2.40ms, total: 490.67ms
+train.py:349:<module> (gradient), cpu: 8.41ms, accelerator: 7.38ms, total: 15.83ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_475.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 2.14sec, accelerator: 0us, total: 2.14sec (81.22%)
+top 2 operation type: Conv2D, cpu: 461.76ms, accelerator: 1.85ms, total: 463.61ms (17.56%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 3.05ms, accelerator: 3.50ms, total: 6.56ms (0.25%)
+top 1 graph node: IteratorGetNext, cpu: 2.14sec, accelerator: 0us, total: 2.14sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 2.15sec, accelerator: 0us, total: 2.15sec
+  iterator_ops.py:373:get_next, cpu: 2.14sec, accelerator: 0us, total: 2.14sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 3.11ms, accelerator: 0us, total: 3.11ms
+train.py:349:<module>, cpu: 464.08ms, accelerator: 2.37ms, total: 466.47ms
+train.py:349:<module> (gradient), cpu: 8.28ms, accelerator: 7.29ms, total: 15.59ms
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_500.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 2.09sec, accelerator: 0us, total: 2.09sec (81.50%)
+top 2 operation type: Conv2D, cpu: 439.85ms, accelerator: 1.82ms, total: 441.68ms (17.26%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 2.98ms, accelerator: 3.44ms, total: 6.42ms (0.25%)
+top 1 graph node: IteratorGetNext, cpu: 2.09sec, accelerator: 0us, total: 2.09sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 2.09sec, accelerator: 0us, total: 2.09sec
+  iterator_ops.py:373:get_next, cpu: 2.09sec, accelerator: 0us, total: 2.09sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 2.96ms, accelerator: 0us, total: 2.96ms
+train.py:349:<module>, cpu: 442.15ms, accelerator: 2.35ms, total: 444.52ms
+train.py:349:<module> (gradient), cpu: 8.14ms, accelerator: 7.20ms, total: 15.37ms
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_525.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 2.03sec, accelerator: 0us, total: 2.03sec (81.74%)
+top 2 operation type: Conv2D, cpu: 419.92ms, accelerator: 1.80ms, total: 421.73ms (17.00%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 2.90ms, accelerator: 3.39ms, total: 6.29ms (0.25%)
+top 1 graph node: IteratorGetNext, cpu: 2.03sec, accelerator: 0us, total: 2.03sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 2.03sec, accelerator: 0us, total: 2.03sec
+  iterator_ops.py:373:get_next, cpu: 2.03sec, accelerator: 0us, total: 2.03sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 2.83ms, accelerator: 0us, total: 2.83ms
+train.py:349:<module>, cpu: 422.20ms, accelerator: 2.33ms, total: 424.55ms
+train.py:349:<module> (gradient), cpu: 8.01ms, accelerator: 7.12ms, total: 15.16ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_550.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 1.97sec, accelerator: 0us, total: 1.97sec (81.96%)
+top 2 operation type: Conv2D, cpu: 401.72ms, accelerator: 1.78ms, total: 403.50ms (16.75%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 2.83ms, accelerator: 3.34ms, total: 6.18ms (0.26%)
+top 1 graph node: IteratorGetNext, cpu: 1.97sec, accelerator: 0us, total: 1.97sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 1.98sec, accelerator: 0us, total: 1.98sec
+  iterator_ops.py:373:get_next, cpu: 1.97sec, accelerator: 0us, total: 1.97sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 2.71ms, accelerator: 0us, total: 2.71ms
+train.py:349:<module>, cpu: 403.96ms, accelerator: 2.30ms, total: 406.28ms
+train.py:349:<module> (gradient), cpu: 7.91ms, accelerator: 7.04ms, total: 14.98ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_575.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 1.94sec, accelerator: 0us, total: 1.94sec (82.27%)
+top 2 operation type: Conv2D, cpu: 385.03ms, accelerator: 1.76ms, total: 386.79ms (16.43%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 2.77ms, accelerator: 3.29ms, total: 6.07ms (0.26%)
+top 1 graph node: IteratorGetNext, cpu: 1.94sec, accelerator: 0us, total: 1.94sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 1.94sec, accelerator: 0us, total: 1.94sec
+  iterator_ops.py:373:get_next, cpu: 1.94sec, accelerator: 0us, total: 1.94sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 2.59ms, accelerator: 0us, total: 2.59ms
+train.py:349:<module>, cpu: 387.24ms, accelerator: 2.29ms, total: 389.55ms
+train.py:349:<module> (gradient), cpu: 7.78ms, accelerator: 6.98ms, total: 14.79ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_600.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 1.90sec, accelerator: 0us, total: 1.90sec (82.53%)
+top 2 operation type: Conv2D, cpu: 369.70ms, accelerator: 1.75ms, total: 371.45ms (16.14%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 2.71ms, accelerator: 3.25ms, total: 5.97ms (0.26%)
+top 1 graph node: IteratorGetNext, cpu: 1.90sec, accelerator: 0us, total: 1.90sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 1.90sec, accelerator: 0us, total: 1.90sec
+  iterator_ops.py:373:get_next, cpu: 1.90sec, accelerator: 0us, total: 1.90sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 2.49ms, accelerator: 0us, total: 2.49ms
+train.py:349:<module>, cpu: 371.94ms, accelerator: 2.27ms, total: 374.24ms
+train.py:349:<module> (gradient), cpu: 7.70ms, accelerator: 6.92ms, total: 14.65ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_625.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 1.87sec, accelerator: 0us, total: 1.87sec (82.83%)
+top 2 operation type: Conv2D, cpu: 355.53ms, accelerator: 1.73ms, total: 357.26ms (15.83%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 2.66ms, accelerator: 3.21ms, total: 5.88ms (0.26%)
+top 1 graph node: IteratorGetNext, cpu: 1.87sec, accelerator: 0us, total: 1.87sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 1.87sec, accelerator: 0us, total: 1.87sec
+  iterator_ops.py:373:get_next, cpu: 1.87sec, accelerator: 0us, total: 1.87sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 2.40ms, accelerator: 0us, total: 2.40ms
+train.py:349:<module>, cpu: 357.75ms, accelerator: 2.25ms, total: 360.02ms
+train.py:349:<module> (gradient), cpu: 7.61ms, accelerator: 6.86ms, total: 14.50ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_650.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 1.84sec, accelerator: 0us, total: 1.84sec (83.09%)
+top 2 operation type: Conv2D, cpu: 342.44ms, accelerator: 1.72ms, total: 344.15ms (15.55%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 2.63ms, accelerator: 3.18ms, total: 5.81ms (0.26%)
+top 1 graph node: IteratorGetNext, cpu: 1.84sec, accelerator: 0us, total: 1.84sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 1.84sec, accelerator: 0us, total: 1.84sec
+  iterator_ops.py:373:get_next, cpu: 1.84sec, accelerator: 0us, total: 1.84sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 2.31ms, accelerator: 0us, total: 2.31ms
+train.py:349:<module>, cpu: 344.65ms, accelerator: 2.24ms, total: 346.91ms
+train.py:349:<module> (gradient), cpu: 7.60ms, accelerator: 6.81ms, total: 14.44ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_675.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 1.81sec, accelerator: 0us, total: 1.81sec (83.34%)
+top 2 operation type: Conv2D, cpu: 330.26ms, accelerator: 1.70ms, total: 331.97ms (15.28%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 2.58ms, accelerator: 3.14ms, total: 5.73ms (0.26%)
+top 1 graph node: IteratorGetNext, cpu: 1.81sec, accelerator: 0us, total: 1.81sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 1.81sec, accelerator: 0us, total: 1.81sec
+  iterator_ops.py:373:get_next, cpu: 1.81sec, accelerator: 0us, total: 1.81sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 2.23ms, accelerator: 0us, total: 2.23ms
+train.py:349:<module>, cpu: 332.46ms, accelerator: 2.23ms, total: 334.71ms
+train.py:349:<module> (gradient), cpu: 7.53ms, accelerator: 6.76ms, total: 14.31ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_700.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 1.78sec, accelerator: 0us, total: 1.78sec (83.53%)
+top 2 operation type: Conv2D, cpu: 318.92ms, accelerator: 1.69ms, total: 320.62ms (15.08%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 2.54ms, accelerator: 3.11ms, total: 5.66ms (0.27%)
+top 1 graph node: IteratorGetNext, cpu: 1.78sec, accelerator: 0us, total: 1.78sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 1.78sec, accelerator: 0us, total: 1.78sec
+  iterator_ops.py:373:get_next, cpu: 1.78sec, accelerator: 0us, total: 1.78sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 2.15ms, accelerator: 0us, total: 2.15ms
+train.py:349:<module>, cpu: 321.10ms, accelerator: 2.21ms, total: 323.35ms
+train.py:349:<module> (gradient), cpu: 7.46ms, accelerator: 6.71ms, total: 14.19ms
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_725.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 1.75sec, accelerator: 0us, total: 1.75sec (83.73%)
+top 2 operation type: Conv2D, cpu: 308.33ms, accelerator: 1.68ms, total: 310.01ms (14.86%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 2.50ms, accelerator: 3.08ms, total: 5.59ms (0.27%)
+top 1 graph node: IteratorGetNext, cpu: 1.75sec, accelerator: 0us, total: 1.75sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 1.75sec, accelerator: 0us, total: 1.75sec
+  iterator_ops.py:373:get_next, cpu: 1.75sec, accelerator: 0us, total: 1.75sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 2.08ms, accelerator: 0us, total: 2.08ms
+train.py:349:<module>, cpu: 310.49ms, accelerator: 2.21ms, total: 312.72ms
+train.py:349:<module> (gradient), cpu: 7.39ms, accelerator: 6.67ms, total: 14.10ms
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_750.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 1.72sec, accelerator: 0us, total: 1.72sec (83.93%)
+top 2 operation type: Conv2D, cpu: 298.42ms, accelerator: 1.67ms, total: 300.10ms (14.64%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 2.46ms, accelerator: 3.06ms, total: 5.53ms (0.27%)
+top 1 graph node: IteratorGetNext, cpu: 1.72sec, accelerator: 0us, total: 1.72sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 1.72sec, accelerator: 0us, total: 1.72sec
+  iterator_ops.py:373:get_next, cpu: 1.72sec, accelerator: 0us, total: 1.72sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 2.01ms, accelerator: 0us, total: 2.01ms
+train.py:349:<module>, cpu: 300.56ms, accelerator: 2.19ms, total: 302.78ms
+train.py:349:<module> (gradient), cpu: 7.34ms, accelerator: 6.63ms, total: 13.99ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_775.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 1.69sec, accelerator: 0us, total: 1.69sec (84.09%)
+top 2 operation type: Conv2D, cpu: 289.13ms, accelerator: 1.66ms, total: 290.80ms (14.46%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 2.43ms, accelerator: 3.03ms, total: 5.47ms (0.27%)
+top 1 graph node: IteratorGetNext, cpu: 1.69sec, accelerator: 0us, total: 1.69sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 1.69sec, accelerator: 0us, total: 1.69sec
+  iterator_ops.py:373:get_next, cpu: 1.69sec, accelerator: 0us, total: 1.69sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 1.95ms, accelerator: 0us, total: 1.95ms
+train.py:349:<module>, cpu: 291.25ms, accelerator: 2.18ms, total: 293.46ms
+train.py:349:<module> (gradient), cpu: 7.28ms, accelerator: 6.59ms, total: 13.89ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_800.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 1.66sec, accelerator: 0us, total: 1.66sec (84.25%)
+top 2 operation type: Conv2D, cpu: 280.42ms, accelerator: 1.65ms, total: 282.07ms (14.29%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 2.41ms, accelerator: 3.01ms, total: 5.42ms (0.27%)
+top 1 graph node: IteratorGetNext, cpu: 1.66sec, accelerator: 0us, total: 1.66sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 1.67sec, accelerator: 0us, total: 1.67sec
+  iterator_ops.py:373:get_next, cpu: 1.66sec, accelerator: 0us, total: 1.66sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 1.89ms, accelerator: 0us, total: 1.89ms
+train.py:349:<module>, cpu: 282.53ms, accelerator: 2.18ms, total: 284.73ms
+train.py:349:<module> (gradient), cpu: 7.26ms, accelerator: 6.56ms, total: 13.85ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_825.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 1.64sec, accelerator: 0us, total: 1.64sec (84.44%)
+top 2 operation type: Conv2D, cpu: 272.20ms, accelerator: 1.64ms, total: 273.85ms (14.08%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 2.38ms, accelerator: 2.99ms, total: 5.37ms (0.28%)
+top 1 graph node: IteratorGetNext, cpu: 1.64sec, accelerator: 0us, total: 1.64sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 1.64sec, accelerator: 0us, total: 1.64sec
+  iterator_ops.py:373:get_next, cpu: 1.64sec, accelerator: 0us, total: 1.64sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 1.83ms, accelerator: 0us, total: 1.83ms
+train.py:349:<module>, cpu: 274.30ms, accelerator: 2.17ms, total: 276.50ms
+train.py:349:<module> (gradient), cpu: 7.21ms, accelerator: 6.52ms, total: 13.77ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_850.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 1.61sec, accelerator: 0us, total: 1.61sec (84.56%)
+top 2 operation type: Conv2D, cpu: 264.46ms, accelerator: 1.63ms, total: 266.10ms (13.94%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 2.35ms, accelerator: 2.96ms, total: 5.32ms (0.28%)
+top 1 graph node: IteratorGetNext, cpu: 1.61sec, accelerator: 0us, total: 1.61sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 1.62sec, accelerator: 0us, total: 1.62sec
+  iterator_ops.py:373:get_next, cpu: 1.61sec, accelerator: 0us, total: 1.61sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 1.78ms, accelerator: 0us, total: 1.78ms
+train.py:349:<module>, cpu: 266.54ms, accelerator: 2.16ms, total: 268.74ms
+train.py:349:<module> (gradient), cpu: 7.17ms, accelerator: 6.49ms, total: 13.69ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_875.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 1.59sec, accelerator: 0us, total: 1.59sec (84.70%)
+top 2 operation type: Conv2D, cpu: 257.15ms, accelerator: 1.62ms, total: 258.77ms (13.78%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 2.33ms, accelerator: 2.94ms, total: 5.28ms (0.28%)
+top 1 graph node: IteratorGetNext, cpu: 1.59sec, accelerator: 0us, total: 1.59sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 1.59sec, accelerator: 0us, total: 1.59sec
+  iterator_ops.py:373:get_next, cpu: 1.59sec, accelerator: 0us, total: 1.59sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 1.73ms, accelerator: 0us, total: 1.73ms
+train.py:349:<module>, cpu: 259.23ms, accelerator: 2.15ms, total: 261.40ms
+train.py:349:<module> (gradient), cpu: 7.12ms, accelerator: 6.46ms, total: 13.61ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_900.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 1.57sec, accelerator: 0us, total: 1.57sec (84.88%)
+top 2 operation type: Conv2D, cpu: 250.24ms, accelerator: 1.61ms, total: 251.85ms (13.59%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 2.30ms, accelerator: 2.93ms, total: 5.23ms (0.28%)
+top 1 graph node: IteratorGetNext, cpu: 1.57sec, accelerator: 0us, total: 1.57sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 1.57sec, accelerator: 0us, total: 1.57sec
+  iterator_ops.py:373:get_next, cpu: 1.57sec, accelerator: 0us, total: 1.57sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 1.69ms, accelerator: 0us, total: 1.69ms
+train.py:349:<module>, cpu: 252.29ms, accelerator: 2.14ms, total: 254.46ms
+train.py:349:<module> (gradient), cpu: 7.08ms, accelerator: 6.43ms, total: 13.54ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_925.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 1.55sec, accelerator: 0us, total: 1.55sec (85.02%)
+top 2 operation type: Conv2D, cpu: 243.70ms, accelerator: 1.60ms, total: 245.31ms (13.43%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 2.29ms, accelerator: 2.91ms, total: 5.21ms (0.29%)
+top 1 graph node: IteratorGetNext, cpu: 1.55sec, accelerator: 0us, total: 1.55sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 1.55sec, accelerator: 0us, total: 1.55sec
+  iterator_ops.py:373:get_next, cpu: 1.55sec, accelerator: 0us, total: 1.55sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 1.64ms, accelerator: 0us, total: 1.64ms
+train.py:349:<module>, cpu: 245.77ms, accelerator: 2.14ms, total: 247.94ms
+train.py:349:<module> (gradient), cpu: 7.10ms, accelerator: 6.41ms, total: 13.54ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_950.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 1.54sec, accelerator: 0us, total: 1.54sec (85.18%)
+top 2 operation type: Conv2D, cpu: 237.50ms, accelerator: 1.59ms, total: 239.09ms (13.25%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 2.27ms, accelerator: 2.89ms, total: 5.17ms (0.29%)
+top 1 graph node: IteratorGetNext, cpu: 1.54sec, accelerator: 0us, total: 1.54sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 1.54sec, accelerator: 0us, total: 1.54sec
+  iterator_ops.py:373:get_next, cpu: 1.54sec, accelerator: 0us, total: 1.54sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 1.60ms, accelerator: 0us, total: 1.60ms
+train.py:349:<module>, cpu: 239.56ms, accelerator: 2.13ms, total: 241.72ms
+train.py:349:<module> (gradient), cpu: 7.08ms, accelerator: 6.38ms, total: 13.49ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+generating trace file.
+/job:localhost/replica:0/task:0/device:gpu:0 peak memory: 32.42 MB
+
+******************************************************
+Timeline file is written to /project/foster/clouds/output/p02b/timelines/t.json_975.
+Open a Chrome browser, enter URL chrome://tracing and load the timeline file.
+******************************************************
+
+ExpensiveOperationChecker:
+top 1 operation type: IteratorGetNext, cpu: 1.52sec, accelerator: 0us, total: 1.52sec (85.34%)
+top 2 operation type: Conv2D, cpu: 231.59ms, accelerator: 1.59ms, total: 233.19ms (13.08%)
+top 3 operation type: Conv2DBackpropFilter, cpu: 2.25ms, accelerator: 2.88ms, total: 5.13ms (0.29%)
+top 1 graph node: IteratorGetNext, cpu: 1.52sec, accelerator: 0us, total: 1.52sec
+top 2 graph node: model, cpu: 0us, accelerator: 0us, total: 0us
+top 3 graph node: gradients, cpu: 0us, accelerator: 0us, total: 0us
+train.py:314:<module>, cpu: 1.52sec, accelerator: 0us, total: 1.52sec
+  iterator_ops.py:373:get_next, cpu: 1.52sec, accelerator: 0us, total: 1.52sec
+  dataset_ops.py:168:make_one_shot_ite..., cpu: 1.56ms, accelerator: 0us, total: 1.56ms
+train.py:349:<module>, cpu: 233.66ms, accelerator: 2.12ms, total: 235.80ms
+train.py:349:<module> (gradient), cpu: 7.04ms, accelerator: 6.37ms, total: 13.43ms
+
+OperationChecker:
+Found operation using NHWC data_format on GPU. Maybe NCHW is faster.
+
+AcceleratorUtilizationChecker:
+device: /job:localhost/replica:0/task:0/device:gpu:0 low utilization: 0.00
+Starting epoch 0

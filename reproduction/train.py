@@ -258,12 +258,10 @@ def load_data(
     return (
         chans,
         (
-            # tf.data.Dataset.from_tensor_slices(data_files)
-            # .apply(shuffle_and_repeat(1000))
-            # .flat_map(tf.data.TFRecordDataset)
             tf.data.TFRecordDataset(data_files, num_parallel_reads=num_threads)
             .map(parser, num_parallel_calls=num_threads)
             .map(normalizer)
+            .prefetch(1)
             .interleave(
                 pipeline.patchify_fn(shape[0], shape[1], chans),
                 cycle_length=num_threads,
@@ -271,9 +269,8 @@ def load_data(
             .filter(heterogenous_bands(0.5))  # TODO flag for threshold
             .map(lambda x: tf.clip_by_value(x, 0, 1e10))  # zero imputate -9999s
             .apply(shuffle_and_repeat(shuffle_buffer_size))
-            # .shuffle(shuffle_buffer_size)
             .apply(batch_and_drop_remainder(batch_size))
-            .prefetch(-1)
+            .prefetch(1)
         ),
     )
 
@@ -422,8 +419,9 @@ if __name__ == "__main__":
         "OperationChecker": {},
     }
 
+    # Begin training
     print("training...", flush=True)
-    with tf.Session() as sess:
+    with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
         options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
         run_metadata = tf.RunMetadata()
         profiler = Profiler(sess.graph)
