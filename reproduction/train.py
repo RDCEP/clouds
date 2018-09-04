@@ -8,8 +8,6 @@ import models
 import subprocess
 from tensorflow.contrib.data import shuffle_and_repeat, batch_and_drop_remainder
 from os import path, mkdir
-import os
-import sys
 
 
 def get_flags():
@@ -22,6 +20,12 @@ def get_flags():
             "perceptual difference given a pretrained network."
         ),
     )
+    p.add_argument(
+        "model_dir",
+        help="/path/to/model/ to load and train or to save new model",
+        default=None,
+    )
+
     p.add_argument(
         "--data", help="pattern to pick up tf records files", required=True, nargs="+"
     )
@@ -40,12 +44,14 @@ def get_flags():
         help="json file mapping field name to number of channels and type.",
         required=True,
     )
+    p.add_argument("--read_threads", type=int, default=4)
+    p.add_argument("--shuffle_buffer_size", type=int, default=10000)
+
     p.add_argument("--batch_size", type=int, help=" ", default=32)
     p.add_argument(
-        "model_dir",
-        help="/path/to/model/ to load and train or to save new model",
-        default=None,
+        "--shape", nargs=2, type=int, help="Shape of input image", default=(64, 64)
     )
+
     p.add_argument(
         "--optimizer",
         help="type of optimizer to use for gradient descent. TODO (unused flag)",
@@ -59,8 +65,13 @@ def get_flags():
         default=1000,
     )
     p.add_argument(
-        "--shape", nargs=2, type=int, help="Shape of input image", default=(64, 64)
+        "--summary_every",
+        type=int,
+        metavar="s",
+        default=250,
+        help="Number of steps per summary step",
     )
+
     p.add_argument(
         "--n_layers",
         help="number of strided convolution layers in AE / disc",
@@ -77,21 +88,7 @@ def get_flags():
     p.add_argument(
         "--epochs", type=int, help="Number of epochs to train for", default=10
     )
-    p.add_argument(
-        "--summary_every",
-        type=int,
-        metavar="s",
-        default=250,
-        help="Number of steps per summary step",
-    )
-    p.add_argument(
-        "--new_model",
-        default="",
-        help=(
-            "Name of model in model.py to use for the autoencoder. Flag "
-            "unused if the training in a directory with a saved autoencoder."
-        ),
-    )
+
     p.add_argument(
         "--variational",
         default=False,
@@ -104,6 +101,7 @@ def get_flags():
         type=float,
         help="Weight of KL-Divergence on VAE objective. Unused if not `variational`",
     )
+
     p.add_argument(
         "--discriminator",
         action="store_true",
@@ -132,14 +130,16 @@ def get_flags():
         default=5,
         help="number of discriminator updates per autoencoder update",
     )
-    p.add_argument(
-        "--lambda_per", help="Weight of perceptual loss on AE objective", default=1.0
-    )
+
     p.add_argument(
         "--perceptual",
         action="store_true",
         help="Pretrained classifier for perceptual loss",
     )
+    p.add_argument(
+        "--lambda_per", help="Weight of perceptual loss on AE objective", default=1.0
+    )
+
     p.add_argument(
         "--display_imgs",
         metavar="N",
@@ -147,8 +147,6 @@ def get_flags():
         default=8,
         help="Number of images to display on tensorboard",
     )
-    p.add_argument("--read_threads", type=int, default=4)
-    p.add_argument("--shuffle_buffer_size", type=int, default=10000)
     p.add_argument(
         "--red_bands",
         type=int,
@@ -193,13 +191,11 @@ def get_flags():
     print("Flags:")
     for f in FLAGS.__dict__:
         print(f"\t{f}:{(25-len(f)) * ' '} {FLAGS.__dict__[f]}")
-    print("\n")
-    # Need to flush when redirecting to a file
-    sys.stdout.flush()
+    print("\n", flush=True)
 
     if not path.isdir(FLAGS.model_dir):
-        os.mkdir(FLAGS.model_dir)
-        os.mkdir(path.join(FLAGS.model_dir, "timelines"))
+        mkdir(FLAGS.model_dir)
+        mkdir(path.join(FLAGS.model_dir, "timelines"))
 
     return FLAGS
 
@@ -254,7 +250,10 @@ def normalizer(x):
     return corrected / tf.reduce_max(corrected, axis=(0, 1, 2))
 
 
-def load_data(data_files, shape, batch_size, fields, meta_json, num_threads, shuffle_buffer_size):
+def load_data(
+    data_files, shape, batch_size, fields, meta_json, num_threads, shuffle_buffer_size
+):
+    print("loading data...", flush=True)
     chans, parser = pipeline.main_parser(fields, meta_json)
     return (
         chans,
@@ -265,13 +264,16 @@ def load_data(data_files, shape, batch_size, fields, meta_json, num_threads, shu
             tf.data.TFRecordDataset(data_files, num_parallel_reads=num_threads)
             .map(parser, num_parallel_calls=num_threads)
             .map(normalizer)
-            .interleave(pipeline.patchify_fn(shape[0], shape[1], chans), cycle_length=num_threads)
+            .interleave(
+                pipeline.patchify_fn(shape[0], shape[1], chans),
+                cycle_length=num_threads,
+            )
             .filter(heterogenous_bands(0.5))  # TODO flag for threshold
             .map(lambda x: tf.clip_by_value(x, 0, 1e10))  # zero imputate -9999s
             .apply(shuffle_and_repeat(shuffle_buffer_size))
             # .shuffle(shuffle_buffer_size)
             .apply(batch_and_drop_remainder(batch_size))
-            .prefetch(1)
+            .prefetch(-1)
         ),
     )
 
@@ -323,6 +325,7 @@ if __name__ == "__main__":
     # - Add model to `save_models` so it will end up being saved.
     # Except for pretained models which do not need to be trained or saved
 
+    print("building model and losses...", flush=True)
     with tf.name_scope("autoencoder"):
         ae = load_model(FLAGS.model_dir, "ae")
         if not ae:
@@ -412,14 +415,6 @@ if __name__ == "__main__":
     summary_op = tf.summary.merge_all()
 
     # Profiler options
-    p_opts = (
-        ProfileOptionBuilder(ProfileOptionBuilder.time_and_memory())
-        .with_step(total_step)
-        .with_timeline_output(
-            path.join(FLAGS.model_dir, "timelines", "t.json")
-        )
-        .build()
-    )
     ALL_ADVICE = {
         "ExpensiveOperationChecker": {},
         "AcceleratorUtilizationChecker": {},
@@ -427,7 +422,7 @@ if __name__ == "__main__":
         "OperationChecker": {},
     }
 
-    # Begin training
+    print("training...", flush=True)
     with tf.Session() as sess:
         options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
         run_metadata = tf.RunMetadata()
@@ -445,7 +440,7 @@ if __name__ == "__main__":
         )
 
         for e in range(FLAGS.epochs):
-            print("Starting epoch %d" % e)
+            print("Starting epoch %d" % e, flush=True)
 
             for s in range(FLAGS.steps_per_epoch):
                 sess.run(train_ops, options=options, run_metadata=run_metadata)
@@ -454,6 +449,14 @@ if __name__ == "__main__":
                     total_step = e * FLAGS.steps_per_epoch + s
                     summary_writer.add_summary(sess.run(summary_op), total_step)
                     profiler.add_step(total_step, run_metadata)
+                    p_opts = (
+                        ProfileOptionBuilder(ProfileOptionBuilder.time_and_memory())
+                        .with_step(total_step)
+                        .with_timeline_output(
+                            path.join(FLAGS.model_dir, "timelines", "t.json")
+                        )
+                        .build()
+                    )
                     profiler.profile_graph(options=p_opts)
                     profiler.advise(ALL_ADVICE)
 
