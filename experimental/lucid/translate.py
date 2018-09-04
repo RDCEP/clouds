@@ -2,14 +2,17 @@ import tensorflow as tf
 from os import path
 from argparse import ArgumentParser
 from google.protobuf import text_format
+from IPython import embed
 
 p = ArgumentParser()
 p.add_argument("model_dir", help="Directory of model to convert to ckpt / graph def")
 FLAGS = p.parse_args()
 
-tf.keras.backend.set_learning_phase(0)
+# tf.keras.backend.set_learning_phase(0)
 
-m = tf.keras.models.load_model(path.join(FLAGS.model_dir, "model.h5"))
+with open(path.join(FLAGS.model_dir, "ae.json")) as f:
+    m = tf.keras.models.model_from_json(f.read())
+m.load_weights(path.join(FLAGS.model_dir, "ae.h5"))
 
 saver = tf.train.Saver()
 sess = tf.keras.backend.get_session()

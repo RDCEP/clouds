@@ -46,6 +46,12 @@ def get_flags():
     )
     p.add_argument("--read_threads", type=int, default=4)
     p.add_argument("--shuffle_buffer_size", type=int, default=10000)
+    p.add_argument(
+        "--normalization",
+        choices=["max_scale", "whiten", "mean_sub", "none"],
+        default="max_scale",
+        help="Method for normalizing swath before extracting patches.",
+    )
 
     p.add_argument("--batch_size", type=int, help=" ", default=32)
     p.add_argument(
@@ -245,34 +251,71 @@ def heterogenous_bands(threshold):
     return fn
 
 
-def normalizer(x):
-    corrected = tf.clip_by_value(x, 0, 1e10)
-    return corrected / tf.reduce_max(corrected, axis=(0, 1, 2))
+def normalizer_fn(normalization):
+    """Returns a function that performs `normalization` to an image tensor.
+
+    FIXME: This does not mask pixels with no clouds in the calculation of
+    moments, biasing mean and variance, We want to normalize by conditional
+    mean and conditional variance (conditional on 'pixel with a cloud').
+    """
+
+    def fn(img):
+        img = tf.clip_by_value(img, 0, 1e10)
+
+        if normalization == "mean_sub":
+            mean, _ = tf.nn.moments(img, (0, 1, 2))
+            img -= mean
+
+        elif normalization == "whiten":
+            mean, var = tf.nn.moments(img, (0, 1, 2))
+            img = (img - mean) / tf.sqrt(var)
+
+        elif normalization == "max_scale":
+            img /= tf.reduce_max(img, axis=(0, 1, 2))
+
+        elif normalization == "none":
+            pass
+
+        else:
+            raise ValueError(f"Unrecognized normalization choice: `{normalization}`")
+
+        return img
+
+    return fn
+
+
+def random_flip_udlr(x, seed=None):
+    x = tf.image.random_flip_up_down(x, seed)
+    return tf.image.random_flip_left_right(x, seed)
 
 
 def load_data(
-    data_files, shape, batch_size, fields, meta_json, num_threads, shuffle_buffer_size
+    data_files,
+    shape,
+    batch_size,
+    fields,
+    meta_json,
+    normalization,
+    num_threads,
+    shuffle_buffer_size,
 ):
     print("loading data...", flush=True)
     chans, parser = pipeline.main_parser(fields, meta_json)
-    return (
-        chans,
-        (
-            tf.data.TFRecordDataset(data_files, num_parallel_reads=num_threads)
-            .map(parser, num_parallel_calls=num_threads)
-            .map(normalizer)
-            .prefetch(1)
-            .interleave(
-                pipeline.patchify_fn(shape[0], shape[1], chans),
-                cycle_length=num_threads,
-            )
-            .filter(heterogenous_bands(0.5))  # TODO flag for threshold
-            .map(lambda x: tf.clip_by_value(x, 0, 1e10))  # zero imputate -9999s
-            .apply(shuffle_and_repeat(shuffle_buffer_size))
-            .apply(batch_and_drop_remainder(batch_size))
-            .prefetch(1)
-        ),
+    dataset = (
+        tf.data.TFRecordDataset(data_files, num_parallel_reads=num_threads)
+        .map(parser, num_parallel_calls=num_threads)
+        .map(normalizer_fn(normalization))
+        .prefetch(1)
+        .interleave(
+            pipeline.patchify_fn(shape[0], shape[1], chans), cycle_length=num_threads
+        )
+        .filter(heterogenous_bands(0.5))  # TODO flag for threshold
+        .map(random_flip_udlr)
+        .apply(shuffle_and_repeat(shuffle_buffer_size))
+        .apply(batch_and_drop_remainder(batch_size))
+        .prefetch(1)
     )
+    return chans, dataset
 
 
 def load_model(model_dir, name):
@@ -304,6 +347,7 @@ if __name__ == "__main__":
         FLAGS.batch_size,
         FLAGS.fields,
         FLAGS.meta_json,
+        FLAGS.normalization,
         FLAGS.read_threads,
         FLAGS.shuffle_buffer_size,
     )

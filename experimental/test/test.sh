@@ -19,7 +19,7 @@ python reproduction/train.py $MODEL_PATH \
     --blue_bands 1 \
     --green_bands 2 \
     --base_dim 8 \
-    --variational \
     --shuffle_buffer_size 200 \
-    --shape 256 256 \
+    --shape 128 128 \
     --batchnorm \
+    --normalization whiten
