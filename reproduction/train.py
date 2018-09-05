@@ -45,7 +45,9 @@ def get_flags():
         required=True,
     )
     p.add_argument("--read_threads", type=int, default=4)
-    p.add_argument("--prefetch", type=int, default=1, help="Size of prefetch buffers in pipeline")
+    p.add_argument(
+        "--prefetch", type=int, default=1, help="Size of prefetch buffers in pipeline"
+    )
     p.add_argument("--shuffle_buffer_size", type=int, default=10000)
     p.add_argument(
         "--normalization",
@@ -261,6 +263,7 @@ def normalizer_fn(normalization):
     """
 
     def fn(img):
+        img = tf.verify_tensor_all_finite(img, "Nan before normalizing")
         img = tf.clip_by_value(img, 0, 1e10)
 
         if normalization == "mean_sub":
@@ -292,6 +295,35 @@ def random_flip_udlr(x, seed=None):
     return tf.image.random_flip_left_right(x, seed)
 
 
+def fused_read_fn(parser, normalize, shape, n=10, seed=None):
+    """Parses tf record, normalizes it, throws away if NaNs, and returns patches.
+    """
+
+    def extract_patches(swath):
+        height, width, chans = shape
+        imgs = tf.extract_image_patches(
+            images=tf.expand_dims(swath, 0),
+            ksizes=[1, height, width, 1],
+            strides=[1, height // 2, width // 2, 1],
+            rates=[1, 1, 1, 1],
+            padding="VALID",
+        )
+        return tf.reshape(imgs, [-1, height, width, chans])
+
+    def fn(ser):
+        swath = parser(ser)
+        swath = tf.clip_by_value(swath, 0, 1e10)
+        swath = normalize(swath)
+        patches = tf.cond(
+            tf.reduce_any(tf.is_nan(swath)),
+            lambda: tf.expand_dims(tf.zeros(shape), 0),
+            lambda: extract_patches(swath),
+        )
+        return tf.data.Dataset.from_tensor_slices(patches)
+
+    return fn
+
+
 def load_data(
     data_files,
     shape,
@@ -305,14 +337,12 @@ def load_data(
 ):
     print("loading data...", flush=True)
     chans, parser = pipeline.main_parser(fields, meta_json)
+    normalizer = normalizer_fn(normalization)
+    shape = (*shape, chans)
+
     dataset = (
         tf.data.TFRecordDataset(data_files, num_parallel_reads=num_threads)
-        .map(parser, num_parallel_calls=num_threads)
-        .map(normalizer_fn(normalization))
-        .prefetch(prefetch)
-        .interleave(
-            pipeline.patchify_fn(shape[0], shape[1], chans), cycle_length=num_threads
-        )
+        .interleave(fused_read_fn(parser, normalizer, shape), cycle_length=num_threads)
         .filter(heterogenous_bands(0.5))  # TODO flag for threshold
         .map(random_flip_udlr)
         .apply(shuffle_and_repeat(shuffle_buffer_size))
