@@ -179,7 +179,7 @@ if __name__ == "__main__":
     targets = [t for t in os.listdir(data_dir) if t[-4:] == ext]
     targets.sort()
     targets = [t for i, t in enumerate(targets) if i % size == rank]
-    os.mkdir(out_dir)
+    os.makedirs(out_dir, exist_ok=True)
 
     for t in targets:
         print("Rank %d converting %s" % (rank, t))

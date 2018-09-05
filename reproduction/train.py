@@ -219,7 +219,7 @@ class ColorMap:
         """
         with tf.variable_scope("cmap"):
             # Whiten data with batchnorm so colors are more meaningful
-            t = tf.keras.layers.BatchNormalization()(t)
+            # t = tf.keras.layers.BatchNormalization()(t)
             r = tf.reduce_mean(select_channels(t, self.reds), axis=3)
             g = tf.reduce_mean(select_channels(t, self.greens), axis=3)
             b = tf.reduce_mean(select_channels(t, self.blues), axis=3)
@@ -264,21 +264,23 @@ def normalizer_fn(normalization):
         img = tf.clip_by_value(img, 0, 1e10)
 
         if normalization == "mean_sub":
-            mean, _ = tf.nn.moments(img, (0, 1, 2))
+            mean, _ = tf.nn.moments(img, (0, 1))
             img -= mean
 
         elif normalization == "whiten":
-            mean, var = tf.nn.moments(img, (0, 1, 2))
+            mean, var = tf.nn.moments(img, (0, 1))
             img = (img - mean) / tf.sqrt(var)
 
         elif normalization == "max_scale":
-            img /= tf.reduce_max(img, axis=(0, 1, 2))
+            img /= tf.reduce_max(img, (0, 1))
 
         elif normalization == "none":
             pass
 
         else:
             raise ValueError(f"Unrecognized normalization choice: `{normalization}`")
+
+        img = tf.verify_tensor_all_finite(img, "Nan from normalizing")
 
         return img
 
@@ -332,12 +334,6 @@ def load_model(model_dir, name):
         return model
 
     return None
-
-
-# TODO depricate
-def define_model(new_model, default, **kwargs):
-    builder = getattr(our_models, new_model, getattr(our_models, default))
-    return builder(**kwargs)
 
 
 if __name__ == "__main__":
