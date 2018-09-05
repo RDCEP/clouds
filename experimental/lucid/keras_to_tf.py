@@ -57,27 +57,42 @@ import argparse
 
 parser = argparse.ArgumentParser(description="set input arguments")
 parser.add_argument(
-    "-input_fld", action="store", dest="input_fld", type=str, default="."
+    "-input_fld", action="store", dest="input_fld", type=str, default="/Users/ricardobarroslourenco/Downloads"
 )
 parser.add_argument(
-    "-output_fld", action="store", dest="output_fld", type=str, default=""
+    "-output_fld", action="store", dest="output_fld", type=str, default="/Users/ricardobarroslourenco/Downloads"
 )
 parser.add_argument(
-    "-input_model_file",
+    "-keras_model_weights",
     action="store",
-    dest="input_model_file",
+    dest="keras_model_weights",
     type=str,
-    default="model.h5",
+    default="ae.h5",
 )
 parser.add_argument(
-    "-output_model_file", action="store", dest="output_model_file", type=str, default=""
+    "-keras_model_weight_arch_split",
+    action="store",
+    dest="keras_split_model",
+    type=bool,
+    default=True
+)
+parser.add_argument(
+    "-keras_model_arch",
+    action="store",
+    dest="keras_model_arch",
+    type=str,
+    default="ae.json"
+)
+
+parser.add_argument(
+    "-output_model_file", action="store", dest="output_model_file", type=str, default="m19.pb"
 )
 parser.add_argument(
     "-output_graphdef_file",
     action="store",
     dest="output_graphdef_file",
     type=str,
-    default="model.ascii",
+    default="m19.ascii",
 )
 parser.add_argument(
     "-num_outputs", action="store", dest="num_outputs", type=int, default=1
@@ -111,7 +126,7 @@ if FLAGS.theano_backend is True and FLAGS.quantize is True:
 
 # In[ ]:
 import tensorflow as tf
-from tensorflow.keras.models import load_model
+from tensorflow.keras.models import load_model, model_from_json
 from tensorflow.keras import backend as K
 from pathlib import Path
 
@@ -119,7 +134,7 @@ output_fld = FLAGS.input_fld if FLAGS.output_fld == "" else FLAGS.output_fld
 if FLAGS.output_model_file == "":
     FLAGS.output_model_file = str(Path(FLAGS.input_model_file).name) + ".pb"
 Path(output_fld).mkdir(parents=True, exist_ok=True)
-weight_file_path = str(Path(FLAGS.input_fld) / FLAGS.input_model_file)
+weight_file_path = str(Path(FLAGS.input_fld) / FLAGS.keras_model_weights)
 
 
 # Load keras model and rename output
@@ -133,7 +148,14 @@ else:
     K.set_image_data_format("channels_last")
 
 try:
-    net_model = load_model(weight_file_path)
+    # print(weight_file_path)
+    if FLAGS.keras_split_model == True:
+        # Use keras model with architecture split in h5 and json files
+        net_model = model_from_json(str(Path(FLAGS.input_fld) / FLAGS.keras_model_arch))
+        net_model = net_model.load_weights(str(Path(FLAGS.input_fld) / FLAGS.keras_model_weights))
+    else:
+        # Use keras model with integrated architecture in a single file
+        net_model = load_model(str(Path(FLAGS.input_fld) / FLAGS.keras_model_weights))
 except ValueError as err:
     print(
         """Input file specified ({}) only holds the weights, and not the model defenition.
