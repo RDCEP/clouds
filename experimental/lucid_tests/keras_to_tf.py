@@ -35,7 +35,13 @@ input_fld: directory holding the keras weights file [default: .]
 
 output_fld: destination directory to save the tensorflow files [default: .]
 
-input_model_file: name of the input weight file [default: 'model.h5']
+keras_model_weights: name of the input weight file [default: 'ae.h5']
+
+keras_model_weight_arch_split: boolean to confirm if the keras model was split in a weights file (*.h5)
+and a architecture file (*.json)
+
+keras_model_arch: if the saved model splits the weights and architecture into two files, 
+this refers to the architecture [default: 'ae.json']
 
 output_model_file: name of the output weight file [default: FLAGS.input_model_file + '.pb']
 
@@ -57,10 +63,10 @@ import argparse
 
 parser = argparse.ArgumentParser(description="set input arguments")
 parser.add_argument(
-    "-input_fld", action="store", dest="input_fld", type=str, default="/Users/ricardobarroslourenco/Downloads"
+    "-input_fld", action="store", dest="input_fld", type=str, default="."
 )
 parser.add_argument(
-    "-output_fld", action="store", dest="output_fld", type=str, default="/Users/ricardobarroslourenco/Downloads"
+    "-output_fld", action="store", dest="output_fld", type=str, default="."
 )
 parser.add_argument(
     "-keras_model_weights",
@@ -85,14 +91,14 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "-output_model_file", action="store", dest="output_model_file", type=str, default="m19.pb"
+    "-output_model_file", action="store", dest="output_model_file", type=str, default="ae.pb"
 )
 parser.add_argument(
     "-output_graphdef_file",
     action="store",
     dest="output_graphdef_file",
     type=str,
-    default="m19.ascii",
+    default="ae.ascii",
 )
 parser.add_argument(
     "-num_outputs", action="store", dest="num_outputs", type=int, default=1
@@ -151,8 +157,10 @@ try:
     # print(weight_file_path)
     if FLAGS.keras_split_model == True:
         # Use keras model with architecture split in h5 and json files
-        net_model = model_from_json(str(Path(FLAGS.input_fld) / FLAGS.keras_model_arch))
-        net_model = net_model.load_weights(str(Path(FLAGS.input_fld) / FLAGS.keras_model_weights))
+        with open(str(Path(FLAGS.input_fld) / FLAGS.keras_model_arch), 'r') as f:
+            net_model = model_from_json(f.read())
+        net_model.load_weights(str(Path(FLAGS.input_fld) / FLAGS.keras_model_weights))
+
     else:
         # Use keras model with integrated architecture in a single file
         net_model = load_model(str(Path(FLAGS.input_fld) / FLAGS.keras_model_weights))
@@ -173,7 +181,7 @@ pred = [None] * num_output
 pred_node_names = [None] * num_output
 for i in range(num_output):
     pred_node_names[i] = FLAGS.output_node_prefix + str(i)
-    pred[i] = tf.identity(net_model.outputs[i], name=pred_node_names[i])
+    pred[i] = tf.identity(net_model.outputs[i], name=pred_node_names[i]) #old :  net_model.layers[i].output
 print("output nodes names are: ", pred_node_names)
 
 
