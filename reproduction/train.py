@@ -33,6 +33,9 @@ def get_flags():
         default="adam",
     )
     p.add_argument(
+        "--epochs", type=int, help="Number of epochs to train for", default=10
+    )
+    p.add_argument(
         "--steps_per_epoch",
         metavar="N",
         help="Number of steps to train in each epoch ",
@@ -48,10 +51,16 @@ def get_flags():
     )
 
     p.add_argument(
-        "--n_layers",
-        help="number of strided convolution layers in AE / disc",
+        "--n_blocks",
+        help="number of blocks in AE/disc. Each block ends with a strided convolution.",
         type=int,
         default=3,
+    )
+    p.add_argument(
+        "--block_len",
+        help="Number of layers in each block before strided convolution",
+        type=int,
+        default=1
     )
     p.add_argument(
         "--base_dim",
@@ -60,9 +69,6 @@ def get_flags():
         help="Depth of the first convolution, each block depth doubles",
     )
     p.add_argument("--batchnorm", action="store_true", default=False)
-    p.add_argument(
-        "--epochs", type=int, help="Number of epochs to train for", default=10
-    )
 
     p.add_argument(
         "--variational",
@@ -256,8 +262,9 @@ if __name__ == "__main__":
                 shape=shape,
                 base=FLAGS.base_dim,
                 batchnorm=FLAGS.batchnorm,
-                n_layers=FLAGS.n_layers,
+                n_blocks=FLAGS.n_blocks,
                 variational=FLAGS.variational,
+                block_len=FLAGS.block_len,
             )
 
     if FLAGS.variational:
@@ -289,7 +296,7 @@ if __name__ == "__main__":
         with tf.name_scope("discriminator"):
             disc = load_model(FLAGS.model_dir, "disc")
             if not disc:
-                disc = models.discriminator(shape, FLAGS.n_layers)
+                disc = models.discriminator(shape, FLAGS.n_blocks)
         with tf.name_scope("disc_loss"):
             di = disc(img)
             da = disc(ae_img)
