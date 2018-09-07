@@ -20,6 +20,11 @@ import tensorflow as tf
 from tensorflow.contrib.data import shuffle_and_repeat, batch_and_drop_remainder
 import numpy as np
 from tensorflow.contrib.tensorboard.plugins import projector
+from sklearn.preprocessing import RobustScaler
+from sklearn.decomposition import PCA
+import pandas as pd
+import time, datetime
+
 
 ### Load Data
 
@@ -116,10 +121,6 @@ encodings = np.array(encodings)
 # TODO: Change for a TF based implementation
 # PCA
 # Min-max normalization
-from sklearn.preprocessing import RobustScaler
-from sklearn.decomposition import PCA
-import pandas as pd
-import time, datetime
 
 ts = time.time()
 
