@@ -283,7 +283,7 @@ def normalizer_fn(normalization):
         else:
             raise ValueError(f"Unrecognized normalization choice: `{normalization}`")
 
-        img = tf.verify_tensor_all_finite(img, "Nan from normalizing")
+        #img = tf.verify_tensor_all_finite(img, "Nan from normalizing")
 
         return img
 

@@ -182,10 +182,13 @@ if __name__ == "__main__":
     os.makedirs(out_dir, exist_ok=True)
 
     for t in targets:
-        print("Rank %d converting %s" % (rank, t))
-        if is_hdf:
-            hdf2tfr(path.join(data_dir, t), out_dir, fields)
-        else:
-            tif2tfr(path.join(data_dir, t), out_dir)
+        print("Rank %d converting %s" % (rank, t), flush=True)
+        try:
+            if is_hdf:
+                hdf2tfr(path.join(data_dir, t), out_dir, fields)
+            else:
+                tif2tfr(path.join(data_dir, t), out_dir)
+        except:
+            print("Rank %d Failed to serialize %s" % (rank, t), flush=True)
 
-    print("Rank %d done." % rank)
+    print("Rank %d done." % rank, flush=True)

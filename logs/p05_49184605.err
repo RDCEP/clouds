@@ -1,0 +1,23 @@
+/tmp/slurmd/job49184605/slurm_script: line 0: unalias: pine: not found
+/tmp/slurmd/job49184605/slurm_script: line 0: unalias: quota: not found
+/tmp/slurmd/job49184605/slurm_script: line 0: unalias: chsh: not found
+/tmp/slurmd/job49184605/slurm_script: line 0: unalias: grpe: not found
+/tmp/slurmd/job49184605/slurm_script: line 0: unalias: alloc: not found
+/tmp/slurmd/job49184605/slurm_script: line 0: unalias: vi: not found
+/tmp/slurmd/job49184605/slurm_script: line 0: unalias: chfn: not found
+usage: train.py [-h] --data DATA [DATA ...] --fields FIELDS [FIELDS ...]
+                --meta_json META_JSON [--read_threads READ_THREADS]
+                [--shuffle_buffer_size SHUFFLE_BUFFER_SIZE]
+                [--normalization {max_scale,whiten,mean_sub,none}]
+                [--batch_size BATCH_SIZE] [--shape SHAPE SHAPE]
+                [--optimizer OPTIMIZER] [--steps_per_epoch N]
+                [--summary_every s] [--n_layers N_LAYERS]
+                [--base_dim BASE_DIM] [--batchnorm] [--epochs EPOCHS]
+                [--variational] [--vae_beta VAE_BETA] [--discriminator]
+                [--lambda_disc LAMBDA_DISC]
+                [--lambda_gradient_penalty LAMBDA_GRADIENT_PENALTY]
+                [--n_critic N_CRITIC] [--perceptual] [--lambda_per LAMBDA_PER]
+                [--display_imgs N] [--red_bands r [r ...]]
+                [--green_bands g [g ...]] [--blue_bands b [b ...]]
+                model_dir
+train.py: error: unrecognized arguments: --prefetch 4
