@@ -5,7 +5,7 @@ import tensorflow.keras.applications as pretrained
 import numpy as np
 
 
-def autoencoder(shape, n_layers, base, batchnorm, variational):
+def autoencoder(shape, n_layers, base, batchnorm, variational, dense=False):
     """
     Returns an encoder model and autoencoder model
     """
@@ -23,18 +23,28 @@ def autoencoder(shape, n_layers, base, batchnorm, variational):
             x = BatchNormalization()(x)
 
     if variational:
-        sh = x.shape.as_list()[1:]
-        x = Flatten()(x)
-        mn = Dense(depth, name="latent_mean")(x)
-        lv = Dense(depth, name="latent_log_var", kernel_initializer="zeros")(x)
+        if dense:
+            sh = x.shape.as_list()[1:]
+            x = Flatten()(x)
+            mn = Dense(depth, name="latent_mean")(x)
+            lv = Dense(depth, name="latent_log_var", kernel_initializer="zeros")(x)
+        else:
+            mn = Conv2D(depth, 1, activation="relu")(x)
+            mn = Conv2D(depth, 1)(mn)
+            lv = Conv2D(depth, 1, activation="relu")(x)
+            lv = Conv2D(depth, 1)(lv)
+
+        outputs.extend([mn, lv])
+
         x = Lambda(
             lambda arg: tf.random_normal(arg[0].shape[1:]) * tf.exp(arg[1] / 2)
             + arg[0],
             name="sampling",
         )([mn, lv])
-        x = Dense(np.product(sh))(x)
-        x = Reshape(sh)(x)
-        outputs.extend([mn, lv])
+
+        if dense:
+            x = Dense(np.product(sh))(x)
+            x = Reshape(sh)(x)
 
     # Hidden vector
     outputs.append(x)

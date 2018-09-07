@@ -6,7 +6,6 @@ from tensorflow.profiler import ProfileOptionBuilder, Profiler
 from pipeline import load as pipeline
 import models
 import subprocess
-from tensorflow.contrib.data import shuffle_and_repeat, batch_and_drop_remainder
 from os import path, mkdir
 
 
@@ -26,40 +25,7 @@ def get_flags():
         default=None,
     )
 
-    p.add_argument(
-        "--data", help="pattern to pick up tf records files", required=True, nargs="+"
-    )
-    p.add_argument(
-        "--fields",
-        nargs="+",
-        help=(
-            "fields to select from tf record. For tif data, it should be b1..bN "
-            "where N is the number of bands. For hdf data, it should be the "
-            "names of the fields"
-        ),
-        required=True,
-    )
-    p.add_argument(
-        "--meta_json",
-        help="json file mapping field name to number of channels and type.",
-        required=True,
-    )
-    p.add_argument("--read_threads", type=int, default=4)
-    p.add_argument(
-        "--prefetch", type=int, default=1, help="Size of prefetch buffers in pipeline"
-    )
-    p.add_argument("--shuffle_buffer_size", type=int, default=10000)
-    p.add_argument(
-        "--normalization",
-        choices=["max_scale", "whiten", "mean_sub", "none"],
-        default="max_scale",
-        help="Method for normalizing swath before extracting patches.",
-    )
-
-    p.add_argument("--batch_size", type=int, help=" ", default=32)
-    p.add_argument(
-        "--shape", nargs=2, type=int, help="Shape of input image", default=(64, 64)
-    )
+    pipeline.add_pipeline_cli_arguments(p)
 
     p.add_argument(
         "--optimizer",
@@ -238,120 +204,6 @@ def select_channels(t, chans):
     return t
 
 
-def heterogenous_bands(threshold):
-    """Returns True if a band in the image has too much of a single value in
-    `threshold` fraction of the image. Presumably this value represents no cloud
-    as clouds will be more heterogenous.
-    """
-
-    def fn(img):
-        has_data = []
-        for band in tf.unstack(img, axis=-1):
-            _, _, count = tf.unique_with_counts(tf.reshape(band, [-1]))
-            has_data.append(tf.reduce_max(count) / tf.size(band) < threshold)
-        return tf.reduce_any(has_data)
-
-    return fn
-
-
-def normalizer_fn(normalization):
-    """Returns a function that performs `normalization` to an image tensor.
-
-    FIXME: This does not mask pixels with no clouds in the calculation of
-    moments, biasing mean and variance, We want to normalize by conditional
-    mean and conditional variance (conditional on 'pixel with a cloud').
-    """
-
-    def fn(img):
-        img = tf.verify_tensor_all_finite(img, "Nan before normalizing")
-        img = tf.clip_by_value(img, 0, 1e10)
-
-        if normalization == "mean_sub":
-            mean, _ = tf.nn.moments(img, (0, 1))
-            img -= mean
-
-        elif normalization == "whiten":
-            mean, var = tf.nn.moments(img, (0, 1))
-            img = (img - mean) / tf.sqrt(var)
-
-        elif normalization == "max_scale":
-            img /= tf.reduce_max(img, (0, 1))
-
-        elif normalization == "none":
-            pass
-
-        else:
-            raise ValueError(f"Unrecognized normalization choice: `{normalization}`")
-
-        img = tf.verify_tensor_all_finite(img, "Nan from normalizing")
-
-        return img
-
-    return fn
-
-
-def random_flip_udlr(x, seed=None):
-    x = tf.image.random_flip_up_down(x, seed)
-    return tf.image.random_flip_left_right(x, seed)
-
-
-def fused_read_fn(parser, normalize, shape, n=10, seed=None):
-    """Parses tf record, normalizes it, throws away if NaNs, and returns patches.
-    """
-
-    def extract_patches(swath):
-        height, width, chans = shape
-        imgs = tf.extract_image_patches(
-            images=tf.expand_dims(swath, 0),
-            ksizes=[1, height, width, 1],
-            strides=[1, height // 2, width // 2, 1],
-            rates=[1, 1, 1, 1],
-            padding="VALID",
-        )
-        return tf.reshape(imgs, [-1, height, width, chans])
-
-    def fn(ser):
-        swath = parser(ser)
-        swath = tf.clip_by_value(swath, 0, 1e10)
-        swath = normalize(swath)
-        patches = tf.cond(
-            tf.reduce_any(tf.is_nan(swath)),
-            lambda: tf.expand_dims(tf.zeros(shape), 0),
-            lambda: extract_patches(swath),
-        )
-        return tf.data.Dataset.from_tensor_slices(patches)
-
-    return fn
-
-
-def load_data(
-    data_files,
-    shape,
-    batch_size,
-    fields,
-    meta_json,
-    normalization,
-    num_threads,
-    prefetch,
-    shuffle_buffer_size,
-):
-    print("loading data...", flush=True)
-    chans, parser = pipeline.main_parser(fields, meta_json)
-    normalizer = normalizer_fn(normalization)
-    shape = (*shape, chans)
-
-    dataset = (
-        tf.data.TFRecordDataset(data_files, num_parallel_reads=num_threads)
-        .interleave(fused_read_fn(parser, normalizer, shape), cycle_length=num_threads)
-        .filter(heterogenous_bands(0.5))  # TODO flag for threshold
-        .map(random_flip_udlr)
-        .apply(shuffle_and_repeat(shuffle_buffer_size))
-        .apply(batch_and_drop_remainder(batch_size))
-        .prefetch(prefetch)
-    )
-    return chans, dataset
-
-
 def load_model(model_dir, name):
     json = path.join(model_dir, name + ".json")
     weights = path.join(model_dir, name + ".h5")
@@ -369,18 +221,19 @@ def load_model(model_dir, name):
 if __name__ == "__main__":
     FLAGS = get_flags()
 
-    chans, dataset = load_data(
+    print("Building dataset...", flush=True)
+    chans, dataset = pipeline.load_data(
         FLAGS.data,
-        FLAGS.shape,
-        FLAGS.batch_size,
         FLAGS.fields,
         FLAGS.meta_json,
+        FLAGS.shape,
+        FLAGS.batch_size,
         FLAGS.normalization,
         FLAGS.read_threads,
         FLAGS.prefetch,
         FLAGS.shuffle_buffer_size,
     )
-    FLAGS.shape = (*FLAGS.shape[:2], chans)
+    shape = (*FLAGS.shape, chans)
 
     img = dataset.make_one_shot_iterator().get_next()
 
@@ -400,7 +253,7 @@ if __name__ == "__main__":
         ae = load_model(FLAGS.model_dir, "ae")
         if not ae:
             ae = models.autoencoder(
-                shape=FLAGS.shape,
+                shape=shape,
                 base=FLAGS.base_dim,
                 batchnorm=FLAGS.batchnorm,
                 n_layers=FLAGS.n_layers,
@@ -436,7 +289,7 @@ if __name__ == "__main__":
         with tf.name_scope("discriminator"):
             disc = load_model(FLAGS.model_dir, "disc")
             if not disc:
-                disc = models.discriminator(shape=FLAGS.shape, n_layers=FLAGS.n_layers)
+                disc = models.discriminator(shape, FLAGS.n_layers)
         with tf.name_scope("disc_loss"):
             di = disc(img)
             da = disc(ae_img)
@@ -484,24 +337,20 @@ if __name__ == "__main__":
 
     summary_op = tf.summary.merge_all()
 
-    # Profiler options
-    ALL_ADVICE = {
-        "ExpensiveOperationChecker": {},
-        "AcceleratorUtilizationChecker": {},
-        "JobChecker": {},  # Only available internally.
-        "OperationChecker": {},
-    }
-
     # Begin training
-    print("training...", flush=True)
-    with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
-        options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+    print("Training...", flush=True)
+    with tf.Session(
+        config=tf.ConfigProto(
+            gpu_options=tf.GPUOptions(allow_growth=True), log_device_placement=True
+        )
+    ) as sess:
+        run_opts = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
         run_metadata = tf.RunMetadata()
         profiler = Profiler(sess.graph)
 
         sess.run(
             tf.global_variables_initializer(),
-            options=options,
+            options=run_opts,
             run_metadata=run_metadata,
         )
 
@@ -514,22 +363,29 @@ if __name__ == "__main__":
             print("Starting epoch %d" % e, flush=True)
 
             for s in range(FLAGS.steps_per_epoch):
-                sess.run(train_ops, options=options, run_metadata=run_metadata)
+                sess.run(train_ops, options=run_opts, run_metadata=run_metadata)
 
                 if s % FLAGS.summary_every == 0:
                     total_step = e * FLAGS.steps_per_epoch + s
                     summary_writer.add_summary(sess.run(summary_op), total_step)
                     profiler.add_step(total_step, run_metadata)
-                    p_opts = (
-                        ProfileOptionBuilder(ProfileOptionBuilder.time_and_memory())
-                        .with_step(total_step)
-                        .with_timeline_output(
-                            path.join(FLAGS.model_dir, "timelines", "t.json")
+                    profiler.profile_graph(
+                        options=(
+                            ProfileOptionBuilder(ProfileOptionBuilder.time_and_memory())
+                            .with_step(total_step)
+                            .with_timeline_output(
+                                path.join(FLAGS.model_dir, "timelines", "t.json")
+                            )
+                            .build()
                         )
-                        .build()
                     )
-                    profiler.profile_graph(options=p_opts)
-                    profiler.advise(ALL_ADVICE)
+                    profiler.advise(
+                        {
+                            "ExpensiveOperationChecker": {},
+                            "AcceleratorUtilizationChecker": {},
+                            "OperationChecker": {},
+                        }
+                    )
 
             for m in save_models:
                 save_models[m].save_weights(path.join(FLAGS.model_dir, f"{m}.h5"))
