@@ -45,6 +45,7 @@ def autoencoder(shape, n_blocks, base, batchnorm, variational, dense=False, bloc
     outputs = []
 
     # Encoder
+    x = Conv2D(base, 3, activation="relu")(x)
     for i in range(n_blocks):
         depth = base * 2 ** i
         x = resblock(x, depth, block_len)
@@ -68,7 +69,7 @@ def autoencoder(shape, n_blocks, base, batchnorm, variational, dense=False, bloc
         if batchnorm:
             x = BatchNormalization()(x)
 
-    x = Conv2D(shape[-1], 1, activation="relu", padding="same", name="reconstructed")(x)
+    x = Conv2D(shape[-1], 1, name="reconstructed")(x)
     outputs.append(x)
 
     return Model(inp, outputs)
