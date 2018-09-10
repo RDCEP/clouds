@@ -45,12 +45,11 @@ def autoencoder(shape, n_blocks, base, batchnorm, variational, dense=False, bloc
     outputs = []
 
     # Encoder
-    x = Conv2D(base, 3, activation="relu")(x)
     for i in range(n_blocks):
         depth = base * 2 ** i
-        x = resblock(x, depth, block_len)
         # Half image size
         x = Conv2D(depth, 3, 2, activation="relu", padding="same")(x)
+        x = resblock(x, depth, block_len)
         if batchnorm:
             x = BatchNormalization()(x)
 
@@ -63,9 +62,9 @@ def autoencoder(shape, n_blocks, base, batchnorm, variational, dense=False, bloc
     # Decoder
     for i in range(n_blocks -1, -1, -1):
         depth = base * 2 ** i
-        x = resblock(x, depth, block_len)
         # Double Image size
         x = Conv2DTranspose(depth, 3, 2, activation="relu", padding="same")(x)
+        x = resblock(x, depth, block_len)
         if batchnorm:
             x = BatchNormalization()(x)
 
