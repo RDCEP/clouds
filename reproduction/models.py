@@ -4,12 +4,14 @@ from tensorflow.python.keras.models import Model, Sequential
 import tensorflow.keras.applications as pretrained
 import numpy as np
 
-def resblock(x, depth, block_len = 2):
-    if not block_len: return x
+
+def resblock(x, depth, block_len=2):
+    if not block_len:
+        return x
     r = x
     for _ in range(block_len):
         x = Conv2D(depth, 3, activation="relu", padding="same")(x)
-    return Add()([r,x])
+    return Add()([r, x])
 
 
 def sample_variational(x, depth, dense):
@@ -25,8 +27,7 @@ def sample_variational(x, depth, dense):
         lv = Conv2D(depth, 1)(lv)
 
     x = Lambda(
-        lambda arg: tf.random_normal(arg[0].shape[1:]) * tf.exp(arg[1] / 2)
-        + arg[0],
+        lambda arg: tf.random_normal(arg[0].shape[1:]) * tf.exp(arg[1] / 2) + arg[0],
         name="sampling",
     )([mn, lv])
 
@@ -37,7 +38,9 @@ def sample_variational(x, depth, dense):
     return mn, lv, x
 
 
-def autoencoder(shape, n_blocks, base, batchnorm, variational, dense=False, block_len=2):
+def autoencoder(
+    shape, n_blocks, base, batchnorm, variational, dense=False, block_len=2
+):
     """
     Returns an encoder model and autoencoder model
     """
@@ -60,7 +63,7 @@ def autoencoder(shape, n_blocks, base, batchnorm, variational, dense=False, bloc
     outputs.append(x)
 
     # Decoder
-    for i in range(n_blocks -1, -1, -1):
+    for i in range(n_blocks - 1, -1, -1):
         depth = base * 2 ** i
         # Double Image size
         x = Conv2DTranspose(depth, 3, 2, activation="relu", padding="same")(x)

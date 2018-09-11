@@ -60,7 +60,7 @@ def get_flags():
         "--block_len",
         help="Number of layers in each block before strided convolution",
         type=int,
-        default=1
+        default=1,
     )
     p.add_argument(
         "--base_dim",
@@ -241,7 +241,7 @@ if __name__ == "__main__":
     )
     shape = (*FLAGS.shape, chans)
 
-    img = dataset.make_one_shot_iterator().get_next()
+    _, _, img = dataset.make_one_shot_iterator().get_next()
 
     # Colormap object maps our channels to normal rgb channels
     cmap = ColorMap(FLAGS.red_bands, FLAGS.green_bands, FLAGS.blue_bands)

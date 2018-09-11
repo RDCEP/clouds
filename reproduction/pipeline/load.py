@@ -2,83 +2,12 @@ import tensorflow as tf
 from osgeo import gdal, ogr
 import numpy as np
 import json
-from tensorflow.contrib.data import shuffle_and_repeat, batch_and_drop_remainder
+from tensorflow.contrib.data import shuffle_and_repeat
+from tensorflow.contrib.data import batch_and_drop_remainder
+from tensorflow.contrib.data import parallel_interleave
 
 
-def read_tiff_gen(tiff_files, side):
-    """Returns an initializable generator that reads (side, side, bands) squares
-    in the tiff files.
-    """
-
-    def gen():
-        for f in tiff_files:
-            data = gdal.Open(f)
-            rows = data.RasterXSize
-            cols = data.RasterYSize
-
-            rows -= rows % side
-            cols -= cols % side
-
-            for xoff in range(0, rows, side):
-                for yoff in range(0, cols, side):
-                    bands = []
-                    for b in range(data.RasterCount):
-                        band = data.GetRasterBand(b + 1).ReadAsArray(
-                            xoff=xoff, yoff=yoff, win_xsize=side, win_ysize=side
-                        )
-                        bands.append(band)
-
-                    assert all(band is not None for band in bands), "index err"
-
-                    img = np.stack(bands, axis=-1)
-                    if (img != 0).any():
-                        yield img.astype(np.float32)
-
-    return gen
-
-
-def read_tiff_gen_withloc(tiff_files, side):
-    """Returns an initializable generator that reads (side, side, bands) squares
-    in the tiff files. Same version as above, with geolocation of the patches
-    """
-
-    def gen():
-        for f in tiff_files:
-            data = gdal.Open(f)
-            rows = data.RasterXSize
-            cols = data.RasterYSize
-
-            rows -= rows % side
-            cols -= cols % side
-
-            for xoff in range(0, rows, side):
-                for yoff in range(0, cols, side):
-                    bands = []
-                    centroids = []
-                    for b in range(data.RasterCount):
-                        band = data.GetRasterBand(b + 1).ReadAsArray(
-                            xoff=xoff, yoff=yoff, win_xsize=side, win_ysize=side
-                        )
-                        # TODO: Implement the centroid extraction. Option would be combining with OGR.
-                        # TODO: Option two get using rasterio...
-                        # centroids.append(data.Centroid())
-
-                        bands.append(band)
-
-                    assert all(band is not None for band in bands), "index err"
-
-                    img = np.stack(bands, axis=-1)
-                    if (img != 0).any():
-                        yield img.astype(np.float32)
-
-                    # Get coordinates of patch centroid
-
-                    print(centroids)
-
-    return gen
-
-
-def main_parser(fields, meta_json, saved_as_bytes=True):
+def tfr_parser_fn(fields, meta_json, saved_as_bytes=True):
     """Parses tfrecord example with chosen fields.
     Note that the shape is not consistent between fields or even between records
     as such you should use the meta_json associated with the particular record
@@ -125,28 +54,9 @@ def main_parser(fields, meta_json, saved_as_bytes=True):
             decoded = tf.reshape(decoded, sh)
             decoded = tf.cast(decoded, tf.float32)
             res.append(decoded)
-        return tf.concat(res, axis=2)
+        return tf.concat(res, axis=2), sh
 
     return chans, parser
-
-
-# TODO depricate
-def patchify_fn(height, width, chans):
-    """Breaks up a big image into many half overlaping images.
-    """
-
-    def fn(img):
-        imgs = tf.extract_image_patches(
-            images=tf.expand_dims(img, 0),
-            ksizes=[1, height, width, 1],
-            strides=[1, height // 2, width // 2, 1],
-            rates=[1, 1, 1, 1],
-            padding="VALID",
-        )
-        imgs = tf.reshape(imgs, [-1, height, width, chans])
-        return tf.data.Dataset.from_tensor_slices(imgs)
-
-    return fn
 
 
 def add_pipeline_cli_arguments(p):
@@ -188,23 +98,7 @@ def add_pipeline_cli_arguments(p):
     )
     p.add_argument("--shuffle_buffer_size", type=int, default=10000)
 
-# TODO depricate once inlined in fused_read_fn
-def heterogenous_bands(threshold):
-    """Returns True if a band in the image has too much of a single value in
-    `threshold` fraction of the image. Presumably this value represents no cloud
-    as clouds will be more heterogenous.
-    """
 
-    def fn(img):
-        has_data = []
-        for band in tf.unstack(img, axis=-1):
-            _, _, count = tf.unique_with_counts(tf.reshape(band, [-1]))
-            has_data.append(tf.reduce_max(count) / tf.size(band) < threshold)
-        return tf.reduce_any(has_data)
-
-    return fn
-
-# TODO inline with fused_read_fn / refactor to not curry
 def normalizer_fn(normalization):
     """Returns a function that performs `normalization` to an image tensor.
 
@@ -212,6 +106,7 @@ def normalizer_fn(normalization):
     moments, biasing mean and variance, We want to normalize by conditional
     mean and conditional variance (conditional on 'pixel with a cloud').
     """
+    normalization = normalization.lower()
 
     def fn(img):
         img = tf.verify_tensor_all_finite(img, "Nan before normalizing")
@@ -238,40 +133,66 @@ def normalizer_fn(normalization):
 
     return fn
 
-# TODO rename -- more descriptive
-def fused_read_fn(parser, normalize, shape, n=10, seed=None):
-    """Parses tf record, normalizes it, throws away if NaNs, and returns patches.
-    This is actually 10x faster than the non fused version.
+def heterogenous_bands(img, threshold=0.5):
+    """Returns False if a band in the image has too much of a single value is `threshold`
+    fraction of the image. Presumably this value represents no cloud as clouds will be
+    more heterogenous.
     """
-    def extract_patches(swath):
-        height, width, chans = shape
-        imgs = tf.extract_image_patches(
+    has_data = []
+    for band in tf.unstack(img, axis=-1):
+        _, _, count = tf.unique_with_counts(tf.reshape(band, [-1]))
+        has_data.append(tf.reduce_max(count) / tf.size(band) < threshold)
+    return tf.logical_and(tf.reduce_all(tf.is_finite(img)), tf.reduce_any(has_data))
+
+
+def patch_reader_fn(parse, normalize, shape):
+    """Returns a function that parses a swath and extracts normalized and labeled patches.
+    Args:
+        parse: Function that takes serialized TFRecord and outputs a 3d tensor swath
+        normalize: Function that normalizes each channel of the swath
+        shape: Desired shape of each patch in the swath
+    Returns:
+        patch_reader: Function that parses and normalizes a serialized tfrecord by
+        applying `parse` and `normalize`, and outputs patches and their coordinates from /
+        in the swath.
+
+    This is actually a lot faster than non-fused version. Perhaps because TF uses threads
+    for each map / flatmap / apply and there is a lot of copying or context switching
+    otherwise.
+    """
+    height, width, chans = shape
+
+    def patch_reader(ser):
+        swath, sh = parse(ser)
+        swath_x, swath_y = sh[0], sh[1]
+        # Half overlapping patches TODO flag to control this?
+        stride_x, stride_y = width // 2, height // 2
+        rows, cols = swath_x // stride_x - 1, swath_y // stride_y - 1
+
+        swath = tf.clip_by_value(swath, 0, 1e10)
+        swath = normalize(swath)
+        patches = tf.extract_image_patches(
             images=tf.expand_dims(swath, 0),
             ksizes=[1, height, width, 1],
-            strides=[1, height // 2, width // 2, 1],
+            strides=[1, stride_x, stride_y, 1],
             rates=[1, 1, 1, 1],
             padding="VALID",
         )
-        imgs = tf.reshape(imgs, [-1, height, width, chans])
-        # TODO filter homogenous patches away here
-        imgs = tf.map_fn(
-            lambda x: tf.image.random_flip_up_down(tf.image.random_flip_left_right(x)),
-            imgs
-        )
-        return imgs
+        patches = tf.reshape(patches, [-1, height, width, chans])
 
-    def fn(ser):
-        swath = parser(ser)
-        swath = tf.clip_by_value(swath, 0, 1e10)
-        swath = normalize(swath)
-        patches = tf.cond(
-            tf.reduce_any(tf.is_nan(swath)),
-            lambda: tf.expand_dims(tf.zeros(shape), 0),
-            lambda: extract_patches(swath),
-        )
-        return tf.data.Dataset.from_tensor_slices(patches)
+        def label(num, data):
+            row = num // cols
+            col = num % cols
+            return (row * stride_x, col * stride_y), data
 
-    return fn
+        return (
+            tf.data.Dataset.from_tensor_slices(patches)
+            .apply(tf.contrib.data.enumerate_dataset())
+            .filter(lambda num, patch: heterogenous_bands(patch))
+            .map(label)
+        )
+
+    return patch_reader
 
 
 def load_data(
@@ -285,18 +206,28 @@ def load_data(
     prefetch,
     shuffle_buffer_size,
 ):
-    """Returns the number of channels and a dataset of images.
+    """Returns the number of channels and a dataset of (sourcefile, coordinate, patch).
     See `add_pipeline_cli_arguments` for description of Arguments.
     """
-    chans, parser = main_parser(fields, meta_json)
+    chans, parser = tfr_parser_fn(fields, meta_json)
     normalizer = normalizer_fn(normalization)
     shape = (*shape, chans)
-
     dataset = (
-        tf.data.TFRecordDataset(data_files, num_parallel_reads=read_threads)
-        .interleave(fused_read_fn(parser, normalizer, shape), cycle_length=read_threads)
-        .filter(heterogenous_bands(0.5))  # TODO flag for threshold, also inline
-        .apply(shuffle_and_repeat(shuffle_buffer_size))
+        tf.data.Dataset.from_tensor_slices(data_files)
+        .apply(shuffle_and_repeat(10000))
+        .apply(
+            parallel_interleave(
+                lambda file_name: (
+                    tf.data.TFRecordDataset(file_name)
+                    .flat_map(patch_reader_fn(parser, normalizer, shape))
+                    .map(lambda coord, patch: (file_name, coord, patch))
+                ),
+                cycle_length=read_threads,
+                sloppy=True,
+            )
+        )
+        # Shuffle again because each swath yields 1000s of very correlated patches
+        .shuffle(shuffle_buffer_size)
         .apply(batch_and_drop_remainder(batch_size))
         .prefetch(prefetch)
     )
