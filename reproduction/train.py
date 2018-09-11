@@ -334,8 +334,16 @@ if __name__ == "__main__":
             loss_ae += loss_per * FLAGS.lambda_per
             tf.summary.scalar("loss_per", loss_per)
 
+    # Monitor AE gradients
+    grads_and_vars = optimizer.compute_gradients(loss_ae, var_list=ae.trainable_weights)
+    for grad, var in grads_and_vars:
+        if grad is not None:
+            tf.summary.histogram("{}/grad_histogram".format(var.name), grad)
+            tf.summary.scalar(
+                "{}/grad/sparsity".format(var.name), tf.nn.zero_fraction(grad)
+            )
+    train_ops.append(optimizer.apply_gradients(grads_and_vars))
     tf.summary.scalar("loss_ae", loss_ae)
-    train_ops.append(optimizer.minimize(loss_ae, var_list=ae.trainable_weights))
 
     # Save JSONs
     for m in save_models:

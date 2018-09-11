@@ -1,9 +1,6 @@
 import tensorflow as tf
-from osgeo import gdal, ogr
-import numpy as np
 import json
 from tensorflow.contrib.data import shuffle_and_repeat
-from tensorflow.contrib.data import batch_and_drop_remainder
 from tensorflow.contrib.data import parallel_interleave
 
 
@@ -133,6 +130,7 @@ def normalizer_fn(normalization):
 
     return fn
 
+
 def heterogenous_bands(img, threshold=0.5):
     """Returns False if a band in the image has too much of a single value is `threshold`
     fraction of the image. Presumably this value represents no cloud as clouds will be
@@ -228,7 +226,7 @@ def load_data(
         )
         # Shuffle again because each swath yields 1000s of very correlated patches
         .shuffle(shuffle_buffer_size)
-        .apply(batch_and_drop_remainder(batch_size))
+        .batch(batch_size, drop_remainder=True)
         .prefetch(prefetch)
     )
     return chans, dataset
