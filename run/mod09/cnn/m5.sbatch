@@ -1,5 +1,5 @@
 #!/bin/sh
-#SBATCH --job-name=mod09cnn2res
+#SBATCH --job-name=mod09cnn5
 #SBATCH --partition=gpu2
 #SBATCH --output=%x_%A.out
 #SBATCH --error=%x_%A.err
@@ -27,7 +27,8 @@ python reproduction/train.py $MODEL_PATH \
     --meta_json $META \
     --epochs 500 \
     --shape 256 256 \
-    --n_layers 6 \
+    --n_blocks 6 \
+    --block_len 2 \
     --batchnorm \
     --normalization whiten \
     --read_threads 28 \

@@ -1,10 +1,9 @@
 #!/bin/sh
-#SBATCH --job-name=mod09cnn2res
+#SBATCH --job-name=mod09cnn6
 #SBATCH --partition=gpu2
 #SBATCH --output=%x_%A.out
 #SBATCH --error=%x_%A.err
-#SBATCH --mem=64000
-#SBATCH --exclusive
+#SBATCH --mem=32000
 
 export KERAS_BACKEND=tensorflow
 
@@ -26,9 +25,10 @@ python reproduction/train.py $MODEL_PATH \
     --base_dim 8 \
     --meta_json $META \
     --epochs 500 \
-    --shape 256 256 \
-    --n_layers 6 \
+    --shape 64 64 \
+    --n_blocks 3 \
+    --block_len 1 \
     --batchnorm \
     --normalization whiten \
-    --read_threads 28 \
+    --read_threads 16 \
     --shuffle_buffer_size 100

@@ -6,10 +6,10 @@ export KERAS_BACKEND=tensorflow
 module purge
 
 module load Anaconda3/5.0.0.1
-module load graphviz
-module load ImageMagick
 module load cuda/9.0
-#source activate DL_CPU
+# TODO flags for spark mode?
+# module load spark
+# source activate cc2
 source activate clouds
 
 
