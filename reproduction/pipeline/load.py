@@ -2,6 +2,7 @@ import tensorflow as tf
 import json
 from tensorflow.contrib.data import shuffle_and_repeat
 from tensorflow.contrib.data import parallel_interleave
+from tensorflow.contrib.data import batch_and_drop_remainder
 
 
 def tfr_parser_fn(fields, meta_json, saved_as_bytes=True):
@@ -54,6 +55,53 @@ def tfr_parser_fn(fields, meta_json, saved_as_bytes=True):
         return tf.concat(res, axis=2), sh
 
     return chans, parser
+
+
+def preprocessed_pipeline_cli_arguments(p):
+    p.add_argument("--data_glob", help="glob pattern of tfrecords", required=True)
+    p.add_argument(
+        "--shape", nargs=2, type=int, help="Shape of input image", default=(64, 64)
+    )
+    p.add_argument("--batch_size", type=int, help=" ", default=32)
+    p.add_argument("--shuffle_buffer_size", type=int, default=10000)
+    p.add_argument("--read_threads", type=int, default=4)
+    p.add_argument(
+        "--prefetch",
+        type=int,
+        default=1,
+        help="Size of prefetch buffers in dataset pipeline",
+    )
+
+
+def preprocessed_pipeline(
+    data_glob, batch_size, read_threads, shuffle_buffer_size, prefetch
+):
+    def parser(ser):
+        features = {
+            "shape": tf.FixedLenFeature([3], tf.int64),
+            "patch": tf.FixedLenFeature([], tf.string),
+            "filename": tf.FixedLenFeature([], tf.string),
+            "coordinate": tf.FixedLenFeature([2], tf.int64),
+        }
+        decoded = tf.parse_single_example(ser, features)
+        patch = tf.reshape(
+            tf.decode_raw(decoded["patch"], tf.float32), decoded["shape"]
+        )
+        return decoded["filename"], decoded["coordinate"], patch
+
+    dataset = (
+        tf.data.Dataset.list_files(data_glob, shuffle=True)
+        .apply(
+            parallel_interleave(
+                tf.data.TFRecordDataset, cycle_length=read_threads, sloppy=True
+            )
+        )
+        .map(parser, num_parallel_calls=read_threads)
+        .apply(shuffle_and_repeat(shuffle_buffer_size))
+        .apply(batch_and_drop_remainder(batch_size))
+        .prefetch(prefetch)
+    )
+    return dataset
 
 
 def add_pipeline_cli_arguments(p):
@@ -169,6 +217,7 @@ def patch_reader_fn(parse, normalize, shape):
 
         swath = tf.clip_by_value(swath, 0, 1e10)
         swath = normalize(swath)
+
         patches = tf.extract_image_patches(
             images=tf.expand_dims(swath, 0),
             ksizes=[1, height, width, 1],
@@ -226,7 +275,8 @@ def load_data(
         )
         # Shuffle again because each swath yields 1000s of very correlated patches
         .shuffle(shuffle_buffer_size)
-        .batch(batch_size, drop_remainder=True)
+        # .batch(batch_size, drop_remainder=True)
+        .apply(batch_and_drop_remainder(batch_size))
         .prefetch(prefetch)
     )
     return chans, dataset

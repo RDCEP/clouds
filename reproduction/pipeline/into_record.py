@@ -1,9 +1,6 @@
-"""
-Routine to convert MOD06_L2 HDF swath files to TFRecord format
-"""
-
 import tensorflow as tf
-from pyhdf.SD import SD, SDC
+
+# from pyhdf.SD import SD, SDC
 from statistics import median
 import json
 import numpy as np
@@ -46,6 +43,52 @@ def save_example_and_metadata(original, features, meta):
     with tf.python_io.TFRecordWriter(tfr_file) as f:
         for example in examples:
             f.write(example.SerializeToString())
+
+
+def normalized_patches(tif_files, shape, strides):
+    """Generates normalized patches.
+    """
+    for tif_file in tif_files:
+        print("Reading", tif_file, flush=True)
+        swath = gdal.Open(tif_file).ReadAsArray()
+        swath = np.rollaxis(swath, 0, 3)
+        # TODO Flags for other kinds of normalization
+        # Don't normalize the whole swath at once to avoid doubling mem (normalize patch).
+        # Swath is a big array of int16, yield patches of float32
+        mean = swath.mean(axis=(0, 1)).astype(np.float32)
+        std = swath.std(axis=(0, 1)).astype(np.float32)
+        max_x, max_y, _ = swath.shape
+        stride_x, stride_y = strides
+        shape_x, shape_y = shape
+
+        for x in range(0, max_x, stride_x):
+            for y in range(0, max_y, stride_y):
+                if x + shape_x < max_x and y + shape_y < max_y:
+                    patch = swath[x : x + shape_x, y : y + shape_y].astype(np.float32)
+                    # Filter away patches with Nans or no clouds (ie whole patch 1 value)
+                    if (patch[0, 0, 0] != patch).any() and not np.isnan(patch).any():
+                        patch = (patch - mean) / std
+                        yield tif_file, (x, y), patch
+
+
+def write_patches(rank, patches, out_dir, patches_per_record):
+    """Writes `patches_per_record` patches into a tfrecord file in `out_dir`.
+    """
+    for i, (filename, coord, patch) in enumerate(patches):
+        if i % patches_per_record == 0:
+            rec = "{}-{}.tfrecord".format(rank, i // patches_per_record)
+            print("Writing to", rec, flush=True)
+            f = tf.python_io.TFRecordWriter(os.path.join(out_dir, rec))
+        feature = {
+            "filename": _bytes_feature(bytes(filename, encoding="utf-8")),
+            "coordinate": _int64_feature(coord),
+            "shape": _int64_feature(patch.shape),
+            "patch": _bytes_feature(patch.ravel().tobytes()),
+        }
+        example = tf.train.Example(features=tf.train.Features(feature=feature))
+        f.write(example.SerializeToString())
+
+    print("Rank", rank, "wrote", i + 1, "patches")
 
 
 def tif2tfr(tif_file, out_dir, stride=2048):
@@ -121,71 +164,93 @@ def hdf2tfr(hdf_file, out_dir, target_fields):
 
 def get_args():
     p = ArgumentParser(
-        description=(
-            "Reads HDF or TIF files and translates them into tf records and json "
-            "meta data files. Parallelized with MPI4py.\n"
-            "The tfrecord format is "
-            "{'field': bytes, 'field/shape': [height, width, channels]}, where "
-            "height, width, and channels are int64. The JSON format is "
-            "{'field': [channels, type]}."
-        )
+        description="Turns tif or hdf data into tfrecords. TODO better description."
     )
-    p.add_argument("--hdf_dir")
-    p.add_argument("--tif_dir")
+    p.add_argument("source_dir", help="Directory of files to convert to tfrecord")
+    p.add_argument(
+        "mode",
+        choices=["tif", "hdf", "pptif"],
+        help=(
+            "`tif`: Turn whole .tif swath into tfrecord. "
+            "`hdf`: Turn .hdf swath into tfrecord (respecting fields). "
+            "`pptif`: preprocessed_tif, normalize and patchify a tif file."
+        ),
+    )
     p.add_argument(
         "--out_dir",
         help=(
-            "Directory to save results, if unprovided, then tfrecords and json "
-            "meta data are saved to the same directory as the source data."
+            "Directory to save results, if unprovided, then tfrecords and json meta data "
+            "are saved to the same directory as the source data."
         ),
     )
     p.add_argument(
         "--fields",
         nargs="+",
         help=(
-            "This is only used when translating hdf files, it specifies which "
-            "fields to record. If none are provided then all fields are "
-            "recorded. For tif files, all fields are translated as b0..bN and "
-            "this flag is ignored."
+            "This is only used when translating hdf files, it specifies which fields to "
+            "record. If none are provided then all fields are recorded. For tif files, "
+            "all fields are translated as b0..bN and this flag is ignored."
         ),
+    )
+    p.add_argument(
+        "--shape",
+        nargs=2,
+        type=int,
+        help="patch shape. Only used for pptif",
+        default=(128, 128),
+    )
+    p.add_argument(
+        "--stride",
+        nargs=2,
+        type=int,
+        help="patch stride. Only used for pptif",
+        default=(64, 64),
+    )
+    p.add_argument(
+        "--patches_per_record", type=int, help="Only used for pptif", default=5000
     )
 
     FLAGS = p.parse_args()
-
-    if bool(FLAGS.hdf_dir) == bool(FLAGS.tif_dir):
-        print("Please specify either --hdf_dir or --tif_dir.")
-        exit(1)
-
-    is_hdf = bool(FLAGS.hdf_dir)
-    data_dir = path.abspath(FLAGS.hdf_dir if is_hdf else FLAGS.tif_dir)
 
     for f in FLAGS.__dict__:
         print(f"\t{f}:{(25-len(f)) * ' '} {FLAGS.__dict__[f]}")
     print("\n")
 
-    out_dir = path.abspath(FLAGS.out_dir) if FLAGS.out_dir else data_dir
+    FLAGS.data_dir = path.abspath(FLAGS.source_dir)
+    FLAGS.out_dir = path.abspath(FLAGS.out_dir) if FLAGS.out_dir else data_dir
+    return FLAGS
 
-    return data_dir, is_hdf, FLAGS.fields, out_dir
+
+def get_targets(data_dir, ext, rank):
+    targets = [t for t in os.listdir(data_dir) if t[-4:] == ext]
+    targets.sort()
+    return [path.join(data_dir, t) for i, t in enumerate(targets) if i % size == rank]
 
 
 if __name__ == "__main__":
-    data_dir, is_hdf, fields, out_dir = get_args()
+    FLAGS = get_args()
 
     comm = MPI.COMM_WORLD
     size = comm.Get_size()
     rank = comm.Get_rank()
+    os.makedirs(FLAGS.out_dir, exist_ok=True)
 
-    ext = ".hdf" if is_hdf else ".tif"
-    targets = [t for t in os.listdir(data_dir) if t[-4:] == ext]
-    targets.sort()
-    targets = [t for i, t in enumerate(targets) if i % size == rank]
-    os.makedirs(out_dir, exist_ok=True)
+    if FLAGS.mode == "hdf":
+        for t in get_targets(FLAGS.data_dir, ".hdf", rank):
+            print("Rank", rank, "Converting", t)
+            hdf2tfr(t, FLAGS.out_dir, FLAGS.fields)
 
-    for t in targets:
-        print("Rank %d converting %s" % (rank, t), flush=True)
-        if is_hdf:
-            hdf2tfr(path.join(data_dir, t), out_dir, fields)
-        else:
-            tif2tfr(path.join(data_dir, t), out_dir)
+    elif FLAGS.mode == "tif":
+        for t in get_targets(FLAGS.data_dir, ".tif", rank):
+            print("Rank", rank, "Converting", t)
+            tif2tfr(t, FLAGS.out_dir)
+
+    elif FLAGS.mode == "pptif":
+        targets = get_targets(FLAGS.data_dir, ".tif", rank)
+        patches = normalized_patches(targets, FLAGS.shape, FLAGS.stride)
+        write_patches(rank, patches, FLAGS.out_dir, FLAGS.patches_per_record)
+
+    else:
+        raise ValueError("Invalid mode")
 
     print("Rank %d done." % rank, flush=True)
