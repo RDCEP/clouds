@@ -57,25 +57,13 @@ def tfr_parser_fn(fields, meta_json, saved_as_bytes=True):
     return chans, parser
 
 
-def preprocessed_pipeline_cli_arguments(p):
-    p.add_argument("--data_glob", help="glob pattern of tfrecords", required=True)
-    p.add_argument(
-        "--shape", nargs=2, type=int, help="Shape of input image", default=(64, 64)
-    )
-    p.add_argument("--batch_size", type=int, help=" ", default=32)
-    p.add_argument("--shuffle_buffer_size", type=int, default=10000)
-    p.add_argument("--read_threads", type=int, default=4)
-    p.add_argument(
-        "--prefetch",
-        type=int,
-        default=1,
-        help="Size of prefetch buffers in dataset pipeline",
-    )
-
-
-def preprocessed_pipeline(
-    data_glob, batch_size, read_threads, shuffle_buffer_size, prefetch
+def load_data(
+    data_glob, shape, batch_size, read_threads, shuffle_buffer_size, prefetch
 ):
+    """Returns a dataset of (filenames, coordinates, patches).
+    See `add_pipeline_cli_arguments` for argument descriptions.
+    """
+
     def parser(ser):
         features = {
             "shape": tf.FixedLenFeature([3], tf.int64),
@@ -87,6 +75,8 @@ def preprocessed_pipeline(
         patch = tf.reshape(
             tf.decode_raw(decoded["patch"], tf.float32), decoded["shape"]
         )
+        patch = tf.random_crop(patch, shape)
+        patch = tf.image.random_flip_up_down(tf.image.random_flip_left_right(patch))
         return decoded["filename"], decoded["coordinate"], patch
 
     dataset = (
@@ -106,34 +96,13 @@ def preprocessed_pipeline(
 
 def add_pipeline_cli_arguments(p):
     p.add_argument(
-        "--data", help="pattern to pick up tf records files", required=True, nargs="+"
+        "--data", help="patterns to pick up tf records files", required=True, nargs="+"
     )
     p.add_argument(
-        "--fields",
-        nargs="+",
-        help=(
-            "fields to select from tf record. For tif data, it should be b1..bN "
-            "where N is the number of bands. For hdf data, it should be the "
-            "names of the fields"
-        ),
-        required=True,
-    )
-    p.add_argument(
-        "--meta_json",
-        help="json file mapping field name to number of channels and type.",
-        required=True,
-    )
-    p.add_argument(
-        "--shape", nargs=2, type=int, help="Shape of input image", default=(64, 64)
+        "--shape", nargs=3, type=int, help="Shape of input image", default=(64, 64, 7)
     )
 
     p.add_argument("--batch_size", type=int, help=" ", default=32)
-    p.add_argument(
-        "--normalization",
-        choices=["max_scale", "whiten", "mean_sub", "none"],
-        default="max_scale",
-        help="Method for normalizing swath before extracting patches.",
-    )
     p.add_argument("--read_threads", type=int, default=4)
     p.add_argument(
         "--prefetch",
@@ -144,6 +113,7 @@ def add_pipeline_cli_arguments(p):
     p.add_argument("--shuffle_buffer_size", type=int, default=10000)
 
 
+# TODO Deprecate
 def normalizer_fn(normalization):
     """Returns a function that performs `normalization` to an image tensor.
 
@@ -179,6 +149,7 @@ def normalizer_fn(normalization):
     return fn
 
 
+# TODO Deprecate
 def heterogenous_bands(img, threshold=0.5):
     """Returns False if a band in the image has too much of a single value is `threshold`
     fraction of the image. Presumably this value represents no cloud as clouds will be
@@ -191,6 +162,7 @@ def heterogenous_bands(img, threshold=0.5):
     return tf.logical_and(tf.reduce_all(tf.is_finite(img)), tf.reduce_any(has_data))
 
 
+# TODO Deprecate
 def patch_reader_fn(parse, normalize, shape):
     """Returns a function that parses a swath and extracts normalized and labeled patches.
     Args:
@@ -242,8 +214,9 @@ def patch_reader_fn(parse, normalize, shape):
     return patch_reader
 
 
-def load_data(
-    data_files,
+# TODO Deprecate
+def _load_data(
+    data_glob,
     fields,
     meta_json,
     shape,
@@ -260,8 +233,7 @@ def load_data(
     normalizer = normalizer_fn(normalization)
     shape = (*shape, chans)
     dataset = (
-        tf.data.Dataset.from_tensor_slices(data_files)
-        .apply(shuffle_and_repeat(10000))
+        tf.data.Dataset.list_files(data_glob, shuffle=True)
         .apply(
             parallel_interleave(
                 lambda file_name: (
@@ -274,7 +246,7 @@ def load_data(
             )
         )
         # Shuffle again because each swath yields 1000s of very correlated patches
-        .shuffle(shuffle_buffer_size)
+        .apply(shuffle_and_repeat(shuffle_buffer_size))
         # .batch(batch_size, drop_remainder=True)
         .apply(batch_and_drop_remainder(batch_size))
         .prefetch(prefetch)

@@ -6,7 +6,7 @@ import json
 import numpy as np
 from mpi4py import MPI
 from os import path
-from argparse import ArgumentParser
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 import os
 from osgeo import gdal
 
@@ -53,22 +53,28 @@ def normalized_patches(tif_files, shape, strides):
         swath = gdal.Open(tif_file).ReadAsArray()
         swath = np.rollaxis(swath, 0, 3)
         # TODO Flags for other kinds of normalization
-        # Don't normalize the whole swath at once to avoid doubling mem (normalize patch).
-        # Swath is a big array of int16, yield patches of float32
+        # NOTE: Normalizing the whole (sometimes 8gb) swath will double memory usage by
+        # casting it from int16 to float32. Instead normalize and cast patches.
         mean = swath.mean(axis=(0, 1)).astype(np.float32)
         std = swath.std(axis=(0, 1)).astype(np.float32)
         max_x, max_y, _ = swath.shape
         stride_x, stride_y = strides
         shape_x, shape_y = shape
 
+        # Shuffle patches
+        coords = []
         for x in range(0, max_x, stride_x):
             for y in range(0, max_y, stride_y):
                 if x + shape_x < max_x and y + shape_y < max_y:
-                    patch = swath[x : x + shape_x, y : y + shape_y].astype(np.float32)
-                    # Filter away patches with Nans or no clouds (ie whole patch 1 value)
-                    if (patch[0, 0, 0] != patch).any() and not np.isnan(patch).any():
-                        patch = (patch - mean) / std
-                        yield tif_file, (x, y), patch
+                    coords.append((x, y))
+        np.random.shuffle(coords)
+
+        for x, y in coords:
+            patch = swath[x : x + shape_x, y : y + shape_y].astype(np.float32)
+            # Filter away patches with Nans or no clouds (ie whole patch 1 value)
+            if (patch[0, 0, 0] != patch).any() and not np.isnan(patch).any():
+                patch = (patch - mean) / std
+                yield tif_file, (x, y), patch
 
 
 def write_patches(rank, patches, out_dir, patches_per_record):
@@ -164,7 +170,8 @@ def hdf2tfr(hdf_file, out_dir, target_fields):
 
 def get_args():
     p = ArgumentParser(
-        description="Turns tif or hdf data into tfrecords. TODO better description."
+        formatter_class=ArgumentDefaultsHelpFormatter,
+        description="Turns tif or hdf data into tfrecords. TODO better description.",
     )
     p.add_argument("source_dir", help="Directory of files to convert to tfrecord")
     p.add_argument(
