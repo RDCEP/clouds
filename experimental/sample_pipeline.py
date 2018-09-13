@@ -4,6 +4,7 @@ import numpy as np
 import tensorflow as tf
 from matplotlib import pyplot as plt
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from IPython import embed  # DEBUG
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 from reproduction.pipeline.load import add_pipeline_cli_arguments, load_data
@@ -26,7 +27,7 @@ def sample_dataset(dataset, n):
     with tf.Session() as sess:
         while len(samples) < n:
             names, coords, imgs = sess.run(batch)
-            samples.extend(list(zip(names, zip(*coords), imgs)))
+            samples.extend(zip(names, coords, imgs))
     samples = samples[:n]
     return samples
 
@@ -67,20 +68,18 @@ def plot_hists(samples, fields):
 if __name__ == "__main__":
     FLAGS = get_args()
 
-    chans, dataset = load_data(
+    dataset = load_data(
         FLAGS.data,
-        FLAGS.fields,
-        FLAGS.meta_json,
         FLAGS.shape,
         FLAGS.batch_size,
-        FLAGS.normalization,
         FLAGS.read_threads,
-        FLAGS.prefetch,
         FLAGS.shuffle_buffer_size,
+        FLAGS.prefetch,
     )
-    shape = (*FLAGS.shape, chans)
+    # HACK:
+    FLAGS.fields = ["b%d" % (i + 1) for i in range(FLAGS.shape[2])]
 
-    sample_dataset(dataset, FLAGS.n_samples)
+    samples = sample_dataset(dataset, FLAGS.n_samples)
 
     # Save figs
     os.makedirs(FLAGS.output_dir, exist_ok=True)

@@ -1,14 +1,14 @@
 import tensorflow as tf
-
-# from pyhdf.SD import SD, SDC
-from statistics import median
+import os
+import cv2
 import json
 import numpy as np
-from mpi4py import MPI
+
 from os import path
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-import os
 from osgeo import gdal
+from mpi4py import MPI
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+
 
 # from IPython import embed  # DEBUG
 
@@ -45,7 +45,7 @@ def save_example_and_metadata(original, features, meta):
             f.write(example.SerializeToString())
 
 
-def normalized_patches(tif_files, shape, strides):
+def normalized_patches(tif_files, shape, strides, resize):
     """Generates normalized patches.
     """
     for tif_file in tif_files:
@@ -55,6 +55,10 @@ def normalized_patches(tif_files, shape, strides):
         # TODO Flags for other kinds of normalization
         # NOTE: Normalizing the whole (sometimes 8gb) swath will double memory usage by
         # casting it from int16 to float32. Instead normalize and cast patches.
+        if resize is not None:
+            swath = cv2.resize(
+                swath, dsize=None, fx=resize, fy=resize, interpolation=cv2.INTER_AREA
+            )
         mean = swath.mean(axis=(0, 1)).astype(np.float32)
         std = swath.std(axis=(0, 1)).astype(np.float32)
         max_x, max_y, _ = swath.shape
@@ -80,6 +84,7 @@ def normalized_patches(tif_files, shape, strides):
 def write_patches(rank, patches, out_dir, patches_per_record):
     """Writes `patches_per_record` patches into a tfrecord file in `out_dir`.
     """
+    i = 0
     for i, (filename, coord, patch) in enumerate(patches):
         if i % patches_per_record == 0:
             rec = "{}-{}.tfrecord".format(rank, i // patches_per_record)
@@ -97,6 +102,7 @@ def write_patches(rank, patches, out_dir, patches_per_record):
     print("Rank", rank, "wrote", i + 1, "patches")
 
 
+# TODO Deprecate
 def tif2tfr(tif_file, out_dir, stride=2048):
     tif = gdal.Open(tif_file)
 
@@ -125,6 +131,7 @@ def tif2tfr(tif_file, out_dir, stride=2048):
     save_example_and_metadata(out_file, feature_list, meta)
 
 
+# TODO Deprecate
 def hdf2tfr(hdf_file, out_dir, target_fields):
     """Converts HDF file into a tf record by serializing all fields and
     names to a record. Also outputs a json file holding the meta data.
@@ -207,6 +214,11 @@ def get_args():
         default=(128, 128),
     )
     p.add_argument(
+        "--resize",
+        type=float,
+        help="Resize fraction e.g. 0.25 to quarter scale. Only used for pptif",
+    )
+    p.add_argument(
         "--stride",
         nargs=2,
         type=int,
@@ -224,7 +236,7 @@ def get_args():
     print("\n")
 
     FLAGS.data_dir = path.abspath(FLAGS.source_dir)
-    FLAGS.out_dir = path.abspath(FLAGS.out_dir) if FLAGS.out_dir else data_dir
+    FLAGS.out_dir = path.abspath(FLAGS.out_dir) if FLAGS.out_dir else FLAGS.data_dir
     return FLAGS
 
 
@@ -254,7 +266,7 @@ if __name__ == "__main__":
 
     elif FLAGS.mode == "pptif":
         targets = get_targets(FLAGS.data_dir, ".tif", rank)
-        patches = normalized_patches(targets, FLAGS.shape, FLAGS.stride)
+        patches = normalized_patches(targets, FLAGS.shape, FLAGS.stride, FLAGS.resize)
         write_patches(rank, patches, FLAGS.out_dir, FLAGS.patches_per_record)
 
     else:

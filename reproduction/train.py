@@ -349,7 +349,7 @@ if __name__ == "__main__":
 
     summary_op = tf.summary.merge_all()
 
-    # Begin training
+    # Begin training TODO break off into own function
     print("Training...", flush=True)
     with tf.Session(
         config=tf.ConfigProto(
