@@ -9,7 +9,7 @@ from osgeo import gdal
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 from reproduction.pipeline.load import add_pipeline_cli_arguments
-from reproduction.pipeline.load import preprocessed_pipeline
+#from reproduction.pipeline.load import preprocessed_pipeline
 from reproduction.pipeline.load import load_data
 
 
@@ -31,6 +31,7 @@ def read_patches(files, height, width):
 if __name__ == "__main__":
     p = ArgumentParser()
     p.add_argument("mode", choices=["old_pipeline", "feed_dict", "new_pipeline"])
+    p.add_argument("--data_glob")
     p.add_argument(
         "--epochs", type=int, help="Number of epochs to train for", default=5
     )
@@ -63,7 +64,7 @@ if __name__ == "__main__":
 
     elif FLAGS.mode == "old_pipeline":
 
-        _, dataset = load_data(
+        _, dataset = _load_data(
             records1,
             fields=[f"b{i+1}" for i in range(7)],
             meta_json="data/tif/open-cell-north-pacific.json",
@@ -77,8 +78,8 @@ if __name__ == "__main__":
         f, c, x = dataset.make_one_shot_iterator().get_next()
 
     if FLAGS.mode == "new_pipeline":
-        dataset = preprocessed_pipeline(
-            records2,
+        dataset = load_data(
+            FLAGS.data_glob if FLAGS.data_glob else records2,
             shape=(64, 64, 7),
             batch_size=32,
             read_threads=4,
