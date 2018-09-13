@@ -1,7 +1,6 @@
 import sys
 import os
 import tensorflow as tf
-import os
 import numpy as np
 from argparse import ArgumentParser
 from tqdm import trange
