@@ -1,25 +1,23 @@
 
 MODEL_PATH=experimental/test/foo
-DATA_DIR=/Users/casperneo/work/cloud-research/clouds/experimental/test
-HDF_DATA=$DATA_DIR/ex.tfrecord
-HDF_META=$DATA_DIR/ex.json
-FIELDS='Cloud_Optical_Thickness Cloud_Water_Path Cloud_Effective_Radius'
+DATA_DIR=/Users/casperneo/work/cloud-research/clouds/data/tif2
+DATA=$DATA_DIR/*.tfrecord
+META=$DATA_DIR/closed-open-cell-south-pacific.json
+# FIELDS='Cloud_Optical_Thickness Cloud_Water_Path Cloud_Effective_Radius'
+FIELDS='b1 b2 b3 b4 b5 b6 b7'
 
 rm -rf $MODEL_PATH
 
+OUT=date 'test'
+
 python reproduction/train.py $MODEL_PATH \
-    --data $HDF_DATA \
-    --fields $FIELDS \
-    --meta_json $HDF_META \
-    --epochs 1 \
-    --steps_per_epoch 100 \
-    --summary_every 25 \
-    --n_layers 3 \
-    --red_bands 0 \
-    --blue_bands 1 \
-    --green_bands 2 \
-    --base_dim 8 \
+    --data $DATA \
+    --shape 64 64 7 \
     --shuffle_buffer_size 200 \
-    --shape 128 128 \
-    --batchnorm \
-    --normalization whiten
+    --prefetch 8 \
+    --n_blocks 3 \
+    --block_len 1 \
+    --base_dim 16 \
+    --epochs 3 \
+    --summary_every 25 \
+    | tee test-`date +%b%d-%H:%M`.out

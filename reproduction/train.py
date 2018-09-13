@@ -228,18 +228,15 @@ if __name__ == "__main__":
     FLAGS = get_flags()
 
     print("Building dataset...", flush=True)
-    chans, dataset = pipeline.load_data(
+    dataset = pipeline.load_data(
         FLAGS.data,
-        FLAGS.fields,
-        FLAGS.meta_json,
         FLAGS.shape,
         FLAGS.batch_size,
-        FLAGS.normalization,
         FLAGS.read_threads,
-        FLAGS.prefetch,
         FLAGS.shuffle_buffer_size,
+        FLAGS.prefetch,
     )
-    shape = (*FLAGS.shape, chans)
+    shape = FLAGS.shape
 
     _, _, img = dataset.make_one_shot_iterator().get_next()
 
