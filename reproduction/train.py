@@ -161,6 +161,16 @@ def get_flags():
             "input to pretrained classifiers"
         ),
     )
+    p.add_argument(
+        "--grad_histogram",
+        action="store_true",
+        help="Display gradient histogram on tensorboard",
+    )
+    p.add_argument(
+        "--grad_sparsity",
+        action="store_true",
+        help="Display gradient sparsity on tensorboard",
+    )
 
     FLAGS = p.parse_args()
     if FLAGS.model_dir[-1] != "/":
@@ -335,21 +345,22 @@ if __name__ == "__main__":
     grads_and_vars = optimizer.compute_gradients(loss_ae, var_list=ae.trainable_weights)
     for grad, var in grads_and_vars:
         if grad is not None:
-            tf.summary.histogram("{}/grad_histogram".format(var.name), grad)
-            tf.summary.scalar(
-                "{}/grad/sparsity".format(var.name), tf.nn.zero_fraction(grad)
-            )
+            if FLAGS.grad_histogram:
+                tf.summary.histogram("{}/grad_histogram".format(var.name), grad)
+            if FLAGS.grad_sparsity:
+                tf.summary.scalar(
+                    "{}/grad/sparsity".format(var.name), tf.nn.zero_fraction(grad)
+                )
     train_ops.append(optimizer.apply_gradients(grads_and_vars))
     tf.summary.scalar("loss_ae", loss_ae)
 
-    # Save JSONs
+    # Save model definitions
     for m in save_models:
         with open(path.join(FLAGS.model_dir, f"{m}.json"), "w") as f:
             f.write(save_models[m].to_json())
 
     summary_op = tf.summary.merge_all()
 
-    # Begin training TODO break off into own function
     print("Training...", flush=True)
     with tf.Session(
         config=tf.ConfigProto(
@@ -367,9 +378,8 @@ if __name__ == "__main__":
         )
 
         log_dir = path.join(FLAGS.model_dir, "summary")
-        summary_writer = tf.summary.FileWriter(
-            log_dir, graph=sess.graph if not path.exists(log_dir) else None
-        )
+        tb_graph = sess.graph if not path.exists(log_dir) else None
+        summary_writer = tf.summary.FileWriter(log_dir, graph=tb_graph)
 
         for e in range(FLAGS.epochs):
             print("Starting epoch %d" % e, flush=True)
@@ -377,17 +387,21 @@ if __name__ == "__main__":
             for s in range(FLAGS.steps_per_epoch):
                 sess.run(train_ops, options=run_opts, run_metadata=run_metadata)
 
-                if s % FLAGS.summary_every == 0:
+                if s % FLAGS.summary_every:
+                    sess.run(train_ops)
+
+                else:
+                    sess.run(train_ops, options=run_opts, run_metadata=run_metadata)
                     total_step = e * FLAGS.steps_per_epoch + s
+                    summary_writer.add_run_metadata(run_metadata, 'step%d' % total_step)
                     summary_writer.add_summary(sess.run(summary_op), total_step)
                     profiler.add_step(total_step, run_metadata)
+                    timeline_json = path.join(FLAGS.model_dir, "timelines", "t.json")
                     profiler.profile_graph(
                         options=(
                             ProfileOptionBuilder(ProfileOptionBuilder.time_and_memory())
                             .with_step(total_step)
-                            .with_timeline_output(
-                                path.join(FLAGS.model_dir, "timelines", "t.json")
-                            )
+                            .with_timeline_output(timeline_json)
                             .build()
                         )
                     )

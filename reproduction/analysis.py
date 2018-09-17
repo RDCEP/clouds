@@ -41,8 +41,6 @@ def plot_cluster_channel_distributions(imgs, labels, fields=None, width=3):
 
 def plot_cluster_samples(imgs, labels, samples=8, width=3, channel=0):
     n_clusters = len(set(labels))
-    samples = 8
-    width = 3
 
     fig, ax = plt.subplots(
         nrows=samples, ncols=n_clusters, figsize=(n_clusters * width, samples * width)

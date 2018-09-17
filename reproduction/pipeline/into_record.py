@@ -74,10 +74,14 @@ def normalized_patches(tif_files, shape, strides, resize):
         np.random.shuffle(coords)
 
         for x, y in coords:
-            patch = swath[x : x + shape_x, y : y + shape_y].astype(np.float32)
-            # Filter away patches with Nans or no clouds (ie whole patch 1 value)
-            if (patch[0, 0, 0] != patch).any() and not np.isnan(patch).any():
-                patch = (patch - mean) / std
+            patch = swath[x : x + shape_x, y : y + shape_y]
+            # Filter away patches with Nans or if every channel is over 50% 1 value
+            # Ie low cloud fraction.
+            threshold = shape_x * shape_y * 0.5
+            max_uniq = lambda c: max(np.unique(patch[:, :, c], return_counts=True)[1])
+            has_clouds = any(max_uniq(c) < threshold for c in range(patch.shape[-1]))
+            if has_clouds and not np.isnan(patch).any():
+                patch = (patch.astype(np.float32) - mean) / std
                 yield tif_file, (x, y), patch
 
 
@@ -100,79 +104,6 @@ def write_patches(rank, patches, out_dir, patches_per_record):
         f.write(example.SerializeToString())
 
     print("Rank", rank, "wrote", i + 1, "patches")
-
-
-# TODO Deprecate
-def tif2tfr(tif_file, out_dir, stride=2048):
-    tif = gdal.Open(tif_file)
-
-    x_tot = tif.RasterXSize
-    y_tot = tif.RasterYSize
-    feature_list = []
-    meta = {}
-
-    for x_off in range(0, x_tot, stride):
-        for y_off in range(0, y_tot, stride):
-            features = {}
-            sx = min(stride, x_tot - x_off)
-            sy = min(stride, y_tot - y_off)
-            data = tif.ReadAsArray(x_off, y_off, sx, sy)
-            n_bands, height, width = data.shape
-
-            for b in range(n_bands):
-                field = "b%d" % (b + 1)
-                meta[field] = [1, str(data.dtype)]
-                features[field + "/shape"] = _int64_feature([height, width, 1])
-                features[field] = _bytes_feature(data[b].tobytes())
-
-            feature_list.append(features)
-
-    out_file = path.join(out_dir, path.basename(tif_file))
-    save_example_and_metadata(out_file, feature_list, meta)
-
-
-# TODO Deprecate
-def hdf2tfr(hdf_file, out_dir, target_fields):
-    """Converts HDF file into a tf record by serializing all fields and
-    names to a record. Also outputs a json file holding the meta data.
-    Arguments:
-        hdf_file: File to convert into a tf record
-        target_fields: List of specified fields to convert
-    """
-    hdf = SD(hdf_file, SDC.READ)
-    meta = {}
-    features = {}
-
-    for field in hdf.datasets().keys():
-        if target_fields and field not in target_fields:
-            continue
-
-        data = hdf.select(field)[:]  # Index to get it as np array
-
-        # Make sure every field is of rank 4
-        while len(data.shape) < 3:
-            data = np.expand_dims(data, -1)
-        if len(data.shape) > 3:
-            print(
-                "Warning, encountered high rank field %s with shape %s"
-                % (field, data.shape)
-            )
-            continue
-
-        # Reorder dimensions such that it is longest dimension first
-        # Assumes height > width > channels
-        rank_order = list(np.argsort(data.shape))
-        rank_order.reverse()
-        data = data.transpose(rank_order)
-
-        ty = str(data.dtype)
-        meta[field] = [data.shape[-1], ty]
-        features[field + "/shape"] = _int64_feature(data.shape)
-        features[field + "/type"] = _bytes_feature(ty.encode("utf_8"))
-        features[field] = _bytes_feature(data.tobytes())
-
-    out_file = path.join(out_dir, path.basename(hdf_file))
-    save_example_and_metadata(out_file, [features], meta)
 
 
 def get_args():

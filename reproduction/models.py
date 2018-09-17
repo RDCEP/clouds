@@ -5,15 +5,6 @@ import tensorflow.keras.applications as pretrained
 import numpy as np
 
 
-def resblock(x, depth, block_len=2):
-    if not block_len:
-        return x
-    r = x
-    for _ in range(block_len):
-        x = Conv2D(depth, 3, activation="relu", padding="same")(x)
-    return Add()([r, x])
-
-
 def sample_variational(x, depth, dense):
     if dense:
         sh = x.shape.as_list()[1:]
@@ -37,6 +28,51 @@ def sample_variational(x, depth, dense):
 
     return mn, lv, x
 
+def residual_add(x,r):
+    """Adds `r` to `x` reshaping `r` and zero_padding extra dimensions.
+    """
+    def fn(args):
+        x, r = args
+        _, h, w, c = x.shape
+
+        if r.shape[1:3] != [h, w]:
+            r = tf.image.resize_bilinear(r, x.shape[1:3])
+
+        if r.shape[3] >= c:
+            return x + r[:, :, :, :c]
+        else:
+            return x + tf.pad(r, [[0,0], [0,0], [0,0], [0, c - r.shape[3]]])
+    return Lambda(fn)([x,r])
+
+def resblock3(x, depth, length=3):
+    r = x
+    x = Conv2D(depth // 4, 1, activation="relu")(x)
+    x = Conv2D(depth, 3, padding="same", activation="relu")(x)
+    x = Conv2D(depth, 1)(x)
+    return residual_add(x, r)
+
+def resblock2(x, depth):
+    r = x
+    x = Conv2D(depth, 3, padding="same", activation="relu")(x)
+    x = Conv2D(depth, 3, padding="same", activation="relu")(x)
+    return residual_add(x, r)
+
+def resblocks(x, depth, blocks):
+    """Repeats several resblock2 or resblock3, the latter used when depth is high to
+    conserve memory. Either way there are 2 non-linearities. TODO renext cardinality.
+    """
+    for _ in range(blocks):
+        x = resblock3(x, depth) if depth >= 256 else resblock2(x, depth)
+    return x
+
+def scale_change_block(x, depth, down, length=2, name=None):
+    r = x
+    _conv = Conv2D if down else Conv2DTranspose
+    x = _conv(depth, 3, 2, activation="relu", padding="same")(x)
+    x = Conv2D(depth, 3, activation="relu", padding="same")(x)
+    return residual_add(x, r)
+
+
 
 def autoencoder(
     shape, n_blocks, base, batchnorm, variational, dense=False, block_len=2
@@ -48,28 +84,33 @@ def autoencoder(
     outputs = []
 
     # Encoder
+    x = Conv2D(base, 3, activation="relu", padding="same")(x)
+    x = resblocks(x, base, block_len)
     for i in range(n_blocks):
-        depth = base * 2 ** i
-        # Half image size
-        x = Conv2D(depth, 3, 2, activation="relu", padding="same")(x)
-        x = resblock(x, depth, block_len)
-        if batchnorm:
-            x = BatchNormalization()(x)
+        with tf.variable_scope("encoding_%d" % i):
+            depth = base * 2 ** i
+            # Half image size
+            x = scale_change_block(x, depth, down=True)
+            x = resblocks(x, depth, block_len)
+            if batchnorm:
+                x = BatchNormalization()(x)
 
     # Hidden vector
     if variational:
-        mn, lv, x = sample_variational(x, depth, dense)
-        outputs.extend([mn, lv])
+        with tf.variable_scope("sample_variational"):
+            mn, lv, x = sample_variational(x, depth, dense)
+            outputs.extend([mn, lv])
     outputs.append(x)
 
     # Decoder
     for i in range(n_blocks - 1, -1, -1):
-        depth = base * 2 ** i
-        # Double Image size
-        x = Conv2DTranspose(depth, 3, 2, activation="relu", padding="same")(x)
-        x = resblock(x, depth, block_len)
-        if batchnorm:
-            x = BatchNormalization()(x)
+        with tf.variable_scope("decoding_%d" % i):
+            depth = base * 2 ** i
+            # Double Image size
+            x = scale_change_block(x, depth, down=False)
+            x = resblocks(x, depth, block_len)
+            if batchnorm:
+                x = BatchNormalization()(x)
 
     x = Conv2D(shape[-1], 1, name="reconstructed")(x)
     outputs.append(x)
