@@ -86,13 +86,15 @@ def get_flags():
 
     p.add_argument(
         "--image_loss_weights",
-        nargs=3,
+        nargs=4,
         type=float,
-        default=(1, 0, 0),
+        default=(1, 0, 0, 0),
         help=(
-            "Weights for image losses: Mean squared error, Mean absolute error, and Mean "
-            "High Frequency Error. The latter is the mean absolute error of the x and y "
-            "gradients of the image. It emphasizes edges."
+            "Weights for image losses: Mean squared error, Mean absolute error, Mean "
+            "High Frequency Error (HFE), and Multi-Scale Structural Similarity (MSSIM). "
+            "HFE is the mean absolute error of the x and y gradients of the image. It "
+            "emphasizes edges. MSSIM is the geometric average of the similarity of means, "
+            "similarity of standard deviations, and correlation."
         ),
     )
     p.add_argument(
@@ -252,16 +254,17 @@ def loss_fn(name, weight, fn, **kwargs):
     if weight:
         with tf.name_scope(name):
             loss = fn(**kwargs)
-        tf.summary.scalar(
-            name, loss
-        )  # shouldnt be in the same scope as loss calculation
-        with tf.name_scope(name):
+            tf.summary.scalar(name, loss)
             return loss * weight
     return 0
 
 
-def image_losses(img, ae_img, w_mse, w_mae, w_hfe):
-    """Mean Square Error, Mean Absolute Error, High Frequency Error
+def image_losses(img, ae_img, w_mse, w_mae, w_hfe, w_ssim):
+    """Applies the 4 image losses.
+    - Mean Square Error (L2 Loss)
+    - Mean Absolute Error
+    - High Frequency Error (mean abs difference after passing edge detectors)
+    - Multi-scale structural similarity (ensure similar image mean/stdev/correlation)
     """
 
     def hfe():
@@ -269,13 +272,24 @@ def image_losses(img, ae_img, w_mse, w_mae, w_hfe):
         dx_ae_img, dy_ae_img = image_gradients(ae_img)
         return tf.reduce_mean(tf.abs(dx_img - dx_ae_img) + tf.abs(dy_img - dy_ae_img))
 
-    l = 0
-    l += loss_fn(
-        "mean_square_error", w_mse, lambda: tf.reduce_mean((img - ae_img) ** 2)
-    )
-    l += loss_fn("mean_abs_error", w_mae, lambda: tf.reduce_mean(tf.abs(img - ae_img)))
-    l += loss_fn("high_frequency_error", w_hfe, hfe)
+    def msssim():
+        s = tf.image.ssim_multiscale(
+            img,
+            ae_img,
+            max_val=5,
+            # BUG why does it work on only these weights?
+            power_factors=[1, 1, 1],
+        )
+        return 1 - tf.reduce_mean(s)
 
+    mse = lambda: tf.reduce_mean((img - ae_img) ** 2)
+    mae = lambda: tf.reduce_mean(tf.abs(img - ae_img))
+
+    l = 0
+    l += loss_fn("mean_square_error", w_mse, mse)
+    l += loss_fn("mean_abs_error", w_mae, mae)
+    l += loss_fn("high_frequency_error", w_hfe, hfe)
+    l += loss_fn("ms_ssim", w_ssim, msssim)
     return l
 
 
