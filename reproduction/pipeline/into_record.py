@@ -163,7 +163,7 @@ def get_args():
     FLAGS = p.parse_args()
 
     for f in FLAGS.__dict__:
-        print("\t", f, (25-len(f)) * " ", FLAGS.__dict__[f])
+        print("\t", f, (25 - len(f)) * " ", FLAGS.__dict__[f])
     print("\n")
 
     FLAGS.data_dir = path.abspath(FLAGS.source_dir)

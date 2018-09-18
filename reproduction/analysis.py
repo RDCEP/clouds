@@ -148,6 +148,7 @@ def plot_kmeans_and_image_scatter(original, encoded, K=3):
     return fig, ax
 
 
+# TODO depricate most of this main code
 if __name__ == "__main__":
     import argparse
     import pipeline

@@ -28,9 +28,11 @@ def sample_variational(x, depth, dense):
 
     return mn, lv, x
 
-def residual_add(x,r):
+
+def residual_add(x, r):
     """Adds `r` to `x` reshaping `r` and zero_padding extra dimensions.
     """
+
     def fn(args):
         x, r = args
         _, h, w, c = x.shape
@@ -41,8 +43,10 @@ def residual_add(x,r):
         if r.shape[3] >= c:
             return x + r[:, :, :, :c]
         else:
-            return x + tf.pad(r, [[0,0], [0,0], [0,0], [0, c - r.shape[3]]])
-    return Lambda(fn)([x,r])
+            return x + tf.pad(r, [[0, 0], [0, 0], [0, 0], [0, c - r.shape[3]]])
+
+    return Lambda(fn)([x, r])
+
 
 def resblock3(x, depth, length=3):
     r = x
@@ -51,19 +55,32 @@ def resblock3(x, depth, length=3):
     x = Conv2D(depth, 1)(x)
     return residual_add(x, r)
 
+
 def resblock2(x, depth):
     r = x
     x = Conv2D(depth, 3, padding="same", activation="relu")(x)
     x = Conv2D(depth, 3, padding="same", activation="relu")(x)
     return residual_add(x, r)
 
-def resblocks(x, depth, blocks):
+
+def resblocks(x, depth, blocks, cardinality=1):
     """Repeats several resblock2 or resblock3, the latter used when depth is high to
     conserve memory. Either way there are 2 non-linearities. TODO renext cardinality.
     """
-    for _ in range(blocks):
-        x = resblock3(x, depth) if depth >= 256 else resblock2(x, depth)
+    if cardinality == 1:
+        for _ in range(blocks):
+            b = resblock3(b, depth) if depth >= 256 else resblock2(x, depth)
+    else:
+        lanes = []
+        for _ in range(cardinality):
+            b = x
+            for _ in range(blocks):
+                b = resblock3(b, depth) if depth >= 256 else resblock2(x, depth)
+            lanes.append(b)
+        x = Add()(lanes)
+
     return x
+
 
 def scale_change_block(x, depth, down, length=2, name=None):
     r = x
@@ -73,9 +90,8 @@ def scale_change_block(x, depth, down, length=2, name=None):
     return residual_add(x, r)
 
 
-
 def autoencoder(
-    shape, n_blocks, base, batchnorm, variational, dense=False, block_len=2
+    shape, n_blocks, base, batchnorm, variational, dense=False, block_len=1
 ):
     """
     Returns an encoder model and autoencoder model

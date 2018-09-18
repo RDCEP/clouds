@@ -3,6 +3,7 @@ import tensorflow as tf
 import tensorflow.keras as keras
 from tensorflow.python.client import timeline
 from tensorflow.profiler import ProfileOptionBuilder, Profiler
+from tensorflow.image import image_gradients
 from pipeline import load as pipeline
 import models
 import subprocess
@@ -83,6 +84,17 @@ def get_flags():
         help="Weight of KL-Divergence on VAE objective. Unused if not `variational`",
     )
 
+    p.add_argument(
+        "--image_loss_weights",
+        nargs=3,
+        type=float,
+        default=(1, 0, 0),
+        help=(
+            "Weights for image losses: Mean squared error, Mean absolute error, and Mean "
+            "High Frequency Error. The latter is the mean absolute error of the x and y "
+            "gradients of the image. It emphasizes edges."
+        ),
+    )
     p.add_argument(
         "--discriminator",
         action="store_true",
@@ -234,6 +246,39 @@ def load_model(model_dir, name):
     return None
 
 
+def loss_fn(name, weight, fn, **kwargs):
+    """Helper fn to add summary, scope, and nonzero weight condition.
+    """
+    if weight:
+        with tf.name_scope(name):
+            loss = fn(**kwargs)
+        tf.summary.scalar(
+            name, loss
+        )  # shouldnt be in the same scope as loss calculation
+        with tf.name_scope(name):
+            return loss * weight
+    return 0
+
+
+def image_losses(img, ae_img, w_mse, w_mae, w_hfe):
+    """Mean Square Error, Mean Absolute Error, High Frequency Error
+    """
+
+    def hfe():
+        dx_img, dy_img = image_gradients(img)
+        dx_ae_img, dy_ae_img = image_gradients(ae_img)
+        return tf.reduce_mean(tf.abs(dx_img - dx_ae_img) + tf.abs(dy_img - dy_ae_img))
+
+    l = 0
+    l += loss_fn(
+        "mean_square_error", w_mse, lambda: tf.reduce_mean((img - ae_img) ** 2)
+    )
+    l += loss_fn("mean_abs_error", w_mae, lambda: tf.reduce_mean(tf.abs(img - ae_img)))
+    l += loss_fn("high_frequency_error", w_hfe, hfe)
+
+    return l
+
+
 if __name__ == "__main__":
     FLAGS = get_flags()
 
@@ -281,12 +326,13 @@ if __name__ == "__main__":
                 1 + latent_logvar - latent_mean ** 2 - tf.exp(latent_logvar)
             )
             tf.summary.scalar("kl_div", kl_div)
-        loss_ae = mse = tf.reduce_mean(tf.square(img - ae_img))
-        loss_ae += FLAGS.vae_beta * kl_div
+        loss_ae = FLAGS.vae_beta * kl_div
 
     else:
         _, ae_img = ae(img)
-        loss_ae = mse = tf.reduce_mean(tf.square(img - ae_img))
+        loss_ae = 0
+
+    loss_ae += image_losses(img, ae_img, *FLAGS.image_loss_weights)
 
     cimg = cmap(img)
     camg = cmap(ae_img)
@@ -294,7 +340,6 @@ if __name__ == "__main__":
     tf.summary.image("autoencoded", camg, FLAGS.display_imgs)
     tf.summary.image("difference", cimg - camg, FLAGS.display_imgs)
     save_models = {"ae": ae}
-    tf.summary.scalar("mse", mse)
 
     optimizer = tf.train.AdamOptimizer()  # TODO flag
     train_ops = []
@@ -393,8 +438,9 @@ if __name__ == "__main__":
                 else:
                     sess.run(train_ops, options=run_opts, run_metadata=run_metadata)
                     total_step = e * FLAGS.steps_per_epoch + s
-                    summary_writer.add_run_metadata(run_metadata, 'step%d' % total_step)
+                    summary_writer.add_run_metadata(run_metadata, "step%d" % total_step)
                     summary_writer.add_summary(sess.run(summary_op), total_step)
+                    summary_writer.flush()
                     profiler.add_step(total_step, run_metadata)
                     timeline_json = path.join(FLAGS.model_dir, "timelines", "t.json")
                     profiler.profile_graph(
