@@ -12,9 +12,11 @@ def sample_variational(x, depth, dense):
         mn = Dense(depth, name="latent_mean")(x)
         lv = Dense(depth, name="latent_log_var", kernel_initializer="zeros")(x)
     else:
-        mn = Conv2D(depth, 1, activation="relu")(x)
+        mn = Conv2D(depth, 1)(x)
+        x = LeakyReLU()(x)
         mn = Conv2D(depth, 1)(mn)
-        lv = Conv2D(depth, 1, activation="relu")(x)
+        lv = Conv2D(depth, 1)(x)
+        x = LeakyReLU()(x)
         lv = Conv2D(depth, 1)(lv)
 
     x = Lambda(
@@ -34,6 +36,9 @@ def residual_add(x, r):
     """
 
     def fn(args):
+        # HACK: will fail when reloading model without reloading tensorflow here.
+        import tensorflow as tf
+
         x, r = args
         _, h, w, c = x.shape
 
@@ -50,16 +55,20 @@ def residual_add(x, r):
 
 def resblock3(x, depth, length=3):
     r = x
-    x = Conv2D(depth // 4, 1, activation="relu")(x)
-    x = Conv2D(depth, 3, padding="same", activation="relu")(x)
+    x = Conv2D(depth // 4, 1)(x)
+    x = LeakyReLU()(x)
+    x = Conv2D(depth, 3, padding="same")(x)
+    x = LeakyReLU()(x)
     x = Conv2D(depth, 1)(x)
     return residual_add(x, r)
 
 
 def resblock2(x, depth):
     r = x
-    x = Conv2D(depth, 3, padding="same", activation="relu")(x)
-    x = Conv2D(depth, 3, padding="same", activation="relu")(x)
+    x = Conv2D(depth, 3, padding="same")(x)
+    x = LeakyReLU()(x)
+    x = Conv2D(depth, 3, padding="same")(x)
+    x = LeakyReLU()(x)
     return residual_add(x, r)
 
 
@@ -85,8 +94,10 @@ def resblocks(x, depth, blocks, cardinality=1):
 def scale_change_block(x, depth, down, length=2, name=None):
     r = x
     _conv = Conv2D if down else Conv2DTranspose
-    x = _conv(depth, 3, 2, activation="relu", padding="same")(x)
-    x = Conv2D(depth, 3, activation="relu", padding="same")(x)
+    x = _conv(depth, 3, 2, padding="same")(x)
+    x = LeakyReLU()(x)
+    x = Conv2D(depth, 3, padding="same")(x)
+    x = LeakyReLU()(x)
     return residual_add(x, r)
 
 
@@ -100,7 +111,8 @@ def autoencoder(
     outputs = []
 
     # Encoder
-    x = Conv2D(base, 3, activation="relu", padding="same")(x)
+    x = Conv2D(base, 3, padding="same")(x)
+    x = LeakyReLU()(x)
     x = resblocks(x, base, block_len)
     for i in range(n_blocks):
         with tf.variable_scope("encoding_%d" % i):
@@ -141,8 +153,7 @@ def discriminator(shape, n_layers=3):
 
     for i in range(n_layers):
         depth = 32 * 2 ** i
-        x = Conv2D(depth, 3, activation="relu", padding="same")(x)
-        x = Conv2D(depth, 3, 2, activation="relu", padding="same")(x)
+        resblocks(x, depth, 1)
 
     x = Conv2D(1, 1)(x)
     x = GlobalAveragePooling2D()(x)

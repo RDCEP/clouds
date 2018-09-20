@@ -10,6 +10,92 @@ import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
 
+class AEData:
+    def __init__(self, dataset, ae, fields, n=500):
+        names, coords, imgs = zip(*sample_dataset(dataset, n))
+        imgs = np.stack(imgs)
+        encs, ae_imgs = ae.predict(imgs)
+
+        self.names = [str(n) for n in names]
+        self.coords = coords
+        self.imgs = imgs
+        self.ae_imgs = ae_imgs
+        self.encs = encs.mean(axis=(1, 2))
+        self.raw_encs = encs
+        self.fields = fields
+
+        centered = self.encs - self.encs.mean(axis=0)
+        cov = centered.transpose().dot(centered) / centered.shape[0]
+        evals, evecs = np.linalg.eigh(cov)
+        evals = np.flip(evals)
+        evecs = np.flip(evecs, axis=1)
+        self._evals = evals
+        self._evecs = evecs
+
+
+    def pca_project(self, x, d=3):
+        centered = x.encs - self._evals
+        if isinstance(d, list):
+            return centered.dot(self._evecs[:, d]).transpose()
+        else:
+            return centered.dot(self._evecs[:, :d]).transpose()
+
+    def plot_pca_projection(self, x, title="", width=3, c=None):
+        pc = self.pca_project(x)
+        fig, ax = plt.subplots(ncols=3, nrows=1, figsize=(width * 3 + 2, width))
+        for i in range(3):
+            j = (i + 1) % 3
+            a = ax[i]
+            im = a.scatter(pc[i], pc[j], c=c)
+            a.set_xlabel("PC %d"%i)
+            a.set_ylabel("PC %d"%j)
+
+        fig.subplots_adjust(right=0.95)
+        cbar_ax = fig.add_axes([0.99, 0.15, 0.01, 0.7])
+        fig.colorbar(im, cax=cbar_ax)
+
+        fig.suptitle(title)
+
+    def plot_residuals(self, n_samples=2, width=2):
+        fig, ax = plt.subplots(
+            nrows=n_samples * 3,
+            ncols=len(self.fields),
+            figsize=(len(self.fields) * width, n_samples * width * 3),
+        )
+        plt.subplots_adjust(wspace=0.01, hspace=0.01)
+
+        for s in range(n_samples):
+            for c, field in enumerate(self.fields):
+                orig, diff, deco = ax[s * 3 : s * 3 + 3, c]
+                orig.imshow(self.imgs[s, :, :, c], cmap="bone")
+                diff.imshow(
+                    self.imgs[s, :, :, c] - self.ae_imgs[s, :, :, c], cmap="coolwarm"
+                )
+                deco.imshow(self.ae_imgs[s, :, :, c], cmap="bone")
+                if s == 0:
+                    orig.set_title(field)
+                if c == 0:
+                    orig.set_ylabel("original")
+                    diff.set_ylabel("residual")
+                    deco.set_ylabel("decoded")
+
+        for a in ax.ravel():
+            a.set_xticks([])
+            a.set_yticks([])
+        return fig, ax
+
+
+def sample_dataset(dataset, n):
+    batch = dataset.make_one_shot_iterator().get_next()
+    samples = []
+    with tf.Session() as sess:
+        while len(samples) < n:
+            names, coords, imgs = sess.run(batch)
+            samples.extend(zip(names, coords, imgs))
+    samples = samples[:n]
+    return samples
+
+
 def plot_cluster_channel_distributions(imgs, labels, fields=None, width=3):
     """Plot histograms of channel values for each cluster.
     """
