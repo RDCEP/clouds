@@ -5,7 +5,7 @@ import tensorflow.keras.applications as pretrained
 import numpy as np
 
 
-def sample_variational(x, depth, dense):
+def sample_variational(x, depth, dense, nonlinearity):
     if dense:
         sh = x.shape.as_list()[1:]
         x = Flatten()(x)
@@ -13,10 +13,10 @@ def sample_variational(x, depth, dense):
         lv = Dense(depth, name="latent_log_var", kernel_initializer="zeros")(x)
     else:
         mn = Conv2D(depth, 1)(x)
-        x = LeakyReLU()(x)
+        x = nonlinearity()(x)
         mn = Conv2D(depth, 1)(mn)
         lv = Conv2D(depth, 1)(x)
-        x = LeakyReLU()(x)
+        x = nonlinearity()(x)
         lv = Conv2D(depth, 1)(lv)
 
     x = Lambda(
@@ -38,13 +38,14 @@ def residual_add(x, r):
     def fn(args):
         # HACK: will fail when reloading model without reloading tensorflow here.
         import tensorflow as tf
+
         x, r = args
         _, h, w, c = x.shape
 
         if r.shape[3] > c:
             r = r[:, :, :, :c]
         if r.shape[3] < c:
-            r =  tf.pad(r, [[0, 0], [0, 0], [0, 0], [0, c - r.shape[3]]])
+            r = tf.pad(r, [[0, 0], [0, 0], [0, 0], [0, c - r.shape[3]]])
         if r.shape[1:3] != [h, w]:
             r = tf.image.resize_bilinear(r, x.shape[1:3])
 
@@ -53,56 +54,61 @@ def residual_add(x, r):
     return Lambda(fn)([x, r])
 
 
-def resblock3(x, depth, length=3):
+def resblock(x, depth, nonlinearity):
     r = x
-    x = Conv2D(depth // 4, 1)(x)
-    x = LeakyReLU()(x)
-    x = Conv2D(depth, 3, padding="same")(x)
-    x = LeakyReLU()(x)
-    x = Conv2D(depth, 1)(x)
+    if depth >= 256:
+        x = Conv2D(depth // 4, 1)(x)
+        x = nonlinearity()(x)
+        x = Conv2D(depth, 3, padding="same")(x)
+        x = nonlinearity()(x)
+        x = Conv2D(depth, 1)(x)
+    else:
+        x = Conv2D(depth, 3, padding="same")(x)
+        x = nonlinearity()(x)
+        x = Conv2D(depth, 3, padding="same")(x)
+        x = nonlinearity()(x)
+
     return residual_add(x, r)
 
 
-def resblock2(x, depth):
-    r = x
-    x = Conv2D(depth, 3, padding="same")(x)
-    x = LeakyReLU()(x)
-    x = Conv2D(depth, 3, padding="same")(x)
-    x = LeakyReLU()(x)
-    return residual_add(x, r)
-
-
-def resblocks(x, depth, blocks, cardinality=1):
+def resblocks(x, depth, blocks, nonlinearity, cardinality=1):
     """Repeats several resblock2 or resblock3, the latter used when depth is high to
     conserve memory. Either way there are 2 non-linearities. TODO renext cardinality.
     """
     if cardinality == 1:
         for _ in range(blocks):
-            b = resblock3(b, depth) if depth >= 256 else resblock2(x, depth)
+            b = resblock(b, depth, nonlinearity)
     else:
         lanes = []
         for _ in range(cardinality):
             b = x
             for _ in range(blocks):
-                b = resblock3(b, depth) if depth >= 256 else resblock2(x, depth)
+                b = resblock(b, depth, nonlinearity)
             lanes.append(b)
         x = Add()(lanes)
 
     return x
 
 
-def scale_change_block(x, depth, down, length=2, name=None):
+def scale_change_block(x, depth, nonlinearity, down, length=2):
     r = x
     _conv = Conv2D if down else Conv2DTranspose
     x = _conv(depth, 3, 2, padding="same")(x)
-    x = LeakyReLU()(x)
+    x = nonlinearity()(x)
     x = Conv2D(depth, 3, padding="same")(x)
-    x = LeakyReLU()(x)
+    x = nonlinearity()(x)
     return residual_add(x, r)
 
 
 def autoencoder(
-    shape, n_blocks, base, batchnorm, variational, dense=False, block_len=1
+    shape,
+    n_blocks,
+    base,
+    batchnorm,
+    variational,
+    dense=False,
+    block_len=1,
+    nonlinearity=ELU,
 ):
     """
     Returns an encoder model and autoencoder model
@@ -112,21 +118,21 @@ def autoencoder(
 
     # Encoder
     x = Conv2D(base, 3, padding="same")(x)
-    x = LeakyReLU()(x)
-    x = resblocks(x, base, block_len)
+    x = nonlinearity()(x)
+    x = resblocks(x, base, block_len, nonlinearity)
     for i in range(n_blocks):
         with tf.variable_scope("encoding_%d" % i):
             depth = base * 2 ** i
             # Half image size
-            x = scale_change_block(x, depth, down=True)
-            x = resblocks(x, depth, block_len)
+            x = scale_change_block(x, depth, nonlinearity, down=True)
+            x = resblocks(x, depth, block_len, nonlinearity)
             if batchnorm:
                 x = BatchNormalization()(x)
 
     # Hidden vector
     if variational:
         with tf.variable_scope("sample_variational"):
-            mn, lv, x = sample_variational(x, depth, dense)
+            mn, lv, x = sample_variational(x, depth, dense, nonlinearity)
             outputs.extend([mn, lv])
     outputs.append(x)
 
@@ -135,8 +141,8 @@ def autoencoder(
         with tf.variable_scope("decoding_%d" % i):
             depth = base * 2 ** i
             # Double Image size
-            x = scale_change_block(x, depth, down=False)
-            x = resblocks(x, depth, block_len)
+            x = scale_change_block(x, depth, nonlinearity, down=False)
+            x = resblocks(x, depth, block_len, nonlinearity)
             if batchnorm:
                 x = BatchNormalization()(x)
 

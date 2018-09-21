@@ -32,7 +32,6 @@ class AEData:
         self._evals = evals
         self._evecs = evecs
 
-
     def pca_project(self, x, d=3):
         centered = x.encs - self._evals
         if isinstance(d, list):
@@ -47,8 +46,8 @@ class AEData:
             j = (i + 1) % 3
             a = ax[i]
             im = a.scatter(pc[i], pc[j], c=c)
-            a.set_xlabel("PC %d"%i)
-            a.set_ylabel("PC %d"%j)
+            a.set_xlabel("PC %d" % i)
+            a.set_ylabel("PC %d" % j)
 
         fig.subplots_adjust(right=0.95)
         cbar_ax = fig.add_axes([0.99, 0.15, 0.01, 0.7])
@@ -167,7 +166,7 @@ def plot_all_cluster_samples(imgs, labels, order=None, width=2):
         a.imshow(column, cmap="bone")
         a.set_xticks([])
         a.set_yticks([])
-        a.set_title("Cluster %d"%l)
+        a.set_title("Cluster %d" % l)
 
     return fig, ax
 
