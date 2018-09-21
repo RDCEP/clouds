@@ -176,12 +176,12 @@ def get_flags():
         ),
     )
     p.add_argument(
-        "--grad_histogram",
+        "--no_grad_histogram",
         action="store_true",
         help="Display gradient histogram on tensorboard",
     )
     p.add_argument(
-        "--grad_sparsity",
+        "--no_grad_sparsity",
         action="store_true",
         help="Display gradient sparsity on tensorboard",
     )
@@ -286,10 +286,11 @@ def image_losses(img, ae_img, w_mse, w_mae, w_hfe, w_ssim):
     mae = lambda: tf.reduce_mean(tf.abs(img - ae_img))
 
     l = 0
-    l += loss_fn("mean_square_error", w_mse, mse)
-    l += loss_fn("mean_abs_error", w_mae, mae)
-    l += loss_fn("high_frequency_error", w_hfe, hfe)
-    l += loss_fn("ms_ssim", w_ssim, msssim)
+    with tf.name_scope("image_loss"):
+        l += loss_fn("mean_square_error", w_mse, mse)
+        l += loss_fn("mean_abs_error", w_mae, mae)
+        l += loss_fn("high_frequency_error", w_hfe, hfe)
+        l += loss_fn("ms_ssim", w_ssim, msssim)
     return l
 
 
@@ -343,7 +344,9 @@ if __name__ == "__main__":
         loss_ae = FLAGS.vae_beta * kl_div
 
     else:
-        _, ae_img = ae(img)
+        z, ae_img = ae(img)
+        tf.summary.histogram("bottleneck/histogram", z)
+        tf.summary.scalar("bottleneck/sparsity", tf.nn.zero_fraction(z))
         loss_ae = 0
 
     loss_ae += image_losses(img, ae_img, *FLAGS.image_loss_weights)
@@ -401,15 +404,18 @@ if __name__ == "__main__":
             tf.summary.scalar("loss_per", loss_per)
 
     # Monitor AE gradients
-    grads_and_vars = optimizer.compute_gradients(loss_ae, var_list=ae.trainable_weights)
-    for grad, var in grads_and_vars:
-        if grad is not None:
-            if FLAGS.grad_histogram:
-                tf.summary.histogram("{}/grad_histogram".format(var.name), grad)
-            if FLAGS.grad_sparsity:
-                tf.summary.scalar(
-                    "{}/grad/sparsity".format(var.name), tf.nn.zero_fraction(grad)
-                )
+    with tf.name_scope("grad_info"):
+        grads_and_vars = optimizer.compute_gradients(
+            loss_ae, var_list=ae.trainable_weights
+        )
+        for grad, var in grads_and_vars:
+            if grad is not None:
+                if not FLAGS.no_grad_histogram:
+                    tf.summary.histogram("{}/histogram".format(var.name), grad)
+                if not FLAGS.no_grad_sparsity:
+                    tf.summary.scalar(
+                        "{}/sparsity".format(var.name), tf.nn.zero_fraction(grad)
+                    )
     train_ops.append(optimizer.apply_gradients(grads_and_vars))
     tf.summary.scalar("loss_ae", loss_ae)
 
