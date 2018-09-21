@@ -38,17 +38,17 @@ def residual_add(x, r):
     def fn(args):
         # HACK: will fail when reloading model without reloading tensorflow here.
         import tensorflow as tf
-
         x, r = args
         _, h, w, c = x.shape
 
+        if r.shape[3] > c:
+            r = r[:, :, :, :c]
+        if r.shape[3] < c:
+            r =  tf.pad(r, [[0, 0], [0, 0], [0, 0], [0, c - r.shape[3]]])
         if r.shape[1:3] != [h, w]:
             r = tf.image.resize_bilinear(r, x.shape[1:3])
 
-        if r.shape[3] >= c:
-            return x + r[:, :, :, :c]
-        else:
-            return x + tf.pad(r, [[0, 0], [0, 0], [0, 0], [0, c - r.shape[3]]])
+        return x + r
 
     return Lambda(fn)([x, r])
 

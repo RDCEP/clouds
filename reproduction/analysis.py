@@ -147,6 +147,31 @@ def plot_cluster_samples(imgs, labels, samples=8, width=3, channel=0):
     return fig, ax
 
 
+def plot_all_cluster_samples(imgs, labels, order=None, width=2):
+    """Plots all examples in a cluster in 1 column, order determins which clusters and in
+    what order are plotted.
+    """
+    uniq, counts = np.unique(labels, return_counts=True)
+    ncols = len(uniq)
+    nrows = max(counts)
+    _, patch_height, patch_width = imgs.shape
+    if order is None:
+        order = np.argsort(counts)
+
+    fig, ax = plt.subplots(1, ncols, figsize=(ncols * width, nrows * width))
+
+    for idx, a in zip(order, ax):
+        l = uniq[idx]
+        count = counts[idx]
+        column = imgs[labels == l].reshape((count * patch_height, patch_width))
+        a.imshow(column, cmap="bone")
+        a.set_xticks([])
+        a.set_yticks([])
+        a.set_title("Cluster %d"%l)
+
+    return fig, ax
+
+
 def plot_ae_output(dataset, predictions, n_samples, n_bands, height=4, width=4):
     """
     """
