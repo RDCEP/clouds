@@ -29,6 +29,19 @@ def get_flags():
     pipeline.add_pipeline_cli_arguments(p)
 
     p.add_argument(
+        "--gaussian_noise",
+        type=float,
+        default=0,
+        help="std of gaussian noise added before AE",
+    )
+    p.add_argument(
+        "--salt_pepper",
+        type=float,
+        default=0,
+        help="percentage of pixels hit with salt and pepper noise before AE",
+    )
+
+    p.add_argument(
         "--optimizer",
         help="type of optimizer to use for gradient descent. TODO (unused flag)",
         default="adam",
@@ -68,6 +81,12 @@ def get_flags():
         type=int,
         default=16,
         help="Depth of the first convolution, each block depth doubles",
+    )
+    p.add_argument(
+        "--scale",
+        type=int,
+        default=2,
+        help="Stride length and factor which depth increases when changing of scales.",
     )
     p.add_argument("--batchnorm", action="store_true", default=False)
 
@@ -234,6 +253,33 @@ def select_channels(t, chans):
     return t
 
 
+def add_noise(imgs, salt_pepper, gaussian_noise):
+    """Noise input image for denoising autoencoders.
+    Args:
+        salt_pepper: Percentage of pixels to be salt or pepper noise. Half of these pixels
+            are set to batch maximum, and half to batch minimum.
+        gaussian_noise: Stdev of normal noise added to every channel and pixel.
+    """
+    if gaussian_noise:
+        imgs += tf.random_normal(imgs.shape, stddev=gaussian_noise)
+
+    if salt_pepper:
+        # Spatial maximum / minimum for each element in batch and for every channel
+        mx = tf.expand_dims(tf.expand_dims(tf.reduce_max(imgs, axis=(1, 2)), 1), 1)
+        mn = tf.expand_dims(tf.expand_dims(tf.reduce_min(imgs, axis=(1, 2)), 1), 2)
+        # Select random pixels
+        noised = tf.cast(tf.random_uniform(imgs.shape[:3]) < salt_pepper, tf.float32)
+        noised = tf.expand_dims(noised, 3)
+        salt = tf.cast(tf.random_uniform(imgs.shape[:3]) > 0.5, tf.float32)
+        salt = tf.expand_dims(salt, 3)
+        imgs *= 1 - noised  # Zero out noised pixels
+        # Apply salt and pepper
+        imgs += noised * mx * salt
+        imgs += noised * mn * (1 - salt)
+
+    return imgs
+
+
 def load_model(model_dir, name):
     json = path.join(model_dir, name + ".json")
     weights = path.join(model_dir, name + ".h5")
@@ -332,10 +378,17 @@ if __name__ == "__main__":
                 n_blocks=FLAGS.n_blocks,
                 variational=FLAGS.variational,
                 block_len=FLAGS.block_len,
+                scale=FLAGS.scale,
             )
 
+    with tf.name_scope("noise"):
+        noised_img = add_noise(img, FLAGS.salt_pepper, FLAGS.gaussian_noise)
+        if noised_img is not img:
+            print("noised_img", noised_img)
+            tf.summary.image("noised_image", cmap(noised_img), FLAGS.display_imgs)
+
     if FLAGS.variational:
-        latent_mean, latent_logvar, _, ae_img = ae(img)
+        latent_mean, latent_logvar, _, ae_img = ae(noised_img)
         with tf.name_scope("kl_div"):
             kl_div = -0.5 * tf.reduce_sum(
                 1 + latent_logvar - latent_mean ** 2 - tf.exp(latent_logvar)
@@ -344,9 +397,10 @@ if __name__ == "__main__":
         loss_ae = FLAGS.vae_beta * kl_div
 
     else:
-        z, ae_img = ae(img)
-        tf.summary.histogram("bottleneck/histogram", z)
-        tf.summary.scalar("bottleneck/sparsity", tf.nn.zero_fraction(z))
+        z, ae_img = ae(noised_img)
+        with tf.name_scope("bottleneck"):
+            tf.summary.histogram("histogram", z)
+            tf.summary.scalar("sparsity", tf.nn.zero_fraction(z))
         loss_ae = 0
 
     loss_ae += image_losses(img, ae_img, *FLAGS.image_loss_weights)
@@ -452,11 +506,7 @@ if __name__ == "__main__":
             for s in range(FLAGS.steps_per_epoch):
                 sess.run(train_ops, options=run_opts, run_metadata=run_metadata)
 
-                if s % FLAGS.summary_every:
-                    sess.run(train_ops)
-
-                else:
-                    sess.run(train_ops, options=run_opts, run_metadata=run_metadata)
+                if s % FLAGS.summary_every == 0:
                     total_step = e * FLAGS.steps_per_epoch + s
                     summary_writer.add_run_metadata(run_metadata, "step%d" % total_step)
                     summary_writer.add_summary(sess.run(summary_op), total_step)

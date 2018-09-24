@@ -72,12 +72,12 @@ def resblock(x, depth, nonlinearity):
 
 
 def resblocks(x, depth, blocks, nonlinearity, cardinality=1):
-    """Repeats several resblock2 or resblock3, the latter used when depth is high to
-    conserve memory. Either way there are 2 non-linearities. TODO renext cardinality.
+    """Repeatedly applies resblock, supports ResNeXT caridnality
+    would be faster if there were grouped convolution ops in tf.
     """
     if cardinality == 1:
         for _ in range(blocks):
-            b = resblock(b, depth, nonlinearity)
+            x = resblock(x, depth, nonlinearity)
     else:
         lanes = []
         for _ in range(cardinality):
@@ -90,10 +90,10 @@ def resblocks(x, depth, blocks, nonlinearity, cardinality=1):
     return x
 
 
-def scale_change_block(x, depth, nonlinearity, down, length=2):
+def scale_change_block(x, depth, nonlinearity, down, scale=2):
     r = x
     _conv = Conv2D if down else Conv2DTranspose
-    x = _conv(depth, 3, 2, padding="same")(x)
+    x = _conv(depth, max(3, scale), scale, padding="same")(x)
     x = nonlinearity()(x)
     x = Conv2D(depth, 3, padding="same")(x)
     x = nonlinearity()(x)
@@ -108,7 +108,8 @@ def autoencoder(
     variational,
     dense=False,
     block_len=1,
-    nonlinearity=ELU,
+    nonlinearity=LeakyReLU,
+    scale=2,
 ):
     """
     Returns an encoder model and autoencoder model
@@ -124,7 +125,7 @@ def autoencoder(
         with tf.variable_scope("encoding_%d" % i):
             depth = base * 2 ** i
             # Half image size
-            x = scale_change_block(x, depth, nonlinearity, down=True)
+            x = scale_change_block(x, depth, nonlinearity, down=True, scale=scale)
             x = resblocks(x, depth, block_len, nonlinearity)
             if batchnorm:
                 x = BatchNormalization()(x)
@@ -141,7 +142,7 @@ def autoencoder(
         with tf.variable_scope("decoding_%d" % i):
             depth = base * 2 ** i
             # Double Image size
-            x = scale_change_block(x, depth, nonlinearity, down=False)
+            x = scale_change_block(x, depth, nonlinearity, down=False, scale=scale)
             x = resblocks(x, depth, block_len, nonlinearity)
             if batchnorm:
                 x = BatchNormalization()(x)
