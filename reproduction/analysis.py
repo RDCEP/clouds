@@ -1,13 +1,12 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import scipy as sp
-from scipy.cluster.vq import kmeans
-import tensorflow as tf
-import matplotlib
+import json
+import os
 
 # matplotlib.use("agg")  # This avoids RuntimeError Invalid DISPLAY variable
 import matplotlib.pyplot as plt
+import numpy as np
+import tensorflow as tf
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+from scipy.cluster.vq import kmeans
 
 
 class AEData:
@@ -323,6 +322,22 @@ def plot_kmeans_and_image_scatter(original, encoded, K=3):
     ax.scatter(xs, ys, s=100, c="r", zorder=1000)
 
     return fig, ax
+
+
+def geotiff_coordinates(root_folder, filename):
+    '''
+    This method encapsulates the regular gdalinfo call for a geotiff
+    It demands a native gdalinfo install on the environment.
+
+    Input: folder url; filename
+    Returns: The bounding box coordinates for this given geotiff
+    '''
+    #Todo iterate over files
+    string = 'gdalinfo -json '+str(root_folder)+str(filename)+' > temp_gdalinfo.txt'
+    os.system(string)
+    loaded_json = json.loads(open('temp_gdalinfo.txt', 'r').read()) #TODO: collect response as a subprocess
+    tiff_coordinates = loaded_json['cornerCoordinates'] #TODO: return all properties nor just coordinates
+    return tiff_coordinates
 
 
 # TODO depricate most of this main code
