@@ -25,6 +25,7 @@ def get_flags():
         help="/path/to/model/ to load and train or to save new model",
         default=None,
     )
+    p.add_argument("--num_gpu", default=0, type=int)
 
     pipeline.add_pipeline_cli_arguments(p)
 
@@ -367,18 +368,22 @@ if __name__ == "__main__":
 
     print("building model and losses...", flush=True)
     with tf.name_scope("autoencoder"):
-        encoder = load_model(FLAGS.model_dir, "encoder")
-        decoder = load_model(FLAGS.model_dir, "decoder")
-        if not encoder or not decoder:
-            encoder, decoder = models.autoencoder(
-                shape=shape,
-                base=FLAGS.base_dim,
-                batchnorm=FLAGS.batchnorm,
-                n_blocks=FLAGS.n_blocks,
-                variational=FLAGS.variational,
-                block_len=FLAGS.block_len,
-                scale=FLAGS.scale,
-            )
+        with tf.device("/cpu:0"):
+            encoder = load_model(FLAGS.model_dir, "encoder")
+            decoder = load_model(FLAGS.model_dir, "decoder")
+            if not encoder or not decoder:
+                encoder, decoder = models.autoencoder(
+                    shape=shape,
+                    base=FLAGS.base_dim,
+                    batchnorm=FLAGS.batchnorm,
+                    n_blocks=FLAGS.n_blocks,
+                    variational=FLAGS.variational,
+                    block_len=FLAGS.block_len,
+                    scale=FLAGS.scale,
+                )
+        if FLAGS.num_gpu:
+            encoder = tf.keras.utils.multi_gpu_model(encoder, FLAGS.num_gpu)
+            decoder = tf.keras.utils.multi_gpu_model(decoder, FLAGS.num_gpu)
 
     with tf.name_scope("noise"):
         noised_img = add_noise(img, FLAGS.salt_pepper, FLAGS.gaussian_noise)
@@ -418,9 +423,12 @@ if __name__ == "__main__":
 
     if FLAGS.adversarial:
         with tf.name_scope("discriminator"):
-            disc = load_model(FLAGS.model_dir, "disc")
-            if not disc:
-                disc = models.discriminator(shape, FLAGS.n_blocks)
+            with tf.device("/cpu:0"):
+                disc = load_model(FLAGS.model_dir, "disc")
+                if not disc:
+                    disc = models.discriminator(shape, FLAGS.n_blocks)
+            if FLAGS.num_gpu:
+                disc = tf.keras.utils.multi_gpu_model(disc, FLAGS.num_gpu)
 
         z_noise = tf.random_normal(z.shape)
         gen_img = decoder(z_noise)
@@ -460,6 +468,8 @@ if __name__ == "__main__":
         # Set input height / width to None so Keras doesn't complain
         inp_shape = None, None, 3
         per = our_models.classifier(inp_shape)
+        if FLAGS.num_gpu:
+            per = tf.keras.utils.multi_gpu_model(per, FLAGS.num_gpu)
         with tf.name_scope("perceptual_loss"):
             pi = per(cmap(img))
             pa = per(cmap(ae_img))
