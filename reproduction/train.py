@@ -530,4 +530,4 @@ if __name__ == "__main__":
                     )
 
             for m in save_models:
-                save_models[m].save(path.join(FLAGS.model_dir, f"{m}.h5"))
+                save_models[m].save_weights(path.join(FLAGS.model_dir, f"{m}.h5"))

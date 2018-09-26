@@ -1,4 +1,9 @@
 #!/bin/bash
+
+#module purge
+#module load Anaconda3
+#source activate tb
+
 if [ "$#" -eq 1 ]; then
     logdir=$1
     ip=$(/sbin/ip route get 8.8.8.8 | awk '{print $NF;exit}')
