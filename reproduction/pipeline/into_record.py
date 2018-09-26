@@ -2,15 +2,12 @@ import tensorflow as tf
 import os
 import cv2
 import json
+import glob
 import numpy as np
 
-from os import path
 from osgeo import gdal
 from mpi4py import MPI
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-
-
-# from IPython import embed  # DEBUG
 
 
 def _int64_feature(value):
@@ -33,7 +30,7 @@ def save_example_and_metadata(original, features, meta):
         tf.train.Example(features=tf.train.Features(feature=f)) for f in features
     ]
 
-    base, _ = path.splitext(original)
+    base, _ = os.path.splitext(original)
     json_file = base + ".json"
     tfr_file = base + ".tfrecord"
 
@@ -52,13 +49,13 @@ def normalized_patches(tif_files, shape, strides, resize):
         print("Reading", tif_file, flush=True)
         swath = gdal.Open(tif_file).ReadAsArray()
         swath = np.rollaxis(swath, 0, 3)
-        # TODO Flags for other kinds of normalization
-        # NOTE: Normalizing the whole (sometimes 8gb) swath will double memory usage by
-        # casting it from int16 to float32. Instead normalize and cast patches.
         if resize is not None:
             swath = cv2.resize(
                 swath, dsize=None, fx=resize, fy=resize, interpolation=cv2.INTER_AREA
             )
+        # TODO Flags for other kinds of normalization
+        # NOTE: Normalizing the whole (sometimes 8gb) swath will double memory usage by
+        # casting it from int16 to float32. Instead normalize and cast patches.
         mean = swath.mean(axis=(0, 1)).astype(np.float32)
         std = swath.std(axis=(0, 1)).astype(np.float32)
         max_x, max_y, _ = swath.shape
@@ -88,7 +85,6 @@ def normalized_patches(tif_files, shape, strides, resize):
 def write_patches(rank, patches, out_dir, patches_per_record):
     """Writes `patches_per_record` patches into a tfrecord file in `out_dir`.
     """
-    i = 0
     for i, (filename, coord, patch) in enumerate(patches):
         if i % patches_per_record == 0:
             rec = "{}-{}.tfrecord".format(rank, i // patches_per_record)
@@ -111,7 +107,8 @@ def get_args():
         formatter_class=ArgumentDefaultsHelpFormatter,
         description="Turns tif or hdf data into tfrecords. TODO better description.",
     )
-    p.add_argument("source_dir", help="Directory of files to convert to tfrecord")
+    p.add_argument("source_glob", help="Glob of files to convert to tfrecord")
+    p.add_argument("out_dir", help="Directory to save results")
     p.add_argument(
         "mode",
         choices=["tif", "hdf", "pptif"],
@@ -119,13 +116,6 @@ def get_args():
             "`tif`: Turn whole .tif swath into tfrecord. "
             "`hdf`: Turn .hdf swath into tfrecord (respecting fields). "
             "`pptif`: preprocessed_tif, normalize and patchify a tif file."
-        ),
-    )
-    p.add_argument(
-        "--out_dir",
-        help=(
-            "Directory to save results, if unprovided, then tfrecords and json meta data "
-            "are saved to the same directory as the source data."
         ),
     )
     p.add_argument(
@@ -157,7 +147,7 @@ def get_args():
         default=(64, 64),
     )
     p.add_argument(
-        "--patches_per_record", type=int, help="Only used for pptif", default=5000
+        "--patches_per_record", type=int, help="Only used for pptif", default=500
     )
 
     FLAGS = p.parse_args()
@@ -166,15 +156,8 @@ def get_args():
         print("\t", f, (25 - len(f)) * " ", FLAGS.__dict__[f])
     print("\n")
 
-    FLAGS.data_dir = path.abspath(FLAGS.source_dir)
-    FLAGS.out_dir = path.abspath(FLAGS.out_dir) if FLAGS.out_dir else FLAGS.data_dir
+    FLAGS.out_dir = os.path.abspath(FLAGS.out_dir)
     return FLAGS
-
-
-def get_targets(data_dir, ext, rank):
-    targets = [t for t in os.listdir(data_dir) if t[-4:] == ext]
-    targets.sort()
-    return [path.join(data_dir, t) for i, t in enumerate(targets) if i % size == rank]
 
 
 if __name__ == "__main__":
@@ -185,18 +168,22 @@ if __name__ == "__main__":
     rank = comm.Get_rank()
     os.makedirs(FLAGS.out_dir, exist_ok=True)
 
+    targets = []
+    for i, f in enumerate(glob.glob(FLAGS.source_glob)):
+        if i % size == rank:
+            targets.append(os.path.abspath(f))
+
     if FLAGS.mode == "hdf":
-        for t in get_targets(FLAGS.data_dir, ".hdf", rank):
+        for t in targets:
             print("Rank", rank, "Converting", t)
             hdf2tfr(t, FLAGS.out_dir, FLAGS.fields)
 
     elif FLAGS.mode == "tif":
-        for t in get_targets(FLAGS.data_dir, ".tif", rank):
+        for t in targets:
             print("Rank", rank, "Converting", t)
             tif2tfr(t, FLAGS.out_dir)
 
     elif FLAGS.mode == "pptif":
-        targets = get_targets(FLAGS.data_dir, ".tif", rank)
         patches = normalized_patches(targets, FLAGS.shape, FLAGS.stride, FLAGS.resize)
         write_patches(rank, patches, FLAGS.out_dir, FLAGS.patches_per_record)
 

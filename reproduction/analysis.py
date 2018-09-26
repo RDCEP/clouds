@@ -11,19 +11,35 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
 
 class AEData:
-    def __init__(self, dataset, ae, fields, n=500):
-        names, coords, imgs = zip(*sample_dataset(dataset, n))
-        imgs = np.stack(imgs)
-        encs, ae_imgs = ae.predict(imgs)
+    """Struct of arrays containing autoencoded data for analysis.
 
-        self.names = [str(n) for n in names]
-        self.coords = coords
-        self.imgs = imgs
-        self.ae_imgs = ae_imgs
-        self.encs = encs.mean(axis=(1, 2))
-        self.raw_encs = encs
+    imgs        [n_samples, height, width, channels] array of patches
+    names       tif-files where the patches are sourced from
+    coords      index within tif file of the top left corner of the original patch
+    ae_imgs     patches after being autoencoded
+    raw_encs    encoded state of the patches
+    encs        spatially averaged encoded state of the patches
+    fields      names for each of the channels in imgs
+    """
+
+    def __init__(self, dataset, ae, fields, n=500):
+        # get data from dataset
+        names, coords, imgs = [], [], []
+        batch = dataset.make_one_shot_iterator().get_next()
+        with tf.Session() as sess:
+            while len(imgs) < n:
+                names_, coords_, imgs_ = sess.run(batch)
+                names.extend(names_)
+                coords.extend(coords_)
+                imgs.extend(imgs_)
+
+        self.names = np.array([str(n)[2:-1] for n in names])
+        self.coords, self.imgs = np.stack(coords[:n]), np.stack(imgs[:n])
+        self.raw_encs, self.ae_imgs = ae.predict(self.imgs)
+        self.encs = self.raw_encs.mean(axis=(1, 2))
         self.fields = fields
 
+        # compute eigenvalues and vectors for PCA projection
         centered = self.encs - self.encs.mean(axis=0)
         cov = centered.transpose().dot(centered) / centered.shape[0]
         evals, evecs = np.linalg.eigh(cov)
@@ -83,6 +99,44 @@ class AEData:
             a.set_yticks([])
         return fig, ax
 
+    def plot_neighborhood(self, i, context_width=128):
+        p, orig = self.open_neighborhood(i, context_width)
+
+        _, (a, b) = plt.subplots(1, 2, figsize=(20, 10))
+        a.imshow(data.imgs[i, :, :, 0], cmap="bone")
+        b.imshow(p[0], norm=normalization, cmap="bone")
+        b.add_patch(
+            patches.Rectangle(
+                orig,
+                *data.imgs.shape[1:3],
+                linewidth=1,
+                edgecolor="r",
+                facecolor="none",
+            )
+        )
+
+    def open_neighborhood(self, i, context_width):
+        """Opens `context_width` size neighborhood around patch `i`.
+        Returns this enlarged patch (unnormalized) and the coordinate of the original
+        patch within it.
+        """
+        yoff, xoff = self.coords[i]
+        xsize, ysize = self.imgs.shape[1:3]
+
+        def rebox(off, size, mx):
+            l_most = max(off - context_width, 0)
+            r_most = min(mx, off + size + context_width)
+            new_size = r_most - l_most
+            return map(int, [l_most, new_size, off - l_most])
+
+        swath = gdal.Open(self.names[i])
+        xoff, xsize, left = rebox(xoff, xsize, swath.RasterXSize)
+        yoff, ysize, top = rebox(yoff, ysize, swath.RasterYSize)
+
+        p = swath.ReadAsArray(xoff, yoff, xsize, ysize)
+
+        return p, (left, top)
+
 
 def sample_dataset(dataset, n):
     batch = dataset.make_one_shot_iterator().get_next()
@@ -127,26 +181,39 @@ def plot_cluster_channel_distributions(imgs, labels, fields=None, width=3):
 def plot_cluster_samples(imgs, labels, samples=8, width=3, channel=0):
     n_clusters = len(set(labels))
 
+    # TODO use 1 axis and manually do subplots because its faster
     fig, ax = plt.subplots(
         nrows=samples, ncols=n_clusters, figsize=(n_clusters * width, samples * width)
     )
     plt.subplots_adjust(wspace=0.01, hspace=0.01)
 
+    for a in ax.ravel():
+        a.set_yticks([])
+        a.set_xticks([])
+
     for i in range(n_clusters):
         n = (labels == i).sum()
         ax[0, i].set_title("cluster %d" % i)
-
-        for j, k in enumerate(np.random.choice(n, samples, replace=False)):
-            a = ax[j, i]
+        if n > samples:
+            choices = enumerate(np.random.choice(n, samples))
+        else:
+            choices = [(j, j) for j in range(n)]
+        for j, k in choices:
             img = imgs[labels == i]
-            a.imshow(img[k, :, :, channel], cmap="bone")
-            a.set_yticks([])
-            a.set_xticks([])
+            ax[j, i].imshow(img[k, :, :, channel], cmap="bone")
 
     return fig, ax
 
+def plot_cluster_samples_fast(imgs, labels, samples=8, width=3, channel=0):
+    n_clusters=len(set(labels))
+    fig, ax = plt.subplots(1,1,figsize=(width * n_clusters, width * samples))
+    img_height, img_width = imgs.shape[1:3]
+    canvas = np.zeros((n_clusters * img_width, samples * img_height))
 
-def plot_all_cluster_samples(imgs, labels, order=None, width=2):
+
+
+
+def plot_all_cluster_samples(imgs, labels, order=None, samples=None, width=2):
     """Plots all examples in a cluster in 1 column, order determins which clusters and in
     what order are plotted.
     """

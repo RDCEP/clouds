@@ -58,7 +58,13 @@ def tfr_parser_fn(fields, meta_json, saved_as_bytes=True):
 
 
 def load_data(
-    data_glob, shape, batch_size, read_threads, shuffle_buffer_size, prefetch
+    data_glob,
+    shape,
+    batch_size,
+    read_threads,
+    shuffle_buffer_size,
+    prefetch,
+    flips=True,
 ):
     """Returns a dataset of (filenames, coordinates, patches).
     See `add_pipeline_cli_arguments` for argument descriptions.
@@ -76,7 +82,8 @@ def load_data(
             tf.decode_raw(decoded["patch"], tf.float32), decoded["shape"]
         )
         patch = tf.random_crop(patch, shape)
-        patch = tf.image.random_flip_up_down(tf.image.random_flip_left_right(patch))
+        if flips:
+            patch = tf.image.random_flip_up_down(tf.image.random_flip_left_right(patch))
         return decoded["filename"], decoded["coordinate"], patch
 
     dataset = (
