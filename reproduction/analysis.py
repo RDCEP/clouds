@@ -1,12 +1,12 @@
-import json
-import os
-
-# matplotlib.use("agg")  # This avoids RuntimeError Invalid DISPLAY variable
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
+import json
+import os
+import subprocess
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from scipy.cluster.vq import kmeans
+from collections import namedtuple
 
 
 class AEData:
@@ -203,13 +203,12 @@ def plot_cluster_samples(imgs, labels, samples=8, width=3, channel=0):
 
     return fig, ax
 
+
 def plot_cluster_samples_fast(imgs, labels, samples=8, width=3, channel=0):
-    n_clusters=len(set(labels))
-    fig, ax = plt.subplots(1,1,figsize=(width * n_clusters, width * samples))
+    n_clusters = len(set(labels))
+    fig, ax = plt.subplots(1, 1, figsize=(width * n_clusters, width * samples))
     img_height, img_width = imgs.shape[1:3]
     canvas = np.zeros((n_clusters * img_width, samples * img_height))
-
-
 
 
 def plot_all_cluster_samples(imgs, labels, order=None, samples=None, width=2):
@@ -258,34 +257,6 @@ def plot_ae_output(dataset, predictions, n_samples, n_bands, height=4, width=4):
     return fig
 
 
-class PCA:
-    def __init__(self, vectors):
-        """Find eigenvalues and vectors
-        """
-        self.mean = vectors.mean(axis=0)
-        centered = vectors - self.mean
-        cov = centered.transpose().dot(centered) / centered.shape[0]
-        evals, evecs = np.linalg.eigh(cov)
-        # Remove useless axis
-        gz = evals > 0.1
-        evals = evals[gz]
-        evecs = evecs[gz]
-        print(evals)
-
-        # So PCA projection also whitens data for viewing
-        for i in range(evals.shape[0]):
-            evecs[:, i] /= evals[i]
-
-        self.evals = evals
-        self.evecs = evecs
-
-    def project(self, vectors, dim):
-        """Project centered vectors onto leading `dim` eigenvectors
-        """
-        centered = vectors - self.mean
-        return centered.dot(self.evecs[-dim:].transpose())
-
-
 def img_scatter(points, images, zoom=0.5, figsize=(20, 20)):
     """Scatter plot where points are overlaid with images
     """
@@ -302,8 +273,7 @@ def img_scatter(points, images, zoom=0.5, figsize=(20, 20)):
 
 
 def plot_kmeans_and_image_scatter(original, encoded, K=3):
-    """Plots AE encoded space projected down by PCA with scattered images and
-    k means.
+    """Plots AE encoded space projected down by PCA with scattered images and k means.
     """
     # Spatial average features
     centered = encoded.mean(axis=(1, 2))
@@ -324,86 +294,20 @@ def plot_kmeans_and_image_scatter(original, encoded, K=3):
     return fig, ax
 
 
-def geotiff_coordinates(root_folder, filename):
-    '''
-    This method encapsulates the regular gdalinfo call for a geotiff
-    It demands a native gdalinfo install on the environment.
+def _dict_to_named_tuple(name, d):
+    """Recursively convert dictionary into a named tuple because its prettier.
+    """
+    if not isinstance(d, dict):
+        return d
 
-    Input: folder url; filename
-    Returns: The bounding box coordinates for this given geotiff
-    '''
-    #Todo iterate over files
-    string = 'gdalinfo -json '+str(root_folder)+str(filename)+' > temp_gdalinfo.txt'
-    os.system(string)
-    loaded_json = json.loads(open('temp_gdalinfo.txt', 'r').read()) #TODO: collect response as a subprocess
-    tiff_coordinates = loaded_json['cornerCoordinates'] #TODO: return all properties nor just coordinates
-    return tiff_coordinates
+    if "" in d:
+        d["none"] = d.pop("")
+
+    values = [_dict_to_named_tuple(k, d[k]) for k in d]
+    return namedtuple(name, d.keys())(*values)
 
 
-# TODO depricate most of this main code
-if __name__ == "__main__":
-    import argparse
-    import pipeline
-
-    # TODO Dont repeat common loading stuff in this section and in train.py
-    p = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    p.add_argument("data", help="/path/to/data.tif")
-    p.add_argument(
-        "-sh",
-        "--shape",
-        nargs=3,
-        type=int,
-        help="Shape of input image",
-        default=(64, 64, 7),
-    )
-    p.add_argument(
-        "model_dir", help="/path/to/model/ to load model from and to save inference"
-    )
-    p.add_argument("-ns", "--num_samples", type=int, help=" ", default=1000)
-
-    FLAGS = p.parse_args()
-    if FLAGS.model_dir[-1] != "/":
-        FLAGS.model_dir += "/"
-
-    # TODO path join
-    with open(FLAGS.model_dir + "ae.json", "r") as f:
-        ae = tf.keras.models.model_from_json(f.read())
-    ae.load_weights(FLAGS.model_dir + "ae.h5")
-
-    img_width, img_height, n_bands = FLAGS.shape
-    del img_height  # Unused TODO maybe use it?
-    x = (
-        tf.data.Dataset.from_generator(
-            pipeline.read_tiff_gen([FLAGS.data], img_width),
-            tf.float32,
-            (img_width, img_width, n_bands),
-        )
-        .apply(tf.contrib.data.shuffle_and_repeat(100))
-        .batch(FLAGS.num_samples)
-        .make_one_shot_iterator()
-        .get_next()
-    )
-
-    with tf.Session() as sess:
-        x = sess.run(x)
-
-    # TODO how to pick hidden layer?
-    # en = tf.keras.models.Model(inputs=ae.input, outputs=ae.get_layer("conv2d_3").output)
-    # e = en.predict(x)
-    # y = ae.predict(x)[0]
-    e, y = ae.predict(x)
-
-    # from IPython import embed
-    # embed()
-
-    # Save autoencoder output
-    plot_ae_output(x, y, 2, n_bands)
-    fname = FLAGS.model_dir + "ae_output.png"
-    plt.savefig(fname)
-    print(f"Autoencoder Results saved to {fname}")
-
-    # Save Hidden space analysis
-    fig, _ = plot_kmeans_and_image_scatter(x, e)
-    fname = FLAGS.model_dir + "pca.png"
-    fig.savefig(fname)
-    print(f"Hidden space diagram saved to {fname}")
+def get_tif_metadata(tif_file, as_dict=False):
+    s = subprocess.check_output(["gdalinfo", "-json", tif_file])
+    j = json.loads(s)
+    return j if as_dict else _to_named_tuple("tif_metadata", j)

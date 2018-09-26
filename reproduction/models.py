@@ -111,13 +111,10 @@ def autoencoder(
     nonlinearity=LeakyReLU,
     scale=2,
 ):
+    """Returns an encoder model and a decoder model.
     """
-    Returns an encoder model and autoencoder model
-    """
-    x = inp = Input(shape=shape, name="ae_input")
-    outputs = []
-
     # Encoder
+    x = inp = Input(shape=shape, name="encoder_input")
     x = Conv2D(base, 3, padding="same")(x)
     x = nonlinearity()(x)
     x = resblocks(x, base, block_len, nonlinearity)
@@ -130,14 +127,15 @@ def autoencoder(
             if batchnorm:
                 x = BatchNormalization()(x)
 
-    # Hidden vector
     if variational:
         with tf.variable_scope("sample_variational"):
             mn, lv, x = sample_variational(x, depth, dense, nonlinearity)
-            outputs.extend([mn, lv])
-    outputs.append(x)
+        encoder = Model(inp, [x, mn, lv], name="encoder")
+    else:
+        encoder = Model(inp, x)
 
-    # Decoder
+        # Decoder
+    x = inp = Input(x.shape[1:], name="decoder_input")
     for i in range(n_blocks - 1, -1, -1):
         with tf.variable_scope("decoding_%d" % i):
             depth = base * 2 ** i
@@ -148,9 +146,9 @@ def autoencoder(
                 x = BatchNormalization()(x)
 
     x = Conv2D(shape[-1], 1, name="reconstructed")(x)
-    outputs.append(x)
+    decoder = Model(inp, x, name="decoder")
 
-    return Model(inp, outputs)
+    return encoder, decoder
 
 
 def discriminator(shape, n_layers=3):
@@ -160,7 +158,7 @@ def discriminator(shape, n_layers=3):
 
     for i in range(n_layers):
         depth = 32 * 2 ** i
-        resblocks(x, depth, 1)
+        resblocks(x, depth, 1, nonlinearity=LeakyReLU)
 
     x = Conv2D(1, 1)(x)
     x = GlobalAveragePooling2D()(x)
