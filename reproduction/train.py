@@ -42,11 +42,6 @@ def get_flags():
     )
 
     p.add_argument(
-        "--optimizer",
-        help="type of optimizer to use for gradient descent. TODO (unused flag)",
-        default="adam",
-    )
-    p.add_argument(
         "--epochs", type=int, help="Number of epochs to train for", default=10
     )
     p.add_argument(
@@ -108,6 +103,7 @@ def get_flags():
         nargs=4,
         type=float,
         default=(1, 0, 0, 0),
+        metavar="w",
         help=(
             "Weights for image losses: Mean squared error, Mean absolute error, Mean "
             "High Frequency Error (HFE), and Multi-Scale Structural Similarity (MSSIM). "
@@ -117,14 +113,27 @@ def get_flags():
         ),
     )
     p.add_argument(
-        "--discriminator",
+        "--autoencoder_adam",
+        type=float,
+        nargs=3,
+        default=(0.0001, 0, 0.9),
+        help="Adam optimizer learning rate, beta1, beta2 for autoencoder",
+    )
+    p.add_argument(
+        "--adversarial",
         action="store_true",
         default=False,
         help=(
-            "Augment autoencoder loss with the discriminator. Flag unused if "
-            "continuing training in a directory with a saved discriminator as "
-            "that will be loaded."
+            "Adversarial Autencoder, Decoder is also a GAN and should be able to "
+            "generate convincing images from gaussian noise."
         ),
+    )
+    p.add_argument(
+        "--discriminator_adam",
+        type=float,
+        nargs=3,
+        default=(0.0004, 0, 0.9),
+        help="Adam optimizer learning rate, beta1, beta2 for discriminator",
     )
     p.add_argument(
         "--lambda_disc",
@@ -137,12 +146,6 @@ def get_flags():
         type=float,
         default=10,
         help="Weight of 1-lipschitz constraint on discriminator objective",
-    )
-    p.add_argument(
-        "--n_critic",
-        type=int,
-        default=5,
-        help="number of discriminator updates per autoencoder update",
     )
 
     p.add_argument(
@@ -198,11 +201,6 @@ def get_flags():
         "--no_grad_histogram",
         action="store_true",
         help="Display gradient histogram on tensorboard",
-    )
-    p.add_argument(
-        "--no_grad_sparsity",
-        action="store_true",
-        help="Display gradient sparsity on tensorboard",
     )
 
     FLAGS = p.parse_args()
@@ -369,9 +367,10 @@ if __name__ == "__main__":
 
     print("building model and losses...", flush=True)
     with tf.name_scope("autoencoder"):
-        ae = load_model(FLAGS.model_dir, "ae")
-        if not ae:
-            ae = models.autoencoder(
+        encoder = load_model(FLAGS.model_dir, "encoder")
+        decoder = load_model(FLAGS.model_dir, "decoder")
+        if not encoder or not decoder:
+            encoder, decoder = models.autoencoder(
                 shape=shape,
                 base=FLAGS.base_dim,
                 batchnorm=FLAGS.batchnorm,
@@ -388,7 +387,8 @@ if __name__ == "__main__":
             tf.summary.image("noised_image", cmap(noised_img), FLAGS.display_imgs)
 
     if FLAGS.variational:
-        latent_mean, latent_logvar, _, ae_img = ae(noised_img)
+        z, latent_mean, latent_logvar = encoder(noised_img)
+        ae_img = decoder(z)
         with tf.name_scope("kl_div"):
             kl_div = -0.5 * tf.reduce_sum(
                 1 + latent_logvar - latent_mean ** 2 - tf.exp(latent_logvar)
@@ -397,12 +397,12 @@ if __name__ == "__main__":
         loss_ae = FLAGS.vae_beta * kl_div
 
     else:
-        z, ae_img = ae(noised_img)
+        z = encoder(noised_img)
         with tf.name_scope("bottleneck"):
             tf.summary.histogram("histogram", z)
-            tf.summary.scalar("sparsity", tf.nn.zero_fraction(z))
         loss_ae = 0
 
+    ae_img = decoder(z)
     loss_ae += image_losses(img, ae_img, *FLAGS.image_loss_weights)
 
     cimg = cmap(img)
@@ -410,24 +410,33 @@ if __name__ == "__main__":
     tf.summary.image("original", cimg, FLAGS.display_imgs)
     tf.summary.image("autoencoded", camg, FLAGS.display_imgs)
     tf.summary.image("difference", cimg - camg, FLAGS.display_imgs)
-    save_models = {"ae": ae}
+    save_models = {"encoder": encoder}
+    save_models = {"decoder": decoder}
 
     optimizer = tf.train.AdamOptimizer()  # TODO flag
     train_ops = []
 
-    if FLAGS.discriminator:
+    if FLAGS.adversarial:
         with tf.name_scope("discriminator"):
             disc = load_model(FLAGS.model_dir, "disc")
             if not disc:
                 disc = models.discriminator(shape, FLAGS.n_blocks)
-        with tf.name_scope("disc_loss"):
-            di = disc(img)
-            da = disc(ae_img)
-            loss_disc = tf.reduce_mean(di - da)
-            save_models["disc"] = disc
-            tf.summary.scalar("loss_disc", loss_disc)
 
-        loss_ae += FLAGS.lambda_disc * tf.reduce_mean(da)
+        z_noise = tf.random_normal(z.shape)
+        gen_img = decoder(z_noise)
+
+        with tf.name_scope("disc_loss"):
+            di = tf.reduce_mean(disc(img))
+            da = tf.reduce_mean(disc(ae_img))
+            dg = tf.reduce_mean(disc(gen_img))
+            loss_disc = 2 * di - da - dg
+            tf.summary.scalar("loss_disc", loss_disc)
+            tf.summary.scalar("disc_ae_img", da)
+            tf.summary.scalar("disc_gen", dg)
+
+        tf.summary.image("generated", cmap(gen_img), FLAGS.display_imgs)
+        save_models["disc"] = disc
+        loss_ae += FLAGS.lambda_disc * tf.reduce_mean(da + dg)
         # Enforce Lipschitz discriminator scores between natural and autoencoded
         # manifolds by penalizing magnitude of gradient in this zone.
         # arxiv.org/pdf/1704.00028.pdf
@@ -442,8 +451,9 @@ if __name__ == "__main__":
         loss_disc += penalty * FLAGS.lambda_gradient_penalty
 
         # Discriminator should be trained more to provide useful feedback
-        train_disc = optimizer.minimize(loss_disc, var_list=disc.trainable_weights)
-        train_ops += [train_disc] * FLAGS.n_critic
+        dsc_optimizer = tf.train.AdamOptimizer(*FLAGS.discriminator_adam)
+        train_disc = dsc_optimizer.minimize(loss_disc, var_list=disc.trainable_weights)
+        train_ops.append(train_disc)
 
     if FLAGS.perceptual:
         # There is a minimum shape thats 139 or so but we only need early layers
@@ -458,19 +468,16 @@ if __name__ == "__main__":
             tf.summary.scalar("loss_per", loss_per)
 
     # Monitor AE gradients
+    ae_optimizer = tf.train.AdamOptimizer(*FLAGS.autoencoder_adam)
     with tf.name_scope("grad_info"):
-        grads_and_vars = optimizer.compute_gradients(
-            loss_ae, var_list=ae.trainable_weights
+        grads_and_vars = ae_optimizer.compute_gradients(
+            loss_ae, var_list=encoder.trainable_weights + decoder.trainable_weights
         )
         for grad, var in grads_and_vars:
             if grad is not None:
                 if not FLAGS.no_grad_histogram:
                     tf.summary.histogram("{}/histogram".format(var.name), grad)
-                if not FLAGS.no_grad_sparsity:
-                    tf.summary.scalar(
-                        "{}/sparsity".format(var.name), tf.nn.zero_fraction(grad)
-                    )
-    train_ops.append(optimizer.apply_gradients(grads_and_vars))
+    train_ops.append(ae_optimizer.apply_gradients(grads_and_vars))
     tf.summary.scalar("loss_ae", loss_ae)
 
     # Save model definitions
