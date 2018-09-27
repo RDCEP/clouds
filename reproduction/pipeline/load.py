@@ -65,6 +65,7 @@ def load_data(
     shuffle_buffer_size,
     prefetch,
     flips=True,
+    rotate=False,
 ):
     """Returns a dataset of (filenames, coordinates, patches).
     See `add_pipeline_cli_arguments` for argument descriptions.
@@ -81,6 +82,11 @@ def load_data(
         patch = tf.reshape(
             tf.decode_raw(decoded["patch"], tf.float32), decoded["shape"]
         )
+        if rotate:
+            angle = tf.random_uniform((), 0, 6.28)
+            patch = tf.contrib.image.rotate(patch, angle)
+            patch = tf.image.central_crop(patch, 2 ** -0.5)
+
         patch = tf.random_crop(patch, shape)
         if flips:
             patch = tf.image.random_flip_up_down(tf.image.random_flip_left_right(patch))
@@ -106,7 +112,12 @@ def add_pipeline_cli_arguments(p):
         "--data", help="patterns to pick up tf records files", required=True, nargs="+"
     )
     p.add_argument(
-        "--shape", nargs=3, type=int, help="Shape of input image", default=(64, 64, 7)
+        "--shape",
+        nargs=3,
+        type=int,
+        metavar=("h", "w", "c"),
+        help="Shape of input image",
+        default=(64, 64, 7),
     )
 
     p.add_argument("--batch_size", type=int, help=" ", default=32)

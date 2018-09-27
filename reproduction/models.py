@@ -13,10 +13,10 @@ def sample_variational(x, depth, dense, nonlinearity):
         lv = Dense(depth, name="latent_log_var", kernel_initializer="zeros")(x)
     else:
         mn = Conv2D(depth, 1)(x)
-        x = nonlinearity()(x)
+        mn = nonlinearity()(mn)
         mn = Conv2D(depth, 1)(mn)
         lv = Conv2D(depth, 1)(x)
-        x = nonlinearity()(x)
+        lv = nonlinearity()(lv)
         lv = Conv2D(depth, 1)(lv)
 
     x = Lambda(

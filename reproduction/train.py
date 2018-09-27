@@ -32,12 +32,14 @@ def get_flags():
     p.add_argument(
         "--gaussian_noise",
         type=float,
+        metavar="stdev",
         default=0,
         help="std of gaussian noise added before AE",
     )
     p.add_argument(
         "--salt_pepper",
         type=float,
+        metavar="pct",
         default=0,
         help="percentage of pixels hit with salt and pepper noise before AE",
     )
@@ -104,19 +106,20 @@ def get_flags():
         nargs=4,
         type=float,
         default=(1, 0, 0, 0),
-        metavar="w",
+        metavar=("mse", "mae", "hfe", "mssim"),
         help=(
             "Weights for image losses: Mean squared error, Mean absolute error, Mean "
             "High Frequency Error (HFE), and Multi-Scale Structural Similarity (MSSIM). "
             "HFE is the mean absolute error of the x and y gradients of the image. It "
-            "emphasizes edges. MSSIM is the geometric average of the similarity of means, "
-            "similarity of standard deviations, and correlation."
+            "emphasizes edges. MS-SIM is the geometric average of the similarity of "
+            "means, similarity of standard deviations, and correlation."
         ),
     )
     p.add_argument(
         "--autoencoder_adam",
         type=float,
         nargs=3,
+        metavar=("lr", "b1", "b2"),
         default=(0.0001, 0, 0.9),
         help="Adam optimizer learning rate, beta1, beta2 for autoencoder",
     )
@@ -133,17 +136,20 @@ def get_flags():
         "--discriminator_adam",
         type=float,
         nargs=3,
+        metavar=("lr", "b1", "b2"),
         default=(0.0004, 0, 0.9),
         help="Adam optimizer learning rate, beta1, beta2 for discriminator",
     )
     p.add_argument(
         "--lambda_disc",
+        metavar="l",
         type=float,
-        default=0.01,
+        default=0.001,
         help="Weight of discriminative loss on AE objective",
     )
     p.add_argument(
         "--lambda_gradient_penalty",
+        metavar="l",
         type=float,
         default=10,
         help="Weight of 1-lipschitz constraint on discriminator objective",
@@ -209,11 +215,11 @@ def get_flags():
         FLAGS.model_dir += "/"
 
     commit = subprocess.check_output(["git", "describe", "--always"]).strip()
-    print(f"Tensorflow version: {tf.__version__}")
-    print(f"Current Git Commit: {commit}")
+    print("Tensorflow version:", tf.__version__)
+    print("Current Git Commit:", commit)
     print("Flags:")
     for f in FLAGS.__dict__:
-        print(f"\t{f}:{(25-len(f)) * ' '} {FLAGS.__dict__[f]}")
+        print("\t", f, " " * (25 - len(f)) FLAGS.__dict__[f])
     print("\n", flush=True)
 
     if not path.isdir(FLAGS.model_dir):
@@ -287,7 +293,7 @@ def load_model(model_dir, name):
         with open(json, "r") as f:
             model = tf.keras.models.model_from_json(f.read())
         model.load_weights(weights)
-        print(f"model loaded from {model_dir} {name}")
+        print("model loaded from", model_dir, name)
         return model
 
     return None
@@ -318,13 +324,8 @@ def image_losses(img, ae_img, w_mse, w_mae, w_hfe, w_ssim):
         return tf.reduce_mean(tf.abs(dx_img - dx_ae_img) + tf.abs(dy_img - dy_ae_img))
 
     def msssim():
-        s = tf.image.ssim_multiscale(
-            img,
-            ae_img,
-            max_val=5,
-            # BUG why does it work on only these weights?
-            power_factors=[1, 1, 1],
-        )
+        # BUG why does it work on only these power factors?
+        s = tf.image.ssim_multiscale(img, ae_img, max_val=5, power_factors=[1, 1, 1])
         return 1 - tf.reduce_mean(s)
 
     mse = lambda: tf.reduce_mean((img - ae_img) ** 2)
@@ -381,7 +382,7 @@ if __name__ == "__main__":
                     block_len=FLAGS.block_len,
                     scale=FLAGS.scale,
                 )
-        if FLAGS.num_gpu:
+        if FLAGS.num_gpu > 1:
             encoder = tf.keras.utils.multi_gpu_model(encoder, FLAGS.num_gpu)
             decoder = tf.keras.utils.multi_gpu_model(decoder, FLAGS.num_gpu)
 
@@ -395,7 +396,7 @@ if __name__ == "__main__":
         z, latent_mean, latent_logvar = encoder(noised_img)
         ae_img = decoder(z)
         with tf.name_scope("kl_div"):
-            kl_div = -0.5 * tf.reduce_sum(
+            kl_div = -0.5 * tf.reduce_mean(
                 1 + latent_logvar - latent_mean ** 2 - tf.exp(latent_logvar)
             )
             tf.summary.scalar("kl_div", kl_div)
@@ -427,7 +428,7 @@ if __name__ == "__main__":
                 disc = load_model(FLAGS.model_dir, "disc")
                 if not disc:
                     disc = models.discriminator(shape, FLAGS.n_blocks)
-            if FLAGS.num_gpu:
+            if FLAGS.num_gpu > 1:
                 disc = tf.keras.utils.multi_gpu_model(disc, FLAGS.num_gpu)
 
         z_noise = tf.random_normal(z.shape)
@@ -468,7 +469,7 @@ if __name__ == "__main__":
         # Set input height / width to None so Keras doesn't complain
         inp_shape = None, None, 3
         per = our_models.classifier(inp_shape)
-        if FLAGS.num_gpu:
+        if FLAGS.num_gpu > 1:
             per = tf.keras.utils.multi_gpu_model(per, FLAGS.num_gpu)
         with tf.name_scope("perceptual_loss"):
             pi = per(cmap(img))
