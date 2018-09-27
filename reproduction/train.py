@@ -219,7 +219,7 @@ def get_flags():
     print("Current Git Commit:", commit)
     print("Flags:")
     for f in FLAGS.__dict__:
-        print("\t", f, " " * (25 - len(f)) FLAGS.__dict__[f])
+        print("\t", f, " " * (25 - len(f)), FLAGS.__dict__[f])
     print("\n", flush=True)
 
     if not path.isdir(FLAGS.model_dir):
@@ -351,6 +351,8 @@ if __name__ == "__main__":
         FLAGS.read_threads,
         FLAGS.shuffle_buffer_size,
         FLAGS.prefetch,
+        not FLAGS.no_augment_flip,
+        not FLAGS.no_augment_rotate,
     )
     shape = FLAGS.shape
 

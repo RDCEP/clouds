@@ -60,10 +60,10 @@ def tfr_parser_fn(fields, meta_json, saved_as_bytes=True):
 def load_data(
     data_glob,
     shape,
-    batch_size,
-    read_threads,
-    shuffle_buffer_size,
-    prefetch,
+    batch_size=32,
+    read_threads=4,
+    shuffle_buffer_size=1000,
+    prefetch=1,
     flips=True,
     rotate=False,
 ):
@@ -129,3 +129,5 @@ def add_pipeline_cli_arguments(p):
         help="Size of prefetch buffers in dataset pipeline",
     )
     p.add_argument("--shuffle_buffer_size", type=int, default=10000)
+    p.add_argument("--no_augment_flip", action="store_true", default=False)
+    p.add_argument("--no_augment_rotate", action="store_true", default=False)

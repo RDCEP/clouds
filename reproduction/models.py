@@ -134,7 +134,7 @@ def autoencoder(
     else:
         encoder = Model(inp, x)
 
-        # Decoder
+    # Decoder
     x = inp = Input(x.shape[1:], name="decoder_input")
     for i in range(n_blocks - 1, -1, -1):
         with tf.variable_scope("decoding_%d" % i):
@@ -151,14 +151,18 @@ def autoencoder(
     return encoder, decoder
 
 
-def discriminator(shape, n_layers=3):
+def discriminator(shape, n_layers=3, base=8, nonlinearity=LeakyReLU):
     """Image -> probability network
     """
     x = inp = Input(shape=shape, name="disc_input")
 
     for i in range(n_layers):
-        depth = 32 * 2 ** i
-        resblocks(x, depth, 1, nonlinearity=LeakyReLU)
+        depth = base * 2 ** i
+        x = Conv2D(depth, 3, 2, padding="same")(x)
+        x = nonlinearity()(x)
+        x = Conv2D(depth, 3, padding="same")(x)
+        x = nonlinearity()(x)
+        x = BatchNormalization()(x)
 
     x = Conv2D(1, 1)(x)
     x = GlobalAveragePooling2D()(x)
