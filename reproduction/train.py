@@ -525,7 +525,9 @@ if __name__ == "__main__":
                 sess.run(train_ops, options=run_opts, run_metadata=run_metadata)
 
                 if s % FLAGS.summary_every == 0:
-                    summary = sess.run(summary_op, options=run_opts, run_metadata=run_metadata)
+                    summary = sess.run(
+                        summary_op, options=run_opts, run_metadata=run_metadata
+                    )
                     total_step = e * FLAGS.steps_per_epoch + s
 
                     summary_writer.add_run_metadata(run_metadata, "step%d" % total_step)

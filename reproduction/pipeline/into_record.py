@@ -102,7 +102,7 @@ def write_patches(rank, patches, out_dir, patches_per_record):
     print("Rank", rank, "wrote", i + 1, "patches")
 
 
-def get_args():
+def get_args(verbose=False):
     p = ArgumentParser(
         formatter_class=ArgumentDefaultsHelpFormatter,
         description="Turns tif or hdf data into tfrecords. TODO better description.",
@@ -151,21 +151,20 @@ def get_args():
     )
 
     FLAGS = p.parse_args()
-
-    for f in FLAGS.__dict__:
-        print("\t", f, (25 - len(f)) * " ", FLAGS.__dict__[f])
-    print("\n")
+    if verbose:
+        for f in FLAGS.__dict__:
+            print("\t", f, (25 - len(f)) * " ", FLAGS.__dict__[f])
+        print("\n")
 
     FLAGS.out_dir = os.path.abspath(FLAGS.out_dir)
     return FLAGS
 
 
 if __name__ == "__main__":
-    FLAGS = get_args()
-
     comm = MPI.COMM_WORLD
     size = comm.Get_size()
     rank = comm.Get_rank()
+    FLAGS = get_args(verbose=not rank)
     os.makedirs(FLAGS.out_dir, exist_ok=True)
 
     targets = []

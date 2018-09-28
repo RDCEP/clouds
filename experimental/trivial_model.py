@@ -7,9 +7,7 @@ from tqdm import trange
 from osgeo import gdal
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
-from reproduction.pipeline.load import add_pipeline_cli_arguments
-#from reproduction.pipeline.load import preprocessed_pipeline
-from reproduction.pipeline.load import load_data
+from reproduction.pipeline.load import add_pipeline_cli_arguments, load_data
 
 
 def read_patches(files, height, width):

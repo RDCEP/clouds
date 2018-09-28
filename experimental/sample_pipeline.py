@@ -8,6 +8,7 @@ from IPython import embed  # DEBUG
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 from reproduction.pipeline.load import add_pipeline_cli_arguments, load_data
+from reproduction.analysis import sample_dataset
 
 
 def get_args():
@@ -19,17 +20,6 @@ def get_args():
     p.add_argument("--n_samples", type=int, default=64)
     add_pipeline_cli_arguments(p)
     return p.parse_args()
-
-
-def sample_dataset(dataset, n):
-    batch = dataset.make_one_shot_iterator().get_next()
-    samples = []
-    with tf.Session() as sess:
-        while len(samples) < n:
-            names, coords, imgs = sess.run(batch)
-            samples.extend(zip(names, coords, imgs))
-    samples = samples[:n]
-    return samples
 
 
 def plot_samples(samples, fields, width=3):

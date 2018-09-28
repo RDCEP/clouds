@@ -80,18 +80,22 @@ parser.add_argument(
     action="store",
     dest="keras_split_model",
     type=bool,
-    default=True
+    default=True,
 )
 parser.add_argument(
     "-keras_model_arch",
     action="store",
     dest="keras_model_arch",
     type=str,
-    default="ae.json"
+    default="ae.json",
 )
 
 parser.add_argument(
-    "-output_model_file", action="store", dest="output_model_file", type=str, default="ae.pb"
+    "-output_model_file",
+    action="store",
+    dest="output_model_file",
+    type=str,
+    default="ae.pb",
 )
 parser.add_argument(
     "-output_graphdef_file",
@@ -157,7 +161,7 @@ try:
     # print(weight_file_path)
     if FLAGS.keras_split_model == True:
         # Use keras model with architecture split in h5 and json files
-        with open(str(Path(FLAGS.input_fld) / FLAGS.keras_model_arch), 'r') as f:
+        with open(str(Path(FLAGS.input_fld) / FLAGS.keras_model_arch), "r") as f:
             net_model = model_from_json(f.read())
         net_model.load_weights(str(Path(FLAGS.input_fld) / FLAGS.keras_model_weights))
 
@@ -181,7 +185,9 @@ pred = [None] * num_output
 pred_node_names = [None] * num_output
 for i in range(num_output):
     pred_node_names[i] = FLAGS.output_node_prefix + str(i)
-    pred[i] = tf.identity(net_model.outputs[i], name=pred_node_names[i]) #old :  net_model.layers[i].output
+    pred[i] = tf.identity(
+        net_model.outputs[i], name=pred_node_names[i]
+    )  # old :  net_model.layers[i].output
 print("output nodes names are: ", pred_node_names)
 
 
