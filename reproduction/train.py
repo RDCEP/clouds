@@ -499,6 +499,8 @@ if __name__ == "__main__":
             f.write(save_models[m].to_json())
 
     summary_op = tf.summary.merge_all()
+    run_metadata = tf.RunMetadata()
+    run_opts = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
 
     print("Training...", flush=True)
     with tf.Session(
@@ -506,10 +508,7 @@ if __name__ == "__main__":
             gpu_options=tf.GPUOptions(allow_growth=True), log_device_placement=True
         )
     ) as sess:
-        run_opts = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
-        run_metadata = tf.RunMetadata()
         profiler = Profiler(sess.graph)
-
         sess.run(
             tf.global_variables_initializer(),
             options=run_opts,
@@ -527,9 +526,11 @@ if __name__ == "__main__":
                 sess.run(train_ops, options=run_opts, run_metadata=run_metadata)
 
                 if s % FLAGS.summary_every == 0:
+                    summary = sess.run(summary_op, options=run_opts, run_metadata=run_metadata)
                     total_step = e * FLAGS.steps_per_epoch + s
+
                     summary_writer.add_run_metadata(run_metadata, "step%d" % total_step)
-                    summary_writer.add_summary(sess.run(summary_op), total_step)
+                    summary_writer.add_summary(summary, total_step)
                     summary_writer.flush()
                     profiler.add_step(total_step, run_metadata)
                     timeline_json = path.join(FLAGS.model_dir, "timelines", "t.json")
