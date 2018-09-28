@@ -418,8 +418,7 @@ if __name__ == "__main__":
     tf.summary.image("original", cimg, FLAGS.display_imgs)
     tf.summary.image("autoencoded", camg, FLAGS.display_imgs)
     tf.summary.image("difference", cimg - camg, FLAGS.display_imgs)
-    save_models = {"encoder": encoder}
-    save_models = {"decoder": decoder}
+    save_models = {"encoder": encoder, "decoder": decoder}
 
     optimizer = tf.train.AdamOptimizer()  # TODO flag
     train_ops = []
