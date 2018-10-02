@@ -21,7 +21,7 @@ class AEData:
     fields      names for each of the channels in imgs
     """
 
-    def __init__(self, dataset, ae, fields, n=500):
+    def __init__(self, dataset, ae=None, fields=None, n=500):
         # get data from dataset
         names, coords, imgs = [], [], []
         batch = dataset.make_one_shot_iterator().get_next()
@@ -34,11 +34,21 @@ class AEData:
 
         self.names = np.array([str(n)[2:-1] for n in names])
         self.coords, self.imgs = np.stack(coords[:n]), np.stack(imgs[:n])
+        self.fields = fields if fields else ["b%d"%(i+1) for i in range(self.imgs.shape[-1])]
+
+        if ae is not None:
+            self.compute_encodings(ae)
+            self.compute_pca()
+
+    def compute_ae(self, ae):
         self.raw_encs, self.ae_imgs = ae.predict(self.imgs)
         self.encs = self.raw_encs.mean(axis=(1, 2))
-        self.fields = fields
+        self.ae = ae
 
-        # compute eigenvalues and vectors for PCA projection
+    def compute_pca(self):
+        if not hasattr(self, "encs"):
+            raise ValueError("Need to have encoded vectors to compute pca")
+
         centered = self.encs - self.encs.mean(axis=0)
         cov = centered.transpose().dot(centered) / centered.shape[0]
         evals, evecs = np.linalg.eigh(cov)
@@ -48,6 +58,8 @@ class AEData:
         self._evecs = evecs
 
     def pca_project(self, x, d=3):
+        if not hasattr(self, "_evecs"):
+            self.compute_pca()
         centered = x.encs - self._evals
         if isinstance(d, list):
             return centered.dot(self._evecs[:, d]).transpose()
@@ -148,6 +160,23 @@ def sample_dataset(dataset, n):
     return samples
 
 
+def cmap_and_normalize(imgs, reds = [1, 4, 5, 6], greens = [0], blues = [2, 3]):
+    if len(imgs.shape) == 3:
+        imgs = np.expand_dims(imgs, 0)
+
+    ii = np.stack([imgs[:,:,:,col].mean(axis=3) for col in (reds, greens, blues)], axis=3)
+
+    colors = []
+    for col in (reds, greens, blues):
+        ii = imgs[:, :, :, col].mean(axis=3)
+        ii = np.clip(ii, *np.percentile(ii, [0, 99]))
+        ii /= (ii.max() - ii.min())
+        ii -= ii.min()
+        colors.append(ii)
+
+    return np.stack(colors, axis=3)
+
+
 def plot_cluster_channel_distributions(imgs, labels, fields=None, width=3):
     """Plot histograms of channel values for each cluster.
     """
@@ -177,7 +206,7 @@ def plot_cluster_channel_distributions(imgs, labels, fields=None, width=3):
     return fig, ax
 
 
-def plot_cluster_samples(imgs, labels, samples=8, width=3, channel=0):
+def plot_cluster_samples(imgs, labels, samples=8, width=3):
     n_clusters = len(set(labels))
 
     # TODO use 1 axis and manually do subplots because its faster
@@ -198,17 +227,10 @@ def plot_cluster_samples(imgs, labels, samples=8, width=3, channel=0):
         else:
             choices = [(j, j) for j in range(n)]
         for j, k in choices:
-            img = imgs[labels == i]
-            ax[j, i].imshow(img[k, :, :, channel], cmap="bone")
+            img = imgs[labels == i][k]
+            ax[j, i].imshow(img, cmap="bone")
 
     return fig, ax
-
-
-def plot_cluster_samples_fast(imgs, labels, samples=8, width=3, channel=0):
-    n_clusters = len(set(labels))
-    fig, ax = plt.subplots(1, 1, figsize=(width * n_clusters, width * samples))
-    img_height, img_width = imgs.shape[1:3]
-    canvas = np.zeros((n_clusters * img_width, samples * img_height))
 
 
 def plot_all_cluster_samples(imgs, labels, order=None, samples=None, width=2):
@@ -310,4 +332,4 @@ def _dict_to_named_tuple(name, d):
 def get_tif_metadata(tif_file, as_dict=False):
     s = subprocess.check_output(["gdalinfo", "-json", tif_file])
     j = json.loads(s)
-    return j if as_dict else _to_named_tuple("tif_metadata", j)
+    return j if as_dict else _dict_to_named_tuple("tif_metadata", j)

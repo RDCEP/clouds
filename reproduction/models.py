@@ -40,14 +40,24 @@ def residual_add(x, r):
         import tensorflow as tf
 
         x, r = args
-        _, h, w, c = x.shape
+        r_shape = tf.shape(r)
+        x_shape = tf.shape(x)
 
-        if r.shape[3] > c:
-            r = r[:, :, :, :c]
-        if r.shape[3] < c:
-            r = tf.pad(r, [[0, 0], [0, 0], [0, 0], [0, c - r.shape[3]]])
-        if r.shape[1:3] != [h, w]:
-            r = tf.image.resize_bilinear(r, x.shape[1:3])
+        r = tf.cond(
+            tf.greater(r_shape[3], x_shape[3]),
+            lambda: r[:, :, :, :x_shape[3]],
+            lambda: r
+        )
+        r = tf.cond(
+            tf.less(r_shape[3], x_shape[3]),
+            lambda: tf.pad(r, [[0, 0], [0, 0], [0, 0], [0, x_shape[3] - r_shape[3]]]),
+            lambda: r
+        )
+        r = tf.cond(
+            tf.reduce_any(tf.not_equal(r_shape[1:3], x_shape[1:3])),
+            lambda: tf.image.resize_bilinear(r, x_shape[1:3]),
+            lambda: r
+        )
 
         return x + r
 
@@ -102,12 +112,12 @@ def scale_change_block(x, depth, nonlinearity, down, scale=2):
 
 def autoencoder(
     shape,
-    n_blocks,
-    base,
-    batchnorm,
-    variational,
+    n_blocks=4,
+    base=16,
+    batchnorm=True,
+    variational=False,
     dense=False,
-    block_len=1,
+    block_len=0,
     nonlinearity=LeakyReLU,
     scale=2,
 ):
