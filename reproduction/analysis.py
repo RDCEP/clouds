@@ -34,7 +34,9 @@ class AEData:
 
         self.names = np.array([str(n)[2:-1] for n in names])
         self.coords, self.imgs = np.stack(coords[:n]), np.stack(imgs[:n])
-        self.fields = fields if fields else ["b%d"%(i+1) for i in range(self.imgs.shape[-1])]
+        self.fields = (
+            fields if fields else ["b%d" % (i + 1) for i in range(self.imgs.shape[-1])]
+        )
 
         if ae is not None:
             self.compute_encodings(ae)
@@ -160,17 +162,19 @@ def sample_dataset(dataset, n):
     return samples
 
 
-def cmap_and_normalize(imgs, reds = [1, 4, 5, 6], greens = [0], blues = [2, 3]):
+def cmap_and_normalize(imgs, reds=[1, 4, 5, 6], greens=[0], blues=[2, 3]):
     if len(imgs.shape) == 3:
         imgs = np.expand_dims(imgs, 0)
 
-    ii = np.stack([imgs[:,:,:,col].mean(axis=3) for col in (reds, greens, blues)], axis=3)
+    ii = np.stack(
+        [imgs[:, :, :, col].mean(axis=3) for col in (reds, greens, blues)], axis=3
+    )
 
     colors = []
     for col in (reds, greens, blues):
         ii = imgs[:, :, :, col].mean(axis=3)
         ii = np.clip(ii, *np.percentile(ii, [0, 99]))
-        ii /= (ii.max() - ii.min())
+        ii /= ii.max() - ii.min()
         ii -= ii.min()
         colors.append(ii)
 

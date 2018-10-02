@@ -383,6 +383,7 @@ if __name__ == "__main__":
                     variational=FLAGS.variational,
                     block_len=FLAGS.block_len,
                     scale=FLAGS.scale,
+                    data_format="channels_last",
                 )
         if FLAGS.num_gpu > 1:
             encoder = tf.keras.utils.multi_gpu_model(encoder, FLAGS.num_gpu)
@@ -391,7 +392,6 @@ if __name__ == "__main__":
     with tf.name_scope("noise"):
         noised_img = add_noise(img, FLAGS.salt_pepper, FLAGS.gaussian_noise)
         if noised_img is not img:
-            print("noised_img", noised_img)
             tf.summary.image("noised_image", cmap(noised_img), FLAGS.display_imgs)
 
     if FLAGS.variational:

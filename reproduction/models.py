@@ -5,19 +5,19 @@ import tensorflow.keras.applications as pretrained
 import numpy as np
 
 
-def sample_variational(x, depth, dense, nonlinearity):
+def sample_variational(x, depth, dense, nonlinearity, data_format):
     if dense:
         sh = x.shape.as_list()[1:]
         x = Flatten()(x)
         mn = Dense(depth, name="latent_mean")(x)
         lv = Dense(depth, name="latent_log_var", kernel_initializer="zeros")(x)
     else:
-        mn = Conv2D(depth, 1)(x)
+        mn = Conv2D(depth, 1, data_format=data_format)(x)
         mn = nonlinearity()(mn)
-        mn = Conv2D(depth, 1)(mn)
-        lv = Conv2D(depth, 1)(x)
+        mn = Conv2D(depth, 1, data_format=data_format)(mn)
+        lv = Conv2D(depth, 1, data_format=data_format)(x)
         lv = nonlinearity()(lv)
-        lv = Conv2D(depth, 1)(lv)
+        lv = Conv2D(depth, 1, data_format=data_format)(lv)
 
     x = Lambda(
         lambda arg: tf.random_normal(arg[0].shape[1:]) * tf.exp(arg[1] / 2) + arg[0],
@@ -31,32 +31,41 @@ def sample_variational(x, depth, dense, nonlinearity):
     return mn, lv, x
 
 
-def residual_add(x, r):
+def residual_add(x, r, data_format):
     """Adds `r` to `x` reshaping `r` and zero_padding extra dimensions.
     """
 
     def fn(args):
-        # HACK: will fail when reloading model without reloading tensorflow here.
+        # NOTE: Need to reimport tensorflow for when model is reloaded.
         import tensorflow as tf
 
         x, r = args
-        r_shape = tf.shape(r)
-        x_shape = tf.shape(x)
+        r_shape, x_shape = tf.shape(r), tf.shape(x)
 
+        if data_format == "channels_last":
+            r_c, x_c = r_shape[3], x_shape[3]
+            r_hw, x_hw = r_shape[1:3], x_shape[1:3]
+
+        elif data_format == "channels_first":
+            r_c, x_c = r_shape[1], x_shape[1]
+            r_hw, x_hw = r_shape[2:4], x_shape[2:4]
+
+        else:
+            raise ValueError(
+                "Unknown data_format `%s` not `channels_last` nor `channels_first`."
+                % data_format
+            )
+
+        r = tf.cond(tf.greater(r_c, x_c), lambda: r[:, :, :, :x_c], lambda: r)
         r = tf.cond(
-            tf.greater(r_shape[3], x_shape[3]),
-            lambda: r[:, :, :, :x_shape[3]],
-            lambda: r
+            tf.less(r_c, x_c),
+            lambda: tf.pad(r, [[0, 0], [0, 0], [0, 0], [0, x_c - r_c]]),
+            lambda: r,
         )
         r = tf.cond(
-            tf.less(r_shape[3], x_shape[3]),
-            lambda: tf.pad(r, [[0, 0], [0, 0], [0, 0], [0, x_shape[3] - r_shape[3]]]),
-            lambda: r
-        )
-        r = tf.cond(
-            tf.reduce_any(tf.not_equal(r_shape[1:3], x_shape[1:3])),
-            lambda: tf.image.resize_bilinear(r, x_shape[1:3]),
-            lambda: r
+            tf.reduce_any(tf.not_equal(r_hw, x_hw)),
+            lambda: tf.image.resize_bilinear(r, x_hw),
+            lambda: r,
         )
 
         return x + r
@@ -64,50 +73,52 @@ def residual_add(x, r):
     return Lambda(fn)([x, r])
 
 
-def resblock(x, depth, nonlinearity):
+def resblock(x, depth, nonlinearity, data_format):
     r = x
     if depth >= 256:
-        x = Conv2D(depth // 4, 1)(x)
+        x = Conv2D(depth // 4, 1, data_format=data_format)(x)
         x = nonlinearity()(x)
-        x = Conv2D(depth, 3, padding="same")(x)
+        x = Conv2D(depth, 3, padding="same", data_format=data_format)(x)
         x = nonlinearity()(x)
-        x = Conv2D(depth, 1)(x)
+        x = Conv2D(depth, 1, data_format=data_format)(x)
     else:
-        x = Conv2D(depth, 3, padding="same")(x)
+        x = Conv2D(depth, 3, padding="same", data_format=data_format)(x)
         x = nonlinearity()(x)
-        x = Conv2D(depth, 3, padding="same")(x)
+        x = Conv2D(depth, 3, padding="same", data_format=data_format)(x)
         x = nonlinearity()(x)
 
-    return residual_add(x, r)
+    return residual_add(x, r, data_format)
 
 
-def resblocks(x, depth, blocks, nonlinearity, cardinality=1):
+def resblocks(x, depth, blocks, nonlinearity, data_format, cardinality=1):
     """Repeatedly applies resblock, supports ResNeXT caridnality
     would be faster if there were grouped convolution ops in tf.
     """
     if cardinality == 1:
         for _ in range(blocks):
-            x = resblock(x, depth, nonlinearity)
+            x = resblock(x, depth, nonlinearity, data_format)
     else:
         lanes = []
         for _ in range(cardinality):
             b = x
             for _ in range(blocks):
-                b = resblock(b, depth, nonlinearity)
+                b = resblock(b, depth, nonlinearity, data_format)
             lanes.append(b)
         x = Add()(lanes)
 
     return x
 
 
-def scale_change_block(x, depth, nonlinearity, down, scale=2):
+def scale_change_block(
+    x, depth, nonlinearity, down, scale=2, data_format="channels_first"
+):
     r = x
     _conv = Conv2D if down else Conv2DTranspose
-    x = _conv(depth, max(3, scale), scale, padding="same")(x)
+    x = _conv(depth, max(3, scale), scale, padding="same", data_format=data_format)(x)
     x = nonlinearity()(x)
-    x = Conv2D(depth, 3, padding="same")(x)
+    x = Conv2D(depth, 3, padding="same", data_format=data_format)(x)
     x = nonlinearity()(x)
-    return residual_add(x, r)
+    return residual_add(x, r, data_format)
 
 
 def autoencoder(
@@ -120,26 +131,30 @@ def autoencoder(
     block_len=0,
     nonlinearity=LeakyReLU,
     scale=2,
+    data_format="channels_first",
 ):
     """Returns an encoder model and a decoder model.
     """
     # Encoder
     x = inp = Input(shape=shape, name="encoder_input")
-    x = Conv2D(base, 3, padding="same")(x)
+
+    x = Conv2D(base, 3, padding="same", data_format=data_format)(x)
     x = nonlinearity()(x)
-    x = resblocks(x, base, block_len, nonlinearity)
+    x = resblocks(x, base, block_len, nonlinearity, data_format)
     for i in range(n_blocks):
         with tf.variable_scope("encoding_%d" % i):
             depth = base * 2 ** i
             # Half image size
-            x = scale_change_block(x, depth, nonlinearity, down=True, scale=scale)
-            x = resblocks(x, depth, block_len, nonlinearity)
+            x = scale_change_block(
+                x, depth, nonlinearity, down=True, scale=scale, data_format=data_format
+            )
+            x = resblocks(x, depth, block_len, nonlinearity, data_format=data_format)
             if batchnorm:
                 x = BatchNormalization()(x)
 
     if variational:
         with tf.variable_scope("sample_variational"):
-            mn, lv, x = sample_variational(x, depth, dense, nonlinearity)
+            mn, lv, x = sample_variational(x, depth, dense, nonlinearity, data_format)
         encoder = Model(inp, [x, mn, lv], name="encoder")
     else:
         encoder = Model(inp, x)
@@ -150,31 +165,35 @@ def autoencoder(
         with tf.variable_scope("decoding_%d" % i):
             depth = base * 2 ** i
             # Double Image size
-            x = scale_change_block(x, depth, nonlinearity, down=False, scale=scale)
-            x = resblocks(x, depth, block_len, nonlinearity)
+            x = scale_change_block(
+                x, depth, nonlinearity, down=False, scale=scale, data_format=data_format
+            )
+            x = resblocks(x, depth, block_len, nonlinearity, data_format=data_format)
             if batchnorm:
                 x = BatchNormalization()(x)
 
-    x = Conv2D(shape[-1], 1, name="reconstructed")(x)
+    x = Conv2D(shape[-1], 1, name="reconstructed", data_format=data_format)(x)
     decoder = Model(inp, x, name="decoder")
 
     return encoder, decoder
 
 
-def discriminator(shape, n_layers=3, base=8, nonlinearity=LeakyReLU):
+def discriminator(
+    shape, n_layers=3, base=8, nonlinearity=LeakyReLU, data_format="channels_first"
+):
     """Image -> probability network
     """
     x = inp = Input(shape=shape, name="disc_input")
 
     for i in range(n_layers):
         depth = base * 2 ** i
-        x = Conv2D(depth, 3, 2, padding="same")(x)
+        x = Conv2D(depth, 3, 2, padding="same", data_format=data_format)(x)
         x = nonlinearity()(x)
-        x = Conv2D(depth, 3, padding="same")(x)
+        x = Conv2D(depth, 3, padding="same", data_format=data_format)(x)
         x = nonlinearity()(x)
         x = BatchNormalization()(x)
 
-    x = Conv2D(1, 1)(x)
+    x = Conv2D(1, 1, data_format=data_format)(x)
     x = GlobalAveragePooling2D()(x)
 
     return Model(inp, x)
