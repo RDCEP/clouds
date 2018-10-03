@@ -30,6 +30,12 @@ def get_flags():
     pipeline.add_pipeline_cli_arguments(p)
 
     p.add_argument(
+        "--channel_order",
+        choices=["channels_last", "channels_first"],
+        default="channels_last",
+    )
+
+    p.add_argument(
         "--gaussian_noise",
         type=float,
         metavar="stdev",
@@ -358,6 +364,11 @@ if __name__ == "__main__":
 
     _, _, img = dataset.make_one_shot_iterator().get_next()
 
+    if FLAGS.channel_order == "channels_first":
+        img = tf.transpose(img, perm=[0, 3, 1, 2])
+        shape = shape[2], * shape[:2]
+        print("sh", shape)
+
     # Colormap object maps our channels to normal rgb channels
     cmap = ColorMap(FLAGS.red_bands, FLAGS.green_bands, FLAGS.blue_bands)
 
@@ -383,7 +394,7 @@ if __name__ == "__main__":
                     variational=FLAGS.variational,
                     block_len=FLAGS.block_len,
                     scale=FLAGS.scale,
-                    data_format="channels_last",
+                    data_format=FLAGS.channel_order,
                 )
         if FLAGS.num_gpu > 1:
             encoder = tf.keras.utils.multi_gpu_model(encoder, FLAGS.num_gpu)
@@ -393,6 +404,9 @@ if __name__ == "__main__":
         noised_img = add_noise(img, FLAGS.salt_pepper, FLAGS.gaussian_noise)
         if noised_img is not img:
             tf.summary.image("noised_image", cmap(noised_img), FLAGS.display_imgs)
+
+    encoder.summary()
+    decoder.summary()
 
     if FLAGS.variational:
         z, latent_mean, latent_logvar = encoder(noised_img)

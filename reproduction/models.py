@@ -1,8 +1,10 @@
+import numpy as np
 import tensorflow as tf
+import tensorflow.keras.applications as pretrained
+
+from functools import partial
 from tensorflow.python.keras.layers import *
 from tensorflow.python.keras.models import Model, Sequential
-import tensorflow.keras.applications as pretrained
-import numpy as np
 
 
 def sample_variational(x, depth, dense, nonlinearity, data_format):
@@ -36,8 +38,6 @@ def residual_add(x, r, data_format):
     """
 
     def fn(args):
-        # NOTE: Need to reimport tensorflow for when model is reloaded.
-        import tensorflow as tf
 
         x, r = args
         r_shape, x_shape = tf.shape(r), tf.shape(x)
@@ -46,26 +46,33 @@ def residual_add(x, r, data_format):
             r_c, x_c = r_shape[3], x_shape[3]
             r_hw, x_hw = r_shape[1:3], x_shape[1:3]
 
+            zero_pad_channel = lambda r: tf.pad(
+                r, [[0, 0], [0, 0], [0, 0], [0, x_c - r_c]]
+            )
+            slice_channel = lambda r: r[:, :, :, :x_c]
+            resize = lambda r: tf.image.resize_bilinear(r, x_hw)
+
         elif data_format == "channels_first":
             r_c, x_c = r_shape[1], x_shape[1]
             r_hw, x_hw = r_shape[2:4], x_shape[2:4]
 
-        else:
-            raise ValueError(
-                "Unknown data_format `%s` not `channels_last` nor `channels_first`."
-                % data_format
-            )
+            def zero_pad_channel(r):
+                return tf.pad(r, [[0, 0], [0, x_c - r_c], [0, 0], [0, 0]])
 
-        r = tf.cond(tf.greater(r_c, x_c), lambda: r[:, :, :, :x_c], lambda: r)
+            slice_channel = lambda r: r[:, :x_c]
+
+            def resize(r):
+                r = tf.transpose(r, [0, 3, 1, 2])
+                r = tf.image.resize_bilinear(r, x_hw)
+                return tf.transpose(r, [0, 3, 1, 2])
+
+        else:
+            raise ValueError("Invalid data_format: `%s`" % data_format)
+
+        r = tf.cond(tf.greater(r_c, x_c), partial(slice_channel, r), lambda: r)
+        r = tf.cond(tf.less(r_c, x_c), partial(zero_pad_channel, r), lambda: r)
         r = tf.cond(
-            tf.less(r_c, x_c),
-            lambda: tf.pad(r, [[0, 0], [0, 0], [0, 0], [0, x_c - r_c]]),
-            lambda: r,
-        )
-        r = tf.cond(
-            tf.reduce_any(tf.not_equal(r_hw, x_hw)),
-            lambda: tf.image.resize_bilinear(r, x_hw),
-            lambda: r,
+            tf.reduce_any(tf.not_equal(r_hw, x_hw)), partial(resize, r), lambda: r
         )
 
         return x + r
@@ -172,7 +179,8 @@ def autoencoder(
             if batchnorm:
                 x = BatchNormalization()(x)
 
-    x = Conv2D(shape[-1], 1, name="reconstructed", data_format=data_format)(x)
+    input_channels = shape[0] if data_format == "channels_first" else shape[2]
+    x = Conv2D(input_channels, 1, name="reconstructed", data_format=data_format)(x)
     decoder = Model(inp, x, name="decoder")
 
     return encoder, decoder
