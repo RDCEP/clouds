@@ -2,7 +2,6 @@ import numpy as np
 import tensorflow as tf
 import tensorflow.keras.applications as pretrained
 
-from functools import partial
 from tensorflow.python.keras.layers import *
 from tensorflow.python.keras.models import Model, Sequential
 
@@ -38,9 +37,12 @@ def residual_add(x, r, data_format):
     """
 
     def fn(args):
+        # NOTE need to reimport to successfully reload models
+        import tensorflow as tf
+        from functools import partial
 
         x, r = args
-        r_shape, x_shape = tf.shape(r), tf.shape(x)
+        x_shape, r_shape = tf.shape(x), tf.shape(r)
 
         if data_format == "channels_last":
             r_c, x_c = r_shape[3], x_shape[3]

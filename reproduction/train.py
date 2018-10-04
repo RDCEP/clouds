@@ -386,6 +386,7 @@ if __name__ == "__main__":
             encoder = load_model(FLAGS.model_dir, "encoder")
             decoder = load_model(FLAGS.model_dir, "decoder")
             if not encoder or not decoder:
+                print("Defining New encoder and decoder.")
                 encoder, decoder = models.autoencoder(
                     shape=shape,
                     base=FLAGS.base_dim,
