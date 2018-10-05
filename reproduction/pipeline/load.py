@@ -128,6 +128,6 @@ def add_pipeline_cli_arguments(p):
         default=1,
         help="Size of prefetch buffers in dataset pipeline",
     )
-    p.add_argument("--shuffle_buffer_size", type=int, default=10000)
+    p.add_argument("--shuffle_buffer_size", type=int, default=1000)
     p.add_argument("--no_augment_flip", action="store_true", default=False)
     p.add_argument("--no_augment_rotate", action="store_true", default=False)
