@@ -1,5 +1,5 @@
 #!/bin/sh
-#SBATCH --job-name=mod09cnn15
+#SBATCH --job-name=mod9aae2
 #SBATCH --partition=gpu2
 #SBATCH --output=%x_%A.out
 #SBATCH --error=%x_%A.err
@@ -25,6 +25,8 @@ python reproduction/train.py $MODEL_PATH \
     --block_len 0 \
     --batchnorm \
     --read_threads 16 \
+    --no_augment_rotate \
     --shuffle_buffer_size 1000 \
     --image_loss_weights 1 1 1 1 \
-    --no_augment_rotate 
+    --lambda_disc 0.00001 \
+    --adversarial
