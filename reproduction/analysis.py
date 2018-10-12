@@ -7,6 +7,8 @@ import subprocess
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from scipy.cluster.vq import kmeans
 from collections import namedtuple
+from matplotlib import patches
+from osgeo import gdal
 
 
 class AEData:
@@ -34,12 +36,13 @@ class AEData:
 
         self.names = np.array([str(n)[2:-1] for n in names])
         self.coords, self.imgs = np.stack(coords[:n]), np.stack(imgs[:n])
+        self.colored_imgs = cmap_and_normalize(self.imgs)
         self.fields = (
             fields if fields else ["b%d" % (i + 1) for i in range(self.imgs.shape[-1])]
         )
 
         if ae is not None:
-            self.compute_encodings(ae)
+            self.compute_ae(ae)
             self.compute_pca()
 
     def compute_ae(self, ae):
@@ -58,29 +61,31 @@ class AEData:
         evecs = np.flip(evecs, axis=1)
         self._evals = evals
         self._evecs = evecs
+        self._center = self.encs.mean(axis=0)
 
     def pca_project(self, x, d=3):
         if not hasattr(self, "_evecs"):
             self.compute_pca()
-        centered = x.encs - self._evals
+        centered = x - self._center
         if isinstance(d, list):
             return centered.dot(self._evecs[:, d]).transpose()
         else:
             return centered.dot(self._evecs[:, :d]).transpose()
 
-    def plot_pca_projection(self, x, title="", width=3, c=None):
+    def plot_pca_projection(self, x, title="", width=3, cbar=True, **kwargs):
         pc = self.pca_project(x)
         fig, ax = plt.subplots(ncols=3, nrows=1, figsize=(width * 3 + 2, width))
         for i in range(3):
             j = (i + 1) % 3
             a = ax[i]
-            im = a.scatter(pc[i], pc[j], c=c)
+            im = a.scatter(pc[i], pc[j], **kwargs)
             a.set_xlabel("PC %d" % i)
             a.set_ylabel("PC %d" % j)
 
-        fig.subplots_adjust(right=0.95)
-        cbar_ax = fig.add_axes([0.99, 0.15, 0.01, 0.7])
-        fig.colorbar(im, cax=cbar_ax)
+        if cbar:
+            fig.subplots_adjust(right=0.95)
+            cbar_ax = fig.add_axes([0.99, 0.15, 0.01, 0.7])
+            fig.colorbar(im, cax=cbar_ax)
 
         fig.suptitle(title)
 
@@ -116,12 +121,13 @@ class AEData:
         p, orig = self.open_neighborhood(i, context_width)
 
         _, (a, b) = plt.subplots(1, 2, figsize=(20, 10))
-        a.imshow(data.imgs[i, :, :, 0], cmap="bone")
+        normalization = None  # plt.Normalize(p[0].min(), p[0].max())
+        a.imshow(self.imgs[i, :, :, 0], norm=normalization, cmap="bone")
         b.imshow(p[0], norm=normalization, cmap="bone")
         b.add_patch(
             patches.Rectangle(
                 orig,
-                *data.imgs.shape[1:3],
+                *self.imgs.shape[1:3],
                 linewidth=1,
                 edgecolor="r",
                 facecolor="none",
@@ -162,18 +168,14 @@ def sample_dataset(dataset, n):
     return samples
 
 
-def cmap_and_normalize(imgs, reds=[1, 4, 5, 6], greens=[0], blues=[2, 3]):
+def cmap_and_normalize(imgs, reds=[1, 4, 5, 6], greens=[0], blues=[2, 3], maxper=95):
     if len(imgs.shape) == 3:
         imgs = np.expand_dims(imgs, 0)
-
-    ii = np.stack(
-        [imgs[:, :, :, col].mean(axis=3) for col in (reds, greens, blues)], axis=3
-    )
 
     colors = []
     for col in (reds, greens, blues):
         ii = imgs[:, :, :, col].mean(axis=3)
-        ii = np.clip(ii, *np.percentile(ii, [0, 99]))
+        ii = np.clip(ii, *np.percentile(ii, [0, maxper]))
         ii /= ii.max() - ii.min()
         ii -= ii.min()
         colors.append(ii)
@@ -232,6 +234,8 @@ def plot_cluster_samples(imgs, labels, samples=8, width=3):
             choices = [(j, j) for j in range(n)]
         for j, k in choices:
             img = imgs[labels == i][k]
+            if len(img.shape) > 2 and img.shape[2] != 3:
+                img = img[:, :, 0]
             ax[j, i].imshow(img, cmap="bone")
 
     return fig, ax
