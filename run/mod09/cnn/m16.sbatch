@@ -1,5 +1,5 @@
 #!/bin/sh
-#SBATCH --job-name=mod09cnn15
+#SBATCH --job-name=mod09cnn16
 #SBATCH --partition=gpu2
 #SBATCH --output=%x_%A.out
 #SBATCH --error=%x_%A.err
@@ -17,7 +17,7 @@ DATA='/project/foster/clouds/data/gee/preprocessed/*.tfrecord'
 
 python reproduction/train.py $MODEL_PATH \
     --data $DATA \
-    --base_dim 16 \
+    --base_dim 4 \
     --epochs 100 \
     --steps_per_epoch 5000 \
     --shape 128 128 7 \

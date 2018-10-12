@@ -529,6 +529,15 @@ if __name__ == "__main__":
             run_metadata=run_metadata,
         )
 
+        try:
+            encoder.load_weights(path.join(FLAGS.model_dir, "encoder.h5"))
+            decoder.load_weights(path.join(FLAGS.model_dir, "decoder.h5"))
+            print("Loaded weights")
+
+        except:
+            print("could not load weights")
+
+
         log_dir = path.join(FLAGS.model_dir, "summary")
         tb_graph = sess.graph if not path.exists(log_dir) else None
         summary_writer = tf.summary.FileWriter(log_dir, graph=tb_graph)
