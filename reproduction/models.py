@@ -167,10 +167,21 @@ def autoencoder(
             mn, lv, x = sample_variational(x, depth, dense, nonlinearity, data_format)
         encoder = Model(inp, [x, mn, lv], name="encoder")
     else:
+        if dense:
+            sh = [int(s) for s in x.shape[1:]]
+            x = Flatten()(x)
+            x = Dense(depth)(x)
+            x = nonlinearity()(x)
+
         encoder = Model(inp, x)
 
     # Decoder
     x = inp = Input(x.shape[1:], name="decoder_input")
+    if dense:
+        x = Dense(np.prod(sh))(x)
+        x = nonlinearity()(x)
+        x = Reshape(sh)(x)
+
     for i in range(n_blocks - 1, -1, -1):
         with tf.variable_scope("decoding_%d" % i):
             depth = base * 2 ** i

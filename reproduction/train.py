@@ -101,6 +101,12 @@ def get_flags():
         help="Use a variational autoencoder.",
     )
     p.add_argument(
+        "--dense_ae",
+        default=False,
+        action="store_true",
+        help="Dense connection within the autoencoder (Fixes patch size)."
+    )
+    p.add_argument(
         "--vae_beta",
         default=1.0,
         type=float,
@@ -393,6 +399,7 @@ if __name__ == "__main__":
                     batchnorm=FLAGS.batchnorm,
                     n_blocks=FLAGS.n_blocks,
                     variational=FLAGS.variational,
+                    dense=FLAGS.dense_ae,
                     block_len=FLAGS.block_len,
                     scale=FLAGS.scale,
                     data_format=FLAGS.channel_order,
