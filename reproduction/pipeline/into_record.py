@@ -8,6 +8,8 @@ import numpy as np
 from osgeo import gdal
 from mpi4py import MPI
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from os import path
+from pyhdf.SD import SD, SDC
 
 
 def _int64_feature(value):
@@ -111,11 +113,12 @@ def get_args(verbose=False):
     p.add_argument("out_dir", help="Directory to save results")
     p.add_argument(
         "mode",
-        choices=["tif", "hdf", "pptif"],
+        choices=["tif", "hdf", "pptif", "mod021km"],
         help=(
             "`tif`: Turn whole .tif swath into tfrecord. "
             "`hdf`: Turn .hdf swath into tfrecord (respecting fields). "
             "`pptif`: preprocessed_tif, normalize and patchify a tif file."
+            "`mod021km` : Imports MOD021KM hdf swath and converts selected bands to HDF"
         ),
     )
     p.add_argument(
@@ -123,8 +126,10 @@ def get_args(verbose=False):
         nargs="+",
         help=(
             "This is only used when translating hdf files, it specifies which fields to "
-            "record. If none are provided then all fields are recorded. For tif files, "
-            "all fields are translated as b0..bN and this flag is ignored."
+            "record. If none are provided then all fields are recorded. For MOD021KM files, "
+            "using nomenclarture as: bNNG, where NN is the band number (01 - 36) and G stands"
+            "for gain (L - Low; H - High). For tif files, all fields are translated as b0..bN"
+            "and this flag is ignored."
         ),
     )
     p.add_argument(
@@ -159,6 +164,95 @@ def get_args(verbose=False):
     FLAGS.out_dir = os.path.abspath(FLAGS.out_dir)
     return FLAGS
 
+def normalized_mod02_patches(hdf_file, out_dir, target_fields):
+    """Converts HDF file into a tf record by serializing all fields and	
+    names to a record. Also outputs a json file holding the meta data.	
+    Arguments:	
+        hdf_file: File to convert into a tf record	
+        target_fields: List of specified fields to convert	
+    """
+
+    file = SD(hdf_file, SDC.READ)
+
+    names = (
+        "EV_250_Aggr1km_RefSB",
+        "EV_500_Aggr1km_RefSB",
+        "EV_1KM_RefSB",
+        "EV_1KM_Emissive"
+    )
+
+    #TODO
+    # extract whole swath
+    # rearrange so [height, width, bands (in order)
+    #   generalize to other km labels
+    # normalize swath
+    # extract patches
+
+    fields = [file.select(n)[:] for n in names]
+
+    #Labels for the parsed examples being band number, and eventually gain
+    labels_1km = [["b1", "b2"],
+              ["b3", "b4", "b5", "b6", "b7"],
+              ["b8", "b9", "b10", "b11", "b12", "b13L", "b13H", "b14L", "b14H", "b15", "b16", "b17", "b18", "b19", "b26"],
+              ["b20", "b21", "b22", "b23", "b24", "b25", "b27", "b28", "b29", "b30", "b31", "b32", "b33", "b34", "b35",
+              "b36"]]
+
+    fields = [
+        ("fieldname", [1,2,3]) # bands to extract in order
+    ]
+
+    res = np.stack([file.select(f)[bands] for f, bands in fields])
+    # channels last
+    res = np.rollaxis(res, 0, 3)
+
+
+
+
+
+
+    res = np.stack([
+        fields[0],
+        fields[1],
+        fields[2][??],
+        fields[2][???],
+        fields[3][:5]
+                    ], axis = 0)
+
+
+    yield hdf_file, (x,y), patch
+
+    for n in names:
+        print(
+            file.select(n)[:].shape)
+
+    # hdf = SD(hdf_file, SDC.READ)
+    # meta = {}
+    # features = {}
+    # for field in hdf.datasets().keys():
+    #     if target_fields and field not in target_fields:
+    #         continue
+    #      data = hdf.select(field)[:]  # Index to get it as np array
+    #      # Make sure every field is of rank 4
+    #     while len(data.shape) < 3:
+    #         data = np.expand_dims(data, -1)
+    #     if len(data.shape) > 3:
+    #         print(
+    #             "Warning, encountered high rank field %s with shape %s"
+    #             % (field, data.shape)
+    #         )
+    #         continue
+    #      # Reorder dimensions such that it is longest dimension first
+    #     # Assumes height > width > channels
+    #     rank_order = list(np.argsort(data.shape))
+    #     rank_order.reverse()
+    #     data = data.transpose(rank_order)
+    #      ty = str(data.dtype)
+    #     meta[field] = [data.shape[-1], ty]
+    #     features[field + "/shape"] = _int64_feature(data.shape)
+    #     features[field + "/type"] = _bytes_feature(ty.encode("utf_8"))
+    #     features[field] = _bytes_feature(data.tobytes())
+    #  out_file = path.join(out_dir, path.basename(hdf_file))
+    #  save_example_and_metadata(out_file, [features], meta)
 
 if __name__ == "__main__":
     comm = MPI.COMM_WORLD
@@ -185,6 +279,12 @@ if __name__ == "__main__":
     elif FLAGS.mode == "pptif":
         patches = normalized_patches(targets, FLAGS.shape, FLAGS.stride, FLAGS.resize)
         write_patches(rank, patches, FLAGS.out_dir, FLAGS.patches_per_record)
+
+    elif FLAGS.mode == "mod021km":
+        for t in targets:
+            print("Rank", rank, "Converting", t)
+            #TODO: Link hdf2tfr routine modified to mod021km
+
 
     else:
         raise ValueError("Invalid mode")
