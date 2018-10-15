@@ -147,6 +147,7 @@ def model_fn(features, labels, mode, params):
 
     raise ValueError("Invalid mode", mode)
 
+
 def input_fn(FLAGS):
     def fn():
         with tf.name_scope("dataset"):
@@ -161,6 +162,7 @@ def input_fn(FLAGS):
                 not FLAGS.no_augment_rotate,
             )
         return dataset.map(lambda names, coords, imgs: (imgs, (names, coords)))
+
     return fn
 
 
@@ -173,9 +175,7 @@ tf.estimator.Estimator(model_fn, params={"flags": FLAGS}).train(
         tf.train.CheckpointSaverHook(
             path.join(FLAGS.model_dir, "ckpts"), save_secs=600
         ),
-        tf.train.SummarySaverHook(
-            summary_op=tf.summary.merge_all(),save_secs=300
-        ),
+        tf.train.SummarySaverHook(summary_op=tf.summary.merge_all(), save_secs=300),
         # tf.train.SummarySaverHook(save_secs=300),
         tf.train.ProfilerHook(save_secs=600),
     ],
