@@ -164,7 +164,7 @@ def get_args(verbose=False):
     FLAGS.out_dir = os.path.abspath(FLAGS.out_dir)
     return FLAGS
 
-def hdf2tfr(hdf_file, out_dir, target_fields):
+def normalized_mod02_patches(hdf_file, out_dir, target_fields):
     """Converts HDF file into a tf record by serializing all fields and	
     names to a record. Also outputs a json file holding the meta data.	
     Arguments:	
@@ -172,8 +172,7 @@ def hdf2tfr(hdf_file, out_dir, target_fields):
         target_fields: List of specified fields to convert	
     """
 
-    file_name = input_folder + 'MOD021KM.A2017001.2330.006.2017004135453.hdf'
-    file = SD(file_name, SDC.READ)
+    file = SD(hdf_file, SDC.READ)
 
     names = (
         "EV_250_Aggr1km_RefSB",
@@ -182,24 +181,45 @@ def hdf2tfr(hdf_file, out_dir, target_fields):
         "EV_1KM_Emissive"
     )
 
+    #TODO
+    # extract whole swath
+    # rearrange so [height, width, bands (in order)
+    #   generalize to other km labels
+    # normalize swath
+    # extract patches
+
     fields = [file.select(n)[:] for n in names]
 
-    labels = [["b1", "b2"],
+    #Labels for the parsed examples being band number, and eventually gain
+    labels_1km = [["b1", "b2"],
               ["b3", "b4", "b5", "b6", "b7"],
               ["b8", "b9", "b10", "b11", "b12", "b13L", "b13H", "b14L", "b14H", "b15", "b16", "b17", "b18", "b19", "b26"],
               ["b20", "b21", "b22", "b23", "b24", "b25", "b27", "b28", "b29", "b30", "b31", "b32", "b33", "b34", "b35",
               "b36"]]
 
+    fields = [
+        ("fieldname", [1,2,3]) # bands to extract in order
+    ]
+
+    res = np.stack([file.select(f)[bands] for f, bands in fields])
+    # channels last
+    res = np.rollaxis(res, 0, 3)
+
+
+
+
+
+
     res = np.stack([
         fields[0],
         fields[1],
         fields[2][??],
-    fields[2][???],
-    fields[3][:5]
-    ], axis = 0)
+        fields[2][???],
+        fields[3][:5]
+                    ], axis = 0)
 
 
-    yield fname, (x,y), patch
+    yield hdf_file, (x,y), patch
 
     for n in names:
         print(
