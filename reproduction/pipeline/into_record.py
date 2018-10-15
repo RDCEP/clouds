@@ -111,11 +111,12 @@ def get_args(verbose=False):
     p.add_argument("out_dir", help="Directory to save results")
     p.add_argument(
         "mode",
-        choices=["tif", "hdf", "pptif"],
+        choices=["tif", "hdf", "pptif", "mod021km"],
         help=(
             "`tif`: Turn whole .tif swath into tfrecord. "
             "`hdf`: Turn .hdf swath into tfrecord (respecting fields). "
             "`pptif`: preprocessed_tif, normalize and patchify a tif file."
+            "`mod021km` : Imports MOD021KM hdf swath and converts selected bands to HDF"
         ),
     )
     p.add_argument(
@@ -123,8 +124,10 @@ def get_args(verbose=False):
         nargs="+",
         help=(
             "This is only used when translating hdf files, it specifies which fields to "
-            "record. If none are provided then all fields are recorded. For tif files, "
-            "all fields are translated as b0..bN and this flag is ignored."
+            "record. If none are provided then all fields are recorded. For MOD021KM files, "
+            "using nomenclarture as: bNNG, where NN is the band number (01 - 36) and G stands"
+            "for gain (L - Low; H - High). For tif files, all fields are translated as b0..bN"
+            "and this flag is ignored."
         ),
     )
     p.add_argument(
@@ -185,6 +188,12 @@ if __name__ == "__main__":
     elif FLAGS.mode == "pptif":
         patches = normalized_patches(targets, FLAGS.shape, FLAGS.stride, FLAGS.resize)
         write_patches(rank, patches, FLAGS.out_dir, FLAGS.patches_per_record)
+
+    elif FLAGS.mode == "mod021km":
+        for t in targets:
+            print("Rank", rank, "Converting", t)
+            #TODO: Link hdf2tfr routine modified to mod021km
+
 
     else:
         raise ValueError("Invalid mode")
