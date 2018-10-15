@@ -39,15 +39,27 @@ ds = load.load_data(
 _, _, imgs = ds.make_one_shot_iterator().get_next()
 codes = encoder(imgs)
 
-sparse_dict = MiniBatchDictionaryLearning(FLAGS.n_clusters)
-kmeans = MiniBatchKMeans(FLAGS.n_clusters)
-models = {"sparse_dict": sparse_dict, "kmeans": kmeans}
+models = {
+    "sparse_dict": MiniBatchDictionaryLearning(FLAGS.n_clusters),
+    "kmeans": MiniBatchKMeans(FLAGS.n_clusters)
+}
+
+save_dir = os.listdir(FLAGS.out_dir)
+step = 0
+
+for m in models:
+    saved = sorted([saved for saved in save_dir if m in saved])
+    if saved:
+        s = os.path.join(FLAGS.out_dir, saved[-1])
+        print("Loading", m, "from", s)
+        models[m] = joblib.load(s)
+        step = int(s.split("-")[1].split(".joblib")[0])
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     encoder.load_weights(os.path.join(FLAGS.encoder, "encoder.h5"))
 
-    for step in trange(FLAGS.max_steps):
+    for step in trange(step, FLAGS.max_steps):
         c = sess.run(codes)
         c = c.reshape((FLAGS.batch_size, -1))
 
