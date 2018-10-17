@@ -70,8 +70,6 @@ def gen_patches(swaths, shape, strides):
         std = swath.std(axis=(0, 1)).astype(np.float32)
         max_x, max_y, _ = swath.shape
 
-        print(swath.shape)
-
         # Shuffle patches
         coords = []
         for x in range(0, max_x, stride_x):
@@ -79,7 +77,6 @@ def gen_patches(swaths, shape, strides):
                 if x + shape_x < max_x and y + shape_y < max_y:
                     coords.append((x, y))
         np.random.shuffle(coords)
-        print(coords)
 
         for x, y in coords:
             patch = swath[x : x + shape_x, y : y + shape_y]

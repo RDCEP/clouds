@@ -1,16 +1,17 @@
 import argparse
 import tensorflow as tf
 import tensorflow.keras as keras
+from horovod import tensorflow as hvd
 from tensorflow.python.client import timeline
 from tensorflow.profiler import ProfileOptionBuilder, Profiler
 from tensorflow.image import image_gradients
 from pipeline import load as pipeline
 import models
 import subprocess
-from os import path, mkdir
+from os import path, makedirs
 
 
-def get_flags():
+def get_flags(verbose):
     p = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         description=(
@@ -25,7 +26,7 @@ def get_flags():
         help="/path/to/model/ to load and train or to save new model",
         default=None,
     )
-    p.add_argument("--num_gpu", default=0, type=int)
+    p.add_argument("--hvd", action="store_true", default=False)
 
     pipeline.add_pipeline_cli_arguments(p)
 
@@ -40,7 +41,7 @@ def get_flags():
         type=float,
         metavar="stdev",
         default=0,
-        help="std of gaussian noise added before AE",
+        help="stdev of gaussian noise added before AE",
     )
     p.add_argument(
         "--salt_pepper",
@@ -50,23 +51,9 @@ def get_flags():
         help="percentage of pixels hit with salt and pepper noise before AE",
     )
 
-    p.add_argument(
-        "--epochs", type=int, help="Number of epochs to train for", default=10
-    )
-    p.add_argument(
-        "--steps_per_epoch",
-        metavar="N",
-        help="Number of steps to train in each epoch ",
-        type=int,
-        default=1000,
-    )
-    p.add_argument(
-        "--summary_every",
-        type=int,
-        metavar="s",
-        default=250,
-        help="Number of steps per summary step",
-    )
+    p.add_argument("--max_steps", metavar="steps", type=int, default=1_000_000)
+    p.add_argument("--save_every", metavar="steps", type=int, default=1000)
+    p.add_argument("--summary_every", metavar="steps", type=int, default=250)
 
     p.add_argument(
         "--n_blocks",
@@ -104,7 +91,7 @@ def get_flags():
         "--dense_ae",
         default=False,
         action="store_true",
-        help="Dense connection within the autoencoder (Fixes patch size)."
+        help="Dense connection within the autoencoder (Fixes patch size).",
     )
     p.add_argument(
         "--vae_beta",
@@ -226,17 +213,16 @@ def get_flags():
     if FLAGS.model_dir[-1] != "/":
         FLAGS.model_dir += "/"
 
-    commit = subprocess.check_output(["git", "describe", "--always"]).strip()
-    print("Tensorflow version:", tf.__version__)
-    print("Current Git Commit:", commit)
-    print("Flags:")
-    for f in FLAGS.__dict__:
-        print("\t", f, " " * (25 - len(f)), FLAGS.__dict__[f])
-    print("\n", flush=True)
+    if verbose:
+        commit = subprocess.check_output(["git", "describe", "--always"]).strip()
+        print("Tensorflow version:", tf.__version__)
+        print("Current Git Commit:", commit)
+        print("Flags:")
+        for f in FLAGS.__dict__:
+            print("\t", f, " " * (25 - len(f)), FLAGS.__dict__[f])
+        print("\n", flush=True)
 
-    if not path.isdir(FLAGS.model_dir):
-        mkdir(FLAGS.model_dir)
-        mkdir(path.join(FLAGS.model_dir, "timelines"))
+    makedirs(path.join(FLAGS.model_dir, "timelines"), exist_ok=True)
 
     return FLAGS
 
@@ -299,13 +285,10 @@ def add_noise(imgs, salt_pepper, gaussian_noise):
 
 def load_model(model_dir, name):
     json = path.join(model_dir, name + ".json")
-    weights = path.join(model_dir, name + ".h5")
-
-    if path.exists(json) and path.exists(weights):
+    if path.exists(json):
         with open(json, "r") as f:
             model = tf.keras.models.model_from_json(f.read())
-        model.load_weights(weights)
-        print("model loaded from", model_dir, name)
+        print("model definition loaded from", json)
         return model
 
     return None
@@ -320,6 +303,11 @@ def loss_fn(name, weight, fn, **kwargs):
             tf.summary.scalar(name, loss)
             return loss * weight
     return 0
+
+
+def new_adam_optimizer(size, lr, b1, b2):
+    opt = tf.train.AdamOptimizer(lr * size, lr, b1, b2)
+    return hvd.DistributedOptimizer(opt)
 
 
 def image_losses(img, ae_img, w_mse, w_mae, w_hfe, w_ssim):
@@ -353,7 +341,9 @@ def image_losses(img, ae_img, w_mse, w_mae, w_hfe, w_ssim):
 
 
 if __name__ == "__main__":
-    FLAGS = get_flags()
+    hvd.init()
+    FLAGS = get_flags(hvd.rank() == 0)
+    global_step = tf.train.get_or_create_global_step()
 
     print("Building dataset...", flush=True)
     dataset = pipeline.load_data(
@@ -365,6 +355,7 @@ if __name__ == "__main__":
         FLAGS.prefetch,
         not FLAGS.no_augment_flip,
         not FLAGS.no_augment_rotate,
+        distribute=(hvd.size(), hvd.rank()),
     )
     shape = FLAGS.shape
 
@@ -386,7 +377,7 @@ if __name__ == "__main__":
     # - Add model to `save_models` so it will end up being saved.
     # Except for pretained models which do not need to be trained or saved
 
-    print("building model and losses...", flush=True)
+    print(hvd.rank(), "building model and losses...", flush=True)
     with tf.name_scope("autoencoder"):
         with tf.device("/cpu:0"):
             encoder = load_model(FLAGS.model_dir, "encoder")
@@ -404,21 +395,14 @@ if __name__ == "__main__":
                     scale=FLAGS.scale,
                     data_format=FLAGS.channel_order,
                 )
-        if FLAGS.num_gpu > 1:
-            encoder = tf.keras.utils.multi_gpu_model(encoder, FLAGS.num_gpu)
-            decoder = tf.keras.utils.multi_gpu_model(decoder, FLAGS.num_gpu)
 
     with tf.name_scope("noise"):
         noised_img = add_noise(img, FLAGS.salt_pepper, FLAGS.gaussian_noise)
         if noised_img is not img:
             tf.summary.image("noised_image", cmap(noised_img), FLAGS.display_imgs)
 
-    encoder.summary()
-    decoder.summary()
-
     if FLAGS.variational:
         z, latent_mean, latent_logvar = encoder(noised_img)
-        ae_img = decoder(z)
         with tf.name_scope("kl_div"):
             kl_div = -0.5 * tf.reduce_mean(
                 1 + latent_logvar - latent_mean ** 2 - tf.exp(latent_logvar)
@@ -442,7 +426,6 @@ if __name__ == "__main__":
     tf.summary.image("difference", cimg - camg, FLAGS.display_imgs)
     save_models = {"encoder": encoder, "decoder": decoder}
 
-    optimizer = tf.train.AdamOptimizer()  # TODO flag
     train_ops = []
 
     if FLAGS.adversarial:
@@ -451,8 +434,6 @@ if __name__ == "__main__":
                 disc = load_model(FLAGS.model_dir, "disc")
                 if not disc:
                     disc = models.discriminator(shape, FLAGS.n_blocks)
-            if FLAGS.num_gpu > 1:
-                disc = tf.keras.utils.multi_gpu_model(disc, FLAGS.num_gpu)
 
         z_noise = tf.random_normal(z.shape)
         gen_img = decoder(z_noise)
@@ -483,7 +464,7 @@ if __name__ == "__main__":
         loss_disc += penalty * FLAGS.lambda_gradient_penalty
 
         # Discriminator should be trained more to provide useful feedback
-        dsc_optimizer = tf.train.AdamOptimizer(*FLAGS.discriminator_adam)
+        dsc_optimizer = new_adam_optimizer(hvd.size(), *FLAGS.discriminator_adam)
         train_disc = dsc_optimizer.minimize(loss_disc, var_list=disc.trainable_weights)
         train_ops.append(train_disc)
 
@@ -492,8 +473,6 @@ if __name__ == "__main__":
         # Set input height / width to None so Keras doesn't complain
         inp_shape = None, None, 3
         per = our_models.classifier(inp_shape)
-        if FLAGS.num_gpu > 1:
-            per = tf.keras.utils.multi_gpu_model(per, FLAGS.num_gpu)
         with tf.name_scope("perceptual_loss"):
             pi = per(cmap(img))
             pa = per(cmap(ae_img))
@@ -502,16 +481,16 @@ if __name__ == "__main__":
             tf.summary.scalar("loss_per", loss_per)
 
     # Monitor AE gradients
-    ae_optimizer = tf.train.AdamOptimizer(*FLAGS.autoencoder_adam)
+    ae_optimizer = new_adam_optimizer(hvd.size(), *FLAGS.autoencoder_adam)
+
     with tf.name_scope("grad_info"):
         grads_and_vars = ae_optimizer.compute_gradients(
             loss_ae, var_list=encoder.trainable_weights + decoder.trainable_weights
         )
         for grad, var in grads_and_vars:
-            if grad is not None:
-                if not FLAGS.no_grad_histogram:
-                    tf.summary.histogram("{}/histogram".format(var.name), grad)
-    train_ops.append(ae_optimizer.apply_gradients(grads_and_vars))
+            if grad is not None and not FLAGS.no_grad_histogram:
+                tf.summary.histogram("{}/histogram".format(var.name), grad)
+    train_ops.append(ae_optimizer.apply_gradients(grads_and_vars, global_step))
     tf.summary.scalar("loss_ae", loss_ae)
 
     # Save model definitions
@@ -526,7 +505,10 @@ if __name__ == "__main__":
     print("Training...", flush=True)
     with tf.Session(
         config=tf.ConfigProto(
-            gpu_options=tf.GPUOptions(allow_growth=True), log_device_placement=True
+            gpu_options=tf.GPUOptions(
+                allow_growth=True, visible_device_list=str(hvd.local_rank())
+            ),
+            log_device_placement=True,
         )
     ) as sess:
         profiler = Profiler(sess.graph)
@@ -535,51 +517,53 @@ if __name__ == "__main__":
             options=run_opts,
             run_metadata=run_metadata,
         )
+        hvd.broadcast_global_variables(0)
 
-        try:
-            encoder.load_weights(path.join(FLAGS.model_dir, "encoder.h5"))
-            decoder.load_weights(path.join(FLAGS.model_dir, "decoder.h5"))
-            print("Loaded weights")
-
-        except:
-            print("could not load weights")
+        for m in save_models:
+            try:
+                models[m].load_weights(path.join(FLAGS.model_dir, m + ".h5"))
+                print("Loaded weights for", m, flush=True)
+            except:
+                print("Could not load weights for", m, flush=True)
 
         log_dir = path.join(FLAGS.model_dir, "summary")
         tb_graph = sess.graph if not path.exists(log_dir) else None
         summary_writer = tf.summary.FileWriter(log_dir, graph=tb_graph)
 
-        for e in range(FLAGS.epochs):
-            print("Starting epoch %d" % e, flush=True)
-
-            for s in range(FLAGS.steps_per_epoch):
-                sess.run(train_ops, options=run_opts, run_metadata=run_metadata)
-
-                if s % FLAGS.summary_every == 0:
-                    summary = sess.run(
-                        summary_op, options=run_opts, run_metadata=run_metadata
-                    )
-                    total_step = e * FLAGS.steps_per_epoch + s
-
-                    summary_writer.add_run_metadata(run_metadata, "step%d" % total_step)
-                    summary_writer.add_summary(summary, total_step)
-                    summary_writer.flush()
-                    profiler.add_step(total_step, run_metadata)
-                    timeline_json = path.join(FLAGS.model_dir, "timelines", "t.json")
-                    profiler.profile_graph(
-                        options=(
-                            ProfileOptionBuilder(ProfileOptionBuilder.time_and_memory())
-                            .with_step(total_step)
-                            .with_timeline_output(timeline_json)
-                            .build()
-                        )
-                    )
-                    profiler.advise(
-                        {
-                            "ExpensiveOperationChecker": {},
-                            "AcceleratorUtilizationChecker": {},
-                            "OperationChecker": {},
-                        }
-                    )
-
+        if hvd.rank() == 0:
             for m in save_models:
-                save_models[m].save_weights(path.join(FLAGS.model_dir, f"{m}.h5"))
+                save_models[m].summary()
+
+        for s in range(FLAGS.max_steps):
+            sess.run(train_ops, options=run_opts, run_metadata=run_metadata)
+
+            if s % FLAGS.summary_every == 0 and hvd.rank() == 0:
+                gs, summary = sess.run(
+                    [global_step, summary_op],
+                    options=run_opts,
+                    run_metadata=run_metadata,
+                )
+                summary_writer.add_run_metadata(run_metadata, "step%d" % gs)
+                summary_writer.add_summary(summary, gs)
+                summary_writer.flush()
+                profiler.add_step(int(gs), run_metadata)
+                timeline_json = path.join(FLAGS.model_dir, "timelines", "t.json")
+                profiler.profile_graph(
+                    options=(
+                        ProfileOptionBuilder(ProfileOptionBuilder.time_and_memory())
+                        .with_step(gs)
+                        .with_timeline_output(timeline_json)
+                        .build()
+                    )
+                )
+                profiler.advise(
+                    {
+                        "ExpensiveOperationChecker": {},
+                        "AcceleratorUtilizationChecker": {},
+                        "OperationChecker": {},
+                    }
+                )
+
+            if s % FLAGS.save_every == 0 and hvd.rank() == 0:
+                for m in save_models:
+                    save_models[m].save_weights(path.join(FLAGS.model_dir, f"{m}.h5"))

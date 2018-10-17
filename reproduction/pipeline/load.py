@@ -66,6 +66,7 @@ def load_data(
     prefetch=1,
     flips=True,
     rotate=False,
+    distribute=(1, 0),
 ):
     """Returns a dataset of (filenames, coordinates, patches).
     See `add_pipeline_cli_arguments` for argument descriptions.
@@ -94,12 +95,14 @@ def load_data(
 
     dataset = (
         tf.data.Dataset.list_files(data_glob, shuffle=True)
+        .shard(*distribute)
         .apply(
             parallel_interleave(
-                tf.data.TFRecordDataset, cycle_length=read_threads, sloppy=True
+                lambda f: tf.data.TFRecordDataset(f).map(parser),
+                cycle_length=read_threads,
+                sloppy=True,
             )
         )
-        .map(parser, num_parallel_calls=read_threads)
         .apply(shuffle_and_repeat(shuffle_buffer_size))
         .apply(batch_and_drop_remainder(batch_size))
         .prefetch(prefetch)
