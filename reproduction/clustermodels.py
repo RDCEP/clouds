@@ -12,6 +12,8 @@ import os
 p = ArgumentParser()
 p.add_argument("out_dir")
 p.add_argument("encoder")
+p.add_argument("model", choices=["sparse_dict", "kmeans"])
+p.add_argument("--latent", choices=["flatten", "spatial_mean"], default="spatial_mean")
 p.add_argument("--max_steps", type=int, default=100000)
 p.add_argument("--n_clusters", type=int, default=60)
 p.add_argument("--summary_every", type=int, default=10)
@@ -36,41 +38,57 @@ ds = load.load_data(
     not FLAGS.no_augment_rotate,
 )
 
+# Get the Latent vectors to cluster
 _, _, imgs = ds.make_one_shot_iterator().get_next()
 codes = encoder(imgs)
 
-models = {
-    "sparse_dict": MiniBatchDictionaryLearning(FLAGS.n_clusters),
-    "kmeans": MiniBatchKMeans(FLAGS.n_clusters)
-}
+if FLAGS.latent == "spatial_mean":
+    codes = tf.reduce_mean(codes, axis=(1, 2))
 
-save_dir = os.listdir(FLAGS.out_dir)
-step = 0
+elif FLAGS.latent == "flatten":
+    codes = tf.reshape(codes, [FLAGS.batch_size, -1])
 
-for m in models:
-    saved = sorted([saved for saved in save_dir if m in saved])
+else:
+    raise ValueError("Invalid latent vector treatment", FLAGS.latent)
+
+
+# Define clustering model or load it if already saved.
+def get_latest(model_dir, model):
+    saved = sorted([saved for saved in model_dir if model in saved])
     if saved:
-        s = os.path.join(FLAGS.out_dir, saved[-1])
-        print("Loading", m, "from", s)
-        models[m] = joblib.load(s)
+        s = os.path.join(model_dir, saved[-1])
         step = int(s.split("-")[1].split(".joblib")[0])
+        return step, joblib.load(s)
 
+    return 0, None
+
+
+step, model = get_latest(FLAGS.out_dir, FLAGS.model)
+
+if model is None and FLAGS.model == "sparse_dict":
+    model = MiniBatchDictionaryLearning(FLAGS.n_clusters)
+
+elif FLAGS.model == "kmeans":
+    model = MiniBatchKMeans(FLAGS.n_clusters)
+
+else:
+    raise ValueError("Invalid model", FLAGS.model)
+
+
+# Start training
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     encoder.load_weights(os.path.join(FLAGS.encoder, "encoder.h5"))
 
     for step in trange(step, FLAGS.max_steps):
         c = sess.run(codes)
-        c = c.reshape((FLAGS.batch_size, -1))
 
-        for m in models:
-            models[m].partial_fit(c)
+        model.partial_fit(c)
 
         if step % FLAGS.summary_every == 0:
-            pass
+            pass  # TODO
 
         if step % FLAGS.save_every == 0:
             seen = step * FLAGS.batch_size
-            for m in models:
-                path = os.path.join(FLAGS.out_dir, "%s-%07d.joblib" % (m, seen))
-                joblib.dump(models[m], path)
+            path = os.path.join(FLAGS.out_dir, "%s-%07d.joblib" % (FLAGS.model, seen))
+            joblib.dump(model, path)
