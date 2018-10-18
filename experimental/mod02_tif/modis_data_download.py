@@ -31,6 +31,7 @@ def download(collection, # MODIS Collection
 
     #TODO: Use argparse
     #Todo: Dump execution Log
+    #TODO: Write function to retrieve ids, and retry in case of unavailability
 
 
     # Define client object
@@ -42,11 +43,23 @@ def download(collection, # MODIS Collection
     # print(file_list)
 
     # Test single file
+    print(file_list)
     download_urls = []
+    unretrievable_ids = []
     for fileid in file_list:
-        transientobj = a.getFileUrls(fileid)
-        download_urls = download_urls + transientobj
-    print(download_urls)
+        # Test if HDF URL is available
+        fileprop = a.getFileProperties(fileid)
+        print(fileprop)
+        for item in fileprop:
+            if item['online'] != 'true':
+                transientobj = a.getFileUrls(fileid)
+                download_urls = download_urls + transientobj
+            else:
+                print('FileId: ', fileid, ' is unavailable to retrieve URL')
+                unretrievable_ids.append(fileid)
+
+    print('WARNING: Following file ids were not retrieved', unretrievable_ids)
+    # print(download_urls)
 
 
 
