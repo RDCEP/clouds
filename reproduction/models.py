@@ -10,8 +10,8 @@ def sample_variational(x, depth, dense, nonlinearity, data_format):
     if dense:
         sh = x.shape.as_list()[1:]
         x = Flatten()(x)
-        mn = Dense(depth, name="latent_mean")(x)
-        lv = Dense(depth, name="latent_log_var", kernel_initializer="zeros")(x)
+        mn = Dense(dense, name="latent_mean")(x)
+        lv = Dense(dense, name="latent_log_var", kernel_initializer="zeros")(x)
     else:
         mn = Conv2D(depth, 1, data_format=data_format)(x)
         mn = nonlinearity()(mn)
@@ -137,7 +137,7 @@ def autoencoder(
     base=16,
     batchnorm=True,
     variational=False,
-    dense=False,
+    dense=None,
     block_len=0,
     nonlinearity=LeakyReLU,
     scale=2,
@@ -170,7 +170,7 @@ def autoencoder(
         if dense:
             sh = [int(s) for s in x.shape[1:]]
             x = Flatten()(x)
-            x = Dense(depth)(x)
+            x = Dense(dense)(x)
             x = nonlinearity()(x)
 
         encoder = Model(inp, x)

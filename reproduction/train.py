@@ -80,18 +80,14 @@ def get_flags(verbose):
         help="Stride length and factor which depth increases when changing of scales.",
     )
     p.add_argument("--batchnorm", action="store_true", default=False)
-
+    p.add_argument(
+        "--dense_ae", type=int, help="Dimension of dense bottleneck (Fixes patch size)."
+    )
     p.add_argument(
         "--variational",
         default=False,
         action="store_true",
         help="Use a variational autoencoder.",
-    )
-    p.add_argument(
-        "--dense_ae",
-        default=False,
-        action="store_true",
-        help="Dense connection within the autoencoder (Fixes patch size).",
     )
     p.add_argument(
         "--vae_beta",
