@@ -51,7 +51,7 @@ def download(collection, # MODIS Collection
         fileprop = a.getFileProperties(fileid)
         print(fileprop)
         for item in fileprop:
-            if item['online'] != 'true':
+            if item['online'] == 'true':
                 transientobj = a.getFileUrls(fileid)
                 download_urls = download_urls + transientobj
             else:
