@@ -32,6 +32,7 @@ def download(collection, # MODIS Collection
     #TODO: Use argparse
     #Todo: Dump execution Log
     #TODO: Write function to retrieve ids, and retry in case of unavailability
+    #TODO: Deal with out of storage issue while writing files to disk
 
 
     # Define client object
@@ -61,34 +62,8 @@ def download(collection, # MODIS Collection
     print('WARNING: Following file ids were not retrieved', unretrievable_ids)
     # print(download_urls)
 
-
-
-    # @asyncio.coroutine
-    # def download(url, session, semaphore, chunk_size=1 << 15):
-    #     with (yield from semaphore):  # limit number of concurrent downloads
-    #         filename = url2filename(url)
-    #         logging.info('downloading %s', dest_folder+filename)
-    #         response = yield from session.get(url)
-    #         with closing(response), open(dest_folder+filename, 'wb') as file:
-    #             while True:  # save file
-    #                 chunk = yield from response.content.read(chunk_size)
-    #                 if not chunk:
-    #                     break
-    #                 file.write(chunk)
-    #         logging.info('done %s', dest_folder+filename)
-    #     return filename, (response.status, tuple(response.headers.items()))
-
-    # urls = download_urls
-
-    # logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
-    # with closing(asyncio.get_event_loop()) as loop, closing(aiohttp.ClientSession()) as session:
-    #     semaphore = asyncio.Semaphore(16)
-    #     download_tasks = (download(url, session, semaphore) for url in urls)
-    #     result = loop.run_until_complete(asyncio.gather(*download_tasks))
-
     for i in download_urls:
         filename = url2filename(i) # get filename
-        # with open(dest_folder+filename, wb)as file:
         urllib.request.urlretrieve(i,os.path.join(dest_folder,filename))
 
 
@@ -126,7 +101,3 @@ for i, date_i in enumerate(sorted(date_range)):
     if i % size == rank:
         print('Launching date ', date_i.strftime("%Y-%m-%d"), rank, flush=True)
         download('MOD021KM', date_i.strftime("%Y-%m-%d"), date_i.strftime("%Y-%m-%d"), 90.0, -90.0, 180.0, -180.0, 6, output_folder, cpus=6)
-
-
-
-
