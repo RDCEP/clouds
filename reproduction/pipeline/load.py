@@ -67,7 +67,7 @@ def load_data(
     flips=True,
     rotate=False,
     distribute=(1, 0),
-    repeat=True
+    repeat=True,
 ):
     """Returns a dataset of (filenames, coordinates, patches).
     See `add_pipeline_cli_arguments` for argument descriptions.
@@ -111,7 +111,7 @@ def load_data(
         dataset.shuffle(shuffle_buffer_size)
 
     dataset = dataset.apply(batch_and_drop_remainder(batch_size)).prefetch(prefetch)
-    
+
     return dataset
 
 

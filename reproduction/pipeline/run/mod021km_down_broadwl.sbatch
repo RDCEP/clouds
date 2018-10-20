@@ -1,14 +1,16 @@
 #!/bin/bash
-#SBATCH --job-name=MOD021km
-#SBATCH --output=MOD021km.out
-#SBATCH --error=MOD021km.err
+#SBATCH --job-name=M21Jun
+###SBATCH --output=MOD021km.out
+###SBATCH --error=MOD021km.err
+#SBATCH --output=%x_%a.out
+#SBATCH --error=%x_%a.err
 #SBATCH --partition=broadwl
 ###SBATCH --time=06:00:00
-#SBATCH --nodes=10
-#SBATCH --ntasks-per-node=28
-#SBATCH --mem-per-cpu=2000
+#SBATCH --nodes=3
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem-per-cpu=1000
 
-#SBATCH --account=pi-foster
+#SBATCH --account=pi-chard
 ###SBATCH --time=06:00:00
 
 module purge
@@ -16,13 +18,10 @@ module load mpi4py/3.0.1a0_py3
 
 module unload python
 module unload Anaconda2
-module load Anaconda3/5.0.0.1
+module unload Anaconda3
 
+### Routine Using rlourenco Miniconda env
 source activate python3env
 
+mpiexec -n 1  python3 mod021km_download.py
 
-###mpiexec -n $NPROCS python3 hd5_to_TFRecord.py --with_meta --bytes --hdf_dir $DATA
-
-mpiexec -n $NPROCS python3 download_mpi.py
-
-#### - srun --ntasks 31 -p broadwl mpiexec -n 31 python3 download_mpi.py

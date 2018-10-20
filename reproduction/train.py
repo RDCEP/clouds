@@ -541,10 +541,14 @@ if __name__ == "__main__":
             print("", flush=True)
 
         for _ in range(FLAGS.max_steps):
-            gs, _ = sess.run([global_step, train_ops], options=run_opts, run_metadata=run_metadata)
+            gs, _ = sess.run(
+                [global_step, train_ops], options=run_opts, run_metadata=run_metadata
+            )
 
             if gs % FLAGS.summary_every == 0 and hvd.rank() == 0:
-                summary = sess.run(summary_op, options=run_opts, run_metadata=run_metadata)
+                summary = sess.run(
+                    summary_op, options=run_opts, run_metadata=run_metadata
+                )
                 summary_writer.add_run_metadata(run_metadata, "step%d" % gs)
                 summary_writer.add_summary(summary, gs)
                 summary_writer.flush()
@@ -568,4 +572,6 @@ if __name__ == "__main__":
 
             if gs % FLAGS.save_every == 0 and hvd.rank() == 0:
                 for m in save_models:
-                    save_models[m].save_weights(path.join(FLAGS.model_dir, f"{m}-{gs}.h5"))
+                    save_models[m].save_weights(
+                        path.join(FLAGS.model_dir, f"{m}-{gs}.h5")
+                    )
