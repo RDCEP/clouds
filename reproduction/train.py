@@ -8,7 +8,7 @@ from tensorflow.image import image_gradients
 from pipeline import load as pipeline
 import models
 import subprocess
-from os import path, makedirs
+from os import path, makedirs, listdir
 
 
 def get_flags(verbose):
@@ -26,7 +26,7 @@ def get_flags(verbose):
         help="/path/to/model/ to load and train or to save new model",
         default=None,
     )
-    p.add_argument("--hvd", action="store_true", default=False)
+    p.add_argument("--log_device_placement", action="store_true", default=False)
 
     pipeline.add_pipeline_cli_arguments(p)
 
@@ -279,15 +279,25 @@ def add_noise(imgs, salt_pepper, gaussian_noise):
     return imgs
 
 
-def load_model(model_dir, name):
+def load_model_def(model_dir, name):
     json = path.join(model_dir, name + ".json")
     if path.exists(json):
         with open(json, "r") as f:
             model = tf.keras.models.model_from_json(f.read())
         print("model definition loaded from", json)
         return model
-
     return None
+
+
+def load_latest_model_weights(model, model_dir, name):
+    saved = [m for m in listdir(model_dir) if ".h5" in m and name in m]
+    if saved:
+        s = sorted(saved)[-1]
+        model.load_weights(path.join(model_dir, s))
+        step = int(s.split("-")[1].replace(".h5", ""))
+        return step
+    else:
+        raise ValueError("No weights for ", model, "in", model_dir)
 
 
 def loss_fn(name, weight, fn, **kwargs):
@@ -376,8 +386,8 @@ if __name__ == "__main__":
     print(hvd.rank(), "building model and losses...", flush=True)
     with tf.name_scope("autoencoder"):
         with tf.device("/cpu:0"):
-            encoder = load_model(FLAGS.model_dir, "encoder")
-            decoder = load_model(FLAGS.model_dir, "decoder")
+            encoder = load_model_def(FLAGS.model_dir, "encoder")
+            decoder = load_model_def(FLAGS.model_dir, "decoder")
             if not encoder or not decoder:
                 print("Defining New encoder and decoder.")
                 encoder, decoder = models.autoencoder(
@@ -470,9 +480,7 @@ if __name__ == "__main__":
         inp_shape = None, None, 3
         per = our_models.classifier(inp_shape)
         with tf.name_scope("perceptual_loss"):
-            pi = per(cmap(img))
-            pa = per(cmap(ae_img))
-            loss_per = tf.reduce_mean(tf.square(pi - pa))
+            loss_per = tf.reduce_mean(tf.square(per(cimg) - per(camg)))
             loss_ae += loss_per * FLAGS.lambda_per
             tf.summary.scalar("loss_per", loss_per)
 
@@ -504,7 +512,7 @@ if __name__ == "__main__":
             gpu_options=tf.GPUOptions(
                 allow_growth=True, visible_device_list=str(hvd.local_rank())
             ),
-            log_device_placement=True,
+            log_device_placement=FLAGS.log_device_placement,
         )
     ) as sess:
         profiler = Profiler(sess.graph)
@@ -517,10 +525,11 @@ if __name__ == "__main__":
 
         for m in save_models:
             try:
-                models[m].load_weights(path.join(FLAGS.model_dir, m + ".h5"))
-                print("Loaded weights for", m, flush=True)
-            except:
-                print("Could not load weights for", m, flush=True)
+                gs = load_latest_model_weights(save_models[m], FLAGS.model_dir, m)
+                sess.run(global_step.assign(gs))
+                print("Loaded weights for", m, "Set global step to", gs, flush=True)
+            except Exception as e:
+                print("Could not load weights for", m, "because", e, flush=True)
 
         log_dir = path.join(FLAGS.model_dir, "summary")
         tb_graph = sess.graph if not path.exists(log_dir) else None
@@ -529,16 +538,13 @@ if __name__ == "__main__":
         if hvd.rank() == 0:
             for m in save_models:
                 save_models[m].summary()
+            print("", flush=True)
 
-        for s in range(FLAGS.max_steps):
-            sess.run(train_ops, options=run_opts, run_metadata=run_metadata)
+        for _ in range(FLAGS.max_steps):
+            gs, _ = sess.run([global_step, train_ops], options=run_opts, run_metadata=run_metadata)
 
-            if s % FLAGS.summary_every == 0 and hvd.rank() == 0:
-                gs, summary = sess.run(
-                    [global_step, summary_op],
-                    options=run_opts,
-                    run_metadata=run_metadata,
-                )
+            if gs % FLAGS.summary_every == 0 and hvd.rank() == 0:
+                summary = sess.run(summary_op, options=run_opts, run_metadata=run_metadata)
                 summary_writer.add_run_metadata(run_metadata, "step%d" % gs)
                 summary_writer.add_summary(summary, gs)
                 summary_writer.flush()
@@ -560,6 +566,6 @@ if __name__ == "__main__":
                     }
                 )
 
-            if s % FLAGS.save_every == 0 and hvd.rank() == 0:
+            if gs % FLAGS.save_every == 0 and hvd.rank() == 0:
                 for m in save_models:
-                    save_models[m].save_weights(path.join(FLAGS.model_dir, f"{m}.h5"))
+                    save_models[m].save_weights(path.join(FLAGS.model_dir, f"{m}-{gs}.h5"))
