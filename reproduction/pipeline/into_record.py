@@ -23,7 +23,7 @@ def _float_feature(value):
     return tf.train.Feature(float_list=tf.train.FloatList(value=value))
 
 
-def gen_swaths(targets, mode, resize):
+def gen_swaths(targets, mode, resize, rank):
     """Reads and yields resized swaths.
     """
     if mode == "tif":
@@ -36,6 +36,7 @@ def gen_swaths(targets, mode, resize):
         raise ValueError("Invalid reader mode", mode)
 
     for t in targets:
+        print("rank", rank, "reading", t, flush=True)
         swath = np.rollaxis(read(t), 0, 3)
         if resize is not None:
             swath = cv2.resize(
@@ -85,9 +86,10 @@ def gen_patches(swaths, shape, strides):
             threshold = shape_x * shape_y * 0.5
             max_uniq = lambda c: max(np.unique(patch[:, :, c], return_counts=True)[1])
             has_clouds = any(max_uniq(c) < threshold for c in range(patch.shape[-1]))
-            if has_clouds and not np.isnan(patch).any():
+            if has_clouds:
                 patch = (patch.astype(np.float32) - mean) / std
-                yield fname, (x, y), patch
+                if not np.isnan(patch).any():
+                    yield fname, (x, y), patch
 
 
 def write_patches(rank, patches, out_dir, patches_per_record):
@@ -171,7 +173,7 @@ if __name__ == "__main__":
         if i % size == rank:
             targets.append(os.path.abspath(f))
 
-    swaths = gen_swaths(targets, FLAGS.mode, FLAGS.resize)
+    swaths = gen_swaths(targets, FLAGS.mode, FLAGS.resize, rank)
     patches = gen_patches(swaths, FLAGS.shape, FLAGS.stride)
     write_patches(rank, patches, FLAGS.out_dir, FLAGS.patches_per_record)
 
