@@ -30,7 +30,13 @@ def gen_swaths(targets, mode, resize, rank):
         read = lambda tif_file: gdal.Open(tif_file).ReadAsArray()
 
     elif mode == "mod02_1km":
-        read = mod02_1km_read
+        names_1km = (
+            "EV_250_Aggr1km_RefSB",
+            "EV_500_Aggr1km_RefSB",
+            "EV_1KM_RefSB",
+            "EV_1KM_Emissive",
+        )
+        read = lambda hdf_file: read_hdf(hdf_file, names1names_1km)
 
     else:
         raise ValueError("Invalid reader mode", mode)
@@ -45,17 +51,13 @@ def gen_swaths(targets, mode, resize, rank):
         yield t, swath
 
 
-def mod02_1km_read(hdf_file):
+def read_hdf(hdf_file, fields, x_range=(None, None), y_range=(None, None)):
     """Read `hdf_file` and extract relevant fields as per `names_1km`.
     """
+    x_min, x_max = x_range
+    y_min, y_max = y_range
     hdf = SD(hdf_file, SDC.READ)
-    names_1km = (
-        "EV_250_Aggr1km_RefSB",
-        "EV_500_Aggr1km_RefSB",
-        "EV_1KM_RefSB",
-        "EV_1KM_Emissive",
-    )
-    fields = [hdf.select(n)[:] for n in names_1km]
+    fields = [hdf.select(f)[:, x_min:x_max, y_min:y_max] for f in fields]
     return np.concatenate(fields, axis=0)
 
 
