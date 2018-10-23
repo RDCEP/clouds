@@ -51,7 +51,7 @@ def get_flags(verbose):
         help="percentage of pixels hit with salt and pepper noise before AE",
     )
 
-    p.add_argument("--max_steps", metavar="steps", type=int, default=1_000_000)
+    p.add_argument("--max_steps", metavar="steps", type=int, default=1000000)
     p.add_argument("--save_every", metavar="steps", type=int, default=1000)
     p.add_argument("--summary_every", metavar="steps", type=int, default=250)
 
@@ -331,6 +331,7 @@ def image_losses(img, ae_img, w_mse, w_mae, w_hfe, w_ssim):
 
     def msssim():
         # BUG why does it work on only these power factors?
+        # BUG TODO This probably assumes channels last!!!!
         s = tf.image.ssim_multiscale(img, ae_img, max_val=5, power_factors=[1, 1, 1])
         return 1 - tf.reduce_mean(s)
 
