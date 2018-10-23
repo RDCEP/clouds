@@ -51,7 +51,7 @@ def get_flags(verbose):
         help="percentage of pixels hit with salt and pepper noise before AE",
     )
 
-    p.add_argument("--max_steps", metavar="steps", type=int, default=1_000_000)
+    p.add_argument("--max_steps", metavar="steps", type=int, default=1000000)
     p.add_argument("--save_every", metavar="steps", type=int, default=1000)
     p.add_argument("--summary_every", metavar="steps", type=int, default=250)
 
@@ -371,6 +371,9 @@ if __name__ == "__main__":
         img = tf.transpose(img, perm=[0, 3, 1, 2])
         shape = shape[2], * shape[:2]
         print("sh", shape)
+
+    # DEBUG: I have no idea if this helps (remove if unneeded)
+    tf.keras.backend.set_image_data_format(FLAGS.channel_order)
 
     # Colormap object maps our channels to normal rgb channels
     cmap = ColorMap(FLAGS.red_bands, FLAGS.green_bands, FLAGS.blue_bands)
