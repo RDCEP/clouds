@@ -373,6 +373,9 @@ if __name__ == "__main__":
         shape = shape[2], * shape[:2]
         print("sh", shape)
 
+    # DEBUG: I have no idea if this helps (remove if unneeded)
+    tf.keras.backend.set_image_data_format(FLAGS.channel_order)
+
     # Colormap object maps our channels to normal rgb channels
     cmap = ColorMap(FLAGS.red_bands, FLAGS.green_bands, FLAGS.blue_bands)
 

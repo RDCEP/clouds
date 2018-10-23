@@ -40,16 +40,16 @@ ds = load.load_data(
 
 # Get the Latent vectors to cluster
 _, _, imgs = ds.make_one_shot_iterator().get_next()
-codes = encoder(imgs)
+# codes = encoder(imgs)
 
-if FLAGS.latent == "spatial_mean":
-    codes = tf.reduce_mean(codes, axis=(1, 2))
+# if FLAGS.latent == "spatial_mean":
+#    codes = tf.reduce_mean(codes, axis=(1, 2))
 
-elif FLAGS.latent == "flatten":
-    codes = tf.reshape(codes, [FLAGS.batch_size, -1])
+# elif FLAGS.latent == "flatten":
+#   codes = tf.reshape(codes, [FLAGS.batch_size, -1])
 
-else:
-    raise ValueError("Invalid latent vector treatment", FLAGS.latent)
+# else:
+#   raise ValueError("Invalid latent vector treatment", FLAGS.latent)
 
 
 # Define clustering model or load it if already saved.
@@ -80,8 +80,10 @@ with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     encoder.load_weights(os.path.join(FLAGS.encoder, "encoder.h5"))
 
-    for step in trange(step, FLAGS.max_steps):
-        c = sess.run(codes)
+    for step in range(step, FLAGS.max_steps):
+        # c = sess.run(codes)
+        i = sess.run(imgs)
+        c = encoder.predict(i).mean(axis=(1, 2))
 
         model.partial_fit(c)
 

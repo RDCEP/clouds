@@ -7,7 +7,12 @@ from tqdm import trange
 from osgeo import gdal
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
-from reproduction.pipeline.load import add_pipeline_cli_arguments, load_data
+from reproduction.pipeline.load import (
+    add_pipeline_cli_arguments,
+    load_data,
+    load_data_direct,
+)
+from reproduction.pipeline.global_norm import MOD02_FIELDS
 
 
 def read_patches(files, height, width):
@@ -27,7 +32,9 @@ def read_patches(files, height, width):
 
 if __name__ == "__main__":
     p = ArgumentParser()
-    p.add_argument("mode", choices=["old_pipeline", "feed_dict", "new_pipeline"])
+    p.add_argument(
+        "mode", choices=["old_pipeline", "feed_dict", "new_pipeline", "pipeline3"]
+    )
     p.add_argument("--data_glob")
     p.add_argument(
         "--epochs", type=int, help="Number of epochs to train for", default=5
@@ -74,7 +81,7 @@ if __name__ == "__main__":
         )
         f, c, x = dataset.make_one_shot_iterator().get_next()
 
-    if FLAGS.mode == "new_pipeline":
+    elif FLAGS.mode == "new_pipeline":
         dataset = load_data(
             FLAGS.data_glob if FLAGS.data_glob else records2,
             shape=(64, 64, 7),
@@ -84,6 +91,15 @@ if __name__ == "__main__":
             prefetch=1,
         )
         f, c, x = dataset.make_one_shot_iterator().get_next()
+
+    elif FLAGS.mode == "pipeline3":
+        dataset = load_data_direct(
+            FLAGS.data_glob, [64, 64, 38], MOD02_FIELDS, "j", shuffle_buffer_size=10
+        )
+        f, c, x = dataset.make_one_shot_iterator().get_next()
+
+    else:
+        raise ValueError(FLAGS.mode)
 
     y = tf.reduce_mean(x)
 
