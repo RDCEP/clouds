@@ -297,7 +297,7 @@ def load_latest_model_weights(model, model_dir, name):
         step = int(s.split("-")[1].replace(".h5", ""))
         return step
     else:
-        raise ValueError("No weights for ", model, "in", model_dir)
+        raise ValueError("No weights for ", name, "in", model_dir)
 
 
 def loss_fn(name, weight, fn, **kwargs):
