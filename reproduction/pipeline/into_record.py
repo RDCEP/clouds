@@ -59,7 +59,7 @@ def read_hdf(hdf_file, fields, x_range=(None, None), y_range=(None, None)):
     y_min, y_max = y_range
     hdf = SD(hdf_file, SDC.READ)
 
-    swath = [hdf.select(f)[:, x_min: x_max, y_min: y_max][fields[f]] for f in fields]
+    swath = [hdf.select(f)[:, x_min:x_max, y_min:y_max][fields[f]] for f in fields]
     return np.concatenate(swath, axis=0)
 
 

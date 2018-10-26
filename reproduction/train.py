@@ -298,8 +298,9 @@ def load_latest_model_weights(model, model_dir, name):
     step, model_file = latest
 
     if model_file:
+        model_file = path.join(model_dir, model_file)
         model.load_weights(model_file)
-        print("loaded weights for", name, "from", path.join(model_dir, model_file))
+        print("loaded weights for", name, "from", model_file)
 
     else:
         print("no weights for", name, "in", model_dir)

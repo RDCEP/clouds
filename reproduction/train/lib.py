@@ -372,7 +372,7 @@ if __name__ == "__main__":
 
     if FLAGS.channel_order == "channels_first":
         img = tf.transpose(img, perm=[0, 3, 1, 2])
-        shape = shape[2], *shape[:2]
+        shape = shape[2], * shape[:2]
         print("sh", shape)
 
     # Colormap object maps our channels to normal rgb channels
