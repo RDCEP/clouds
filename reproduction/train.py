@@ -378,7 +378,7 @@ if __name__ == "__main__":
 
     if FLAGS.channel_order == "channels_first":
         img = tf.transpose(img, perm=[0, 3, 1, 2])
-        shape = shape[2], * shape[:2]
+        shape = shape[2], *shape[:2]
         print("sh", shape)
 
     # DEBUG: I have no idea if this helps (remove if unneeded)

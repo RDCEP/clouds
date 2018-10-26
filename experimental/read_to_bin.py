@@ -56,7 +56,7 @@ with tf.Session() as sess:
     with open(FLAGS.out_file, "wb") as f:
         print("Writing", flush=True)
         # first int32 is number of lines, second i32 is dimensionality
-        f.write(np.array([0, 0], dtype=np.int32).astype(np.int32).tobytes())
+        f.write(np.array([0, 0], dtype=np.int32).tobytes())
 
         try:
             count, dims = 0, None
@@ -71,9 +71,7 @@ with tf.Session() as sess:
 
                 f.write(c.astype(np.float32).ravel().tobytes())
                 count += b
-                # if count % 100 == 0:
-                #     print(count)
-                print(count)
+                print(count, flush=True)
 
         except tf.errors.OutOfRangeError:
             f.seek(0)
