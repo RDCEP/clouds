@@ -30,13 +30,14 @@ def gen_swaths(targets, mode, resize, rank):
         read = lambda tif_file: gdal.Open(tif_file).ReadAsArray()
 
     elif mode == "mod02_1km":
-        names_1km = (
-            "EV_250_Aggr1km_RefSB",
-            "EV_500_Aggr1km_RefSB",
-            "EV_1KM_RefSB",
-            "EV_1KM_Emissive",
-        )
-        read = lambda hdf_file: read_hdf(hdf_file, names1names_1km)
+        names_1km = {
+            "EV_250_Aggr1km_RefSB": [0, 1],
+            "EV_500_Aggr1km_RefSB": [0, 1],
+            "EV_1KM_RefSB": [x for x in range(15) if x not in (12, 14)],
+            # 6,7 are very noisy water vapor channels
+            "EV_1KM_Emissive": [0, 1, 2, 3, 10, 11],
+        }
+        read = lambda hdf_file: read_hdf(hdf_file, names_1km)
 
     else:
         raise ValueError("Invalid reader mode", mode)
@@ -57,8 +58,9 @@ def read_hdf(hdf_file, fields, x_range=(None, None), y_range=(None, None)):
     x_min, x_max = x_range
     y_min, y_max = y_range
     hdf = SD(hdf_file, SDC.READ)
-    fields = [hdf.select(f)[:, x_min:x_max, y_min:y_max] for f in fields]
-    return np.concatenate(fields, axis=0)
+
+    swath = [hdf.select(f)[:, x_min: x_max, y_min: y_max][fields[f]] for f in fields]
+    return np.concatenate(swath, axis=0)
 
 
 def gen_patches(swaths, shape, strides):

@@ -112,3 +112,4 @@ timelines/*
 experimental/test/foo/
 experimental/m19
 output
+experimental/test/*/
