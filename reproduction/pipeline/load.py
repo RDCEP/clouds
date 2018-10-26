@@ -4,7 +4,8 @@ import json
 from tensorflow.contrib.data import shuffle_and_repeat
 from tensorflow.contrib.data import parallel_interleave
 from tensorflow.contrib.data import batch_and_drop_remainder
-from pyhdf.SD import SD, SDC
+
+# from pyhdf.SD import SD, SDC
 
 # TODO Deprecated
 def tfr_parser_fn(fields, meta_json, saved_as_bytes=True):

@@ -298,8 +298,9 @@ def load_latest_model_weights(model, model_dir, name):
     step, model_file = latest
 
     if model_file:
+        model_file = path.join(model_dir, model_file)
         model.load_weights(model_file)
-        print("loaded weights for", name, "from", path.join(model_dir, model_file))
+        print("loaded weights for", name, "from", model_file)
 
     else:
         print("no weights for", name, "in", model_dir)
@@ -377,7 +378,7 @@ if __name__ == "__main__":
 
     if FLAGS.channel_order == "channels_first":
         img = tf.transpose(img, perm=[0, 3, 1, 2])
-        shape = shape[2], * shape[:2]
+        shape = shape[2], *shape[:2]
         print("sh", shape)
 
     # DEBUG: I have no idea if this helps (remove if unneeded)
