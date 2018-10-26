@@ -290,14 +290,22 @@ def load_model_def(model_dir, name):
 
 
 def load_latest_model_weights(model, model_dir, name):
-    saved = [m for m in listdir(model_dir) if ".h5" in m and name in m]
-    if saved:
-        s = sorted(saved)[-1]
-        model.load_weights(path.join(model_dir, s))
-        step = int(s.split("-")[1].replace(".h5", ""))
-        return step
+    latest = 0, None
+    for m in listdir(model_dir):
+        if ".h5" in m and name in m:
+            step = int(m.split("-")[1].replace(".h5", ""))
+            latest = max(latest, (step, m))
+    step, model_file = latest
+
+    if model_file:
+        model_file = path.join(model_dir, model_file)
+        model.load_weights(model_file)
+        print("loaded weights for", name, "from", model_file)
+
     else:
-        raise ValueError("No weights for ", name, "in", model_dir)
+        print("no weights for", name, "in", model_dir)
+
+    return step
 
 
 def loss_fn(name, weight, fn, **kwargs):
@@ -331,6 +339,7 @@ def image_losses(img, ae_img, w_mse, w_mae, w_hfe, w_ssim):
 
     def msssim():
         # BUG why does it work on only these power factors?
+        # BUG TODO This probably assumes channels last!!!!
         s = tf.image.ssim_multiscale(img, ae_img, max_val=5, power_factors=[1, 1, 1])
         return 1 - tf.reduce_mean(s)
 
@@ -527,12 +536,9 @@ if __name__ == "__main__":
         hvd.broadcast_global_variables(0)
 
         for m in save_models:
-            try:
-                gs = load_latest_model_weights(save_models[m], FLAGS.model_dir, m)
+            gs = load_latest_model_weights(save_models[m], FLAGS.model_dir, m)
+            if gs is not None:
                 sess.run(global_step.assign(gs))
-                print("Loaded weights for", m, "Set global step to", gs, flush=True)
-            except Exception as e:
-                print("Could not load weights for", m, "because", e, flush=True)
 
         log_dir = path.join(FLAGS.model_dir, "summary")
         tb_graph = sess.graph if not path.exists(log_dir) else None
