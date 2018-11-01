@@ -163,7 +163,7 @@ def get_flags(verbose):
         "--display_imgs",
         metavar="N",
         type=int,
-        default=8,
+        default=10,
         help="Number of images to display on tensorboard",
     )
     p.add_argument(
@@ -360,7 +360,7 @@ if __name__ == "__main__":
     FLAGS = get_flags(hvd.rank() == 0)
     global_step = tf.train.get_or_create_global_step()
 
-    print("Building dataset...", flush=True)
+    print(hvd.rank(), "Building dataset...", flush=True)
     dataset = pipeline.load_data(
         FLAGS.data,
         FLAGS.shape,
@@ -378,7 +378,7 @@ if __name__ == "__main__":
 
     if FLAGS.channel_order == "channels_first":
         img = tf.transpose(img, perm=[0, 3, 1, 2])
-        shape = shape[2], * shape[:2]
+        shape = shape[2], *shape[:2]
         print("sh", shape)
 
     # DEBUG: I have no idea if this helps (remove if unneeded)
@@ -386,14 +386,6 @@ if __name__ == "__main__":
 
     # Colormap object maps our channels to normal rgb channels
     cmap = ColorMap(FLAGS.red_bands, FLAGS.green_bands, FLAGS.blue_bands)
-
-    ### For each submodel (AE, Disc, Perceptual)
-    # - Load or define it
-    # - Define its losses and maybe add it to loss_ae
-    # - Add the loss to tf summary
-    # - Optimize it and add that to `train_ops`
-    # - Add model to `save_models` so it will end up being saved.
-    # Except for pretained models which do not need to be trained or saved
 
     print(hvd.rank(), "building model and losses...", flush=True)
     with tf.name_scope("autoencoder"):
@@ -443,7 +435,6 @@ if __name__ == "__main__":
     tf.summary.image("autoencoded", camg, FLAGS.display_imgs)
     tf.summary.image("difference", cimg - camg, FLAGS.display_imgs)
     save_models = {"encoder": encoder, "decoder": decoder}
-
     train_ops = []
 
     if FLAGS.adversarial:
@@ -511,14 +502,14 @@ if __name__ == "__main__":
 
     # Save model definitions
     for m in save_models:
-        with open(path.join(FLAGS.model_dir, f"{m}.json"), "w") as f:
+        with open(path.join(FLAGS.model_dir, m + ".json"), "w") as f:
             f.write(save_models[m].to_json())
 
     summary_op = tf.summary.merge_all()
     run_metadata = tf.RunMetadata()
     run_opts = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
 
-    print("Training...", flush=True)
+    print(hvd.rank(), "Starting Session...", flush=True)
     with tf.Session(
         config=tf.ConfigProto(
             gpu_options=tf.GPUOptions(
@@ -527,14 +518,18 @@ if __name__ == "__main__":
             log_device_placement=FLAGS.log_device_placement,
         )
     ) as sess:
+        print(hvd.rank(), "init profiler and broadcast global variables", flush=True)
         profiler = Profiler(sess.graph)
+
         sess.run(
             tf.global_variables_initializer(),
             options=run_opts,
             run_metadata=run_metadata,
         )
+
         hvd.broadcast_global_variables(0)
 
+        print(hvd.rank(), "Loading model weights", flush=True)
         for m in save_models:
             gs = load_latest_model_weights(save_models[m], FLAGS.model_dir, m)
             if gs is not None:
@@ -549,10 +544,12 @@ if __name__ == "__main__":
                 save_models[m].summary()
             print("", flush=True)
 
+        print(hvd.rank(), "Entering training loop", flush=True)
         for _ in range(FLAGS.max_steps):
             gs, _ = sess.run(
                 [global_step, train_ops], options=run_opts, run_metadata=run_metadata
             )
+            print(hvd.rank(), "step", gs, flush=True)
 
             if gs % FLAGS.summary_every == 0 and hvd.rank() == 0:
                 summary = sess.run(
@@ -582,5 +579,5 @@ if __name__ == "__main__":
             if gs % FLAGS.save_every == 0 and hvd.rank() == 0:
                 for m in save_models:
                     save_models[m].save_weights(
-                        path.join(FLAGS.model_dir, f"{m}-{gs}.h5")
+                        path.join(FLAGS.model_dir, "{}-{}.h5".format(m, gs))
                     )

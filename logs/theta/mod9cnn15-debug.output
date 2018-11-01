@@ -1,0 +1,5540 @@
+1 Building dataset...
+3 Building dataset...
+2 Building dataset...
+Tensorflow version: 1.10.1
+Current Git Commit: b'5f84717'
+Flags:
+	 autoencoder_adam           [0.001, 0.9, 0.999]
+	 gaussian_noise             0
+	 adversarial                False
+	 variational                False
+	 n_blocks                   4
+	 blue_bands                 [2, 3]
+	 lambda_per                 1.0
+	 lambda_disc                0.001
+	 shape                      [128, 128, 7]
+	 prefetch                   1
+	 display_imgs               10
+	 save_every                 5000
+	 scale                      2
+	 batchnorm                  True
+	 green_bands                [0]
+	 log_device_placement       False
+	 base_dim                   16
+	 discriminator_adam         (0.0004, 0, 0.9)
+	 max_steps                  100000
+	 salt_pepper                0
+	 shuffle_buffer_size        1000
+	 summary_every              250
+	 image_loss_weights         [1.0, 1.0, 1.0, 1.0]
+	 red_bands                  [1, 4, 5, 6]
+	 model_dir                  /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+	 read_threads               16
+	 data                       ['/projects/CSC249ADCD01/clouds/data/mod09-whitened/*.tfrecord']
+	 no_augment_flip            False
+	 channel_order              channels_last
+	 lambda_gradient_penalty    10
+	 no_grad_histogram          False
+	 batch_size                 32
+	 vae_beta                   1.0
+	 block_len                  0
+	 dense_ae                   None
+	 no_augment_rotate          True
+	 perceptual                 False
+
+
+0 Building dataset...
+1 building model and losses...
+3 building model and losses...
+2 building model and losses...
+0 building model and losses...
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+1 Starting Session...
+1 init profiler and broadcast global variables
+0 Starting Session...
+0 init profiler and broadcast global variables
+2 Starting Session...
+2 init profiler and broadcast global variables
+3 Starting Session...
+3 init profiler and broadcast global variables
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+1 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+Parsing Inputs...
+1 Entering training loop
+2 Loading model weights
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+3 Loading model weights
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+2 Entering training loop
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+3 Entering training loop
+0 Loading model weights
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+__________________________________________________________________________________________________
+Layer (type)                    Output Shape         Param #     Connected to                     
+==================================================================================================
+decoder_input (InputLayer)      (None, 8, 8, 128)    0                                            
+__________________________________________________________________________________________________
+conv2d_transpose (Conv2DTranspo (None, 16, 16, 128)  147584      decoder_input[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu_9 (LeakyReLU)       (None, 16, 16, 128)  0           conv2d_transpose[0][0]           
+__________________________________________________________________________________________________
+conv2d_9 (Conv2D)               (None, 16, 16, 128)  147584      leaky_re_lu_9[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu_10 (LeakyReLU)      (None, 16, 16, 128)  0           conv2d_9[0][0]                   
+__________________________________________________________________________________________________
+lambda_4 (Lambda)               (None, 16, 16, 128)  0           leaky_re_lu_10[0][0]             
+                                                                 decoder_input[0][0]              
+__________________________________________________________________________________________________
+batch_normalization_4 (BatchNor (None, 16, 16, 128)  512         lambda_4[0][0]                   
+__________________________________________________________________________________________________
+conv2d_transpose_1 (Conv2DTrans (None, 32, 32, 64)   73792       batch_normalization_4[0][0]      
+__________________________________________________________________________________________________
+leaky_re_lu_11 (LeakyReLU)      (None, 32, 32, 64)   0           conv2d_transpose_1[0][0]         
+__________________________________________________________________________________________________
+conv2d_10 (Conv2D)              (None, 32, 32, 64)   36928       leaky_re_lu_11[0][0]             
+__________________________________________________________________________________________________
+leaky_re_lu_12 (LeakyReLU)      (None, 32, 32, 64)   0           conv2d_10[0][0]                  
+__________________________________________________________________________________________________
+lambda_5 (Lambda)               (None, 32, 32, 64)   0           leaky_re_lu_12[0][0]             
+                                                                 batch_normalization_4[0][0]      
+__________________________________________________________________________________________________
+batch_normalization_5 (BatchNor (None, 32, 32, 64)   256         lambda_5[0][0]                   
+__________________________________________________________________________________________________
+conv2d_transpose_2 (Conv2DTrans (None, 64, 64, 32)   18464       batch_normalization_5[0][0]      
+__________________________________________________________________________________________________
+leaky_re_lu_13 (LeakyReLU)      (None, 64, 64, 32)   0           conv2d_transpose_2[0][0]         
+__________________________________________________________________________________________________
+conv2d_11 (Conv2D)              (None, 64, 64, 32)   9248        leaky_re_lu_13[0][0]             
+__________________________________________________________________________________________________
+leaky_re_lu_14 (LeakyReLU)      (None, 64, 64, 32)   0           conv2d_11[0][0]                  
+__________________________________________________________________________________________________
+lambda_6 (Lambda)               (None, 64, 64, 32)   0           leaky_re_lu_14[0][0]             
+                                                                 batch_normalization_5[0][0]      
+__________________________________________________________________________________________________
+batch_normalization_6 (BatchNor (None, 64, 64, 32)   128         lambda_6[0][0]                   
+__________________________________________________________________________________________________
+conv2d_transpose_3 (Conv2DTrans (None, 128, 128, 16) 4624        batch_normalization_6[0][0]      
+__________________________________________________________________________________________________
+leaky_re_lu_15 (LeakyReLU)      (None, 128, 128, 16) 0           conv2d_transpose_3[0][0]         
+__________________________________________________________________________________________________
+conv2d_12 (Conv2D)              (None, 128, 128, 16) 2320        leaky_re_lu_15[0][0]             
+__________________________________________________________________________________________________
+leaky_re_lu_16 (LeakyReLU)      (None, 128, 128, 16) 0           conv2d_12[0][0]                  
+__________________________________________________________________________________________________
+lambda_7 (Lambda)               (None, 128, 128, 16) 0           leaky_re_lu_16[0][0]             
+                                                                 batch_normalization_6[0][0]      
+__________________________________________________________________________________________________
+batch_normalization_7 (BatchNor (None, 128, 128, 16) 64          lambda_7[0][0]                   
+__________________________________________________________________________________________________
+reconstructed (Conv2D)          (None, 128, 128, 7)  119         batch_normalization_7[0][0]      
+==================================================================================================
+Total params: 441,623
+Trainable params: 441,143
+Non-trainable params: 480
+__________________________________________________________________________________________________
+__________________________________________________________________________________________________
+Layer (type)                    Output Shape         Param #     Connected to                     
+==================================================================================================
+encoder_input (InputLayer)      (None, 128, 128, 7)  0                                            
+__________________________________________________________________________________________________
+conv2d (Conv2D)                 (None, 128, 128, 16) 1024        encoder_input[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu (LeakyReLU)         (None, 128, 128, 16) 0           conv2d[0][0]                     
+__________________________________________________________________________________________________
+conv2d_1 (Conv2D)               (None, 64, 64, 16)   2320        leaky_re_lu[0][0]                
+__________________________________________________________________________________________________
+leaky_re_lu_1 (LeakyReLU)       (None, 64, 64, 16)   0           conv2d_1[0][0]                   
+__________________________________________________________________________________________________
+conv2d_2 (Conv2D)               (None, 64, 64, 16)   2320        leaky_re_lu_1[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu_2 (LeakyReLU)       (None, 64, 64, 16)   0           conv2d_2[0][0]                   
+__________________________________________________________________________________________________
+lambda (Lambda)                 (None, 64, 64, 16)   0           leaky_re_lu_2[0][0]              
+                                                                 leaky_re_lu[0][0]                
+__________________________________________________________________________________________________
+batch_normalization (BatchNorma (None, 64, 64, 16)   64          lambda[0][0]                     
+__________________________________________________________________________________________________
+conv2d_3 (Conv2D)               (None, 32, 32, 32)   4640        batch_normalization[0][0]        
+__________________________________________________________________________________________________
+leaky_re_lu_3 (LeakyReLU)       (None, 32, 32, 32)   0           conv2d_3[0][0]                   
+__________________________________________________________________________________________________
+conv2d_4 (Conv2D)               (None, 32, 32, 32)   9248        leaky_re_lu_3[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu_4 (LeakyReLU)       (None, 32, 32, 32)   0           conv2d_4[0][0]                   
+__________________________________________________________________________________________________
+lambda_1 (Lambda)               (None, 32, 32, 32)   0           leaky_re_lu_4[0][0]              
+                                                                 batch_normalization[0][0]        
+__________________________________________________________________________________________________
+batch_normalization_1 (BatchNor (None, 32, 32, 32)   128         lambda_1[0][0]                   
+__________________________________________________________________________________________________
+conv2d_5 (Conv2D)               (None, 16, 16, 64)   18496       batch_normalization_1[0][0]      
+__________________________________________________________________________________________________
+leaky_re_lu_5 (LeakyReLU)       (None, 16, 16, 64)   0           conv2d_5[0][0]                   
+__________________________________________________________________________________________________
+conv2d_6 (Conv2D)               (None, 16, 16, 64)   36928       leaky_re_lu_5[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu_6 (LeakyReLU)       (None, 16, 16, 64)   0           conv2d_6[0][0]                   
+__________________________________________________________________________________________________
+lambda_2 (Lambda)               (None, 16, 16, 64)   0           leaky_re_lu_6[0][0]              
+                                                                 batch_normalization_1[0][0]      
+__________________________________________________________________________________________________
+batch_normalization_2 (BatchNor (None, 16, 16, 64)   256         lambda_2[0][0]                   
+__________________________________________________________________________________________________
+conv2d_7 (Conv2D)               (None, 8, 8, 128)    73856       batch_normalization_2[0][0]      
+__________________________________________________________________________________________________
+leaky_re_lu_7 (LeakyReLU)       (None, 8, 8, 128)    0           conv2d_7[0][0]                   
+__________________________________________________________________________________________________
+conv2d_8 (Conv2D)               (None, 8, 8, 128)    147584      leaky_re_lu_7[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu_8 (LeakyReLU)       (None, 8, 8, 128)    0           conv2d_8[0][0]                   
+__________________________________________________________________________________________________
+lambda_3 (Lambda)               (None, 8, 8, 128)    0           leaky_re_lu_8[0][0]              
+                                                                 batch_normalization_2[0][0]      
+__________________________________________________________________________________________________
+batch_normalization_3 (BatchNor (None, 8, 8, 128)    512         lambda_3[0][0]                   
+==================================================================================================
+Total params: 297,376
+Trainable params: 296,896
+Non-trainable params: 480
+__________________________________________________________________________________________________
+
+0 Entering training loop
+3 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+2 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+1 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+0 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+3 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+2 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+1 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+0 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+1 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+3 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+2 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+0 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+2 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+0 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+3 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+1 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+2 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+3 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+0 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+1 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+1 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+0 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+2 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+3 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+3 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+0 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+2 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+1 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+2 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+0 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+1 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+3 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+2 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+3 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+1 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+0 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+2 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+3 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+0 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+1 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+3 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+0 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+2 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+1 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+2 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+3 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+1 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+0 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+2 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+0 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+1 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+3 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+2 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+3 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+1 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+0 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+3 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+0 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+2 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+1 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+3 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+0 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+2 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+1 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+0 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+3 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+2 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+1 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+3 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+1 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+2 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+0 step <tf.Variable 'global_step:0' shape=() dtype=int64_ref>
+Application 7953854 exit codes: 143
+Application 7953854 resources: utime ~5659s, stime ~248s, Rss ~2723948, inblocks ~262812, outblocks ~448
+1 Building dataset...
+2 Building dataset...
+3 Building dataset...
+Tensorflow version: 1.10.1
+Current Git Commit: b'5f84717'
+Flags:
+	 block_len                  0
+	 base_dim                   16
+	 channel_order              channels_last
+	 autoencoder_adam           [0.001, 0.9, 0.999]
+	 shuffle_buffer_size        1000
+	 display_imgs               10
+	 read_threads               16
+	 salt_pepper                0
+	 model_dir                  /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+	 batchnorm                  True
+	 blue_bands                 [2, 3]
+	 no_grad_histogram          False
+	 summary_every              250
+	 log_device_placement       False
+	 prefetch                   1
+	 variational                False
+	 gaussian_noise             0
+	 save_every                 5000
+	 image_loss_weights         [1.0, 1.0, 1.0, 1.0]
+	 discriminator_adam         (0.0004, 0, 0.9)
+	 red_bands                  [1, 4, 5, 6]
+	 max_steps                  100000
+	 no_augment_flip            False
+	 batch_size                 32
+	 scale                      2
+	 data                       ['/projects/CSC249ADCD01/clouds/data/mod09-whitened/*.tfrecord']
+	 shape                      [128, 128, 7]
+	 lambda_gradient_penalty    10
+	 lambda_per                 1.0
+	 green_bands                [0]
+	 dense_ae                   None
+	 adversarial                False
+	 perceptual                 False
+	 lambda_disc                0.001
+	 vae_beta                   1.0
+	 n_blocks                   4
+	 no_augment_rotate          True
+
+
+0 Building dataset...
+2 building model and losses...
+1 building model and losses...
+3 building model and losses...
+0 building model and losses...
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+2 Starting Session...
+2 init profiler and broadcast global variables
+1 Starting Session...
+1 init profiler and broadcast global variables
+3 Starting Session...
+3 init profiler and broadcast global variables
+0 Starting Session...
+0 init profiler and broadcast global variables
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+2 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+2 Entering training loop
+1 Loading model weights
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+Parsing Inputs...
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+3 Loading model weights
+1 Entering training loop
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+3 Entering training loop
+0 Loading model weights
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+__________________________________________________________________________________________________
+Layer (type)                    Output Shape         Param #     Connected to                     
+==================================================================================================
+decoder_input (InputLayer)      (None, 8, 8, 128)    0                                            
+__________________________________________________________________________________________________
+conv2d_transpose (Conv2DTranspo (None, 16, 16, 128)  147584      decoder_input[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu_9 (LeakyReLU)       (None, 16, 16, 128)  0           conv2d_transpose[0][0]           
+__________________________________________________________________________________________________
+conv2d_9 (Conv2D)               (None, 16, 16, 128)  147584      leaky_re_lu_9[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu_10 (LeakyReLU)      (None, 16, 16, 128)  0           conv2d_9[0][0]                   
+__________________________________________________________________________________________________
+lambda_4 (Lambda)               (None, 16, 16, 128)  0           leaky_re_lu_10[0][0]             
+                                                                 decoder_input[0][0]              
+__________________________________________________________________________________________________
+batch_normalization_4 (BatchNor (None, 16, 16, 128)  512         lambda_4[0][0]                   
+__________________________________________________________________________________________________
+conv2d_transpose_1 (Conv2DTrans (None, 32, 32, 64)   73792       batch_normalization_4[0][0]      
+__________________________________________________________________________________________________
+leaky_re_lu_11 (LeakyReLU)      (None, 32, 32, 64)   0           conv2d_transpose_1[0][0]         
+__________________________________________________________________________________________________
+conv2d_10 (Conv2D)              (None, 32, 32, 64)   36928       leaky_re_lu_11[0][0]             
+__________________________________________________________________________________________________
+leaky_re_lu_12 (LeakyReLU)      (None, 32, 32, 64)   0           conv2d_10[0][0]                  
+__________________________________________________________________________________________________
+lambda_5 (Lambda)               (None, 32, 32, 64)   0           leaky_re_lu_12[0][0]             
+                                                                 batch_normalization_4[0][0]      
+__________________________________________________________________________________________________
+batch_normalization_5 (BatchNor (None, 32, 32, 64)   256         lambda_5[0][0]                   
+__________________________________________________________________________________________________
+conv2d_transpose_2 (Conv2DTrans (None, 64, 64, 32)   18464       batch_normalization_5[0][0]      
+__________________________________________________________________________________________________
+leaky_re_lu_13 (LeakyReLU)      (None, 64, 64, 32)   0           conv2d_transpose_2[0][0]         
+__________________________________________________________________________________________________
+conv2d_11 (Conv2D)              (None, 64, 64, 32)   9248        leaky_re_lu_13[0][0]             
+__________________________________________________________________________________________________
+leaky_re_lu_14 (LeakyReLU)      (None, 64, 64, 32)   0           conv2d_11[0][0]                  
+__________________________________________________________________________________________________
+lambda_6 (Lambda)               (None, 64, 64, 32)   0           leaky_re_lu_14[0][0]             
+                                                                 batch_normalization_5[0][0]      
+__________________________________________________________________________________________________
+batch_normalization_6 (BatchNor (None, 64, 64, 32)   128         lambda_6[0][0]                   
+__________________________________________________________________________________________________
+conv2d_transpose_3 (Conv2DTrans (None, 128, 128, 16) 4624        batch_normalization_6[0][0]      
+__________________________________________________________________________________________________
+leaky_re_lu_15 (LeakyReLU)      (None, 128, 128, 16) 0           conv2d_transpose_3[0][0]         
+__________________________________________________________________________________________________
+conv2d_12 (Conv2D)              (None, 128, 128, 16) 2320        leaky_re_lu_15[0][0]             
+__________________________________________________________________________________________________
+leaky_re_lu_16 (LeakyReLU)      (None, 128, 128, 16) 0           conv2d_12[0][0]                  
+__________________________________________________________________________________________________
+lambda_7 (Lambda)               (None, 128, 128, 16) 0           leaky_re_lu_16[0][0]             
+                                                                 batch_normalization_6[0][0]      
+__________________________________________________________________________________________________
+batch_normalization_7 (BatchNor (None, 128, 128, 16) 64          lambda_7[0][0]                   
+__________________________________________________________________________________________________
+reconstructed (Conv2D)          (None, 128, 128, 7)  119         batch_normalization_7[0][0]      
+==================================================================================================
+Total params: 441,623
+Trainable params: 441,143
+Non-trainable params: 480
+__________________________________________________________________________________________________
+__________________________________________________________________________________________________
+Layer (type)                    Output Shape         Param #     Connected to                     
+==================================================================================================
+encoder_input (InputLayer)      (None, 128, 128, 7)  0                                            
+__________________________________________________________________________________________________
+conv2d (Conv2D)                 (None, 128, 128, 16) 1024        encoder_input[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu (LeakyReLU)         (None, 128, 128, 16) 0           conv2d[0][0]                     
+__________________________________________________________________________________________________
+conv2d_1 (Conv2D)               (None, 64, 64, 16)   2320        leaky_re_lu[0][0]                
+__________________________________________________________________________________________________
+leaky_re_lu_1 (LeakyReLU)       (None, 64, 64, 16)   0           conv2d_1[0][0]                   
+__________________________________________________________________________________________________
+conv2d_2 (Conv2D)               (None, 64, 64, 16)   2320        leaky_re_lu_1[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu_2 (LeakyReLU)       (None, 64, 64, 16)   0           conv2d_2[0][0]                   
+__________________________________________________________________________________________________
+lambda (Lambda)                 (None, 64, 64, 16)   0           leaky_re_lu_2[0][0]              
+                                                                 leaky_re_lu[0][0]                
+__________________________________________________________________________________________________
+batch_normalization (BatchNorma (None, 64, 64, 16)   64          lambda[0][0]                     
+__________________________________________________________________________________________________
+conv2d_3 (Conv2D)               (None, 32, 32, 32)   4640        batch_normalization[0][0]        
+__________________________________________________________________________________________________
+leaky_re_lu_3 (LeakyReLU)       (None, 32, 32, 32)   0           conv2d_3[0][0]                   
+__________________________________________________________________________________________________
+conv2d_4 (Conv2D)               (None, 32, 32, 32)   9248        leaky_re_lu_3[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu_4 (LeakyReLU)       (None, 32, 32, 32)   0           conv2d_4[0][0]                   
+__________________________________________________________________________________________________
+lambda_1 (Lambda)               (None, 32, 32, 32)   0           leaky_re_lu_4[0][0]              
+                                                                 batch_normalization[0][0]        
+__________________________________________________________________________________________________
+batch_normalization_1 (BatchNor (None, 32, 32, 32)   128         lambda_1[0][0]                   
+__________________________________________________________________________________________________
+conv2d_5 (Conv2D)               (None, 16, 16, 64)   18496       batch_normalization_1[0][0]      
+__________________________________________________________________________________________________
+leaky_re_lu_5 (LeakyReLU)       (None, 16, 16, 64)   0           conv2d_5[0][0]                   
+__________________________________________________________________________________________________
+conv2d_6 (Conv2D)               (None, 16, 16, 64)   36928       leaky_re_lu_5[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu_6 (LeakyReLU)       (None, 16, 16, 64)   0           conv2d_6[0][0]                   
+__________________________________________________________________________________________________
+lambda_2 (Lambda)               (None, 16, 16, 64)   0           leaky_re_lu_6[0][0]              
+                                                                 batch_normalization_1[0][0]      
+__________________________________________________________________________________________________
+batch_normalization_2 (BatchNor (None, 16, 16, 64)   256         lambda_2[0][0]                   
+__________________________________________________________________________________________________
+conv2d_7 (Conv2D)               (None, 8, 8, 128)    73856       batch_normalization_2[0][0]      
+__________________________________________________________________________________________________
+leaky_re_lu_7 (LeakyReLU)       (None, 8, 8, 128)    0           conv2d_7[0][0]                   
+__________________________________________________________________________________________________
+conv2d_8 (Conv2D)               (None, 8, 8, 128)    147584      leaky_re_lu_7[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu_8 (LeakyReLU)       (None, 8, 8, 128)    0           conv2d_8[0][0]                   
+__________________________________________________________________________________________________
+lambda_3 (Lambda)               (None, 8, 8, 128)    0           leaky_re_lu_8[0][0]              
+                                                                 batch_normalization_2[0][0]      
+__________________________________________________________________________________________________
+batch_normalization_3 (BatchNor (None, 8, 8, 128)    512         lambda_3[0][0]                   
+==================================================================================================
+Total params: 297,376
+Trainable params: 296,896
+Non-trainable params: 480
+__________________________________________________________________________________________________
+
+0 Entering training loop
+3 step 1
+0 step 1
+1 step 1
+2 step 1
+1 step 2
+2 step 2
+3 step 2
+0 step 2
+1 step 3
+2 step 3
+3 step 3
+0 step 3
+1 step 4
+2 step 4
+3 step 4
+0 step 4
+3 step 5
+2 step 5
+1 step 5
+0 step 5
+0 step 6
+2 step 6
+3 step 6
+1 step 6
+3 step 7
+2 step 7
+0 step 7
+1 step 7
+1 step 8
+2 step 8
+0 step 8
+3 step 8
+1 step 9
+2 step 9
+0 step 9
+3 step 9
+0 step 10
+1 step 10
+2 step 10
+3 step 10
+0 step 11
+1 step 11
+3 step 11
+2 step 11
+2 step 12
+0 step 12
+3 step 12
+1 step 12
+0 step 13
+1 step 13
+2 step 13
+3 step 13
+1 step 14
+2 step 14
+3 step 14
+0 step 14
+2 step 15
+0 step 15
+1 step 15
+3 step 15
+0 step 16
+1 step 16
+2 step 16
+3 step 16
+3 step 17
+1 step 17
+2 step 17
+0 step 17
+2 step 18
+1 step 18
+0 step 18
+3 step 18
+1 step 19
+2 step 19
+0 step 19
+3 step 19
+3 step 20
+1 step 20
+2 step 20
+0 step 20
+1 step 21
+2 step 21
+3 step 21
+0 step 21
+Application 7959312 exit codes: 143
+Application 7959312 resources: utime ~6698s, stime ~261s, Rss ~2734700, inblocks ~262558, outblocks ~448
+2 Building dataset...
+1 Building dataset...
+3 Building dataset...
+Tensorflow version: 1.10.1
+Current Git Commit: b'5f84717'
+Flags:
+	 base_dim                   16
+	 log_device_placement       False
+	 scale                      2
+	 save_every                 5000
+	 batchnorm                  True
+	 prefetch                   1
+	 adversarial                False
+	 n_blocks                   4
+	 lambda_per                 1.0
+	 no_augment_flip            False
+	 display_imgs               10
+	 no_augment_rotate          True
+	 red_bands                  [1, 4, 5, 6]
+	 lambda_gradient_penalty    10
+	 discriminator_adam         (0.0004, 0, 0.9)
+	 salt_pepper                0
+	 summary_every              250
+	 autoencoder_adam           [0.001, 0.9, 0.999]
+	 blue_bands                 [2, 3]
+	 model_dir                  /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+	 gaussian_noise             0
+	 batch_size                 32
+	 image_loss_weights         [1.0, 1.0, 1.0, 1.0]
+	 variational                False
+	 dense_ae                   None
+	 data                       ['/projects/CSC249ADCD01/clouds/data/mod09-whitened/*.tfrecord']
+	 read_threads               16
+	 lambda_disc                0.001
+	 shuffle_buffer_size        1000
+	 perceptual                 False
+	 vae_beta                   1.0
+	 shape                      [128, 128, 7]
+	 no_grad_histogram          False
+	 max_steps                  100000
+	 green_bands                [0]
+	 block_len                  0
+	 channel_order              channels_last
+
+
+0 Building dataset...
+3 building model and losses...
+1 building model and losses...
+2 building model and losses...
+0 building model and losses...
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+3 Starting Session...
+3 init profiler and broadcast global variables
+0 Starting Session...
+0 init profiler and broadcast global variables
+1 Starting Session...
+1 init profiler and broadcast global variables
+2 Starting Session...
+2 init profiler and broadcast global variables
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+3 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+1 Loading model weights
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+3 Entering training loop
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+0 Loading model weights
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+1 Entering training loop
+Parsing Inputs...
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+__________________________________________________________________________________________________
+Layer (type)                    Output Shape         Param #     Connected to                     
+==================================================================================================
+decoder_input (InputLayer)      (None, 8, 8, 128)    0                                            
+__________________________________________________________________________________________________
+conv2d_transpose (Conv2DTranspo (None, 16, 16, 128)  147584      decoder_input[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu_9 (LeakyReLU)       (None, 16, 16, 128)  0           conv2d_transpose[0][0]           
+__________________________________________________________________________________________________
+conv2d_9 (Conv2D)               (None, 16, 16, 128)  147584      leaky_re_lu_9[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu_10 (LeakyReLU)      (None, 16, 16, 128)  0           conv2d_9[0][0]                   
+__________________________________________________________________________________________________
+lambda_4 (Lambda)               (None, 16, 16, 128)  0           leaky_re_lu_10[0][0]             
+                                                                 decoder_input[0][0]              
+__________________________________________________________________________________________________
+batch_normalization_4 (BatchNor (None, 16, 16, 128)  512         lambda_4[0][0]                   
+__________________________________________________________________________________________________
+conv2d_transpose_1 (Conv2DTrans (None, 32, 32, 64)   73792       batch_normalization_4[0][0]      
+__________________________________________________________________________________________________
+leaky_re_lu_11 (LeakyReLU)      (None, 32, 32, 64)   0           conv2d_transpose_1[0][0]         
+__________________________________________________________________________________________________
+conv2d_10 (Conv2D)              (None, 32, 32, 64)   36928       leaky_re_lu_11[0][0]             
+__________________________________________________________________________________________________
+leaky_re_lu_12 (LeakyReLU)      (None, 32, 32, 64)   0           conv2d_10[0][0]                  
+__________________________________________________________________________________________________
+lambda_5 (Lambda)               (None, 32, 32, 64)   0           leaky_re_lu_12[0][0]             
+                                                                 batch_normalization_4[0][0]      
+__________________________________________________________________________________________________
+batch_normalization_5 (BatchNor (None, 32, 32, 64)   256         lambda_5[0][0]                   
+__________________________________________________________________________________________________
+conv2d_transpose_2 (Conv2DTrans (None, 64, 64, 32)   18464       batch_normalization_5[0][0]      
+__________________________________________________________________________________________________
+leaky_re_lu_13 (LeakyReLU)      (None, 64, 64, 32)   0           conv2d_transpose_2[0][0]         
+__________________________________________________________________________________________________
+conv2d_11 (Conv2D)              (None, 64, 64, 32)   9248        leaky_re_lu_13[0][0]             
+__________________________________________________________________________________________________
+leaky_re_lu_14 (LeakyReLU)      (None, 64, 64, 32)   0           conv2d_11[0][0]                  
+__________________________________________________________________________________________________
+lambda_6 (Lambda)               (None, 64, 64, 32)   0           leaky_re_lu_14[0][0]             
+                                                                 batch_normalization_5[0][0]      
+__________________________________________________________________________________________________
+batch_normalization_6 (BatchNor (None, 64, 64, 32)   128         lambda_6[0][0]                   
+__________________________________________________________________________________________________
+conv2d_transpose_3 (Conv2DTrans (None, 128, 128, 16) 4624        batch_normalization_6[0][0]      
+__________________________________________________________________________________________________
+leaky_re_lu_15 (LeakyReLU)      (None, 128, 128, 16) 0           conv2d_transpose_3[0][0]         
+__________________________________________________________________________________________________
+conv2d_12 (Conv2D)              (None, 128, 128, 16) 2320        leaky_re_lu_15[0][0]             
+__________________________________________________________________________________________________
+leaky_re_lu_16 (LeakyReLU)      (None, 128, 128, 16) 0           conv2d_12[0][0]                  
+__________________________________________________________________________________________________
+lambda_7 (Lambda)               (None, 128, 128, 16) 0           leaky_re_lu_16[0][0]             
+                                                                 batch_normalization_6[0][0]      
+__________________________________________________________________________________________________
+batch_normalization_7 (BatchNor (None, 128, 128, 16) 64          lambda_7[0][0]                   
+__________________________________________________________________________________________________
+reconstructed (Conv2D)          (None, 128, 128, 7)  119         batch_normalization_7[0][0]      
+==================================================================================================
+Total params: 441,623
+Trainable params: 441,143
+Non-trainable params: 480
+__________________________________________________________________________________________________
+__________________________________________________________________________________________________
+Layer (type)                    Output Shape         Param #     Connected to                     
+==================================================================================================
+encoder_input (InputLayer)      (None, 128, 128, 7)  0                                            
+__________________________________________________________________________________________________
+conv2d (Conv2D)                 (None, 128, 128, 16) 1024        encoder_input[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu (LeakyReLU)         (None, 128, 128, 16) 0           conv2d[0][0]                     
+__________________________________________________________________________________________________
+conv2d_1 (Conv2D)               (None, 64, 64, 16)   2320        leaky_re_lu[0][0]                
+__________________________________________________________________________________________________
+leaky_re_lu_1 (LeakyReLU)       (None, 64, 64, 16)   0           conv2d_1[0][0]                   
+__________________________________________________________________________________________________
+conv2d_2 (Conv2D)               (None, 64, 64, 16)   2320        leaky_re_lu_1[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu_2 (LeakyReLU)       (None, 64, 64, 16)   0           conv2d_2[0][0]                   
+__________________________________________________________________________________________________
+lambda (Lambda)                 (None, 64, 64, 16)   0           leaky_re_lu_2[0][0]              
+                                                                 leaky_re_lu[0][0]                
+__________________________________________________________________________________________________
+batch_normalization (BatchNorma (None, 64, 64, 16)   64          lambda[0][0]                     
+__________________________________________________________________________________________________
+conv2d_3 (Conv2D)               (None, 32, 32, 32)   4640        batch_normalization[0][0]        
+__________________________________________________________________________________________________
+leaky_re_lu_3 (LeakyReLU)       (None, 32, 32, 32)   0           conv2d_3[0][0]                   
+__________________________________________________________________________________________________
+conv2d_4 (Conv2D)               (None, 32, 32, 32)   9248        leaky_re_lu_3[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu_4 (LeakyReLU)       (None, 32, 32, 32)   0           conv2d_4[0][0]                   
+__________________________________________________________________________________________________
+lambda_1 (Lambda)               (None, 32, 32, 32)   0           leaky_re_lu_4[0][0]              
+                                                                 batch_normalization[0][0]        
+__________________________________________________________________________________________________
+batch_normalization_1 (BatchNor (None, 32, 32, 32)   128         lambda_1[0][0]                   
+__________________________________________________________________________________________________
+conv2d_5 (Conv2D)               (None, 16, 16, 64)   18496       batch_normalization_1[0][0]      
+__________________________________________________________________________________________________
+leaky_re_lu_5 (LeakyReLU)       (None, 16, 16, 64)   0           conv2d_5[0][0]                   
+__________________________________________________________________________________________________
+conv2d_6 (Conv2D)               (None, 16, 16, 64)   36928       leaky_re_lu_5[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu_6 (LeakyReLU)       (None, 16, 16, 64)   0           conv2d_6[0][0]                   
+__________________________________________________________________________________________________
+lambda_2 (Lambda)               (None, 16, 16, 64)   0           leaky_re_lu_6[0][0]              
+                                                                 batch_normalization_1[0][0]      
+__________________________________________________________________________________________________
+batch_normalization_2 (BatchNor (None, 16, 16, 64)   256         lambda_2[0][0]                   
+__________________________________________________________________________________________________
+conv2d_7 (Conv2D)               (None, 8, 8, 128)    73856       batch_normalization_2[0][0]      
+__________________________________________________________________________________________________
+leaky_re_lu_7 (LeakyReLU)       (None, 8, 8, 128)    0           conv2d_7[0][0]                   
+__________________________________________________________________________________________________
+conv2d_8 (Conv2D)               (None, 8, 8, 128)    147584      leaky_re_lu_7[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu_8 (LeakyReLU)       (None, 8, 8, 128)    0           conv2d_8[0][0]                   
+__________________________________________________________________________________________________
+lambda_3 (Lambda)               (None, 8, 8, 128)    0           leaky_re_lu_8[0][0]              
+                                                                 batch_normalization_2[0][0]      
+__________________________________________________________________________________________________
+batch_normalization_3 (BatchNor (None, 8, 8, 128)    512         lambda_3[0][0]                   
+==================================================================================================
+Total params: 297,376
+Trainable params: 296,896
+Non-trainable params: 480
+__________________________________________________________________________________________________
+
+0 Entering training loop
+2 Loading model weights
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+2 Entering training loop
+3 step 1
+0 step 1
+2 step 1
+1 step 1
+3 step 2
+2 step 2
+1 step 2
+0 step 2
+2 step 3
+3 step 3
+1 step 3
+0 step 3
+3 step 4
+0 step 4
+2 step 4
+1 step 4
+3 step 5
+2 step 5
+1 step 5
+0 step 5
+1 step 6
+3 step 6
+2 step 6
+0 step 6
+1 step 7
+3 step 7
+2 step 7
+0 step 7
+3 step 8
+2 step 8
+1 step 8
+0 step 8
+2 step 9
+1 step 9
+3 step 9
+0 step 9
+3 step 10
+2 step 10
+1 step 10
+0 step 10
+1 step 11
+3 step 11
+2 step 11
+0 step 11
+3 step 12
+2 step 12
+1 step 12
+0 step 12
+0 step 13
+2 step 13
+1 step 13
+3 step 13
+2 step 14
+1 step 14
+3 step 14
+0 step 14
+3 step 15
+2 step 15
+1 step 15
+0 step 15
+3 step 16
+2 step 16
+0 step 16
+1 step 16
+3 step 17
+2 step 17
+1 step 17
+0 step 17
+3 step 18
+2 step 18
+1 step 18
+0 step 18
+3 step 19
+1 step 19
+2 step 19
+0 step 19
+3 step 20
+2 step 20
+1 step 20
+0 step 20
+Application 7978098 exit codes: 143
+Application 7978098 resources: utime ~6467s, stime ~261s, Rss ~2725508, inblocks ~262956, outblocks ~448
+15 Building dataset...
+14 Building dataset...
+7 Building dataset...
+1 Building dataset...
+2 Building dataset...
+5 Building dataset...
+12 Building dataset...
+3 Building dataset...
+6 Building dataset...
+10 Building dataset...
+4 Building dataset...
+13 Building dataset...
+9 Building dataset...
+8 Building dataset...
+11 Building dataset...
+Tensorflow version: 1.10.1
+Current Git Commit: b'5f84717'
+Flags:
+	 red_bands                  [1, 4, 5, 6]
+	 autoencoder_adam           [0.001, 0.9, 0.999]
+	 no_augment_rotate          True
+	 green_bands                [0]
+	 image_loss_weights         [1.0, 1.0, 1.0, 1.0]
+	 salt_pepper                0
+	 batchnorm                  True
+	 model_dir                  /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+	 n_blocks                   4
+	 data                       ['/projects/CSC249ADCD01/clouds/data/mod09-whitened/*.tfrecord']
+	 lambda_disc                0.001
+	 adversarial                False
+	 lambda_per                 1.0
+	 read_threads               4
+	 block_len                  0
+	 discriminator_adam         (0.0004, 0, 0.9)
+	 display_imgs               10
+	 prefetch                   1
+	 channel_order              channels_last
+	 shuffle_buffer_size        1000
+	 save_every                 5000
+	 perceptual                 False
+	 dense_ae                   None
+	 blue_bands                 [2, 3]
+	 no_grad_histogram          False
+	 vae_beta                   1.0
+	 no_augment_flip            False
+	 max_steps                  100000
+	 batch_size                 8
+	 scale                      2
+	 base_dim                   16
+	 summary_every              250
+	 log_device_placement       False
+	 gaussian_noise             0
+	 variational                False
+	 shape                      [128, 128, 7]
+	 lambda_gradient_penalty    10
+
+
+46 Building dataset...
+37 Building dataset...
+36 Building dataset...
+42 Building dataset...
+35 Building dataset...
+39 Building dataset...
+34 Building dataset...
+43 Building dataset...
+41 Building dataset...
+40 Building dataset...
+45 Building dataset...
+33 Building dataset...
+44 Building dataset...
+32 Building dataset...
+38 Building dataset...
+57 Building dataset...
+56 Building dataset...
+59 Building dataset...
+58 Building dataset...
+48 Building dataset...
+60 Building dataset...
+49 Building dataset...
+62 Building dataset...
+63 Building dataset...
+53 Building dataset...
+52 Building dataset...
+50 Building dataset...
+51 Building dataset...
+61 Building dataset...
+55 Building dataset...
+54 Building dataset...
+0 Building dataset...
+25 Building dataset...
+24 Building dataset...
+21 Building dataset...
+28 Building dataset...
+30 Building dataset...
+18 Building dataset...
+19 Building dataset...
+26 Building dataset...
+27 Building dataset...
+20 Building dataset...
+29 Building dataset...
+17 Building dataset...
+31 Building dataset...
+22 Building dataset...
+16 Building dataset...
+23 Building dataset...
+61 building model and losses...
+15 building model and losses...
+10 building model and losses...
+40 building model and losses...
+46 building model and losses...
+9 building model and losses...
+52 building model and losses...
+1 building model and losses...
+3 building model and losses...
+2 building model and losses...
+12 building model and losses...
+4 building model and losses...
+5 building model and losses...
+13 building model and losses...
+6 building model and losses...
+7 building model and losses...
+35 building model and losses...
+34 building model and losses...
+39 building model and losses...
+33 building model and losses...
+37 building model and losses...
+44 building model and losses...
+38 building model and losses...
+45 building model and losses...
+42 building model and losses...
+43 building model and losses...
+36 building model and losses...
+51 building model and losses...
+50 building model and losses...
+62 building model and losses...
+63 building model and losses...
+54 building model and losses...
+56 building model and losses...
+55 building model and losses...
+59 building model and losses...
+58 building model and losses...
+57 building model and losses...
+49 building model and losses...
+48 building model and losses...
+32 building model and losses...
+0 building model and losses...
+27 building model and losses...
+19 building model and losses...
+28 building model and losses...
+31 building model and losses...
+30 building model and losses...
+18 building model and losses...
+24 building model and losses...
+26 building model and losses...
+29 building model and losses...
+21 building model and losses...
+25 building model and losses...
+22 building model and losses...
+20 building model and losses...
+17 building model and losses...
+23 building model and losses...
+16 building model and losses...
+8 building model and losses...
+11 building model and losses...
+14 building model and losses...
+47 Building dataset...
+60 building model and losses...
+53 building model and losses...
+41 building model and losses...
+47 building model and losses...
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/encoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+model definition loaded from /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/decoder.json
+37 Starting Session...
+36 Starting Session...
+44 Starting Session...
+36 init profiler and broadcast global variables
+37 init profiler and broadcast global variables
+44 init profiler and broadcast global variables
+45 Starting Session...
+45 init profiler and broadcast global variables
+61 Starting Session...
+38 Starting Session...
+38 init profiler and broadcast global variables
+61 init profiler and broadcast global variables
+52 Starting Session...
+52 init profiler and broadcast global variables
+42 Starting Session...
+42 init profiler and broadcast global variables
+51 Starting Session...
+50 Starting Session...
+50 init profiler and broadcast global variables
+51 init profiler and broadcast global variables
+34 Starting Session...
+34 init profiler and broadcast global variables
+59 Starting Session...
+59 init profiler and broadcast global variables
+43 Starting Session...
+39 Starting Session...
+43 init profiler and broadcast global variables
+39 init profiler and broadcast global variables
+54 Starting Session...
+58 Starting Session...
+54 init profiler and broadcast global variables
+58 init profiler and broadcast global variables
+56 Starting Session...
+57 Starting Session...
+56 init profiler and broadcast global variables
+57 init profiler and broadcast global variables
+35 Starting Session...
+40 Starting Session...
+35 init profiler and broadcast global variables
+40 init profiler and broadcast global variables
+46 Starting Session...
+46 init profiler and broadcast global variables
+62 Starting Session...
+55 Starting Session...
+62 init profiler and broadcast global variables
+55 init profiler and broadcast global variables
+49 Starting Session...
+49 init profiler and broadcast global variables
+48 Starting Session...
+48 init profiler and broadcast global variables
+63 Starting Session...
+63 init profiler and broadcast global variables
+33 Starting Session...
+33 init profiler and broadcast global variables
+32 Starting Session...
+32 init profiler and broadcast global variables
+12 Starting Session...
+6 Starting Session...
+2 Starting Session...
+13 Starting Session...
+7 Starting Session...
+6 init profiler and broadcast global variables
+13 init profiler and broadcast global variables
+2 init profiler and broadcast global variables
+12 init profiler and broadcast global variables
+7 init profiler and broadcast global variables
+4 Starting Session...
+4 init profiler and broadcast global variables
+10 Starting Session...
+10 init profiler and broadcast global variables
+9 Starting Session...
+9 init profiler and broadcast global variables
+5 Starting Session...
+5 init profiler and broadcast global variables
+3 Starting Session...
+3 init profiler and broadcast global variables
+15 Starting Session...
+15 init profiler and broadcast global variables
+30 Starting Session...
+31 Starting Session...
+30 init profiler and broadcast global variables
+18 Starting Session...
+26 Starting Session...
+31 init profiler and broadcast global variables
+26 init profiler and broadcast global variables
+18 init profiler and broadcast global variables
+19 Starting Session...
+19 init profiler and broadcast global variables
+22 Starting Session...
+27 Starting Session...
+22 init profiler and broadcast global variables
+27 init profiler and broadcast global variables
+28 Starting Session...
+29 Starting Session...
+28 init profiler and broadcast global variables
+29 init profiler and broadcast global variables
+20 Starting Session...
+21 Starting Session...
+20 init profiler and broadcast global variables
+21 init profiler and broadcast global variables
+24 Starting Session...
+24 init profiler and broadcast global variables
+23 Starting Session...
+23 init profiler and broadcast global variables
+14 Starting Session...
+25 Starting Session...
+14 init profiler and broadcast global variables
+25 init profiler and broadcast global variables
+8 Starting Session...
+8 init profiler and broadcast global variables
+1 Starting Session...
+1 init profiler and broadcast global variables
+17 Starting Session...
+17 init profiler and broadcast global variables
+11 Starting Session...
+16 Starting Session...
+16 init profiler and broadcast global variables
+11 init profiler and broadcast global variables
+0 Starting Session...
+0 init profiler and broadcast global variables
+60 Starting Session...
+53 Starting Session...
+60 init profiler and broadcast global variables
+53 init profiler and broadcast global variables
+41 Starting Session...
+41 init profiler and broadcast global variables
+47 Starting Session...
+47 init profiler and broadcast global variables
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+56 Loading model weights
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+48 Loading model weights
+Parsing Inputs...
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+Parsing Inputs...
+8 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+40 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+32 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+24 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+Parsing Inputs...
+16 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+56 Entering training loop
+Parsing Inputs...
+0 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+48 Entering training loop
+Parsing Inputs...
+8 Entering training loop
+40 Entering training loop
+Parsing Inputs...
+Parsing Inputs...
+Parsing Inputs...
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+Parsing Inputs...
+Parsing Inputs...
+32 Entering training loop
+Parsing Inputs...
+24 Entering training loop
+Parsing Inputs...
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+Parsing Inputs...
+16 Entering training loop
+Parsing Inputs...
+Parsing Inputs...
+52 Loading model weights
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+__________________________________________________________________________________________________
+Layer (type)                    Output Shape         Param #     Connected to                     
+==================================================================================================
+encoder_input (InputLayer)      (None, 128, 128, 7)  0                                            
+__________________________________________________________________________________________________
+conv2d (Conv2D)                 (None, 128, 128, 16) 1024        encoder_input[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu (LeakyReLU)         (None, 128, 128, 16) 0           conv2d[0][0]                     
+__________________________________________________________________________________________________
+conv2d_1 (Conv2D)               (None, 64, 64, 16)   2320        leaky_re_lu[0][0]                
+__________________________________________________________________________________________________
+leaky_re_lu_1 (LeakyReLU)       (None, 64, 64, 16)   0           conv2d_1[0][0]                   
+__________________________________________________________________________________________________
+conv2d_2 (Conv2D)               (None, 64, 64, 16)   2320        leaky_re_lu_1[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu_2 (LeakyReLU)       (None, 64, 64, 16)   0           conv2d_2[0][0]                   
+__________________________________________________________________________________________________
+lambda (Lambda)                 (None, 64, 64, 16)   0           leaky_re_lu_2[0][0]              
+                                                                 leaky_re_lu[0][0]                
+__________________________________________________________________________________________________
+batch_normalization (BatchNorma (None, 64, 64, 16)   64          lambda[0][0]                     
+__________________________________________________________________________________________________
+conv2d_3 (Conv2D)               (None, 32, 32, 32)   4640        batch_normalization[0][0]        
+__________________________________________________________________________________________________
+leaky_re_lu_3 (LeakyReLU)       (None, 32, 32, 32)   0           conv2d_3[0][0]                   
+__________________________________________________________________________________________________
+conv2d_4 (Conv2D)               (None, 32, 32, 32)   9248        leaky_re_lu_3[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu_4 (LeakyReLU)       (None, 32, 32, 32)   0           conv2d_4[0][0]                   
+__________________________________________________________________________________________________
+lambda_1 (Lambda)               (None, 32, 32, 32)   0           leaky_re_lu_4[0][0]              
+                                                                 batch_normalization[0][0]        
+__________________________________________________________________________________________________
+batch_normalization_1 (BatchNor (None, 32, 32, 32)   128         lambda_1[0][0]                   
+__________________________________________________________________________________________________
+conv2d_5 (Conv2D)               (None, 16, 16, 64)   18496       batch_normalization_1[0][0]      
+__________________________________________________________________________________________________
+leaky_re_lu_5 (LeakyReLU)       (None, 16, 16, 64)   0           conv2d_5[0][0]                   
+__________________________________________________________________________________________________
+conv2d_6 (Conv2D)               (None, 16, 16, 64)   36928       leaky_re_lu_5[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu_6 (LeakyReLU)       (None, 16, 16, 64)   0           conv2d_6[0][0]                   
+__________________________________________________________________________________________________
+lambda_2 (Lambda)               (None, 16, 16, 64)   0           leaky_re_lu_6[0][0]              
+                                                                 batch_normalization_1[0][0]      
+__________________________________________________________________________________________________
+batch_normalization_2 (BatchNor (None, 16, 16, 64)   256         lambda_2[0][0]                   
+__________________________________________________________________________________________________
+conv2d_7 (Conv2D)               (None, 8, 8, 128)    73856       batch_normalization_2[0][0]      
+__________________________________________________________________________________________________
+leaky_re_lu_7 (LeakyReLU)       (None, 8, 8, 128)    0           conv2d_7[0][0]                   
+__________________________________________________________________________________________________
+conv2d_8 (Conv2D)               (None, 8, 8, 128)    147584      leaky_re_lu_7[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu_8 (LeakyReLU)       (None, 8, 8, 128)    0           conv2d_8[0][0]                   
+__________________________________________________________________________________________________
+lambda_3 (Lambda)               (None, 8, 8, 128)    0           leaky_re_lu_8[0][0]              
+                                                                 batch_normalization_2[0][0]      
+__________________________________________________________________________________________________
+batch_normalization_3 (BatchNor (None, 8, 8, 128)    512         lambda_3[0][0]                   
+==================================================================================================
+Total params: 297,376
+Trainable params: 296,896
+Non-trainable params: 480
+__________________________________________________________________________________________________
+__________________________________________________________________________________________________
+Layer (type)                    Output Shape         Param #     Connected to                     
+==================================================================================================
+decoder_input (InputLayer)      (None, 8, 8, 128)    0                                            
+__________________________________________________________________________________________________
+conv2d_transpose (Conv2DTranspo (None, 16, 16, 128)  147584      decoder_input[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu_9 (LeakyReLU)       (None, 16, 16, 128)  0           conv2d_transpose[0][0]           
+__________________________________________________________________________________________________
+conv2d_9 (Conv2D)               (None, 16, 16, 128)  147584      leaky_re_lu_9[0][0]              
+__________________________________________________________________________________________________
+leaky_re_lu_10 (LeakyReLU)      (None, 16, 16, 128)  0           conv2d_9[0][0]                   
+__________________________________________________________________________________________________
+lambda_4 (Lambda)               (None, 16, 16, 128)  0           leaky_re_lu_10[0][0]             
+                                                                 decoder_input[0][0]              
+__________________________________________________________________________________________________
+batch_normalization_4 (BatchNor (None, 16, 16, 128)  512         lambda_4[0][0]                   
+__________________________________________________________________________________________________
+conv2d_transpose_1 (Conv2DTrans (None, 32, 32, 64)   73792       batch_normalization_4[0][0]      
+__________________________________________________________________________________________________
+leaky_re_lu_11 (LeakyReLU)      (None, 32, 32, 64)   0           conv2d_transpose_1[0][0]         
+__________________________________________________________________________________________________
+conv2d_10 (Conv2D)              (None, 32, 32, 64)   36928       leaky_re_lu_11[0][0]             
+__________________________________________________________________________________________________
+leaky_re_lu_12 (LeakyReLU)      (None, 32, 32, 64)   0           conv2d_10[0][0]                  
+__________________________________________________________________________________________________
+lambda_5 (Lambda)               (None, 32, 32, 64)   0           leaky_re_lu_12[0][0]             
+                                                                 batch_normalization_4[0][0]      
+__________________________________________________________________________________________________
+batch_normalization_5 (BatchNor (None, 32, 32, 64)   256         lambda_5[0][0]                   
+__________________________________________________________________________________________________
+conv2d_transpose_2 (Conv2DTrans (None, 64, 64, 32)   18464       batch_normalization_5[0][0]      
+__________________________________________________________________________________________________
+leaky_re_lu_13 (LeakyReLU)      (None, 64, 64, 32)   0           conv2d_transpose_2[0][0]         
+__________________________________________________________________________________________________
+conv2d_11 (Conv2D)              (None, 64, 64, 32)   9248        leaky_re_lu_13[0][0]             
+__________________________________________________________________________________________________
+leaky_re_lu_14 (LeakyReLU)      (None, 64, 64, 32)   0           conv2d_11[0][0]                  
+__________________________________________________________________________________________________
+lambda_6 (Lambda)               (None, 64, 64, 32)   0           leaky_re_lu_14[0][0]             
+                                                                 batch_normalization_5[0][0]      
+__________________________________________________________________________________________________
+batch_normalization_6 (BatchNor (None, 64, 64, 32)   128         lambda_6[0][0]                   
+__________________________________________________________________________________________________
+conv2d_transpose_3 (Conv2DTrans (None, 128, 128, 16) 4624        batch_normalization_6[0][0]      
+__________________________________________________________________________________________________
+leaky_re_lu_15 (LeakyReLU)      (None, 128, 128, 16) 0           conv2d_transpose_3[0][0]         
+__________________________________________________________________________________________________
+conv2d_12 (Conv2D)              (None, 128, 128, 16) 2320        leaky_re_lu_15[0][0]             
+__________________________________________________________________________________________________
+leaky_re_lu_16 (LeakyReLU)      (None, 128, 128, 16) 0           conv2d_12[0][0]                  
+__________________________________________________________________________________________________
+lambda_7 (Lambda)               (None, 128, 128, 16) 0           leaky_re_lu_16[0][0]             
+                                                                 batch_normalization_6[0][0]      
+__________________________________________________________________________________________________
+batch_normalization_7 (BatchNor (None, 128, 128, 16) 64          lambda_7[0][0]                   
+__________________________________________________________________________________________________
+reconstructed (Conv2D)          (None, 128, 128, 7)  119         batch_normalization_7[0][0]      
+==================================================================================================
+Total params: 441,623
+Trainable params: 441,143
+Non-trainable params: 480
+__________________________________________________________________________________________________
+
+0 Entering training loop
+Parsing Inputs...
+44 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+Parsing Inputs...
+Parsing Inputs...
+12 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+Parsing Inputs...
+4 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+20 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+36 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+52 Entering training loop
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+28 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+44 Entering training loop
+60 Loading model weights
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+12 Entering training loop
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+4 Entering training loop
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+20 Entering training loop
+36 Entering training loop
+58 Loading model weights
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+28 Entering training loop
+50 Loading model weights
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+62 Loading model weights
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+54 Loading model weights
+60 Entering training loop
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+2 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+6 Loading model weights
+10 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+46 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+14 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+42 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+34 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+30 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+18 Loading model weights
+22 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+38 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+26 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+59 Loading model weights
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+61 Loading model weights
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+51 Loading model weights
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+58 Entering training loop
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+50 Entering training loop
+62 Entering training loop
+55 Loading model weights
+63 Loading model weights
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+54 Entering training loop
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+2 Entering training loop
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+6 Entering training loop
+10 Entering training loop
+7 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+46 Entering training loop
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+14 Entering training loop
+43 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+35 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+3 Loading model weights
+42 Entering training loop
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+15 Loading model weights
+31 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+39 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+34 Entering training loop
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+27 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+57 Loading model weights
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+30 Entering training loop
+19 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+22 Entering training loop
+18 Entering training loop
+23 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+13 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+38 Entering training loop
+26 Entering training loop
+37 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+45 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+11 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+59 Entering training loop
+61 Entering training loop
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+51 Entering training loop
+5 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+49 Loading model weights
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+21 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+29 Loading model weights
+55 Entering training loop
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+63 Entering training loop
+9 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+25 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+7 Entering training loop
+43 Entering training loop
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+35 Entering training loop
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+3 Entering training loop
+15 Entering training loop
+31 Entering training loop
+39 Entering training loop
+33 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+53 Loading model weights
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+27 Entering training loop
+57 Entering training loop
+19 Entering training loop
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+23 Entering training loop
+13 Entering training loop
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+37 Entering training loop
+17 Loading model weights
+11 Entering training loop
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+45 Entering training loop
+49 Entering training loop
+5 Entering training loop
+47 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+21 Entering training loop
+1 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+29 Entering training loop
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+9 Entering training loop
+25 Entering training loop
+41 Loading model weights
+no weights for encoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+53 Entering training loop
+33 Entering training loop
+no weights for decoder in /projects/CSC249ADCD01/clouds/output/mod9cnn15-debug/
+17 Entering training loop
+47 Entering training loop
+1 Entering training loop
+41 Entering training loop
+46 step 1
+0 step 1
+4 step 1
+28 step 1
+24 step 1
+16 step 1
+48 step 1
+52 step 1
+2 step 1
+50 step 1
+8 step 1
+12 step 1
+54 step 1
+32 step 1
+20 step 1
+62 step 1
+19 step 1
+13 step 1
+5 step 1
+15 step 1
+14 step 1
+7 step 1
+3 step 1
+9 step 1
+6 step 1
+10 step 1
+30 step 1
+34 step 1
+60 step 1
+56 step 1
+47 step 1
+22 step 1
+18 step 1
+44 step 1
+63 step 1
+61 step 1
+45 step 1
+23 step 1
+11 step 1
+31 step 1
+36 step 1
+37 step 1
+39 step 1
+33 step 1
+57 step 1
+59 step 1
+58 step 1
+27 step 1
+26 step 1
+25 step 1
+55 step 1
+49 step 1
+29 step 1
+17 step 1
+1 step 1
+42 step 1
+21 step 1
+40 step 1
+51 step 1
+53 step 1
+41 step 1
+35 step 1
+43 step 1
+38 step 1
+0 step 2
+13 step 2
+42 step 2
+48 step 2
+16 step 2
+6 step 2
+8 step 2
+4 step 2
+32 step 2
+40 step 2
+36 step 2
+2 step 2
+34 step 2
+3 step 2
+10 step 2
+12 step 2
+38 step 2
+50 step 2
+58 step 2
+24 step 2
+54 step 2
+60 step 2
+7 step 2
+44 step 2
+9 step 2
+26 step 2
+14 step 2
+59 step 2
+39 step 2
+47 step 2
+15 step 2
+27 step 2
+21 step 2
+46 step 2
+5 step 2
+51 step 2
+57 step 2
+1 step 2
+52 step 2
+43 step 2
+28 step 2
+30 step 2
+41 step 2
+45 step 2
+35 step 2
+37 step 2
+33 step 2
+22 step 2
+23 step 2
+20 step 2
+63 step 2
+55 step 2
+61 step 2
+17 step 2
+11 step 2
+25 step 2
+53 step 2
+31 step 2
+29 step 2
+18 step 2
+62 step 2
+56 step 2
+49 step 2
+19 step 2
+4 step 3
+36 step 3
+42 step 3
+32 step 3
+48 step 3
+0 step 3
+58 step 3
+60 step 3
+16 step 3
+40 step 3
+56 step 3
+2 step 3
+12 step 3
+1 step 3
+39 step 3
+43 step 3
+28 step 3
+29 step 3
+3 step 3
+13 step 3
+11 step 3
+7 step 3
+9 step 3
+14 step 3
+5 step 3
+10 step 3
+15 step 3
+8 step 3
+20 step 3
+21 step 3
+37 step 3
+61 step 3
+33 step 3
+27 step 3
+23 step 3
+47 step 3
+49 step 3
+54 step 3
+44 step 3
+31 step 3
+18 step 3
+38 step 3
+50 step 3
+51 step 3
+55 step 3
+45 step 3
+22 step 3
+26 step 3
+17 step 3
+46 step 3
+34 step 3
+59 step 3
+41 step 3
+25 step 3
+24 step 3
+35 step 3
+19 step 3
+53 step 3
+30 step 3
+63 step 3
+62 step 3
+52 step 3
+6 step 3
+57 step 3
+4 step 4
+36 step 4
+32 step 4
+60 step 4
+48 step 4
+0 step 4
+56 step 4
+1 step 4
+16 step 4
+47 step 4
+62 step 4
+52 step 4
+39 step 4
+23 step 4
+22 step 4
+34 step 4
+9 step 4
+14 step 4
+6 step 4
+17 step 4
+18 step 4
+63 step 4
+31 step 4
+5 step 4
+24 step 4
+28 step 4
+19 step 4
+27 step 4
+20 step 4
+49 step 4
+11 step 4
+3 step 4
+35 step 4
+38 step 4
+2 step 4
+10 step 4
+12 step 4
+13 step 4
+15 step 4
+8 step 4
+7 step 4
+30 step 4
+46 step 4
+44 step 4
+59 step 4
+50 step 4
+51 step 4
+40 step 4
+26 step 4
+25 step 4
+41 step 4
+61 step 4
+55 step 4
+42 step 4
+43 step 4
+29 step 4
+21 step 4
+45 step 4
+58 step 4
+54 step 4
+37 step 4
+53 step 4
+57 step 4
+33 step 4
+44 step 5
+38 step 5
+48 step 5
+16 step 5
+40 step 5
+0 step 5
+56 step 5
+32 step 5
+37 step 5
+6 step 5
+4 step 5
+61 step 5
+36 step 5
+11 step 5
+2 step 5
+43 step 5
+45 step 5
+13 step 5
+35 step 5
+26 step 5
+25 step 5
+10 step 5
+14 step 5
+22 step 5
+50 step 5
+58 step 5
+21 step 5
+23 step 5
+24 step 5
+49 step 5
+17 step 5
+46 step 5
+52 step 5
+7 step 5
+3 step 5
+15 step 5
+42 step 5
+41 step 5
+29 step 5
+5 step 5
+1 step 5
+12 step 5
+20 step 5
+33 step 5
+54 step 5
+59 step 5
+51 step 5
+53 step 5
+39 step 5
+8 step 5
+9 step 5
+19 step 5
+34 step 5
+47 step 5
+27 step 5
+18 step 5
+28 step 5
+62 step 5
+57 step 5
+31 step 5
+60 step 5
+30 step 5
+55 step 5
+63 step 5
+9 step 6
+1 step 6
+60 step 6
+32 step 6
+40 step 6
+48 step 6
+14 step 6
+56 step 6
+16 step 6
+62 step 6
+12 step 6
+6 step 6
+44 step 6
+7 step 6
+15 step 6
+39 step 6
+37 step 6
+34 step 6
+63 step 6
+19 step 6
+2 step 6
+30 step 6
+26 step 6
+35 step 6
+33 step 6
+47 step 6
+43 step 6
+27 step 6
+23 step 6
+22 step 6
+54 step 6
+57 step 6
+55 step 6
+4 step 6
+31 step 6
+20 step 6
+18 step 6
+25 step 6
+24 step 6
+58 step 6
+53 step 6
+17 step 6
+28 step 6
+49 step 6
+36 step 6
+11 step 6
+42 step 6
+38 step 6
+46 step 6
+41 step 6
+29 step 6
+3 step 6
+10 step 6
+21 step 6
+51 step 6
+59 step 6
+5 step 6
+8 step 6
+0 step 6
+13 step 6
+45 step 6
+50 step 6
+52 step 6
+61 step 6
+4 step 7
+26 step 7
+32 step 7
+33 step 7
+20 step 7
+16 step 7
+0 step 7
+24 step 7
+22 step 7
+49 step 7
+48 step 7
+18 step 7
+5 step 7
+38 step 7
+45 step 7
+23 step 7
+27 step 7
+30 step 7
+29 step 7
+11 step 7
+3 step 7
+7 step 7
+12 step 7
+10 step 7
+1 step 7
+15 step 7
+6 step 7
+2 step 7
+9 step 7
+8 step 7
+13 step 7
+31 step 7
+41 step 7
+50 step 7
+59 step 7
+51 step 7
+44 step 7
+25 step 7
+17 step 7
+35 step 7
+34 step 7
+61 step 7
+52 step 7
+60 step 7
+46 step 7
+21 step 7
+19 step 7
+47 step 7
+58 step 7
+62 step 7
+43 step 7
+37 step 7
+14 step 7
+40 step 7
+39 step 7
+42 step 7
+63 step 7
+57 step 7
+55 step 7
+53 step 7
+56 step 7
+54 step 7
+28 step 7
+36 step 7
+24 step 8
+32 step 8
+0 step 8
+48 step 8
+16 step 8
+22 step 8
+23 step 8
+50 step 8
+18 step 8
+30 step 8
+26 step 8
+31 step 8
+28 step 8
+49 step 8
+42 step 8
+39 step 8
+43 step 8
+13 step 8
+9 step 8
+1 step 8
+2 step 8
+11 step 8
+4 step 8
+8 step 8
+5 step 8
+7 step 8
+6 step 8
+14 step 8
+15 step 8
+10 step 8
+3 step 8
+33 step 8
+44 step 8
+45 step 8
+17 step 8
+36 step 8
+52 step 8
+53 step 8
+57 step 8
+51 step 8
+59 step 8
+41 step 8
+40 step 8
+62 step 8
+63 step 8
+61 step 8
+34 step 8
+47 step 8
+46 step 8
+54 step 8
+25 step 8
+27 step 8
+19 step 8
+20 step 8
+29 step 8
+21 step 8
+55 step 8
+58 step 8
+60 step 8
+56 step 8
+38 step 8
+12 step 8
+37 step 8
+35 step 8
+32 step 9
+16 step 9
+48 step 9
+52 step 9
+0 step 9
+50 step 9
+51 step 9
+60 step 9
+11 step 9
+12 step 9
+10 step 9
+62 step 9
+35 step 9
+14 step 9
+13 step 9
+1 step 9
+4 step 9
+7 step 9
+9 step 9
+22 step 9
+21 step 9
+34 step 9
+43 step 9
+42 step 9
+37 step 9
+56 step 9
+39 step 9
+30 step 9
+3 step 9
+8 step 9
+31 step 9
+19 step 9
+45 step 9
+44 step 9
+36 step 9
+47 step 9
+24 step 9
+25 step 9
+5 step 9
+18 step 9
+27 step 9
+33 step 9
+55 step 9
+59 step 9
+57 step 9
+54 step 9
+46 step 9
+41 step 9
+20 step 9
+38 step 9
+29 step 9
+28 step 9
+17 step 9
+49 step 9
+61 step 9
+58 step 9
+23 step 9
+63 step 9
+53 step 9
+2 step 9
+6 step 9
+15 step 9
+40 step 9
+26 step 9
+32 step 10
+60 step 10
+0 step 10
+59 step 10
+16 step 10
+1 step 10
+56 step 10
+48 step 10
+34 step 10
+58 step 10
+24 step 10
+62 step 10
+38 step 10
+2 step 10
+7 step 10
+4 step 10
+14 step 10
+3 step 10
+15 step 10
+8 step 10
+5 step 10
+9 step 10
+10 step 10
+11 step 10
+12 step 10
+50 step 10
+40 step 10
+39 step 10
+42 step 10
+26 step 10
+6 step 10
+13 step 10
+27 step 10
+21 step 10
+23 step 10
+28 step 10
+43 step 10
+61 step 10
+49 step 10
+57 step 10
+52 step 10
+51 step 10
+45 step 10
+20 step 10
+18 step 10
+41 step 10
+54 step 10
+53 step 10
+44 step 10
+35 step 10
+22 step 10
+31 step 10
+47 step 10
+63 step 10
+55 step 10
+46 step 10
+36 step 10
+25 step 10
+17 step 10
+19 step 10
+33 step 10
+37 step 10
+29 step 10
+30 step 10
+12 step 11
+7 step 11
+48 step 11
+32 step 11
+14 step 11
+0 step 11
+16 step 11
+6 step 11
+4 step 11
+11 step 11
+3 step 11
+10 step 11
+13 step 11
+15 step 11
+9 step 11
+2 step 11
+1 step 11
+5 step 11
+8 step 11
+20 step 11
+38 step 11
+58 step 11
+50 step 11
+59 step 11
+56 step 11
+57 step 11
+39 step 11
+24 step 11
+25 step 11
+19 step 11
+17 step 11
+41 step 11
+53 step 11
+60 step 11
+46 step 11
+47 step 11
+34 step 11
+23 step 11
+30 step 11
+31 step 11
+33 step 11
+51 step 11
+63 step 11
+54 step 11
+55 step 11
+43 step 11
+22 step 11
+26 step 11
+27 step 11
+40 step 11
+61 step 11
+49 step 11
+52 step 11
+62 step 11
+42 step 11
+44 step 11
+45 step 11
+35 step 11
+36 step 11
+37 step 11
+28 step 11
+29 step 11
+21 step 11
+18 step 11
+16 step 12
+48 step 12
+24 step 12
+32 step 12
+18 step 12
+4 step 12
+0 step 12
+26 step 12
+29 step 12
+28 step 12
+7 step 12
+14 step 12
+11 step 12
+10 step 12
+8 step 12
+9 step 12
+6 step 12
+5 step 12
+15 step 12
+3 step 12
+2 step 12
+23 step 12
+38 step 12
+39 step 12
+50 step 12
+51 step 12
+59 step 12
+63 step 12
+52 step 12
+53 step 12
+43 step 12
+42 step 12
+21 step 12
+27 step 12
+13 step 12
+12 step 12
+30 step 12
+31 step 12
+35 step 12
+58 step 12
+61 step 12
+62 step 12
+54 step 12
+55 step 12
+57 step 12
+40 step 12
+46 step 12
+19 step 12
+1 step 12
+22 step 12
+45 step 12
+36 step 12
+34 step 12
+60 step 12
+56 step 12
+49 step 12
+37 step 12
+20 step 12
+25 step 12
+44 step 12
+33 step 12
+17 step 12
+47 step 12
+41 step 12
+0 step 13
+16 step 13
+32 step 13
+48 step 13
+24 step 13
+61 step 13
+34 step 13
+33 step 13
+2 step 13
+6 step 13
+7 step 13
+59 step 13
+58 step 13
+1 step 13
+10 step 13
+8 step 13
+9 step 13
+52 step 13
+53 step 13
+57 step 13
+11 step 13
+15 step 13
+60 step 13
+54 step 13
+55 step 13
+38 step 13
+3 step 13
+14 step 13
+5 step 13
+12 step 13
+39 step 13
+42 step 13
+43 step 13
+63 step 13
+51 step 13
+49 step 13
+44 step 13
+45 step 13
+36 step 13
+47 step 13
+46 step 13
+23 step 13
+27 step 13
+30 step 13
+31 step 13
+40 step 13
+22 step 13
+18 step 13
+21 step 13
+29 step 13
+28 step 13
+20 step 13
+19 step 13
+26 step 13
+25 step 13
+17 step 13
+50 step 13
+56 step 13
+62 step 13
+35 step 13
+13 step 13
+4 step 13
+41 step 13
+37 step 13
+32 step 14
+56 step 14
+16 step 14
+49 step 14
+0 step 14
+17 step 14
+48 step 14
+20 step 14
+34 step 14
+38 step 14
+4 step 14
+36 step 14
+52 step 14
+62 step 14
+13 step 14
+7 step 14
+35 step 14
+23 step 14
+9 step 14
+11 step 14
+10 step 14
+12 step 14
+6 step 14
+15 step 14
+31 step 14
+39 step 14
+37 step 14
+33 step 14
+30 step 14
+26 step 14
+14 step 14
+27 step 14
+45 step 14
+44 step 14
+43 step 14
+47 step 14
+28 step 14
+22 step 14
+5 step 14
+3 step 14
+40 step 14
+46 step 14
+19 step 14
+8 step 14
+2 step 14
+21 step 14
+29 step 14
+18 step 14
+24 step 14
+25 step 14
+1 step 14
+54 step 14
+60 step 14
+50 step 14
+59 step 14
+58 step 14
+51 step 14
+57 step 14
+55 step 14
+63 step 14
+61 step 14
+53 step 14
+41 step 14
+42 step 14
+16 step 15
+32 step 15
+14 step 15
+40 step 15
+44 step 15
+48 step 15
+4 step 15
+12 step 15
+2 step 15
+6 step 15
+38 step 15
+46 step 15
+10 step 15
+36 step 15
+0 step 15
+8 step 15
+54 step 15
+52 step 15
+7 step 15
+42 step 15
+15 step 15
+41 step 15
+35 step 15
+9 step 15
+31 step 15
+30 step 15
+50 step 15
+43 step 15
+22 step 15
+23 step 15
+26 step 15
+27 step 15
+47 step 15
+34 step 15
+58 step 15
+61 step 15
+5 step 15
+11 step 15
+13 step 15
+3 step 15
+18 step 15
+21 step 15
+33 step 15
+63 step 15
+49 step 15
+55 step 15
+39 step 15
+20 step 15
+28 step 15
+29 step 15
+19 step 15
+17 step 15
+24 step 15
+25 step 15
+1 step 15
+45 step 15
+37 step 15
+59 step 15
+51 step 15
+57 step 15
+53 step 15
+60 step 15
+56 step 15
+62 step 15
+0 step 16
+48 step 16
+28 step 16
+24 step 16
+16 step 16
+22 step 16
+32 step 16
+20 step 16
+26 step 16
+27 step 16
+19 step 16
+18 step 16
+7 step 16
+2 step 16
+3 step 16
+13 step 16
+10 step 16
+12 step 16
+11 step 16
+4 step 16
+8 step 16
+14 step 16
+15 step 16
+9 step 16
+5 step 16
+1 step 16
+6 step 16
+31 step 16
+38 step 16
+39 step 16
+58 step 16
+59 step 16
+35 step 16
+23 step 16
+29 step 16
+43 step 16
+42 step 16
+50 step 16
+60 step 16
+61 step 16
+63 step 16
+51 step 16
+41 step 16
+36 step 16
+37 step 16
+25 step 16
+21 step 16
+34 step 16
+45 step 16
+57 step 16
+49 step 16
+40 step 16
+17 step 16
+30 step 16
+46 step 16
+55 step 16
+54 step 16
+62 step 16
+53 step 16
+47 step 16
+33 step 16
+44 step 16
+52 step 16
+56 step 16
+32 step 17
+0 step 17
+42 step 17
+43 step 17
+33 step 17
+48 step 17
+40 step 17
+44 step 17
+16 step 17
+7 step 17
+11 step 17
+4 step 17
+10 step 17
+14 step 17
+9 step 17
+23 step 17
+22 step 17
+19 step 17
+24 step 17
+8 step 17
+1 step 17
+12 step 17
+6 step 17
+3 step 17
+29 step 17
+28 step 17
+26 step 17
+18 step 17
+50 step 17
+59 step 17
+58 step 17
+62 step 17
+27 step 17
+17 step 17
+5 step 17
+15 step 17
+25 step 17
+31 step 17
+55 step 17
+20 step 17
+56 step 17
+54 step 17
+38 step 17
+45 step 17
+35 step 17
+39 step 17
+36 step 17
+41 step 17
+37 step 17
+34 step 17
+2 step 17
+13 step 17
+47 step 17
+46 step 17
+49 step 17
+61 step 17
+51 step 17
+63 step 17
+57 step 17
+52 step 17
+60 step 17
+53 step 17
+21 step 17
+30 step 17
+44 step 18
+2 step 18
+1 step 18
+56 step 18
+16 step 18
+32 step 18
+20 step 18
+24 step 18
+54 step 18
+48 step 18
+60 step 18
+0 step 18
+49 step 18
+40 step 18
+12 step 18
+8 step 18
+52 step 18
+14 step 18
+11 step 18
+10 step 18
+7 step 18
+13 step 18
+4 step 18
+9 step 18
+6 step 18
+15 step 18
+3 step 18
+5 step 18
+23 step 18
+22 step 18
+34 step 18
+35 step 18
+51 step 18
+61 step 18
+38 step 18
+18 step 18
+26 step 18
+27 step 18
+21 step 18
+17 step 18
+45 step 18
+50 step 18
+63 step 18
+62 step 18
+39 step 18
+25 step 18
+36 step 18
+37 step 18
+43 step 18
+59 step 18
+47 step 18
+41 step 18
+33 step 18
+46 step 18
+19 step 18
+29 step 18
+31 step 18
+58 step 18
+57 step 18
+53 step 18
+28 step 18
+30 step 18
+55 step 18
+42 step 18
+4 step 19
+16 step 19
+12 step 19
+38 step 19
+48 step 19
+0 step 19
+36 step 19
+44 step 19
+8 step 19
+32 step 19
+40 step 19
+42 step 19
+3 step 19
+6 step 19
+7 step 19
+11 step 19
+2 step 19
+9 step 19
+5 step 19
+10 step 19
+26 step 19
+15 step 19
+45 step 19
+41 step 19
+58 step 19
+57 step 19
+39 step 19
+47 step 19
+29 step 19
+28 step 19
+27 step 19
+30 step 19
+13 step 19
+18 step 19
+34 step 19
+56 step 19
+50 step 19
+23 step 19
+19 step 19
+61 step 19
+14 step 19
+1 step 19
+31 step 19
+24 step 19
+33 step 19
+37 step 19
+52 step 19
+53 step 19
+59 step 19
+43 step 19
+25 step 19
+21 step 19
+35 step 19
+62 step 19
+60 step 19
+63 step 19
+54 step 19
+49 step 19
+46 step 19
+20 step 19
+17 step 19
+51 step 19
+22 step 19
+55 step 19
+32 step 20
+2 step 20
+30 step 20
+60 step 20
+56 step 20
+24 step 20
+26 step 20
+52 step 20
+0 step 20
+48 step 20
+16 step 20
+20 step 20
+28 step 20
+55 step 20
+54 step 20
+53 step 20
+12 step 20
+13 step 20
+42 step 20
+63 step 20
+9 step 20
+11 step 20
+7 step 20
+6 step 20
+3 step 20
+4 step 20
+10 step 20
+14 step 20
+15 step 20
+8 step 20
+5 step 20
+1 step 20
+29 step 20
+39 step 20
+61 step 20
+57 step 20
+51 step 20
+38 step 20
+35 step 20
+21 step 20
+27 step 20
+41 step 20
+45 step 20
+36 step 20
+50 step 20
+58 step 20
+47 step 20
+31 step 20
+19 step 20
+23 step 20
+49 step 20
+62 step 20
+22 step 20
+17 step 20
+59 step 20
+25 step 20
+18 step 20
+46 step 20
+37 step 20
+43 step 20
+34 step 20
+33 step 20
+40 step 20
+44 step 20
+6 step 21
+4 step 21
+16 step 21
+40 step 21
+44 step 21
+46 step 21
+22 step 21
+13 step 21
+1 step 21
+20 step 21
+9 step 21
+32 step 21
+0 step 21
+12 step 21
+48 step 21
+8 step 21
+39 step 21
+38 step 21
+59 step 21
+63 step 21
+61 step 21
+62 step 21
+58 step 21
+43 step 21
+57 step 21
+51 step 21
+60 step 21
+37 step 21
+17 step 21
+30 step 21
+29 step 21
+31 step 21
+18 step 21
+53 step 21
+2 step 21
+11 step 21
+26 step 21
+23 step 21
+28 step 21
+21 step 21
+24 step 21
+56 step 21
+3 step 21
+10 step 21
+7 step 21
+50 step 21
+5 step 21
+15 step 21
+14 step 21
+42 step 21
+34 step 21
+19 step 21
+27 step 21
+25 step 21
+33 step 21
+41 step 21
+35 step 21
+47 step 21
+52 step 21
+49 step 21
+54 step 21
+45 step 21
+36 step 21
+55 step 21
+56 step 22
+32 step 22
+52 step 22
+0 step 22
+58 step 22
+16 step 22
+48 step 22
+60 step 22
+53 step 22
+7 step 22
+4 step 22
+42 step 22
+39 step 22
+38 step 22
+12 step 22
+34 step 22
+35 step 22
+45 step 22
+2 step 22
+11 step 22
+6 step 22
+10 step 22
+36 step 22
+37 step 22
+13 step 22
+9 step 22
+8 step 22
+15 step 22
+3 step 22
+30 step 22
+31 step 22
+40 step 22
+43 step 22
+47 step 22
+29 step 22
+26 step 22
+27 step 22
+18 step 22
+5 step 22
+1 step 22
+14 step 22
+59 step 22
+41 step 22
+44 step 22
+20 step 22
+17 step 22
+46 step 22
+50 step 22
+57 step 22
+33 step 22
+49 step 22
+25 step 22
+55 step 22
+62 step 22
+63 step 22
+28 step 22
+23 step 22
+24 step 22
+21 step 22
+19 step 22
+61 step 22
+51 step 22
+54 step 22
+22 step 22
+16 step 23
+48 step 23
+39 step 23
+2 step 23
+32 step 23
+54 step 23
+4 step 23
+46 step 23
+42 step 23
+55 step 23
+6 step 23
+38 step 23
+44 step 23
+52 step 23
+40 step 23
+12 step 23
+36 step 23
+10 step 23
+11 step 23
+14 step 23
+0 step 23
+22 step 23
+50 step 23
+34 step 23
+45 step 23
+47 step 23
+7 step 23
+15 step 23
+13 step 23
+41 step 23
+37 step 23
+5 step 23
+26 step 23
+29 step 23
+28 step 23
+25 step 23
+17 step 23
+21 step 23
+63 step 23
+3 step 23
+60 step 23
+9 step 23
+1 step 23
+33 step 23
+30 step 23
+8 step 23
+43 step 23
+35 step 23
+59 step 23
+51 step 23
+56 step 23
+61 step 23
+23 step 23
+27 step 23
+18 step 23
+53 step 23
+19 step 23
+58 step 23
+49 step 23
+57 step 23
+24 step 23
+20 step 23
+31 step 23
+62 step 23
+0 step 24
+48 step 24
+28 step 24
+16 step 24
+24 step 24
+32 step 24
+26 step 24
+22 step 24
+27 step 24
+19 step 24
+42 step 24
+38 step 24
+4 step 24
+12 step 24
+11 step 24
+7 step 24
+9 step 24
+29 step 24
+30 step 24
+25 step 24
+31 step 24
+41 step 24
+59 step 24
+50 step 24
+35 step 24
+21 step 24
+6 step 24
+10 step 24
+5 step 24
+18 step 24
+39 step 24
+45 step 24
+51 step 24
+63 step 24
+58 step 24
+57 step 24
+61 step 24
+44 step 24
+17 step 24
+20 step 24
+33 step 24
+43 step 24
+54 step 24
+56 step 24
+47 step 24
+34 step 24
+46 step 24
+40 step 24
+53 step 24
+49 step 24
+55 step 24
+52 step 24
+37 step 24
+2 step 24
+60 step 24
+62 step 24
+36 step 24
+8 step 24
+13 step 24
+14 step 24
+3 step 24
+15 step 24
+1 step 24
+23 step 24
+32 step 25
+8 step 25
+0 step 25
+48 step 25
+16 step 25
+12 step 25
+4 step 25
+17 step 25
+58 step 25
+60 step 25
+14 step 25
+7 step 25
+2 step 25
+11 step 25
+3 step 25
+38 step 25
+42 step 25
+43 step 25
+23 step 25
+22 step 25
+27 step 25
+30 step 25
+31 step 25
+10 step 25
+9 step 25
+13 step 25
+5 step 25
+29 step 25
+50 step 25
+26 step 25
+21 step 25
+18 step 25
+19 step 25
+24 step 25
+28 step 25
+20 step 25
+51 step 25
+49 step 25
+57 step 25
+59 step 25
+63 step 25
+62 step 25
+56 step 25
+25 step 25
+36 step 25
+55 step 25
+61 step 25
+54 step 25
+52 step 25
+37 step 25
+53 step 25
+15 step 25
+1 step 25
+35 step 25
+41 step 25
+33 step 25
+6 step 25
+45 step 25
+34 step 25
+47 step 25
+39 step 25
+46 step 25
+40 step 25
+44 step 25
+16 step 26
+48 step 26
+32 step 26
+50 step 26
+0 step 26
+58 step 26
+52 step 26
+56 step 26
+60 step 26
+62 step 26
+14 step 26
+49 step 26
+57 step 26
+7 step 26
+9 step 26
+13 step 26
+3 step 26
+6 step 26
+10 step 26
+38 step 26
+44 step 26
+42 step 26
+11 step 26
+5 step 26
+4 step 26
+39 step 26
+43 step 26
+27 step 26
+26 step 26
+15 step 26
+12 step 26
+8 step 26
+1 step 26
+45 step 26
+53 step 26
+36 step 26
+47 step 26
+35 step 26
+22 step 26
+29 step 26
+28 step 26
+37 step 26
+41 step 26
+46 step 26
+59 step 26
+61 step 26
+55 step 26
+54 step 26
+40 step 26
+31 step 26
+18 step 26
+2 step 26
+24 step 26
+21 step 26
+34 step 26
+51 step 26
+63 step 26
+33 step 26
+19 step 26
+23 step 26
+20 step 26
+17 step 26
+25 step 26
+30 step 26
+10 step 27
+34 step 27
+16 step 27
+48 step 27
+4 step 27
+36 step 27
+32 step 27
+8 step 27
+40 step 27
+0 step 27
+9 step 27
+20 step 27
+52 step 27
+2 step 27
+11 step 27
+7 step 27
+14 step 27
+13 step 27
+3 step 27
+6 step 27
+15 step 27
+12 step 27
+1 step 27
+22 step 27
+38 step 27
+63 step 27
+39 step 27
+30 step 27
+23 step 27
+35 step 27
+58 step 27
+59 step 27
+47 step 27
+31 step 27
+18 step 27
+28 step 27
+25 step 27
+17 step 27
+37 step 27
+61 step 27
+56 step 27
+57 step 27
+55 step 27
+54 step 27
+44 step 27
+46 step 27
+62 step 27
+60 step 27
+41 step 27
+19 step 27
+24 step 27
+43 step 27
+53 step 27
+51 step 27
+49 step 27
+42 step 27
+45 step 27
+33 step 27
+27 step 27
+21 step 27
+50 step 27
+5 step 27
+29 step 27
+26 step 27
+32 step 28
+23 step 28
+58 step 28
+48 step 28
+0 step 28
+22 step 28
+26 step 28
+18 step 28
+16 step 28
+24 step 28
+20 step 28
+56 step 28
+28 step 28
+4 step 28
+31 step 28
+30 step 28
+33 step 28
+2 step 28
+3 step 28
+10 step 28
+7 step 28
+11 step 28
+12 step 28
+14 step 28
+13 step 28
+6 step 28
+9 step 28
+5 step 28
+8 step 28
+15 step 28
+1 step 28
+29 step 28
+43 step 28
+50 step 28
+61 step 28
+38 step 28
+39 step 28
+27 step 28
+25 step 28
+42 step 28
+55 step 28
+54 step 28
+59 step 28
+51 step 28
+52 step 28
+36 step 28
+37 step 28
+21 step 28
+17 step 28
+35 step 28
+53 step 28
+57 step 28
+60 step 28
+41 step 28
+47 step 28
+45 step 28
+19 step 28
+34 step 28
+40 step 28
+62 step 28
+49 step 28
+46 step 28
+63 step 28
+44 step 28
+52 step 29
+16 step 29
+0 step 29
+48 step 29
+32 step 29
+33 step 29
+24 step 29
+10 step 29
+11 step 29
+3 step 29
+8 step 29
+6 step 29
+1 step 29
+58 step 29
+56 step 29
+50 step 29
+59 step 29
+23 step 29
+5 step 29
+30 step 29
+27 step 29
+31 step 29
+18 step 29
+29 step 29
+20 step 29
+26 step 29
+17 step 29
+28 step 29
+39 step 29
+63 step 29
+61 step 29
+55 step 29
+25 step 29
+38 step 29
+43 step 29
+45 step 29
+44 step 29
+2 step 29
+13 step 29
+12 step 29
+7 step 29
+9 step 29
+4 step 29
+14 step 29
+15 step 29
+53 step 29
+49 step 29
+54 step 29
+57 step 29
+51 step 29
+62 step 29
+60 step 29
+42 step 29
+41 step 29
+40 step 29
+35 step 29
+37 step 29
+46 step 29
+47 step 29
+34 step 29
+36 step 29
+19 step 29
+22 step 29
+21 step 29
+0 step 30
+48 step 30
+56 step 30
+32 step 30
+40 step 30
+54 step 30
+16 step 30
+58 step 30
+52 step 30
+50 step 30
+20 step 30
+46 step 30
+22 step 30
+10 step 30
+11 step 30
+7 step 30
+2 step 30
+60 step 30
+39 step 30
+38 step 30
+44 step 30
+9 step 30
+42 step 30
+43 step 30
+12 step 30
+4 step 30
+51 step 30
+19 step 30
+21 step 30
+3 step 30
+13 step 30
+30 step 30
+31 step 30
+59 step 30
+62 step 30
+63 step 30
+26 step 30
+5 step 30
+6 step 30
+8 step 30
+14 step 30
+47 step 30
+37 step 30
+34 step 30
+41 step 30
+36 step 30
+33 step 30
+61 step 30
+57 step 30
+53 step 30
+25 step 30
+17 step 30
+15 step 30
+29 step 30
+49 step 30
+55 step 30
+45 step 30
+35 step 30
+1 step 30
+18 step 30
+23 step 30
+27 step 30
+24 step 30
+28 step 30
+8 step 31
+4 step 31
+42 step 31
+0 step 31
+60 step 31
+32 step 31
+37 step 31
+16 step 31
+48 step 31
+36 step 31
+41 step 31
+56 step 31
+6 step 31
+2 step 31
+40 step 31
+20 step 31
+34 step 31
+11 step 31
+22 step 31
+39 step 31
+38 step 31
+63 step 31
+45 step 31
+43 step 31
+28 step 31
+14 step 31
+13 step 31
+3 step 31
+9 step 31
+15 step 31
+10 step 31
+12 step 31
+5 step 31
+61 step 31
+50 step 31
+23 step 31
+46 step 31
+35 step 31
+47 step 31
+57 step 31
+51 step 31
+31 step 31
+30 step 31
+21 step 31
+26 step 31
+27 step 31
+54 step 31
+53 step 31
+55 step 31
+58 step 31
+52 step 31
+18 step 31
+17 step 31
+49 step 31
+7 step 31
+44 step 31
+59 step 31
+1 step 31
+62 step 31
+29 step 31
+19 step 31
+33 step 31
+24 step 31
+25 step 31
+32 step 32
+48 step 32
+20 step 32
+13 step 32
+17 step 32
+12 step 32
+22 step 32
+16 step 32
+0 step 32
+33 step 32
+8 step 32
+7 step 32
+2 step 32
+23 step 32
+42 step 32
+39 step 32
+4 step 32
+11 step 32
+59 step 32
+58 step 32
+50 step 32
+61 step 32
+19 step 32
+26 step 32
+3 step 32
+9 step 32
+24 step 32
+35 step 32
+63 step 32
+53 step 32
+52 step 32
+56 step 32
+54 step 32
+55 step 32
+51 step 32
+60 step 32
+62 step 32
+49 step 32
+14 step 32
+31 step 32
+30 step 32
+21 step 32
+27 step 32
+29 step 32
+25 step 32
+18 step 32
+28 step 32
+1 step 32
+38 step 32
+44 step 32
+43 step 32
+34 step 32
+46 step 32
+40 step 32
+41 step 32
+47 step 32
+36 step 32
+37 step 32
+45 step 32
+10 step 32
+5 step 32
+6 step 32
+15 step 32
+57 step 32
+6 step 33
+4 step 33
+28 step 33
+32 step 33
+26 step 33
+48 step 33
+16 step 33
+24 step 33
+0 step 33
+17 step 33
+22 step 33
+20 step 33
+25 step 33
+52 step 33
+7 step 33
+11 step 33
+2 step 33
+14 step 33
+12 step 33
+13 step 33
+10 step 33
+15 step 33
+5 step 33
+9 step 33
+3 step 33
+38 step 33
+58 step 33
+59 step 33
+42 step 33
+43 step 33
+36 step 33
+30 step 33
+23 step 33
+21 step 33
+18 step 33
+31 step 33
+37 step 33
+39 step 33
+57 step 33
+50 step 33
+61 step 33
+44 step 33
+45 step 33
+41 step 33
+19 step 33
+29 step 33
+27 step 33
+35 step 33
+51 step 33
+60 step 33
+56 step 33
+40 step 33
+34 step 33
+47 step 33
+54 step 33
+55 step 33
+63 step 33
+33 step 33
+62 step 33
+49 step 33
+1 step 33
+53 step 33
+8 step 33
+46 step 33
+32 step 34
+16 step 34
+48 step 34
+0 step 34
+52 step 34
+6 step 34
+4 step 34
+50 step 34
+54 step 34
+2 step 34
+11 step 34
+12 step 34
+13 step 34
+8 step 34
+10 step 34
+3 step 34
+7 step 34
+1 step 34
+9 step 34
+42 step 34
+38 step 34
+61 step 34
+59 step 34
+39 step 34
+44 step 34
+45 step 34
+43 step 34
+14 step 34
+29 step 34
+30 step 34
+23 step 34
+36 step 34
+46 step 34
+58 step 34
+63 step 34
+35 step 34
+17 step 34
+5 step 34
+15 step 34
+37 step 34
+56 step 34
+57 step 34
+55 step 34
+47 step 34
+41 step 34
+34 step 34
+40 step 34
+60 step 34
+53 step 34
+49 step 34
+51 step 34
+28 step 34
+18 step 34
+19 step 34
+33 step 34
+62 step 34
+27 step 34
+26 step 34
+21 step 34
+31 step 34
+20 step 34
+24 step 34
+25 step 34
+22 step 34
+0 step 35
+32 step 35
+16 step 35
+56 step 35
+48 step 35
+60 step 35
+20 step 35
+2 step 35
+62 step 35
+4 step 35
+42 step 35
+59 step 35
+38 step 35
+40 step 35
+36 step 35
+35 step 35
+7 step 35
+22 step 35
+5 step 35
+14 step 35
+12 step 35
+13 step 35
+10 step 35
+3 step 35
+11 step 35
+6 step 35
+15 step 35
+9 step 35
+50 step 35
+8 step 35
+63 step 35
+51 step 35
+58 step 35
+31 step 35
+27 step 35
+26 step 35
+25 step 35
+24 step 35
+30 step 35
+28 step 35
+29 step 35
+52 step 35
+53 step 35
+1 step 35
+19 step 35
+18 step 35
+41 step 35
+43 step 35
+45 step 35
+61 step 35
+57 step 35
+49 step 35
+33 step 35
+21 step 35
+23 step 35
+37 step 35
+47 step 35
+54 step 35
+55 step 35
+46 step 35
+17 step 35
+39 step 35
+34 step 35
+44 step 35
+0 step 36
+44 step 36
+40 step 36
+32 step 36
+16 step 36
+7 step 36
+4 step 36
+14 step 36
+6 step 36
+48 step 36
+43 step 36
+10 step 36
+42 step 36
+12 step 36
+8 step 36
+2 step 36
+15 step 36
+17 step 36
+22 step 36
+13 step 36
+9 step 36
+3 step 36
+23 step 36
+18 step 36
+19 step 36
+58 step 36
+26 step 36
+30 step 36
+24 step 36
+5 step 36
+50 step 36
+28 step 36
+21 step 36
+39 step 36
+38 step 36
+37 step 36
+34 step 36
+36 step 36
+35 step 36
+46 step 36
+33 step 36
+45 step 36
+41 step 36
+11 step 36
+47 step 36
+1 step 36
+57 step 36
+61 step 36
+59 step 36
+27 step 36
+29 step 36
+31 step 36
+63 step 36
+62 step 36
+51 step 36
+49 step 36
+55 step 36
+54 step 36
+52 step 36
+53 step 36
+60 step 36
+56 step 36
+25 step 36
+20 step 36
+32 step 37
+0 step 37
+20 step 37
+48 step 37
+16 step 37
+54 step 37
+26 step 37
+24 step 37
+30 step 37
+28 step 37
+52 step 37
+11 step 37
+39 step 37
+38 step 37
+7 step 37
+42 step 37
+43 step 37
+36 step 37
+45 step 37
+4 step 37
+2 step 37
+10 step 37
+6 step 37
+9 step 37
+5 step 37
+14 step 37
+8 step 37
+13 step 37
+15 step 37
+1 step 37
+21 step 37
+41 step 37
+35 step 37
+37 step 37
+34 step 37
+50 step 37
+51 step 37
+56 step 37
+61 step 37
+58 step 37
+49 step 37
+40 step 37
+19 step 37
+29 step 37
+18 step 37
+23 step 37
+27 step 37
+47 step 37
+44 step 37
+46 step 37
+22 step 37
+31 step 37
+17 step 37
+33 step 37
+25 step 37
+57 step 37
+63 step 37
+12 step 37
+3 step 37
+55 step 37
+62 step 37
+59 step 37
+60 step 37
+53 step 37
+16 step 38
+32 step 38
+0 step 38
+48 step 38
+22 step 38
+38 step 38
+50 step 38
+20 step 38
+36 step 38
+33 step 38
+24 step 38
+43 step 38
+59 step 38
+35 step 38
+42 step 38
+30 step 38
+31 step 38
+11 step 38
+2 step 38
+7 step 38
+10 step 38
+3 step 38
+15 step 38
+6 step 38
+14 step 38
+4 step 38
+26 step 38
+34 step 38
+45 step 38
+37 step 38
+27 step 38
+21 step 38
+9 step 38
+12 step 38
+5 step 38
+13 step 38
+19 step 38
+44 step 38
+41 step 38
+47 step 38
+40 step 38
+29 step 38
+8 step 38
+1 step 38
+25 step 38
+58 step 38
+63 step 38
+62 step 38
+60 step 38
+55 step 38
+18 step 38
+28 step 38
+51 step 38
+52 step 38
+39 step 38
+23 step 38
+17 step 38
+61 step 38
+57 step 38
+56 step 38
+54 step 38
+53 step 38
+49 step 38
+46 step 38
+32 step 39
+0 step 39
+4 step 39
+16 step 39
+62 step 39
+36 step 39
+48 step 39
+52 step 39
+53 step 39
+60 step 39
+38 step 39
+34 step 39
+40 step 39
+1 step 39
+39 step 39
+42 step 39
+35 step 39
+46 step 39
+13 step 39
+10 step 39
+8 step 39
+45 step 39
+44 step 39
+57 step 39
+51 step 39
+41 step 39
+37 step 39
+22 step 39
+9 step 39
+43 step 39
+50 step 39
+47 step 39
+28 step 39
+26 step 39
+19 step 39
+21 step 39
+33 step 39
+30 step 39
+56 step 39
+61 step 39
+58 step 39
+12 step 39
+11 step 39
+6 step 39
+59 step 39
+54 step 39
+17 step 39
+7 step 39
+14 step 39
+15 step 39
+3 step 39
+2 step 39
+5 step 39
+49 step 39
+55 step 39
+63 step 39
+27 step 39
+25 step 39
+24 step 39
+29 step 39
+23 step 39
+18 step 39
+31 step 39
+20 step 39
+8 step 40
+16 step 40
+48 step 40
+9 step 40
+32 step 40
+6 step 40
+4 step 40
+0 step 40
+42 step 40
+45 step 40
+1 step 40
+40 step 40
+12 step 40
+44 step 40
+14 step 40
+11 step 40
+7 step 40
+46 step 40
+2 step 40
+10 step 40
+15 step 40
+3 step 40
+22 step 40
+20 step 40
+27 step 40
+23 step 40
+18 step 40
+50 step 40
+57 step 40
+58 step 40
+59 step 40
+62 step 40
+55 step 40
+63 step 40
+61 step 40
+60 step 40
+51 step 40
+54 step 40
+52 step 40
+53 step 40
+56 step 40
+13 step 40
+5 step 40
+26 step 40
+29 step 40
+19 step 40
+41 step 40
+49 step 40
+43 step 40
+38 step 40
+21 step 40
+30 step 40
+37 step 40
+36 step 40
+34 step 40
+31 step 40
+28 step 40
+17 step 40
+25 step 40
+47 step 40
+33 step 40
+35 step 40
+24 step 40
+39 step 40
+0 step 41
+48 step 41
+16 step 41
+32 step 41
+20 step 41
+25 step 41
+40 step 41
+26 step 41
+24 step 41
+28 step 41
+7 step 41
+2 step 41
+41 step 41
+34 step 41
+38 step 41
+45 step 41
+12 step 41
+13 step 41
+3 step 41
+4 step 41
+37 step 41
+36 step 41
+14 step 41
+15 step 41
+10 step 41
+5 step 41
+8 step 41
+1 step 41
+58 step 41
+59 step 41
+56 step 41
+35 step 41
+30 step 41
+29 step 41
+17 step 41
+44 step 41
+53 step 41
+47 step 41
+33 step 41
+39 step 41
+9 step 41
+43 step 41
+50 step 41
+57 step 41
+61 step 41
+60 step 41
+54 step 41
+55 step 41
+49 step 41
+62 step 41
+51 step 41
+52 step 41
+63 step 41
+42 step 41
+21 step 41
+27 step 41
+31 step 41
+23 step 41
+22 step 41
+18 step 41
+19 step 41
+6 step 41
+11 step 41
+46 step 41
+24 step 42
+32 step 42
+4 step 42
+16 step 42
+56 step 42
+48 step 42
+0 step 42
+11 step 42
+50 step 42
+39 step 42
+38 step 42
+7 step 42
+10 step 42
+43 step 42
+2 step 42
+13 step 42
+6 step 42
+42 step 42
+45 step 42
+22 step 42
+3 step 42
+26 step 42
+31 step 42
+46 step 42
+41 step 42
+58 step 42
+59 step 42
+61 step 42
+36 step 42
+9 step 42
+12 step 42
+47 step 42
+35 step 42
+37 step 42
+63 step 42
+40 step 42
+29 step 42
+8 step 42
+17 step 42
+44 step 42
+33 step 42
+1 step 42
+5 step 42
+15 step 42
+14 step 42
+30 step 42
+27 step 42
+18 step 42
+19 step 42
+57 step 42
+51 step 42
+60 step 42
+28 step 42
+23 step 42
+21 step 42
+20 step 42
+25 step 42
+54 step 42
+55 step 42
+62 step 42
+52 step 42
+53 step 42
+34 step 42
+49 step 42
+32 step 43
+0 step 43
+58 step 43
+34 step 43
+56 step 43
+48 step 43
+4 step 43
+12 step 43
+8 step 43
+7 step 43
+11 step 43
+1 step 43
+13 step 43
+14 step 43
+2 step 43
+10 step 43
+24 step 43
+38 step 43
+60 step 43
+36 step 43
+16 step 43
+15 step 43
+9 step 43
+3 step 43
+30 step 43
+35 step 43
+53 step 43
+50 step 43
+51 step 43
+54 step 43
+39 step 43
+42 step 43
+22 step 43
+5 step 43
+19 step 43
+43 step 43
+37 step 43
+45 step 43
+44 step 43
+23 step 43
+21 step 43
+29 step 43
+26 step 43
+41 step 43
+40 step 43
+47 step 43
+33 step 43
+46 step 43
+57 step 43
+52 step 43
+63 step 43
+55 step 43
+6 step 43
+25 step 43
+27 step 43
+31 step 43
+61 step 43
+59 step 43
+62 step 43
+49 step 43
+28 step 43
+18 step 43
+20 step 43
+17 step 43
+48 step 44
+14 step 44
+46 step 44
+16 step 44
+12 step 44
+8 step 44
+44 step 44
+42 step 44
+32 step 44
+0 step 44
+13 step 44
+40 step 44
+9 step 44
+15 step 44
+4 step 44
+7 step 44
+3 step 44
+2 step 44
+38 step 44
+39 step 44
+1 step 44
+6 step 44
+11 step 44
+36 step 44
+62 step 44
+43 step 44
+34 step 44
+35 step 44
+41 step 44
+37 step 44
+33 step 44
+47 step 44
+58 step 44
+59 step 44
+57 step 44
+63 step 44
+56 step 44
+53 step 44
+54 step 44
+55 step 44
+52 step 44
+49 step 44
+60 step 44
+61 step 44
+51 step 44
+50 step 44
+26 step 44
+19 step 44
+45 step 44
+27 step 44
+29 step 44
+22 step 44
+18 step 44
+21 step 44
+25 step 44
+28 step 44
+5 step 44
+20 step 44
+10 step 44
+17 step 44
+31 step 44
+30 step 44
+23 step 44
+24 step 44
+28 step 45
+0 step 45
+18 step 45
+32 step 45
+52 step 45
+24 step 45
+16 step 45
+48 step 45
+8 step 45
+22 step 45
+23 step 45
+56 step 45
+40 step 45
+11 step 45
+10 step 45
+26 step 45
+39 step 45
+42 step 45
+38 step 45
+43 step 45
+13 step 45
+2 step 45
+7 step 45
+3 step 45
+4 step 45
+14 step 45
+9 step 45
+44 step 45
+6 step 45
+1 step 45
+5 step 45
+35 step 45
+34 step 45
+61 step 45
+60 step 45
+51 step 45
+50 step 45
+36 step 45
+29 step 45
+21 step 45
+30 step 45
+17 step 45
+19 step 45
+12 step 45
+27 step 45
+37 step 45
+63 step 45
+57 step 45
+59 step 45
+58 step 45
+45 step 45
+33 step 45
+46 step 45
+49 step 45
+62 step 45
+47 step 45
+41 step 45
+55 step 45
+53 step 45
+15 step 45
+20 step 45
+31 step 45
+25 step 45
+54 step 45
+2 step 46
+4 step 46
+32 step 46
+6 step 46
+48 step 46
+56 step 46
+0 step 46
+16 step 46
+49 step 46
+38 step 46
+39 step 46
+42 step 46
+50 step 46
+43 step 46
+41 step 46
+34 step 46
+45 step 46
+44 step 46
+26 step 46
+29 step 46
+51 step 46
+59 step 46
+23 step 46
+17 step 46
+20 step 46
+52 step 46
+35 step 46
+36 step 46
+12 step 46
+11 step 46
+8 step 46
+1 step 46
+13 step 46
+14 step 46
+10 step 46
+9 step 46
+15 step 46
+7 step 46
+3 step 46
+5 step 46
+27 step 46
+22 step 46
+58 step 46
+54 step 46
+61 step 46
+30 step 46
+25 step 46
+19 step 46
+24 step 46
+18 step 46
+31 step 46
+28 step 46
+21 step 46
+57 step 46
+63 step 46
+62 step 46
+55 step 46
+60 step 46
+40 step 46
+33 step 46
+47 step 46
+46 step 46
+37 step 46
+53 step 46
+0 step 47
+16 step 47
+51 step 47
+32 step 47
+28 step 47
+35 step 47
+56 step 47
+48 step 47
+52 step 47
+24 step 47
+30 step 47
+34 step 47
+54 step 47
+62 step 47
+60 step 47
+63 step 47
+31 step 47
+37 step 47
+38 step 47
+26 step 47
+27 step 47
+22 step 47
+11 step 47
+10 step 47
+7 step 47
+2 step 47
+3 step 47
+9 step 47
+14 step 47
+8 step 47
+12 step 47
+13 step 47
+1 step 47
+5 step 47
+59 step 47
+42 step 47
+19 step 47
+18 step 47
+21 step 47
+61 step 47
+6 step 47
+15 step 47
+57 step 47
+49 step 47
+33 step 47
+17 step 47
+4 step 47
+46 step 47
+53 step 47
+58 step 47
+39 step 47
+43 step 47
+29 step 47
+23 step 47
+25 step 47
+20 step 47
+36 step 47
+41 step 47
+40 step 47
+44 step 47
+45 step 47
+47 step 47
+50 step 47
+55 step 47
+12 step 48
+44 step 48
+42 step 48
+8 step 48
+46 step 48
+40 step 48
+2 step 48
+32 step 48
+3 step 48
+48 step 48
+16 step 48
+0 step 48
+10 step 48
+6 step 48
+4 step 48
+7 step 48
+13 step 48
+11 step 48
+35 step 48
+38 step 48
+45 step 48
+36 step 48
+9 step 48
+30 step 48
+23 step 48
+50 step 48
+58 step 48
+61 step 48
+5 step 48
+14 step 48
+27 step 48
+34 step 48
+33 step 48
+54 step 48
+59 step 48
+57 step 48
+56 step 48
+39 step 48
+17 step 48
+28 step 48
+47 step 48
+63 step 48
+55 step 48
+51 step 48
+60 step 48
+49 step 48
+52 step 48
+15 step 48
+22 step 48
+31 step 48
+26 step 48
+19 step 48
+21 step 48
+18 step 48
+20 step 48
+25 step 48
+24 step 48
+1 step 48
+37 step 48
+41 step 48
+43 step 48
+29 step 48
+62 step 48
+53 step 48
+16 step 49
+48 step 49
+32 step 49
+36 step 49
+17 step 49
+0 step 49
+20 step 49
+28 step 49
+24 step 49
+30 step 49
+22 step 49
+44 step 49
+40 step 49
+31 step 49
+13 step 49
+12 step 49
+38 step 49
+27 step 49
+26 step 49
+29 step 49
+2 step 49
+7 step 49
+14 step 49
+6 step 49
+11 step 49
+10 step 49
+23 step 49
+43 step 49
+35 step 49
+45 step 49
+41 step 49
+62 step 49
+63 step 49
+59 step 49
+42 step 49
+19 step 49
+9 step 49
+3 step 49
+25 step 49
+34 step 49
+39 step 49
+47 step 49
+57 step 49
+58 step 49
+50 step 49
+60 step 49
+37 step 49
+18 step 49
+46 step 49
+61 step 49
+49 step 49
+33 step 49
+21 step 49
+1 step 49
+51 step 49
+54 step 49
+4 step 49
+5 step 49
+15 step 49
+8 step 49
+53 step 49
+52 step 49
+55 step 49
+56 step 49
+14 step 50
+16 step 50
+48 step 50
+12 step 50
+8 step 50
+0 step 50
+33 step 50
+52 step 50
+1 step 50
+32 step 50
+15 step 50
+7 step 50
+10 step 50
+11 step 50
+6 step 50
+27 step 50
+26 step 50
+30 step 50
+31 step 50
+2 step 50
+3 step 50
+4 step 50
+21 step 50
+25 step 50
+13 step 50
+5 step 50
+9 step 50
+50 step 50
+59 step 50
+24 step 50
+19 step 50
+28 step 50
+61 step 50
+55 step 50
+60 step 50
+42 step 50
+43 step 50
+39 step 50
+38 step 50
+35 step 50
+36 step 50
+37 step 50
+45 step 50
+34 step 50
+41 step 50
+47 step 50
+44 step 50
+40 step 50
+46 step 50
+53 step 50
+18 step 50
+29 step 50
+20 step 50
+51 step 50
+58 step 50
+57 step 50
+54 step 50
+63 step 50
+62 step 50
+56 step 50
+49 step 50
+23 step 50
+17 step 50
+22 step 50
+32 step 51
+22 step 51
+16 step 51
+20 step 51
+0 step 51
+52 step 51
+50 step 51
+48 step 51
+56 step 51
+39 step 51
+61 step 51
+11 step 51
+10 step 51
+7 step 51
+4 step 51
+30 step 51
+31 step 51
+51 step 51
+28 step 51
+29 step 51
+14 step 51
+15 step 51
+9 step 51
+8 step 51
+2 step 51
+6 step 51
+5 step 51
+27 step 51
+59 step 51
+55 step 51
+62 step 51
+54 step 51
+38 step 51
+42 step 51
+36 step 51
+44 step 51
+41 step 51
+37 step 51
+40 step 51
+47 step 51
+46 step 51
+18 step 51
+21 step 51
+12 step 51
+24 step 51
+63 step 51
+53 step 51
+17 step 51
+23 step 51
+26 step 51
+19 step 51
+25 step 51
+13 step 51
+3 step 51
+57 step 51
+49 step 51
+1 step 51
+43 step 51
+45 step 51
+60 step 51
+58 step 51
+35 step 51
+34 step 51
+33 step 51
+16 step 52
+4 step 52
+10 step 52
+60 step 52
+56 step 52
+8 step 52
+33 step 52
+2 step 52
+6 step 52
+0 step 52
+44 step 52
+40 step 52
+38 step 52
+48 step 52
+36 step 52
+7 step 52
+52 step 52
+32 step 52
+42 step 52
+43 step 52
+9 step 52
+35 step 52
+13 step 52
+12 step 52
+14 step 52
+41 step 52
+39 step 52
+34 step 52
+15 step 52
+5 step 52
+47 step 52
+58 step 52
+50 step 52
+46 step 52
+22 step 52
+23 step 52
+31 step 52
+1 step 52
+17 step 52
+61 step 52
+11 step 52
+3 step 52
+45 step 52
+37 step 52
+30 step 52
+28 step 52
+53 step 52
+59 step 52
+51 step 52
+57 step 52
+29 step 52
+19 step 52
+27 step 52
+26 step 52
+18 step 52
+24 step 52
+25 step 52
+20 step 52
+21 step 52
+55 step 52
+63 step 52
+49 step 52
+62 step 52
+54 step 52
+0 step 53
+20 step 53
+16 step 53
+32 step 53
+17 step 53
+48 step 53
+22 step 53
+26 step 53
+24 step 53
+2 step 53
+7 step 53
+27 step 53
+42 step 53
+43 step 53
+13 step 53
+8 step 53
+5 step 53
+38 step 53
+59 step 53
+50 step 53
+61 step 53
+35 step 53
+39 step 53
+45 step 53
+25 step 53
+18 step 53
+29 step 53
+34 step 53
+44 step 53
+41 step 53
+63 step 53
+54 step 53
+60 step 53
+46 step 53
+47 step 53
+23 step 53
+31 step 53
+30 step 53
+28 step 53
+19 step 53
+40 step 53
+36 step 53
+37 step 53
+33 step 53
+15 step 53
+1 step 53
+6 step 53
+12 step 53
+4 step 53
+11 step 53
+21 step 53
+55 step 53
+51 step 53
+62 step 53
+10 step 53
+14 step 53
+9 step 53
+3 step 53
+57 step 53
+56 step 53
+58 step 53
+53 step 53
+52 step 53
+49 step 53
+0 step 54
+32 step 54
+16 step 54
+48 step 54
+33 step 54
+12 step 54
+8 step 54
+1 step 54
+58 step 54
+56 step 54
+31 step 54
+21 step 54
+30 step 54
+29 step 54
+23 step 54
+22 step 54
+26 step 54
+61 step 54
+50 step 54
+62 step 54
+63 step 54
+25 step 54
+18 step 54
+19 step 54
+59 step 54
+52 step 54
+60 step 54
+53 step 54
+57 step 54
+27 step 54
+24 step 54
+20 step 54
+42 step 54
+39 step 54
+38 step 54
+34 step 54
+35 step 54
+43 step 54
+37 step 54
+36 step 54
+45 step 54
+41 step 54
+40 step 54
+46 step 54
+47 step 54
+44 step 54
+28 step 54
+4 step 54
+13 step 54
+11 step 54
+7 step 54
+9 step 54
+10 step 54
+3 step 54
+14 step 54
+15 step 54
+5 step 54
+6 step 54
+2 step 54
+17 step 54
+51 step 54
+55 step 54
+49 step 54
+54 step 54
+32 step 55
+48 step 55
+16 step 55
+0 step 55
+52 step 55
+54 step 55
+56 step 55
+11 step 55
+2 step 55
+39 step 55
+38 step 55
+4 step 55
+7 step 55
+10 step 55
+3 step 55
+14 step 55
+13 step 55
+9 step 55
+12 step 55
+55 step 55
+59 step 55
+30 step 55
+26 step 55
+5 step 55
+15 step 55
+6 step 55
+1 step 55
+18 step 55
+19 step 55
+20 step 55
+57 step 55
+49 step 55
+58 step 55
+61 step 55
+63 step 55
+62 step 55
+60 step 55
+43 step 55
+47 step 55
+46 step 55
+8 step 55
+23 step 55
+51 step 55
+24 step 55
+50 step 55
+53 step 55
+42 step 55
+35 step 55
+28 step 55
+29 step 55
+45 step 55
+44 step 55
+37 step 55
+36 step 55
+41 step 55
+34 step 55
+40 step 55
+33 step 55
+22 step 55
+25 step 55
+27 step 55
+17 step 55
+21 step 55
+31 step 55
+42 step 56
+44 step 56
+40 step 56
+9 step 56
+38 step 56
+32 step 56
+48 step 56
+16 step 56
+0 step 56
+34 step 56
+6 step 56
+7 step 56
+36 step 56
+8 step 56
+46 step 56
+60 step 56
+2 step 56
+4 step 56
+11 step 56
+12 step 56
+13 step 56
+3 step 56
+14 step 56
+5 step 56
+10 step 56
+37 step 56
+50 step 56
+58 step 56
+59 step 56
+47 step 56
+35 step 56
+15 step 56
+30 step 56
+26 step 56
+22 step 56
+23 step 56
+45 step 56
+52 step 56
+53 step 56
+43 step 56
+28 step 56
+1 step 56
+27 step 56
+29 step 56
+41 step 56
+55 step 56
+54 step 56
+51 step 56
+61 step 56
+33 step 56
+57 step 56
+56 step 56
+62 step 56
+49 step 56
+20 step 56
+31 step 56
+39 step 56
+63 step 56
+19 step 56
+18 step 56
+21 step 56
+17 step 56
+24 step 56
+25 step 56
+32 step 57
+0 step 57
+20 step 57
+48 step 57
+18 step 57
+16 step 57
+28 step 57
+50 step 57
+54 step 57
+24 step 57
+22 step 57
+7 step 57
+10 step 57
+52 step 57
+39 step 57
+42 step 57
+3 step 57
+2 step 57
+30 step 57
+27 step 57
+9 step 57
+1 step 57
+25 step 57
+31 step 57
+26 step 57
+45 step 57
+40 step 57
+44 step 57
+33 step 57
+59 step 57
+58 step 57
+51 step 57
+57 step 57
+55 step 57
+61 step 57
+63 step 57
+53 step 57
+56 step 57
+60 step 57
+62 step 57
+17 step 57
+23 step 57
+49 step 57
+43 step 57
+38 step 57
+41 step 57
+15 step 57
+11 step 57
+4 step 57
+35 step 57
+34 step 57
+37 step 57
+36 step 57
+46 step 57
+47 step 57
+14 step 57
+19 step 57
+21 step 57
+12 step 57
+13 step 57
+6 step 57
+5 step 57
+8 step 57
+29 step 57
+0 step 58
+32 step 58
+24 step 58
+48 step 58
+16 step 58
+17 step 58
+27 step 58
+30 step 58
+26 step 58
+28 step 58
+20 step 58
+9 step 58
+2 step 58
+6 step 58
+7 step 58
+11 step 58
+13 step 58
+39 step 58
+38 step 58
+42 step 58
+3 step 58
+14 step 58
+35 step 58
+34 step 58
+43 step 58
+4 step 58
+5 step 58
+15 step 58
+12 step 58
+22 step 58
+23 step 58
+36 step 58
+37 step 58
+59 step 58
+58 step 58
+50 step 58
+61 step 58
+57 step 58
+53 step 58
+45 step 58
+41 step 58
+40 step 58
+31 step 58
+19 step 58
+18 step 58
+8 step 58
+1 step 58
+25 step 58
+44 step 58
+46 step 58
+21 step 58
+10 step 58
+33 step 58
+47 step 58
+56 step 58
+29 step 58
+52 step 58
+63 step 58
+54 step 58
+60 step 58
+51 step 58
+62 step 58
+49 step 58
+55 step 58
+32 step 59
+16 step 59
+48 step 59
+52 step 59
+0 step 59
+49 step 59
+4 step 59
+6 step 59
+24 step 59
+28 step 59
+7 step 59
+10 step 59
+42 step 59
+43 step 59
+38 step 59
+22 step 59
+2 step 59
+11 step 59
+3 step 59
+13 step 59
+9 step 59
+30 step 59
+26 step 59
+39 step 59
+54 step 59
+56 step 59
+63 step 59
+35 step 59
+45 step 59
+23 step 59
+8 step 59
+12 step 59
+14 step 59
+15 step 59
+1 step 59
+5 step 59
+27 step 59
+44 step 59
+47 step 59
+34 step 59
+37 step 59
+40 step 59
+18 step 59
+19 step 59
+31 step 59
+29 step 59
+25 step 59
+21 step 59
+20 step 59
+17 step 59
+33 step 59
+58 step 59
+53 step 59
+51 step 59
+57 step 59
+55 step 59
+46 step 59
+36 step 59
+59 step 59
+61 step 59
+60 step 59
+62 step 59
+50 step 59
+41 step 59
+Application 7978110 exit codes: 143
+Application 7978110 resources: utime ~7269s, stime ~344s, Rss ~1422256, inblocks ~244244, outblocks ~336
