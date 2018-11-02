@@ -341,3 +341,10 @@ def get_tif_metadata(tif_file, as_dict=False):
     s = subprocess.check_output(["gdalinfo", "-json", tif_file])
     j = json.loads(s)
     return j if as_dict else _dict_to_named_tuple("tif_metadata", j)
+
+
+def read_kmeans_centers(filename, is_ascii=True):
+    if not is_ascii: raise NotImplementedError()
+    with open(filename, "r") as f:
+        centers = [[float(x) for x in line.strip().split(" ")[1:]] for line in f.readlines()]
+    return np.array(centers)

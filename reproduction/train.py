@@ -321,7 +321,7 @@ def loss_fn(name, weight, fn, **kwargs):
 
 def new_adam_optimizer(size, lr, b1, b2):
     opt = tf.train.AdamOptimizer(lr * size, lr, b1, b2)
-    return hvd.DistributedOptimizer(opt)
+    return hvd.DistributedOptimizer(opt) if size > 1 else opt
 
 
 def image_losses(img, ae_img, w_mse, w_mae, w_hfe, w_ssim):

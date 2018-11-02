@@ -26,7 +26,7 @@ def _float_feature(value):
 def gen_swaths(targets, mode, resize, rank):
     """Reads and yields resized swaths.
     """
-    if mode == "tif":
+    if mode == "mod09_tif":
         read = lambda tif_file: gdal.Open(tif_file).ReadAsArray()
 
     elif mode == "mod02_1km":
@@ -44,7 +44,13 @@ def gen_swaths(targets, mode, resize, rank):
 
     for t in targets:
         print("rank", rank, "reading", t, flush=True)
-        swath = np.rollaxis(read(t), 0, 3)
+
+        try:
+            swath = np.rollaxis(read(t), 0, 3)
+        except Exception as e:
+            print(rank, "Could not read", t, "because", e)
+            continue
+
         if resize is not None:
             swath = cv2.resize(
                 swath, dsize=None, fx=resize, fy=resize, interpolation=cv2.INTER_AREA
