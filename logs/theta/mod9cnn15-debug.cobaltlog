@@ -1,0 +1,125 @@
+Jobid: 287389
+qsub --mode script --jobname mod9cnn15 --outputprefix theta-logs/mod9cnn15-debug --queue debug-cache-quad --cwd /home/casper/clouds --time 00:30:00 --nodecount 4 --project CSC249ADCD01 --attrs=pubnet theta/mod09cnn15.sh
+Wed Oct 31 22:46:18 2018 +0000 (UTC) submitted with cwd set to: /home/casper/clouds
+jobid 287389 submitted from terminal /dev/pts/46
+Wed Oct 31 22:50:59 2018 +0000 (UTC) Info: user delete requested; removing job from the queue
+Jobid: 287394
+qsub --mode script --jobname mod9cnn15 --outputprefix theta-logs/mod9cnn15-debug --queue debug-cache-quad --cwd /home/casper/clouds --time 00:30:00 --nodecount 4 --project CSC249ADCD01 --attrs=pubnet theta/mod09cnn15.sh
+Wed Oct 31 22:52:28 2018 +0000 (UTC) submitted with cwd set to: /home/casper/clouds
+jobid 287394 submitted from terminal /dev/pts/46
+2018-10-31 23:21:37,115 INFO: Starting Resource_Prologue
+2018-10-31 23:21:37,117 DEBUG: no enabling attribute found
+2018-10-31 23:21:37,117 INFO: Resource_Prologue finished with exit code 0
+Wed Oct 31 23:22:06 2018 +0000 (UTC) 
+Wed Oct 31 23:22:06 2018 +0000 (UTC) Command: '/gpfs/mira-home/casper/clouds/theta/mod09cnn15.sh'
+Wed Oct 31 23:22:06 2018 +0000 (UTC) 
+Wed Oct 31 23:22:06 2018 +0000 (UTC) Environment:
+Wed Oct 31 23:22:06 2018 +0000 (UTC) COBALT_PARTCORES=64
+Wed Oct 31 23:22:06 2018 +0000 (UTC) SHELL=/bin/bash
+Wed Oct 31 23:22:06 2018 +0000 (UTC) COBALT_PROJECT=CSC249ADCD01
+Wed Oct 31 23:22:06 2018 +0000 (UTC) COBALT_PARTNAME=3827,3835,3838-3839
+Wed Oct 31 23:22:06 2018 +0000 (UTC) COBALT_JOBID=287394
+Wed Oct 31 23:22:06 2018 +0000 (UTC) COBALT_STARTTIME=1541028077
+Wed Oct 31 23:22:06 2018 +0000 (UTC) LOGNAME=casper
+Wed Oct 31 23:22:06 2018 +0000 (UTC) USER=casper
+Wed Oct 31 23:22:06 2018 +0000 (UTC) COBALT_ENDTIME=1541029877
+Wed Oct 31 23:22:06 2018 +0000 (UTC) COBALT_PARTSIZE=4
+Wed Oct 31 23:22:06 2018 +0000 (UTC) HOME=/home/casper
+Wed Oct 31 23:22:06 2018 +0000 (UTC) COBALT_JOBSIZE=4
+Wed Oct 31 23:22:06 2018 +0000 (UTC) COBALT_QUEUE=debug-cache-quad
+Wed Oct 31 23:22:06 2018 +0000 (UTC) 
+Wed Oct 31 23:22:06 2018 +0000 (UTC) Info: stdin received from /dev/null
+Wed Oct 31 23:22:06 2018 +0000 (UTC) Info: stdout sent to /home/casper/clouds/theta-logs/mod9cnn15-debug.output
+Wed Oct 31 23:22:06 2018 +0000 (UTC) Info: stderr sent to /home/casper/clouds/theta-logs/mod9cnn15-debug.error
+Wed Oct 31 23:22:06 2018 +0000 (UTC) 
+Wed Oct 31 23:47:56 2018 +0000 (UTC) Info: user delete requested with signal SIGTERM by user casper
+Jobid: 287400
+qsub --mode script --jobname mod9cnn15 --outputprefix theta-logs/mod9cnn15-debug --queue debug-cache-quad --cwd /home/casper/clouds --time 00:30:00 --nodecount 4 --project CSC249ADCD01 --attrs=pubnet theta/mod09cnn15.sh
+Wed Oct 31 23:50:02 2018 +0000 (UTC) submitted with cwd set to: /home/casper/clouds
+jobid 287400 submitted from terminal /dev/pts/46
+2018-10-31 23:50:53,767 INFO: Starting Resource_Prologue
+2018-10-31 23:50:53,768 DEBUG: no enabling attribute found
+2018-10-31 23:50:53,769 INFO: Resource_Prologue finished with exit code 0
+Wed Oct 31 23:51:22 2018 +0000 (UTC) 
+Wed Oct 31 23:51:22 2018 +0000 (UTC) Command: '/gpfs/mira-home/casper/clouds/theta/mod09cnn15.sh'
+Wed Oct 31 23:51:22 2018 +0000 (UTC) 
+Wed Oct 31 23:51:22 2018 +0000 (UTC) Environment:
+Wed Oct 31 23:51:22 2018 +0000 (UTC) COBALT_PARTCORES=64
+Wed Oct 31 23:51:22 2018 +0000 (UTC) SHELL=/bin/bash
+Wed Oct 31 23:51:22 2018 +0000 (UTC) COBALT_PROJECT=CSC249ADCD01
+Wed Oct 31 23:51:22 2018 +0000 (UTC) COBALT_PARTNAME=3830,3834-3836
+Wed Oct 31 23:51:22 2018 +0000 (UTC) COBALT_JOBID=287400
+Wed Oct 31 23:51:22 2018 +0000 (UTC) COBALT_STARTTIME=1541029839
+Wed Oct 31 23:51:22 2018 +0000 (UTC) LOGNAME=casper
+Wed Oct 31 23:51:22 2018 +0000 (UTC) USER=casper
+Wed Oct 31 23:51:22 2018 +0000 (UTC) COBALT_ENDTIME=1541031639
+Wed Oct 31 23:51:22 2018 +0000 (UTC) COBALT_PARTSIZE=4
+Wed Oct 31 23:51:22 2018 +0000 (UTC) HOME=/home/casper
+Wed Oct 31 23:51:22 2018 +0000 (UTC) COBALT_JOBSIZE=4
+Wed Oct 31 23:51:22 2018 +0000 (UTC) COBALT_QUEUE=debug-cache-quad
+Wed Oct 31 23:51:22 2018 +0000 (UTC) 
+Wed Oct 31 23:51:22 2018 +0000 (UTC) Info: stdin received from /dev/null
+Wed Oct 31 23:51:22 2018 +0000 (UTC) Info: stdout sent to /home/casper/clouds/theta-logs/mod9cnn15-debug.output
+Wed Oct 31 23:51:22 2018 +0000 (UTC) Info: stderr sent to /home/casper/clouds/theta-logs/mod9cnn15-debug.error
+Wed Oct 31 23:51:22 2018 +0000 (UTC) 
+Thu Nov 01 00:21:32 2018 +0000 (UTC) Info: maximum execution time exceeded; initiating job termination
+Jobid: 287500
+qsub --mode script --jobname mod9cnn15 --outputprefix theta-logs/mod9cnn15-debug --queue debug-cache-quad --cwd /home/casper/clouds --time 00:30:00 --nodecount 4 --project CSC249ADCD01 --attrs=pubnet theta/mod09cnn15.sh
+Thu Nov 01 13:45:01 2018 +0000 (UTC) submitted with cwd set to: /home/casper/clouds
+jobid 287500 submitted from terminal /dev/pts/20
+2018-11-01 13:46:08,637 INFO: Starting Resource_Prologue
+2018-11-01 13:46:08,643 DEBUG: no enabling attribute found
+2018-11-01 13:46:08,643 INFO: Resource_Prologue finished with exit code 0
+Thu Nov 01 13:46:37 2018 +0000 (UTC) 
+Thu Nov 01 13:46:37 2018 +0000 (UTC) Command: '/gpfs/mira-home/casper/clouds/theta/mod09cnn15.sh'
+Thu Nov 01 13:46:37 2018 +0000 (UTC) 
+Thu Nov 01 13:46:37 2018 +0000 (UTC) Environment:
+Thu Nov 01 13:46:37 2018 +0000 (UTC) COBALT_PARTCORES=64
+Thu Nov 01 13:46:37 2018 +0000 (UTC) SHELL=/bin/bash
+Thu Nov 01 13:46:37 2018 +0000 (UTC) COBALT_PROJECT=CSC249ADCD01
+Thu Nov 01 13:46:37 2018 +0000 (UTC) COBALT_PARTNAME=3830,3834-3836
+Thu Nov 01 13:46:37 2018 +0000 (UTC) COBALT_JOBID=287500
+Thu Nov 01 13:46:37 2018 +0000 (UTC) COBALT_STARTTIME=1541079952
+Thu Nov 01 13:46:37 2018 +0000 (UTC) LOGNAME=casper
+Thu Nov 01 13:46:37 2018 +0000 (UTC) USER=casper
+Thu Nov 01 13:46:37 2018 +0000 (UTC) COBALT_ENDTIME=1541081752
+Thu Nov 01 13:46:37 2018 +0000 (UTC) COBALT_PARTSIZE=4
+Thu Nov 01 13:46:37 2018 +0000 (UTC) HOME=/home/casper
+Thu Nov 01 13:46:37 2018 +0000 (UTC) COBALT_JOBSIZE=4
+Thu Nov 01 13:46:37 2018 +0000 (UTC) COBALT_QUEUE=debug-cache-quad
+Thu Nov 01 13:46:37 2018 +0000 (UTC) 
+Thu Nov 01 13:46:37 2018 +0000 (UTC) Info: stdin received from /dev/null
+Thu Nov 01 13:46:37 2018 +0000 (UTC) Info: stdout sent to /home/casper/clouds/theta-logs/mod9cnn15-debug.output
+Thu Nov 01 13:46:37 2018 +0000 (UTC) Info: stderr sent to /home/casper/clouds/theta-logs/mod9cnn15-debug.error
+Thu Nov 01 13:46:37 2018 +0000 (UTC) 
+Thu Nov 01 14:16:47 2018 +0000 (UTC) Info: maximum execution time exceeded; initiating job termination
+Jobid: 287508
+qsub --mode script --jobname mod9cnn15 --outputprefix theta-logs/mod9cnn15-debug --queue debug-cache-quad --cwd /home/casper/clouds --time 00:30:00 --nodecount 4 --project CSC249ADCD01 --attrs=pubnet theta/mod09cnn15.sh
+Thu Nov 01 14:20:30 2018 +0000 (UTC) submitted with cwd set to: /home/casper/clouds
+jobid 287508 submitted from terminal /dev/pts/20
+2018-11-01 14:29:09,813 INFO: Starting Resource_Prologue
+2018-11-01 14:29:09,827 DEBUG: no enabling attribute found
+2018-11-01 14:29:09,827 INFO: Resource_Prologue finished with exit code 0
+Thu Nov 01 14:30:22 2018 +0000 (UTC) 
+Thu Nov 01 14:30:22 2018 +0000 (UTC) Command: '/gpfs/mira-home/casper/clouds/theta/mod09cnn15.sh'
+Thu Nov 01 14:30:22 2018 +0000 (UTC) 
+Thu Nov 01 14:30:22 2018 +0000 (UTC) Environment:
+Thu Nov 01 14:30:22 2018 +0000 (UTC) COBALT_PARTCORES=64
+Thu Nov 01 14:30:22 2018 +0000 (UTC) SHELL=/bin/bash
+Thu Nov 01 14:30:22 2018 +0000 (UTC) COBALT_PROJECT=CSC249ADCD01
+Thu Nov 01 14:30:22 2018 +0000 (UTC) COBALT_PARTNAME=3827,3833,3838-3839
+Thu Nov 01 14:30:22 2018 +0000 (UTC) COBALT_JOBID=287508
+Thu Nov 01 14:30:22 2018 +0000 (UTC) COBALT_STARTTIME=1541082532
+Thu Nov 01 14:30:22 2018 +0000 (UTC) LOGNAME=casper
+Thu Nov 01 14:30:22 2018 +0000 (UTC) USER=casper
+Thu Nov 01 14:30:22 2018 +0000 (UTC) COBALT_ENDTIME=1541084332
+Thu Nov 01 14:30:22 2018 +0000 (UTC) COBALT_PARTSIZE=4
+Thu Nov 01 14:30:22 2018 +0000 (UTC) HOME=/home/casper
+Thu Nov 01 14:30:22 2018 +0000 (UTC) COBALT_JOBSIZE=4
+Thu Nov 01 14:30:22 2018 +0000 (UTC) COBALT_QUEUE=debug-cache-quad
+Thu Nov 01 14:30:22 2018 +0000 (UTC) 
+Thu Nov 01 14:30:22 2018 +0000 (UTC) Info: stdin received from /dev/null
+Thu Nov 01 14:30:22 2018 +0000 (UTC) Info: stdout sent to /home/casper/clouds/theta-logs/mod9cnn15-debug.output
+Thu Nov 01 14:30:23 2018 +0000 (UTC) Info: stderr sent to /home/casper/clouds/theta-logs/mod9cnn15-debug.error
+Thu Nov 01 14:30:23 2018 +0000 (UTC) 
+Thu Nov 01 15:00:44 2018 +0000 (UTC) Info: maximum execution time exceeded; initiating job termination

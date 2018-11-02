@@ -100,8 +100,8 @@ def open_and_normalize_hdf(shape, fields, normalization_file, flip, rotate):
     def fn(fname):
         width, height, _ = shape
         if rotate:
-            width = int(np.ceil(width * 2 ** .5))
-            height = int(np.ceil(height * 2 ** .5))
+            width = int(np.ceil(width * 2 ** 0.5))
+            height = int(np.ceil(height * 2 ** 0.5))
 
         def pyfn(fname):
             hdf = SD(str(fname)[2:-1], SDC.READ)

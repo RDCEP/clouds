@@ -6,6 +6,7 @@ import glob
 import numpy as np
 
 from osgeo import gdal
+
 from mpi4py import MPI
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from pyhdf.SD import SD, SDC
@@ -175,6 +176,7 @@ if __name__ == "__main__":
     comm = MPI.COMM_WORLD
     size = comm.Get_size()
     rank = comm.Get_rank()
+    
     FLAGS = get_args(verbose=rank == 0)
     os.makedirs(FLAGS.out_dir, exist_ok=True)
 
