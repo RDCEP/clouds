@@ -1,3 +1,7 @@
+"""analysis.py: A Library for analysing and visualizing image-autoencoder hidden space.
+"""
+__author__ = "casperneo@uchicago.edu"
+
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
@@ -44,6 +48,11 @@ class AEData:
         if ae is not None:
             self.compute_ae(ae)
             self.compute_pca()
+
+    def add_encoder(self, encoder):
+        self.encoder = encoder
+        self.raw_encs = encoder.predict(self.imgs)
+        self.encs = self.raw_encs.mean(axis=(1, 2))
 
     def compute_ae(self, ae):
         self.raw_encs, self.ae_imgs = ae.predict(self.imgs)
@@ -341,3 +350,13 @@ def get_tif_metadata(tif_file, as_dict=False):
     s = subprocess.check_output(["gdalinfo", "-json", tif_file])
     j = json.loads(s)
     return j if as_dict else _dict_to_named_tuple("tif_metadata", j)
+
+
+def read_kmeans_centers(filename, is_ascii=True):
+    if not is_ascii:
+        raise NotImplementedError()
+    with open(filename, "r") as f:
+        centers = [
+            [float(x) for x in line.strip().split(" ")[1:]] for line in f.readlines()
+        ]
+    return np.array(centers)

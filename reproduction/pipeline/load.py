@@ -1,63 +1,15 @@
+"""This library contains the functions and flags related to loading clouds datasets.
+"""
+
+__author__ = "casperneo@uchicago.edu"
+
+
 import tensorflow as tf
 import numpy as np
 import json
 from tensorflow.contrib.data import shuffle_and_repeat
 from tensorflow.contrib.data import parallel_interleave
 from tensorflow.contrib.data import batch_and_drop_remainder
-
-# from pyhdf.SD import SD, SDC
-
-# TODO Deprecated
-def tfr_parser_fn(fields, meta_json, saved_as_bytes=True):
-    """Parses tfrecord example with chosen fields.
-    Note that the shape is not consistent between fields or even between records
-    as such you should use the meta_json associated with the particular record
-    or pass a record that has been saved with the meta data and as bytes. This
-    will fail if `fields` are not the same shape as they cannot be
-    concatenated (FIXME with up/down sampling to align shapes?).
-
-    Arguments:
-        fields: Fields to select from record
-        meta_json: path to json meta datafile mapping fields to num channels and type
-        saved_as_bytes: boolean that indicates the tf record contains shape info
-            and is saved as bytes
-    Returns:
-        chans: The number of channels of the output image, the sum of channels
-            in selected fields.
-        parser:  Returns a 3d tensor from a serialized tf-record.
-    """
-    fields.sort()
-    with open(meta_json, "r") as f:
-        meta = json.load(f)
-
-    type_map = {
-        "float32": tf.float32,
-        "float64": tf.float64,
-        "int8": tf.int8,
-        "int16": tf.int16,
-    }
-
-    features = {}
-    chans = 0
-    for field in fields:
-        c, ty = meta[field][-2:]
-        features[field] = tf.FixedLenFeature([], tf.string)
-        features[field + "/shape"] = tf.FixedLenFeature([3], tf.int64)
-        chans += c
-
-    def parser(ser):
-        record = tf.parse_single_example(ser, features)
-        res = []
-        for f in fields:
-            sh = record[f + "/shape"]
-            ty = type_map[meta[f][-1]]
-            decoded = tf.decode_raw(record[f], ty)
-            decoded = tf.reshape(decoded, sh)
-            decoded = tf.cast(decoded, tf.float32)
-            res.append(decoded)
-        return tf.concat(res, axis=2), sh
-
-    return chans, parser
 
 
 def load_data_direct(
@@ -77,8 +29,8 @@ def load_data_direct(
     # TODO direct load of tif
     parser = open_and_normalize_hdf(shape, fields, normalization_file, flip, rotate)
     data = (
-        tf.data.Dataset.list_files(data_glob, shuffle=True)
-        .shard(*distribute)
+        tf.data.Dataset.list_files(data_glob, shuffle=True).shard(*distribute)
+        # OPTIMIZE: Does read-threads do anything? Considering Python GLC? TODO test.
         .map(parser, num_parallel_calls=read_threads)
     )
     if repeat:
@@ -91,8 +43,8 @@ def load_data_direct(
 
 
 def open_and_normalize_hdf(shape, fields, normalization_file, flip, rotate):
-    """Returns a function that opens and normalizes a random patch from fname, returning fname,
-    central coordinate, and patch.
+    """Returns a function that opens and normalizes a random patch from fname, returning
+    fname, central coordinate, and patch.
     """
     with open(normalization_file, "r") as f:
         normalization = json.load(f)
@@ -100,8 +52,8 @@ def open_and_normalize_hdf(shape, fields, normalization_file, flip, rotate):
     def fn(fname):
         width, height, _ = shape
         if rotate:
-            width = int(np.ceil(width * 2 ** .5))
-            height = int(np.ceil(height * 2 ** .5))
+            width = int(np.ceil(width * 2 ** 0.5))
+            height = int(np.ceil(height * 2 ** 0.5))
 
         def pyfn(fname):
             hdf = SD(str(fname)[2:-1], SDC.READ)
@@ -204,6 +156,8 @@ def load_data(
 
 
 def add_pipeline_cli_arguments(p):
+    """Adds flags used for loading an argparse.ArgumentParser.
+    """
     p.add_argument(
         "--data", help="patterns to pick up tf records files", required=True, nargs="+"
     )
