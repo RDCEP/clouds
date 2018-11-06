@@ -1,3 +1,9 @@
+"""models.py: Define all the autoencoder variancts used in the clouds project.
+The main function is `autoencoder` however there is also a discriminator and a perceptual
+network for various losses.
+"""
+__author__ = "casperneo@uchicago.edu"
+
 import numpy as np
 import tensorflow as tf
 import tensorflow.keras.applications as pretrained
@@ -33,7 +39,10 @@ def sample_variational(x, depth, dense, nonlinearity, data_format):
 
 
 def residual_add(x, r, data_format):
-    """Adds `r` to `x` reshaping `r` and zero_padding extra dimensions.
+    """Adds `r` to `x` reshaping `r` and zero_padding extra dimensions
+    If the shape doesn't fit, the input tensor is bilinear resized
+    If the input tensor has too many channels only the first channels will be added
+    If the input tensor has too few channels it will be added to the first output chnanels
     """
 
     def fn(args):
@@ -84,19 +93,14 @@ def residual_add(x, r, data_format):
 
 
 def resblock(x, depth, nonlinearity, data_format):
+    """Two 3x3 convoluions with a residual addition between them
+    """
     r = x
-    if depth >= 256:
-        x = Conv2D(depth // 4, 1, data_format=data_format)(x)
-        x = nonlinearity()(x)
-        x = Conv2D(depth, 3, padding="same", data_format=data_format)(x)
-        x = nonlinearity()(x)
-        x = Conv2D(depth, 1, data_format=data_format)(x)
-    else:
-        x = Conv2D(depth, 3, padding="same", data_format=data_format)(x)
-        x = nonlinearity()(x)
-        x = Conv2D(depth, 3, padding="same", data_format=data_format)(x)
-        x = nonlinearity()(x)
-
+    # TODO consider NL C NL C RA C
+    x = Conv2D(depth, 3, padding="same", data_format=data_format)(x)
+    x = nonlinearity()(x)
+    x = Conv2D(depth, 3, padding="same", data_format=data_format)(x)
+    x = nonlinearity()(x)
     return residual_add(x, r, data_format)
 
 
@@ -122,6 +126,8 @@ def resblocks(x, depth, blocks, nonlinearity, data_format, cardinality=1):
 def scale_change_block(
     x, depth, nonlinearity, down, scale=2, data_format="channels_first"
 ):
+    """2 3x3 convs with nonlinearities, first one is strided (and ConvT if not down).
+    """
     r = x
     _conv = Conv2D if down else Conv2DTranspose
     x = _conv(depth, max(3, scale), scale, padding="same", data_format=data_format)(x)
@@ -143,7 +149,30 @@ def autoencoder(
     scale=2,
     data_format="channels_first",
 ):
-    """Returns an encoder model and a decoder model.
+    """Defines a convolutional autoencoder, variational if specified
+
+    The autoencoder has the following properties:
+        Same number of blocks in encoder and decoder
+        Small, 3x3 kernels
+        Stride `scale=2` convolutions and transposed convolutions
+        Skip connections from inputs to outputs of every block
+    Args:
+        shape: (height, width, channels) of input image (chann)
+        n_blocks: Number of scale changing blocks to use in encoder and decoder
+        base: Number of channels of in first block, each subsequent block doubles channels
+            until the bottelneck layer, then each block halves in channels until the image
+            is decoded
+        batchnorm: Use batchnorm layer at the end of every block
+        variational: Use a variational autoencoder - bottleneck layer output is a mean and
+            standard deviation. A sample from that distribution is decoded
+        dense: Integer specifying dimension of bottleneck layer
+        block_len: Number of extra convolutions performed in each block, in addition to
+            the scale change block
+        nonlinearity: Function that returns a keras activation layer
+        scale: Factor to change scales with in each scale change block
+        data_format: "channels_last" or "channels_first"
+    Returns:
+        Two keras models: an encoder model and a decoder model.
     """
     # Encoder
     x = inp = Input(shape=shape, name="encoder_input")

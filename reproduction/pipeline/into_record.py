@@ -1,3 +1,8 @@
+"""Read satellite image data from geotif or hdf files and write patches into tfrecords.
+Parallelized with mpi4py.
+"""
+__author__ = "casperneo@uchicago.edu"
+
 import tensorflow as tf
 import os
 import cv2
@@ -133,11 +138,9 @@ def get_args(verbose=False):
     p.add_argument(
         "mode",
         choices=["mod09_tif", "mod02_1km"],
-        help=(
-            "`mod09_tif`: Turn whole .tif swath into tfrecord. "
-            "`mod02_1km` : Extracts EV_250_Aggr1km_RefSB, EV_500_Aggr1km_RefSB, "
-            "EV_1KM_RefSB, and EV_1KM_Emissive."
-        ),
+        help="`mod09_tif`: Turn whole .tif swath into tfrecord. "
+        "`mod02_1km` : Extracts EV_250_Aggr1km_RefSB, EV_500_Aggr1km_RefSB, "
+        "EV_1KM_RefSB, and EV_1KM_Emissive.",
     )
     p.add_argument(
         "--shape",
@@ -176,7 +179,7 @@ if __name__ == "__main__":
     comm = MPI.COMM_WORLD
     size = comm.Get_size()
     rank = comm.Get_rank()
-    
+
     FLAGS = get_args(verbose=rank == 0)
     os.makedirs(FLAGS.out_dir, exist_ok=True)
 

@@ -1,3 +1,9 @@
+"""Experimental code that tries to find a global mean and stdev so patches could be
+normalized on the fly when being read.
+"""
+
+__author__ = "casperneo@uchicago.edu"
+
 import os
 import json
 import glob

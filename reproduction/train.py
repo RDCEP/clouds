@@ -1,3 +1,7 @@
+"""train.py: Launches training routine for a clouds model. See CLI description for details
+"""
+__author__ = "casperneo@uchicago.edu"
+
 import argparse
 import tensorflow as tf
 import tensorflow.keras as keras
@@ -14,12 +18,13 @@ from os import path, makedirs, listdir
 def get_flags(verbose):
     p = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        description=(
-            "This program trains an autoencoder on satellite image data of clouds. "
-            "It uses a convolutional autoencoder trying ot minimize "
-            "mean-squared-error plus configurable loss from a discriminator or "
-            "perceptual difference given a pretrained network."
-        ),
+        description="This program trains an autoencoder on satellite image data of clouds."
+        "It is parallelized with horovod and saved as two keras models. If the model "
+        "directory already has models defined, they will be loaded. The autoencoder "
+        "may be variational or adversarial - depending on the flags. To define a "
+        "denoising autoencoder add noise with  ``--salt_pepper` or `--gaussian_noise`."
+        "The image loss is a composite of L1 pixel error, L2 pixel error, 1- MSSIM, "
+        "and high frequency error (See --image_loss_weights).",
     )
     p.add_argument(
         "model_dir",
@@ -102,13 +107,11 @@ def get_flags(verbose):
         type=float,
         default=(1, 0, 0, 0),
         metavar=("mse", "mae", "hfe", "mssim"),
-        help=(
-            "Weights for image losses: Mean squared error, Mean absolute error, Mean "
-            "High Frequency Error (HFE), and Multi-Scale Structural Similarity (MSSIM). "
-            "HFE is the mean absolute error of the x and y gradients of the image. It "
-            "emphasizes edges. MS-SIM is the geometric average of the similarity of "
-            "means, similarity of standard deviations, and correlation."
-        ),
+        help="Weights for image losses: Mean squared error, Mean absolute error, Mean "
+        "High Frequency Error (HFE), and Multi-Scale Structural Similarity (MSSIM). "
+        "HFE is the mean absolute error of the x and y gradients of the image. It "
+        "emphasizes edges. MS-SIM is the geometric average of the similarity of "
+        "means, similarity of standard deviations, and correlation.",
     )
     p.add_argument(
         "--autoencoder_adam",
@@ -122,10 +125,8 @@ def get_flags(verbose):
         "--adversarial",
         action="store_true",
         default=False,
-        help=(
-            "Adversarial Autencoder, Decoder is also a GAN and should be able to "
-            "generate convincing images from gaussian noise."
-        ),
+        help="Adversarial Autencoder, Decoder is also a GAN and should be able to "
+        "generate convincing images from gaussian noise.",
     )
     p.add_argument(
         "--discriminator_adam",
@@ -172,10 +173,8 @@ def get_flags(verbose):
         metavar="r",
         nargs="+",
         default=[1, 4, 5, 6],
-        help=(
-            "0-indexed bands to map to red for tensorboard display and for input"
-            " to pretrained classifiers"
-        ),
+        help="0-indexed bands to map to red for tensorboard display and for input to "
+        "pretrained classifiers",
     )
     p.add_argument(
         "--green_bands",
@@ -183,10 +182,8 @@ def get_flags(verbose):
         metavar="g",
         nargs="+",
         default=[0],
-        help=(
-            "0-indexed bands to map to green for tensorboard display and for "
-            "input to pretrained classifiers"
-        ),
+        help="0-indexed bands to map to green for tensorboard display and for input to "
+        "pretrained classifiers",
     )
     p.add_argument(
         "--blue_bands",
@@ -194,10 +191,8 @@ def get_flags(verbose):
         metavar="b",
         nargs="+",
         default=[2, 3],
-        help=(
-            "0-indexed bands to map to red for tensorboard display and for "
-            "input to pretrained classifiers"
-        ),
+        help="0-indexed bands to map to red for tensorboard display and for input to "
+        "pretrained classifiers",
     )
     p.add_argument(
         "--no_grad_histogram",
@@ -224,6 +219,9 @@ def get_flags(verbose):
 
 
 class ColorMap:
+    """Simple mapping from N channels to 3 by averaging down selected channels.
+    """
+
     def __init__(self, green_bands, red_bands, blue_bands):
         self.greens = green_bands
         self.reds = red_bands
@@ -232,6 +230,7 @@ class ColorMap:
     def __call__(self, t):
         """Converts the input tensor channels to RGB channels
         [batch, height, width, bands] -> [batch, height, width, rgb]
+        TODO: support for channels first
         """
         with tf.variable_scope("cmap"):
             # Whiten data with batchnorm so colors are more meaningful
@@ -378,7 +377,7 @@ if __name__ == "__main__":
 
     if FLAGS.channel_order == "channels_first":
         img = tf.transpose(img, perm=[0, 3, 1, 2])
-        shape = shape[2], *shape[:2]
+        shape = shape[2], * shape[:2]
         print("sh", shape)
 
     # DEBUG: I have no idea if this helps (remove if unneeded)
