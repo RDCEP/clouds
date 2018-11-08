@@ -24,7 +24,7 @@ def get_args():
 
 def plot_samples(samples, fields, width=3):
     fig, ax = plt.subplots(
-        nrows=len(samples),
+        nrows=len(samples) + 1,
         ncols=len(fields),
         figsize=(len(fields) * width, len(samples) * width),
     )
@@ -41,6 +41,11 @@ def plot_samples(samples, fields, width=3):
                 name = os.path.basename(str(f))
                 name = os.path.splitext(name)[0]
                 a.set_title("{}:{}".format(name, coord), fontsize=10)
+
+    imgs = np.array([img for _, _, img in samples])
+    for i, a in enumerate(ax[len(samples)]):
+        a.hist(imgs[:, :, :, i].ravel())
+
     return fig
 
 
@@ -76,6 +81,3 @@ if __name__ == "__main__":
 
     fig = plot_samples(samples, FLAGS.fields)
     fig.savefig(os.path.join(FLAGS.output_dir, "samples.png"))
-
-    fig = plot_hists(samples, FLAGS.fields)
-    fig.savefig(os.path.join(FLAGS.output_dir, "hists.png"))
