@@ -6,7 +6,7 @@ from argparse import ArgumentParser
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.decomposition import MiniBatchDictionaryLearning
 from sklearn.externals import joblib
-from tqdm import trange
+#from tqdm import trange
 
 import tensorflow as tf
 import sys, os
@@ -18,6 +18,7 @@ from reproduction.pipeline import load
 p = ArgumentParser()
 p.add_argument("out_dir")
 p.add_argument("encoder")
+p.add_argument("encoder_step")
 p.add_argument("model", choices=["sparse_dict", "kmeans"])
 p.add_argument("--latent", choices=["flatten", "spatial_mean"], default="spatial_mean")
 p.add_argument("--max_steps", type=int, default=100000)
@@ -66,25 +67,23 @@ def get_latest(model_dir, model):
         step = int(s.split("-")[1].split(".joblib")[0])
         return step, joblib.load(s)
 
-    return 0, None
+    if model == "sparse_dict":
+        model = MiniBatchDictionaryLearning(FLAGS.n_clusters)
 
+    elif model == "kmeans":
+        model = MiniBatchKMeans(FLAGS.n_clusters)
+
+    else:
+        raise ValueError("Invalid model", FLAGS.model)
+
+    return 0, model
 
 step, model = get_latest(FLAGS.out_dir, FLAGS.model)
-
-if model is None and FLAGS.model == "sparse_dict":
-    model = MiniBatchDictionaryLearning(FLAGS.n_clusters)
-
-elif FLAGS.model == "kmeans":
-    model = MiniBatchKMeans(FLAGS.n_clusters)
-
-else:
-    raise ValueError("Invalid model", FLAGS.model)
-
 
 # Start training
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
-    encoder.load_weights(os.path.join(FLAGS.encoder, "encoder.h5"))
+    encoder.load_weights(os.path.join(FLAGS.encoder, "encoder-"+FLAGS.encoder_step+".h5"))
 
     for step in range(step, FLAGS.max_steps):
         # c = sess.run(codes)
@@ -94,7 +93,7 @@ with tf.Session() as sess:
         model.partial_fit(c)
 
         if step % FLAGS.summary_every == 0:
-            pass  # TODO
+            print("Step", step, flush=True)
 
         if step % FLAGS.save_every == 0:
             seen = step * FLAGS.batch_size
