@@ -1,30 +1,33 @@
-"""train.py: Launches training routine for a clouds model. See CLI description for details
+"""train.py: Launches training routine for a clouds model.
+
+This program trains an autoencoder on satellite image data of clouds. It is parallelized
+with horovod and saved as two keras models. If the model directory already has models
+defined, they will be loaded. The autoencoder may be variational or adversarial,
+depending on the flags. To define a denoising autoencoder add noise with  --salt_pepper`
+or `--gaussian_noise`. The image loss is a composite of L1 pixel error, L2 pixel error,
+1- MSSIM, and high frequency error (See --image_loss_weights). The models are defined in
+`reproduction/models.py`. Tensorboard images use a colormap defined by `--blue_bands`,
+`--red_bands`, and `--green_bands` which simply map the average of chosen bands to RGB.
 """
 __author__ = "casperneo@uchicago.edu"
 
+import models
 import argparse
+import subprocess
 import tensorflow as tf
 import tensorflow.keras as keras
+from pipeline import load as pipeline
 from horovod import tensorflow as hvd
+from os import path, makedirs, listdir
+from tensorflow.image import image_gradients
 from tensorflow.python.client import timeline
 from tensorflow.profiler import ProfileOptionBuilder, Profiler
-from tensorflow.image import image_gradients
-from pipeline import load as pipeline
-import models
-import subprocess
-from os import path, makedirs, listdir
 
 
 def get_flags(verbose):
     p = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        description="This program trains an autoencoder on satellite image data of clouds."
-        "It is parallelized with horovod and saved as two keras models. If the model "
-        "directory already has models defined, they will be loaded. The autoencoder "
-        "may be variational or adversarial - depending on the flags. To define a "
-        "denoising autoencoder add noise with  ``--salt_pepper` or `--gaussian_noise`."
-        "The image loss is a composite of L1 pixel error, L2 pixel error, 1- MSSIM, "
-        "and high frequency error (See --image_loss_weights).",
+        description=__doc__,
     )
     p.add_argument(
         "model_dir",
@@ -220,8 +223,8 @@ def get_flags(verbose):
 
 class ColorMap:
     """Simple mapping from N channels to 3 by averaging down selected channels.
+    TODO think of something better.
     """
-
     def __init__(self, green_bands, red_bands, blue_bands):
         self.greens = green_bands
         self.reds = red_bands
