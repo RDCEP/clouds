@@ -11,6 +11,7 @@ from reproduction.pipeline import load
 p = ArgumentParser()
 p.add_argument("out_file")
 p.add_argument("encoder")
+p.add_argument("encoder_step")
 p.add_argument("--latent", choices=["flatten", "spatial_mean"], default="spatial_mean")
 load.add_pipeline_cli_arguments(p)
 FLAGS = p.parse_args()
@@ -51,7 +52,7 @@ else:
 print("Starting session", flush=True)
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
-    encoder.load_weights(os.path.join(FLAGS.encoder, "encoder.h5"))
+    encoder.load_weights(os.path.join(FLAGS.encoder, "encoder-" + FLAGS.encoder_step + ".h5"))
 
     with open(FLAGS.out_file, "wb") as f:
         print("Writing", flush=True)

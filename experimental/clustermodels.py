@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.decomposition import MiniBatchDictionaryLearning
 from sklearn.externals import joblib
-from tqdm import trange
+#from tqdm import trange
 
 import tensorflow as tf
 import sys, os
@@ -14,6 +14,7 @@ from reproduction.pipeline import load
 p = ArgumentParser()
 p.add_argument("out_dir")
 p.add_argument("encoder")
+p.add_argument("encoder_step")
 p.add_argument("model", choices=["sparse_dict", "kmeans"])
 p.add_argument("--latent", choices=["flatten", "spatial_mean"], default="spatial_mean")
 p.add_argument("--max_steps", type=int, default=100000)
