@@ -1,3 +1,7 @@
+"""Use `sklearn` to do k-means or dictionary learning
+"""
+__author__ = "casperneo@uchicago.edu"
+
 from argparse import ArgumentParser
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.decomposition import MiniBatchDictionaryLearning
