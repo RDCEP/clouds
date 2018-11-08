@@ -130,8 +130,7 @@ def write_patches(rank, patches, out_dir, patches_per_record):
 
 def get_args(verbose=False):
     p = ArgumentParser(
-        formatter_class=ArgumentDefaultsHelpFormatter,
-        description=__doc__,
+        formatter_class=ArgumentDefaultsHelpFormatter, description=__doc__
     )
     p.add_argument("source_glob", help="Glob of files to convert to tfrecord")
     p.add_argument("out_dir", help="Directory to save results")
