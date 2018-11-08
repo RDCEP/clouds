@@ -26,8 +26,7 @@ from tensorflow.profiler import ProfileOptionBuilder, Profiler
 
 def get_flags(verbose):
     p = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        description=__doc__,
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter, description=__doc__
     )
     p.add_argument(
         "model_dir",
@@ -64,22 +63,30 @@ def get_flags(verbose):
     p.add_argument("--summary_every", metavar="steps", type=int, default=250)
 
     p.add_argument(
+        "--depths",
+        type=int,
+        nargs="*",
+        metavar="d",
+        help="Number of channels in each encoder block. Reversed for channels in decoder"
+        "blocks. If unset, then `depths = [base_dim * 2^i for i in 0..n_blocks]`.",
+    )
+    p.add_argument(
         "--n_blocks",
         help="number of blocks in AE/disc. Each block ends with a strided convolution.",
         type=int,
         default=3,
     )
     p.add_argument(
-        "--block_len",
-        help="Number of layers in each block before strided convolution",
-        type=int,
-        default=1,
-    )
-    p.add_argument(
         "--base_dim",
         type=int,
         default=16,
         help="Depth of the first convolution, each block depth doubles",
+    )
+    p.add_argument(
+        "--block_len",
+        help="Number of layers in each block before strided convolution",
+        type=int,
+        default=1,
     )
     p.add_argument(
         "--scale",
@@ -225,6 +232,7 @@ class ColorMap:
     """Simple mapping from N channels to 3 by averaging down selected channels.
     TODO think of something better.
     """
+
     def __init__(self, green_bands, red_bands, blue_bands):
         self.greens = green_bands
         self.reds = red_bands
@@ -391,23 +399,29 @@ if __name__ == "__main__":
 
     print(hvd.rank(), "building model and losses...", flush=True)
     with tf.name_scope("autoencoder"):
-        with tf.device("/cpu:0"):
-            encoder = load_model_def(FLAGS.model_dir, "encoder")
-            decoder = load_model_def(FLAGS.model_dir, "decoder")
-            if not encoder or not decoder:
-                print("Defining New encoder and decoder.")
-                encoder, decoder = models.autoencoder(
-                    shape=shape,
-                    base=FLAGS.base_dim,
-                    batchnorm=FLAGS.batchnorm,
-                    n_blocks=FLAGS.n_blocks,
-                    variational=FLAGS.variational,
-                    dense=FLAGS.dense_ae,
-                    block_len=FLAGS.block_len,
-                    scale=FLAGS.scale,
-                    data_format=FLAGS.channel_order,
-                )
+        encoder = load_model_def(FLAGS.model_dir, "encoder")
+        decoder = load_model_def(FLAGS.model_dir, "decoder")
 
+        if not encoder or not decoder:
+            print("Defining New encoder and decoder.")
+
+            if FLAGS.depths is None:
+                depths = [FLAGS.base_dim * 2 ** i for i in range(FLAGS.n_blocks)]
+            else:
+                depths = FLAGS.depths
+
+            encoder, decoder = models.autoencoder(
+                shape=shape,
+                depths=depths,
+                batchnorm=FLAGS.batchnorm,
+                variational=FLAGS.variational,
+                dense=FLAGS.dense_ae,
+                block_len=FLAGS.block_len,
+                scale=FLAGS.scale,
+                data_format=FLAGS.channel_order,
+            )
+
+    # Using Autoencoder
     with tf.name_scope("noise"):
         noised_img = add_noise(img, FLAGS.salt_pepper, FLAGS.gaussian_noise)
         if noised_img is not img:
@@ -431,20 +445,24 @@ if __name__ == "__main__":
     ae_img = decoder(z)
     loss_ae += image_losses(img, ae_img, *FLAGS.image_loss_weights)
 
+    # Summaries for Tensorboard
     cimg = cmap(img)
     camg = cmap(ae_img)
     tf.summary.image("original", cimg, FLAGS.display_imgs)
     tf.summary.image("autoencoded", camg, FLAGS.display_imgs)
     tf.summary.image("difference", cimg - camg, FLAGS.display_imgs)
+
+    # Models to save
     save_models = {"encoder": encoder, "decoder": decoder}
+
+    # Optimizers to run
     train_ops = []
 
     if FLAGS.adversarial:
         with tf.name_scope("discriminator"):
-            with tf.device("/cpu:0"):
-                disc = load_model(FLAGS.model_dir, "disc")
-                if not disc:
-                    disc = models.discriminator(shape, FLAGS.n_blocks)
+            disc = load_model_def(FLAGS.model_dir, "disc")
+            if not disc:
+                disc = models.discriminator(shape, FLAGS.n_blocks)
 
         z_noise = tf.random_normal(z.shape)
         gen_img = decoder(z_noise)
@@ -551,7 +569,7 @@ if __name__ == "__main__":
             gs, _ = sess.run(
                 [global_step, train_ops], options=run_opts, run_metadata=run_metadata
             )
-            print(hvd.rank(), "step", gs, flush=True)
+            # print(hvd.rank(), "step", gs, flush=True)
 
             if gs % FLAGS.summary_every == 0 and hvd.rank() == 0:
                 summary = sess.run(

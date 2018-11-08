@@ -138,8 +138,7 @@ def scale_change_block(
 
 def autoencoder(
     shape,
-    n_blocks=4,
-    base=16,
+    depths,
     batchnorm=True,
     variational=False,
     dense=None,
@@ -157,7 +156,8 @@ def autoencoder(
         Skip connections from inputs to outputs of every block
     Args:
         shape: (height, width, channels) of input image (chann)
-        n_blocks: Number of scale changing blocks to use in encoder and decoder
+        depths: Number of channels of the blocks in the encoder. `reversed(depths)` will
+            represent the number of channels of the blocks in the decoder.
         base: Number of channels of in first block, each subsequent block doubles channels
             until the bottelneck layer, then each block halves in channels until the image
             is decoded
@@ -176,11 +176,10 @@ def autoencoder(
     # Encoder
     x = inp = Input(shape=shape, name="encoder_input")
 
-    x = Conv2D(base, 3, padding="same", data_format=data_format)(x)
-    x = resblocks(x, base, block_len, nonlinearity, data_format)
-    for i in range(n_blocks):
+    x = Conv2D(depths[0], 3, padding="same", data_format=data_format)(x)
+    x = resblocks(x, depths[0], block_len, nonlinearity, data_format)
+    for i, depth in enumerate(depths):
         with tf.variable_scope("encoding_%d" % i):
-            depth = base * 2 ** i
             # Half image size
             x = scale_change_block(
                 x, depth, nonlinearity, down=True, scale=scale, data_format=data_format
@@ -209,9 +208,8 @@ def autoencoder(
         x = nonlinearity()(x)
         x = Reshape(sh)(x)
 
-    for i in range(n_blocks - 1, -1, -1):
+    for i, depth in enumerate(reversed(depths)):
         with tf.variable_scope("decoding_%d" % i):
-            depth = base * 2 ** i
             # Double Image size
             x = scale_change_block(
                 x, depth, nonlinearity, down=False, scale=scale, data_format=data_format
