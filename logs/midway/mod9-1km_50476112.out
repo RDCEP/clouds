@@ -1,0 +1,647 @@
+/tmp/slurmd/job50476112/slurm_script: line 0: unalias: pine: not found
+/tmp/slurmd/job50476112/slurm_script: line 0: unalias: quota: not found
+/tmp/slurmd/job50476112/slurm_script: line 0: unalias: chsh: not found
+/tmp/slurmd/job50476112/slurm_script: line 0: unalias: grpe: not found
+/tmp/slurmd/job50476112/slurm_script: line 0: unalias: alloc: not found
+/tmp/slurmd/job50476112/slurm_script: line 0: unalias: vi: not found
+/tmp/slurmd/job50476112/slurm_script: line 0: unalias: chfn: not found
+	 resize                     0.5
+	 shape                      [724, 724]
+	 out_dir                    /project/foster/clouds/data/mod9-724x1km/
+	 source_glob                /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/*
+	 mode                       pptif
+	 stride                     [256, 256]
+	 patches_per_record         500
+	 fields                     None
+
+
+				 fields                     None
+ stride                     [256, 256]
+	 out_dir                    /project/foster/clouds/data/mod9-724x1km/
+ stride                     [256, 256]
+				 fields                     None
+	 shape                      [724, 724]
+ shape                      [724, 724]
+ resize                     0.5
+	 shape                      [724, 724]
+		 mode                       pptif
+ resize                     0.5
+ stride                     [256, 256]
+	 source_glob                /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/*
+				 resize                     0.5
+	 patches_per_record         500
+ patches_per_record         500
+	 resize                     0.5
+	 resize                     0.5
+		 out_dir                    /project/foster/clouds/data/mod9-724x1km/
+ shape                      [724, 724]
+ fields                     None
+ out_dir                    /project/foster/clouds/data/mod9-724x1km/
+			 mode                       pptif
+	 stride                     [256, 256]
+ patches_per_record         500
+ patches_per_record         500
+				 source_glob                /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/*
+		 stride                     [256, 256]
+		 out_dir                    /project/foster/clouds/data/mod9-724x1km/
+ shape                      [724, 724]
+ out_dir                    /project/foster/clouds/data/mod9-724x1km/
+		 mode                       pptif
+ shape                      [724, 724]
+	 fields                     None
+ fields                     None
+			 patches_per_record         500
+	 fields                     None
+		 fields                     None
+			 fields                     None
+ mode                       pptif
+ source_glob                /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/*
+			 shape                      [724, 724]
+ source_glob                /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/*
+	 resize                     0.5
+ mode                       pptif
+ patches_per_record         500
+				 mode                       pptif
+ resize                     0.5
+ resize                     0.5
+ patches_per_record         500
+		 source_glob                /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/*
+			 patches_per_record         500
+ out_dir                    /project/foster/clouds/data/mod9-724x1km/
+ out_dir                    /project/foster/clouds/data/mod9-724x1km/
+ resize                     0.5
+				 stride                     [256, 256]
+ stride                     [256, 256]
+	 out_dir                    /project/foster/clouds/data/mod9-724x1km/
+ patches_per_record         500
+ stride                     [256, 256]
+			
+	 fields                     None
+ shape                      [724, 724]
+ source_glob                /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/*
+ out_dir                    /project/foster/clouds/data/mod9-724x1km/
+	
+ out_dir                    /project/foster/clouds/data/mod9-724x1km/
+			 stride                     [256, 256]
+ source_glob                /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/*
+ fields                     None
+
+ mode                       pptif
+
+			 fields                     None
+
+	 mode                       pptif
+ out_dir                    /project/foster/clouds/data/mod9-724x1km/
+ resize                     0.5
+	
+		
+ stride                     [256, 256]
+ stride                     [256, 256]
+ source_glob                /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/*
+
+ patches_per_record         500
+			 source_glob                /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/*
+
+ source_glob                /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/*
+ resize                     0.5
+			
+	 stride                     [256, 256]
+ source_glob                /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/*
+ out_dir                    /project/foster/clouds/data/mod9-724x1km/
+			 out_dir                    /project/foster/clouds/data/mod9-724x1km/
+ out_dir                    /project/foster/clouds/data/mod9-724x1km/
+ mode                       pptif
+ resize                     0.5
+			 mode                       pptif
+ patches_per_record         500
+ patches_per_record         500
+		
+	 source_glob                /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/*
+ shape                      [724, 724]
+ shape                      [724, 724]
+			 patches_per_record         500
+ shape                      [724, 724]
+
+ mode                       pptif
+			 shape                      [724, 724]
+ stride                     [256, 256]
+ shape                      [724, 724]
+		
+ patches_per_record         500
+ stride                     [256, 256]
+ fields                     None
+			 source_glob                /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/*
+ mode                       pptif
+
+			 resize                     0.5
+ mode                       pptif
+ source_glob                /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/*
+		 shape                      [724, 724]
+ resize                     0.5
+ mode                       pptif
+
+		 mode                       pptif
+ fields                     None
+
+
+	
+ resize                     0.5
+ out_dir                    /project/foster/clouds/data/mod9-724x1km/
+		
+
+ source_glob                /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/*
+		 fields                     None
+ patches_per_record         500
+
+ shape                      [724, 724]
+ stride                     [256, 256]
+
+
+
+
+	
+
+
+ fields                     None
+
+
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-09_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-01_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-20_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-29_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-04_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-13_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-15_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-20_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-13_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-13_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-25_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-31_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-16_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-24_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-01_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-20_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Writing to 13-0.tfrecord
+Writing to 14-0.tfrecord
+Writing to 6-0.tfrecord
+Writing to 12-0.tfrecord
+Writing to 5-0.tfrecord
+Writing to 2-0.tfrecord
+Writing to 11-0.tfrecord
+Writing to 0-0.tfrecord
+Writing to 15-0.tfrecord
+Writing to 3-0.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-17_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-02_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-10_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-14_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Writing to 7-0.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-06_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-07_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-27_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-23_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Writing to 9-0.tfrecord
+Writing to 8-0.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-04_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-01_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Writing to 1-0.tfrecord
+Writing to 10-0.tfrecord
+Writing to 4-0.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-03_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-09_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-07_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-13_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-27_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-10_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-19_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-13_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-12_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-21_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-09_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Writing to 4-1.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-12_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-15_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-17_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-30_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Writing to 6-1.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-13_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Writing to 10-1.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-22_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-02_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-03_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-29_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-25_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-17_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-27_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Writing to 0-1.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-31_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-29_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Writing to 9-1.tfrecord
+Writing to 8-1.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-12_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Writing to 7-1.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-31_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Writing to 3-1.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-10_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Writing to 5-1.tfrecord
+Writing to 13-1.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-06_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Writing to 14-1.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-23_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-05_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-05_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Writing to 11-1.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-21_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-10_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-18_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-08_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-26_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-16_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-25_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-22_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Writing to 12-1.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-11_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-18_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-28_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-10_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Writing to 15-1.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-30_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-05_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-08_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-25_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Writing to 2-1.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-21_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-30_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-13_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-21_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-03_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Writing to 6-2.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-29_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-30_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-12_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Writing to 10-2.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-20_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Writing to 11-2.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-02_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-08_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-24_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-26_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Writing to 8-2.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-20_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-27_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-12_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Writing to 7-2.tfrecord
+Writing to 5-2.tfrecord
+Writing to 0-2.tfrecord
+Writing to 1-1.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-29_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-08_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-15_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-21_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-15_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-31_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-11_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-03_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-31_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-05_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Writing to 14-2.tfrecord
+Writing to 9-2.tfrecord
+Writing to 4-2.tfrecord
+Writing to 2-2.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-04_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Writing to 13-2.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-08_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-13_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-13_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-26_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-07_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-05_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-30_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Writing to 3-2.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-28_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-09_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Writing to 12-2.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-06_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-12_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-12_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-18_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-22_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-24_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Writing to 11-3.tfrecord
+Writing to 6-3.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-09_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-29_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-29_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-09_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-09_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-25_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Writing to 1-2.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-02_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-30_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-22_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-28_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Writing to 3-3.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-22_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-25_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-01_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Writing to 15-2.tfrecord
+Writing to 14-3.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-01_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-11_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-03_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-26_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Writing to 10-3.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-28_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Writing to 2-3.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-08_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Writing to 9-3.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-20_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Writing to 0-3.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-23_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-14_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-04_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-20_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-29_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-20_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-19_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Writing to 8-3.tfrecord
+Writing to 6-4.tfrecord
+Writing to 4-3.tfrecord
+Writing to 11-4.tfrecord
+Writing to 7-3.tfrecord
+Writing to 13-3.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-08_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-18_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-14_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-24_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Writing to 12-3.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-15_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-07_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-16_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-16_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-17_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Writing to 5-3.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-23_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Writing to 14-4.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-02_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-25_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-20_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-29_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Writing to 10-4.tfrecord
+Writing to 2-4.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-11_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-01_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-28_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-03_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Writing to 1-3.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-09_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-30_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Writing to 3-4.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-11_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Writing to 15-3.tfrecord
+Writing to 9-4.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-23_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-08_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Writing to 4-4.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-14_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-27_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-16_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-23_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Writing to 7-4.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-20_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-19_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Writing to 0-4.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-11_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Writing to 5-4.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-27_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-27_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-26_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-03_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Writing to 6-5.tfrecord
+Writing to 14-5.tfrecord
+Writing to 13-4.tfrecord
+Writing to 12-4.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-19_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-14_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-02_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Writing to 11-5.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-05_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-17_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-12_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-03_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-06_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-28_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-11_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-21_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-04_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-24_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-21_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-14_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-03_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-27_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-04_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Writing to 7-5.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-14_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Writing to 15-4.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-01_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-25_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-10_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-17_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Writing to 1-4.tfrecord
+Writing to 3-5.tfrecord
+Writing to 8-4.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-18_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-15_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-22_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Writing to 6-6.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-13_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Writing to 4-5.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-11_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-10_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Writing to 2-5.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-23_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-26_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Writing to 0-5.tfrecord
+Writing to 10-5.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-07_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-27_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-31_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Writing to 11-6.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-07_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-04_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Writing to 9-5.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-16_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-09_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-26_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-21_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-26_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-02_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-23_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Writing to 13-5.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-15_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Writing to 14-6.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-31_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Writing to 12-5.tfrecord
+Writing to 2-6.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-06_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-11_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-15_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Writing to 1-5.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-18_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Writing to 3-6.tfrecord
+Writing to 8-5.tfrecord
+Writing to 5-5.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-07_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-06_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-15_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Writing to 15-5.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-16_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-05_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-01_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Writing to 7-6.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-17_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Writing to 10-6.tfrecord
+Writing to 4-6.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-14_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-09_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-21_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-18_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-15_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-10_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-06_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-27_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-25_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-01_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-30_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-19_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Writing to 6-7.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-01_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-24_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-12_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-24_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-14_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Writing to 9-6.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-22_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-06_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-19_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Writing to 0-6.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-22_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-19_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-05_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Writing to 5-6.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-29_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-24_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-07_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-21_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Rank 10 wrote 3317 patches
+Rank 10 done.
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-26_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Writing to 13-6.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-22_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Writing to 11-7.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-23_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-04_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Writing to 7-7.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-04_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-18_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-26_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-19_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-25_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Writing to 15-6.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-10_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Writing to 2-7.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-05_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-02_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-28_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Writing to 3-7.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-08_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Writing to 0-7.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-07_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-10_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Writing to 12-6.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-28_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Rank 15 wrote 3473 patches
+Rank 15 done.
+Writing to 14-7.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-03_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Rank 13 wrote 3255 patches
+Rank 13 done.
+Writing to 8-6.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-02_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-31_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Writing to 9-7.tfrecord
+Writing to 1-6.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-24_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-16_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-06_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-06_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Writing to 5-7.tfrecord
+Rank 12 wrote 3056 patches
+Rank 12 done.
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-31_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-17_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-02_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-18_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Rank 5 wrote 3602 patches
+Rank 5 done.
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-05_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Writing to 7-8.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-17_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Writing to 4-7.tfrecord
+Writing to 6-8.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-24_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-31_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Rank 6 wrote 4043 patches
+Rank 6 done.
+Writing to 11-8.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-18_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000035328.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-19_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Writing to 14-8.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-14_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000000000.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-11_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Writing to 9-8.tfrecord
+Writing to 2-8.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-16_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Rank 14 wrote 4269 patches
+Rank 14 done.
+Rank 4 wrote 3628 patches
+Rank 4 done.
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-16_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000052992.tif
+Writing to 8-7.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-30_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-23_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Writing to 3-8.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-17_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Rank 9 wrote 4253 patches
+Rank 9 done.
+Writing to 7-9.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-28_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-30_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-07_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000000000.tif
+Writing to 11-9.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-04_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Writing to 1-7.tfrecord
+Rank 8 wrote 3792 patches
+Rank 8 done.
+Writing to 0-8.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-19_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-28_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000070656.tif
+Rank 11 wrote 4654 patches
+Rank 11 done.
+Rank 1 wrote 3742 patches
+Rank 1 done.
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-08_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000017664.tif
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-22_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000000000-0000052992.tif
+Rank 7 wrote 4959 patches
+Rank 7 done.
+Writing to 2-9.tfrecord
+Writing to 3-9.tfrecord
+Rank 2 wrote 4596 patches
+Rank 2 done.
+Rank 3 wrote 4652 patches
+Rank 3 done.
+Writing to 0-9.tfrecord
+Reading /project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/2017-01-12_MOD09GA_background_removal_zero_inputated_image_with_cf_50perc_grid_size10-0000017664-0000035328.tif
+Writing to 0-10.tfrecord
+Rank 0 wrote 5043 patches
+Rank 0 done.
