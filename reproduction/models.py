@@ -96,11 +96,10 @@ def resblock(x, depth, nonlinearity, data_format):
     """Two 3x3 convoluions with a residual addition between them
     """
     r = x
-    # TODO consider NL C NL C RA C
-    x = Conv2D(depth, 3, padding="same", data_format=data_format)(x)
     x = nonlinearity()(x)
     x = Conv2D(depth, 3, padding="same", data_format=data_format)(x)
     x = nonlinearity()(x)
+    x = Conv2D(depth, 3, padding="same", data_format=data_format)(x)
     return residual_add(x, r, data_format)
 
 
@@ -129,11 +128,11 @@ def scale_change_block(
     """2 3x3 convs with nonlinearities, first one is strided (and ConvT if not down).
     """
     r = x
+    x = nonlinearity()(x)
     _conv = Conv2D if down else Conv2DTranspose
     x = _conv(depth, max(3, scale), scale, padding="same", data_format=data_format)(x)
     x = nonlinearity()(x)
     x = Conv2D(depth, 3, padding="same", data_format=data_format)(x)
-    x = nonlinearity()(x)
     return residual_add(x, r, data_format)
 
 
@@ -178,7 +177,6 @@ def autoencoder(
     x = inp = Input(shape=shape, name="encoder_input")
 
     x = Conv2D(base, 3, padding="same", data_format=data_format)(x)
-    x = nonlinearity()(x)
     x = resblocks(x, base, block_len, nonlinearity, data_format)
     for i in range(n_blocks):
         with tf.variable_scope("encoding_%d" % i):
@@ -223,6 +221,7 @@ def autoencoder(
                 x = BatchNormalization()(x)
 
     input_channels = shape[0] if data_format == "channels_first" else shape[2]
+    x = nonlinearity()(x)
     x = Conv2D(input_channels, 1, name="reconstructed", data_format=data_format)(x)
     decoder = Model(inp, x, name="decoder")
 
