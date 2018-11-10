@@ -15,7 +15,9 @@ p.add_argument(
     "two int32s corresponding to number of vectors `n` and their dimensionality `d`. The "
     "rest of the file should be float32s corresponding to the vector elements.",
 )
-p.add_argument("output", help="directory to save trained dictionary and training figures")
+p.add_argument(
+    "output", help="directory to save trained dictionary and training figures"
+)
 p.add_argument("--num_iterations", default=1000, type=int)
 
 FLAGS = p.parse_args()

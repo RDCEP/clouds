@@ -6,7 +6,8 @@ from argparse import ArgumentParser
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.decomposition import MiniBatchDictionaryLearning
 from sklearn.externals import joblib
-#from tqdm import trange
+
+# from tqdm import trange
 
 import tensorflow as tf
 import sys, os
@@ -78,12 +79,15 @@ def get_latest(model_dir, model):
 
     return 0, model
 
+
 step, model = get_latest(FLAGS.out_dir, FLAGS.model)
 
 # Start training
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
-    encoder.load_weights(os.path.join(FLAGS.encoder, "encoder-"+FLAGS.encoder_step+".h5"))
+    encoder.load_weights(
+        os.path.join(FLAGS.encoder, "encoder-" + FLAGS.encoder_step + ".h5")
+    )
 
     for step in range(step, FLAGS.max_steps):
         # c = sess.run(codes)
