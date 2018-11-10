@@ -19,6 +19,14 @@ p.add_argument(
     "output", help="directory to save trained dictionary and training figures"
 )
 p.add_argument("--num_iterations", default=1000, type=int)
+p.add_argument(
+    "--max_vecs", default=-1, type=int, help="maximum number of vectors to train on"
+)
+p.add_argument("--l1_regularization", type=float, default=0.1)
+p.add_argument(
+    "--code_mult", type=float, help="number of codewords as a multiple of dimension"
+)
+
 
 FLAGS = p.parse_args()
 os.makedirs(FLAGS.output, exist_ok=True)
@@ -29,6 +37,9 @@ with open(FLAGS.encodings, "r") as f:
     n, d = np.fromfile(f, dtype=np.int32, count=2)
     data = np.fromfile(f, dtype=np.float32, count=n * d).reshape((n, d))
 
+data = data[: FLAGS.max_vecs]
+print("Data shape", data.shape)
+
 
 # Train sparse dictionary
 lmbda = 0.1
@@ -36,14 +47,23 @@ opt = bpdndl.BPDNDictLearn.Options(
     {
         "Verbose": True,
         "MaxMainIter": FLAGS.num_iterations,
-        "BPDN": {"rho": 10.0 * lmbda + 0.1},
+        "BPDN": {"rho": 10.0 * FLAGS.l1_regularization + 0.1},
         "CMOD": {"rho": n / 1e3},
     }
 )
-D0 = np.random.randn(d, 2 * d)
-d = bpdndl.BPDNDictLearn(D0, data[:10000].T, lmbda, opt)
+num_codes = int(FLAGS.code_mult * d)
+D0 = np.random.randn(d, num_codes)
+d = bpdndl.BPDNDictLearn(D0, data.T, FLAGS.l1_regularization, opt)
+print("Beginning training", flush=True)
 D1 = d.solve()
-np.save(os.path.join(FLAGS.output, "trained_dictionary.npy"), D1)
+print("BPDNDictLearn solve time: %.2fs" % d.timer.elapsed("solve"))
+np.save(
+    os.path.join(
+        FLAGS.output,
+        "d1-n%d-d%d-l1r%f-nc%d.npy" % (*data.shape, FLAGS.l1_regularization, num_codes),
+    ),
+    D1,
+)
 
 
 # Plot iteration statistics
@@ -74,4 +94,3 @@ plot.plot(
 )
 
 fig.savefig(os.path.join(FLAGS.output, "train-stats.png"))
-print("BPDNDictLearn solve time: %.2fs" % d.timer.elapsed("solve"))
