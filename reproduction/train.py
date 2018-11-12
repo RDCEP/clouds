@@ -12,6 +12,7 @@ or `--gaussian_noise`. The image loss is a composite of L1 pixel error, L2 pixel
 __author__ = "casperneo@uchicago.edu"
 
 import models
+import logging
 import argparse
 import subprocess
 import tensorflow as tf
@@ -27,6 +28,14 @@ from tensorflow.profiler import ProfileOptionBuilder, Profiler
 def get_flags(verbose):
     p = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter, description=__doc__
+    )
+    p.add_argument(
+        "-l",
+        "--log",
+        dest="logLevel",
+        choices=['debug', 'info', 'warning', 'error', 'critical'],
+        help="Set the logging level",
+        default="info"
     )
     p.add_argument(
         "model_dir",
@@ -214,14 +223,15 @@ def get_flags(verbose):
     if FLAGS.model_dir[-1] != "/":
         FLAGS.model_dir += "/"
 
+    logging.basicConfig(level=getattr(logging, FLAGS.logLevel.upper()))
+
     if verbose:
         commit = subprocess.check_output(["git", "describe", "--always"]).strip()
-        print("Tensorflow version:", tf.__version__)
-        print("Current Git Commit:", commit)
-        print("Flags:")
+        logging.info("Tensorflow version: %s", tf.__version__)
+        logging.info("Current Git Commit: %s", commit)
+        logging.info("Flags:")
         for f in FLAGS.__dict__:
-            print("\t", f, " " * (25 - len(f)), FLAGS.__dict__[f])
-        print("\n", flush=True)
+            logging.info("\t %s" + " " * (25 - len(f)) + "%s", f, FLAGS.__dict__[f])
 
     makedirs(path.join(FLAGS.model_dir, "timelines"), exist_ok=True)
 
@@ -370,7 +380,7 @@ if __name__ == "__main__":
     FLAGS = get_flags(hvd.rank() == 0)
     global_step = tf.train.get_or_create_global_step()
 
-    print(hvd.rank(), "Building dataset...", flush=True)
+    logging.info("%d Building dataset...", hvd.rank())
     dataset = pipeline.load_data(
         FLAGS.data,
         FLAGS.shape,
@@ -389,7 +399,7 @@ if __name__ == "__main__":
     if FLAGS.channel_order == "channels_first":
         img = tf.transpose(img, perm=[0, 3, 1, 2])
         shape = shape[2], * shape[:2]
-        print("sh", shape)
+        logging.debug("shape %s", shape)
 
     # DEBUG: I have no idea if this helps (remove if unneeded)
     tf.keras.backend.set_image_data_format(FLAGS.channel_order)
@@ -397,13 +407,13 @@ if __name__ == "__main__":
     # Colormap object maps our channels to normal rgb channels
     cmap = ColorMap(FLAGS.red_bands, FLAGS.green_bands, FLAGS.blue_bands)
 
-    print(hvd.rank(), "building model and losses...", flush=True)
+    logging.debug("%d building model and losses...", hvd.rank())
     with tf.name_scope("autoencoder"):
         encoder = load_model_def(FLAGS.model_dir, "encoder")
         decoder = load_model_def(FLAGS.model_dir, "decoder")
 
         if not encoder or not decoder:
-            print("Defining New encoder and decoder.")
+            logging.info("Defining New encoder and decoder.")
 
             if FLAGS.depths is None:
                 depths = [FLAGS.base_dim * 2 ** i for i in range(FLAGS.n_blocks)]
@@ -529,7 +539,7 @@ if __name__ == "__main__":
     run_metadata = tf.RunMetadata()
     run_opts = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
 
-    print(hvd.rank(), "Starting Session...", flush=True)
+    logging.info("%d Starting Session...", hvd.rank())
     with tf.Session(
         config=tf.ConfigProto(
             gpu_options=tf.GPUOptions(
@@ -538,7 +548,7 @@ if __name__ == "__main__":
             log_device_placement=FLAGS.log_device_placement,
         )
     ) as sess:
-        print(hvd.rank(), "init profiler and broadcast global variables", flush=True)
+        logging.info("%d init profiler and broadcast global variables", hvd.rank())
         profiler = Profiler(sess.graph)
 
         sess.run(
@@ -549,7 +559,7 @@ if __name__ == "__main__":
 
         hvd.broadcast_global_variables(0)
 
-        print(hvd.rank(), "Loading model weights", flush=True)
+        logging.info("%d Loading model weights", hvd.rank())
         for m in save_models:
             gs = load_latest_model_weights(save_models[m], FLAGS.model_dir, m)
             if gs is not None:
@@ -559,17 +569,16 @@ if __name__ == "__main__":
         tb_graph = sess.graph if not path.exists(log_dir) else None
         summary_writer = tf.summary.FileWriter(log_dir, graph=tb_graph)
 
-        if hvd.rank() == 0:
+        if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
             for m in save_models:
                 save_models[m].summary()
             print("", flush=True)
 
-        print(hvd.rank(), "Entering training loop", flush=True)
+        logging.info("%d Entering training loop", hvd.rank())
         for _ in range(FLAGS.max_steps):
             gs, _ = sess.run(
                 [global_step, train_ops], options=run_opts, run_metadata=run_metadata
             )
-            # print(hvd.rank(), "step", gs, flush=True)
 
             if gs % FLAGS.summary_every == 0 and hvd.rank() == 0:
                 summary = sess.run(

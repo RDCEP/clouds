@@ -1,6 +1,5 @@
 """This library contains the functions and flags related to loading clouds datasets.
 """
-
 __author__ = "casperneo@uchicago.edu"
 
 
@@ -170,8 +169,8 @@ def add_pipeline_cli_arguments(p):
         default=(64, 64, 7),
     )
 
-    p.add_argument("--batch_size", type=int, help=" ", default=32)
-    p.add_argument("--read_threads", type=int, default=4)
+    p.add_argument("--batch_size", type=int, default=32)
+    p.add_argument("--read_threads", type=int, default=4, metavar="num_threads")
     p.add_argument(
         "--prefetch",
         type=int,

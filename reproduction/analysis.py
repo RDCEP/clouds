@@ -238,7 +238,7 @@ def plot_cluster_samples(imgs, labels, samples=8, width=3):
         n = (labels == i).sum()
         ax[0, i].set_title("cluster %d" % i)
         if n > samples:
-            choices = enumerate(np.random.choice(n, samples))
+            choices = enumerate(np.random.choice(n, samples, replace=False))
         else:
             choices = [(j, j) for j in range(n)]
         for j, k in choices:
