@@ -1,13 +1,14 @@
 """analysis.py: A Library for analysing and visualizing image-autoencoder hidden space.
+This is mostly experimental and oneoff code that has been moved from the analysis
+notebooks to keep them clean. The analysis notebooks import from this library.
 """
 __author__ = "casperneo@uchicago.edu"
-
 import matplotlib.pyplot as plt
-import numpy as np
 import tensorflow as tf
+import numpy as np
+import subprocess
 import json
 import os
-import subprocess
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from scipy.cluster.vq import kmeans
 from collections import namedtuple

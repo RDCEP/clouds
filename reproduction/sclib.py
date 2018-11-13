@@ -99,7 +99,7 @@ class SparseCoder:
         )
         b = bpdn.BPDN(self.dict, latent_vectors, self.l1_reg, opt)
         codes = b.solve()
-        # TODO
+        raise NotImplementedError("TODO")
 
     def save_train_stats(self, path=None):
         """Save dictionary learning training statistics as per
@@ -137,6 +137,7 @@ class SparseCoder:
 
 
 if __name__ == "__main__":
+    # DEBUG this is testing code
     sc = SparseCoder("foob", "output/mod09cnn15b")
     encs = load_encodings("encs")
     sc.train_dict(encs.T, num_steps=2)

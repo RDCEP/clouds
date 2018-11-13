@@ -8,11 +8,12 @@ import tensorflow as tf
 from os import path, listdir
 
 
-def log_flag_arguments(flags):
+def log_flag_arguments(flags, tf_version=True):
     """Logs the git commit, flags, and tensorflow version.
     """
     commit = subprocess.check_output(["git", "describe", "--always"]).strip()
-    logging.info("Tensorflow version: %s", tf.__version__)
+    if tf_version:
+        logging.info("Tensorflow version: %s", tf.__version__)
     logging.info("Current Git Commit: %s", commit)
     logging.info("Flags:")
     for f in flags.__dict__:

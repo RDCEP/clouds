@@ -11,7 +11,6 @@ import glob
 import numpy as np
 
 from osgeo import gdal
-
 from mpi4py import MPI
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from pyhdf.SD import SD, SDC
@@ -29,8 +28,16 @@ def _float_feature(value):
     return tf.train.Feature(float_list=tf.train.FloatList(value=value))
 
 
-def gen_swaths(targets, mode, resize, rank):
+def gen_swaths(fnames, mode, resize):
     """Reads and yields resized swaths.
+    Args:
+        fnames: Iterable of filenames to read
+        mode: {"mod09_tif", "mod02_1km"} determines wheter to processes the file as a tif
+            or a hdf file
+        resize: Float or None - factor to resize the image by e.g. 0.5 to halve height and
+            width. If resize is none then no resizing is performed.
+    Yields:
+        filename, (resized) swath
     """
     if mode == "mod09_tif":
         read = lambda tif_file: gdal.Open(tif_file).ReadAsArray()
@@ -48,7 +55,8 @@ def gen_swaths(targets, mode, resize, rank):
     else:
         raise ValueError("Invalid reader mode", mode)
 
-    for t in targets:
+    rank = MPI.COMM_WORLD.Get_rank()
+    for t in fnames:
         print("rank", rank, "reading", t, flush=True)
 
         try:
@@ -76,6 +84,16 @@ def read_hdf(hdf_file, fields, x_range=(None, None), y_range=(None, None)):
 
 
 def gen_patches(swaths, shape, strides):
+    """Normalizes swaths and yields patches of size `shape` every `strides` pixels
+    Args:
+        swaths: Iterable of (filename, np.ndarray) to slice patches from
+        shape: (height, width) patch size
+        strides: (x_steps, y_steps) how many pixels between patches
+    Yields:
+        (filename, coordinate, patch): where the coordinate is the pixel coordinate of the
+        patch inside of filename. BUG: pixel coorindate is miscalculated if swath is
+        resized. Patches come from the swath in random order and are whiten-normalized.
+    """
     stride_x, stride_y = strides
     shape_x, shape_y = shape
 
@@ -108,9 +126,18 @@ def gen_patches(swaths, shape, strides):
                     yield fname, (x, y), patch
 
 
-def write_patches(rank, patches, out_dir, patches_per_record):
+def write_patches(patches, out_dir, patches_per_record):
     """Writes `patches_per_record` patches into a tfrecord file in `out_dir`.
+    Args:
+        patches: Iterable of (filename, coordinate, patch) which defines tfrecord example
+            to write.
+        out_dir: Directory to save tfrecords.
+        patches_per_record: Number of examples to save in each tfrecord.
+    Side Effect:
+        Examples are written to `out_dir`. File format is `out_dir`/`rank`-`k`.tfrecord
+        where k means its the "k^th" record that `rank` has written.
     """
+    rank = MPI.COMM_WORLD.Get_rank()
     for i, (filename, coord, patch) in enumerate(patches):
         if i % patches_per_record == 0:
             rec = "{}-{}.tfrecord".format(rank, i // patches_per_record)
@@ -182,13 +209,13 @@ if __name__ == "__main__":
     FLAGS = get_args(verbose=rank == 0)
     os.makedirs(FLAGS.out_dir, exist_ok=True)
 
-    targets = []
+    fnames = []
     for i, f in enumerate(sorted(glob.glob(FLAGS.source_glob))):
         if i % size == rank:
-            targets.append(os.path.abspath(f))
+            fnames.append(os.path.abspath(f))
 
-    swaths = gen_swaths(targets, FLAGS.mode, FLAGS.resize, rank)
+    swaths = gen_swaths(fnames, FLAGS.mode, FLAGS.resize)
     patches = gen_patches(swaths, FLAGS.shape, FLAGS.stride)
-    write_patches(rank, patches, FLAGS.out_dir, FLAGS.patches_per_record)
+    write_patches(patches, FLAGS.out_dir, FLAGS.patches_per_record)
 
     print("Rank %d done." % rank, flush=True)
