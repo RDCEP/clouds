@@ -2,25 +2,19 @@
 """
 __author__ = "casperneo@uchicago.edu"
 import os
+import logging
 import numpy as np
 from sporco import plot
 from sporco.admm import bpdn
 from sporco.dictlrn import bpdndl
 from argparse import ArgumentParser
-from logging import debug, info, warning
-from train import load_model_def, load_latest_model_weights
-
-
-def load_encodings(encodings):
-    with open(encodings, "r") as f:
-        n, d = np.fromfile(f, dtype=np.int32, count=2)
-        data = np.fromfile(f, dtype=np.float32, count=-1).reshape((n, d))
-    return data
+from utils import load_encodings, load_model_def, load_latest_model_weights
 
 
 class SparseCoder:
     """Holds and trains a sparse dictionary alongside its associated encoder and decoder.
     """
+
     def __init__(
         self, sparse_dict_path, nn_path, code_mult=0.5, spatial_average=False, l1_reg=10
     ):
@@ -51,16 +45,15 @@ class SparseCoder:
 
         if os.path.exists(sparse_dict_path):
             self.dict = np.fromfile(sparse_dict_path)
-            info("Sparse dictionary loaded from `%s`", self.dict)
+            logging.info("Sparse dictionary loaded from `%s`", self.dict)
             if n_codes is not None and dim is not None:
-                warning(
+                logging.warning(
                     "`n_codes={}`, `dim={}`".format(n_codes, code_dim)
                     + "ignored as sparse_dict_path loaded from file."
                 )
         else:
             self.dict = np.random.randn(code_dim, num_codes)
-            info("Sparse dictionary initialized randomly")
-
+            logging.info("Sparse dictionary initialized randomly")
 
     def train_dict(self, encodings, num_steps=100):
         """Trains `self.dict` on `encodings` using `sporco.admm.bpdndl` for `num_steps`.
@@ -78,18 +71,21 @@ class SparseCoder:
         )
         # Basis Pursuit DeNoising Dictionary Learning
         self.dictlearn = bpdndl.BPDNDictLearn(self.dict, encodings, self.l1_reg, opt)
-        info("Beginning training", flush=True)
+        logging.info("Beginning training", flush=True)
         self.dict = self.dictlearn.solve()
-        info("BPDNDictLearn solve time: %.2fs" % self.dictlearn.timer.elapsed("solve"))
+        logging.info(
+            "BPDNDictLearn solve time: %.2fs", self.dictlearn.timer.elapsed("solve")
+        )
 
         np.save(self.sd_path, self.dict)
-
 
     def evaluate_images(self, images, num_iterations=500):
         """Returns AE reconsturction loss and sparse-coded reconstruction loss for images.
         """
         if self.spatial_average:
-            raise ValueError("reconsturction loss undefined for spatially averge sparse coding")
+            raise ValueError(
+                "reconsturction loss undefined for spatially averge sparse coding"
+            )
 
         latent_vectors = self.encoder.predict(images).reshape((images.shape[0], -1))
 
@@ -104,7 +100,6 @@ class SparseCoder:
         b = bpdn.BPDN(self.dict, latent_vectors, self.l1_reg, opt)
         codes = b.solve()
         # TODO
-
 
     def save_train_stats(self, path=None):
         """Save dictionary learning training statistics as per

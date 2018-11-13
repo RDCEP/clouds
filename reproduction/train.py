@@ -14,15 +14,16 @@ __author__ = "casperneo@uchicago.edu"
 import models
 import logging
 import argparse
-import subprocess
 import tensorflow as tf
 import tensorflow.keras as keras
+
+from os import path, makedirs
 from pipeline import load as pipeline
 from horovod import tensorflow as hvd
-from os import path, makedirs, listdir
 from tensorflow.image import image_gradients
 from tensorflow.python.client import timeline
 from tensorflow.profiler import ProfileOptionBuilder, Profiler
+from utils import load_model_def, load_latest_model_weights, log_flag_arguments
 
 
 def get_flags(verbose):
@@ -33,9 +34,9 @@ def get_flags(verbose):
         "-l",
         "--log",
         dest="logLevel",
-        choices=['debug', 'info', 'warning', 'error', 'critical'],
+        choices=["debug", "info", "warning", "error", "critical"],
         help="Set the logging level",
-        default="info"
+        default="info",
     )
     p.add_argument(
         "model_dir",
@@ -226,12 +227,7 @@ def get_flags(verbose):
     logging.basicConfig(level=getattr(logging, FLAGS.logLevel.upper()))
 
     if verbose:
-        commit = subprocess.check_output(["git", "describe", "--always"]).strip()
-        logging.info("Tensorflow version: %s", tf.__version__)
-        logging.info("Current Git Commit: %s", commit)
-        logging.info("Flags:")
-        for f in FLAGS.__dict__:
-            logging.info("\t %s" + " " * (25 - len(f)) + "%s", f, FLAGS.__dict__[f])
+        log_flag_arguments(FLAGS)
 
     makedirs(path.join(FLAGS.model_dir, "timelines"), exist_ok=True)
 
@@ -297,35 +293,6 @@ def add_noise(imgs, salt_pepper, gaussian_noise):
         imgs += noised * mn * (1 - salt)
 
     return imgs
-
-
-def load_model_def(model_dir, name):
-    json = path.join(model_dir, name + ".json")
-    if path.exists(json):
-        with open(json, "r") as f:
-            model = tf.keras.models.model_from_json(f.read())
-        print("model definition loaded from", json)
-        return model
-    return None
-
-
-def load_latest_model_weights(model, model_dir, name):
-    latest = 0, None
-    for m in listdir(model_dir):
-        if ".h5" in m and name in m:
-            step = int(m.split("-")[1].replace(".h5", ""))
-            latest = max(latest, (step, m))
-    step, model_file = latest
-
-    if model_file:
-        model_file = path.join(model_dir, model_file)
-        model.load_weights(model_file)
-        print("loaded weights for", name, "from", model_file)
-
-    else:
-        print("no weights for", name, "in", model_dir)
-
-    return step
 
 
 def loss_fn(name, weight, fn, **kwargs):
