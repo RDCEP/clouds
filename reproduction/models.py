@@ -61,7 +61,7 @@ def residual_add(x, r, data_format):
                 r, [[0, 0], [0, 0], [0, 0], [0, x_c - r_c]]
             )
             slice_channel = lambda r: r[:, :, :, :x_c]
-            resize = lambda r: tf.image.resize_bilinear(r, x_hw)
+            resize = lambda r: tf.image.resize_nearest_neighbor(r, x_hw)
 
         elif data_format == "channels_first":
             r_c, x_c = r_shape[1], x_shape[1]
@@ -75,7 +75,7 @@ def residual_add(x, r, data_format):
             def resize(r):
                 # HACK this is certainly not efficient
                 r = tf.transpose(r, [0, 3, 1, 2])
-                r = tf.image.resize_bilinear(r, x_hw)
+                r = tf.image.resize_nearest_neighbor(r, x_hw)
                 return tf.transpose(r, [0, 3, 1, 2])
 
         else:

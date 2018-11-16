@@ -71,7 +71,7 @@ class SparseCoder:
         )
         # Basis Pursuit DeNoising Dictionary Learning
         self.dictlearn = bpdndl.BPDNDictLearn(self.dict, encodings, self.l1_reg, opt)
-        logging.info("Beginning training", flush=True)
+        logging.info("Beginning training")
         self.dict = self.dictlearn.solve()
         logging.info(
             "BPDNDictLearn solve time: %.2fs", self.dictlearn.timer.elapsed("solve")
@@ -138,7 +138,8 @@ class SparseCoder:
 
 if __name__ == "__main__":
     # DEBUG this is testing code
+    logging.basicConfig(level=logging.DEBUG)
     sc = SparseCoder("foob", "output/mod09cnn15b")
     encs = load_encodings("encs")
-    sc.train_dict(encs.T, num_steps=2)
+    sc.train_dict(encs.T)
     sc.save_train_stats()

@@ -31,11 +31,18 @@ class TopK:
     """
 
     def __init__(self, ranker, k):
+        """
+        Args:
+            ranker: Fn(example, sdict, code) -> [ranks] which will rank the example with
+                respect to every codeword.
+            k: The number of top / bottom examples to keep for each codeword
+        """
         self.ranker = ranker
         self.top = []
 
     def update(self, info, *args):
         scores = self.ranker(*args)
+        raise NotImplementedError()
         # TODO Update representative of every codeword
 
     def save_examples(path):

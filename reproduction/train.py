@@ -68,9 +68,27 @@ def get_flags(verbose):
         help="percentage of pixels hit with salt and pepper noise before AE",
     )
 
-    p.add_argument("--max_steps", metavar="steps", type=int, default=1000000)
-    p.add_argument("--save_every", metavar="steps", type=int, default=1000)
-    p.add_argument("--summary_every", metavar="steps", type=int, default=250)
+    p.add_argument(
+        "--max_steps",
+        metavar="steps",
+        help="maximum number of train steps",
+        type=int,
+        default=1000000,
+    )
+    p.add_argument(
+        "--save_every",
+        metavar="steps",
+        help="number of steps between each save",
+        type=int,
+        default=1000,
+    )
+    p.add_argument(
+        "--summary_every",
+        metavar="steps",
+        help="number of steps between each tensorboard summary",
+        type=int,
+        default=250,
+    )
 
     p.add_argument(
         "--depths",
@@ -524,7 +542,8 @@ if __name__ == "__main__":
             run_metadata=run_metadata,
         )
 
-        hvd.broadcast_global_variables(0)
+        if hvd.size > 1:
+            hvd.broadcast_global_variables(0)
 
         logging.info("%d Loading model weights", hvd.rank())
         for m in save_models:
