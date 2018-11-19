@@ -39,8 +39,19 @@ def gen_swaths(fnames, mode, resize):
     Yields:
         filename, (resized) swath
     """
+
+    # Define helper function to catch the exception from gdal directly
+    def gdOpen(file):
+        try:
+            output = gdal.Open(file).ReadAsArray()
+        except IOError:
+            print('Error while opening file:',file)
+        return output
+
+
     if mode == "mod09_tif":
-        read = lambda tif_file: gdal.Open(tif_file).ReadAsArray()
+        # read = lambda tif_file: gdal.Open(tif_file).ReadAsArray()
+        read = lambda tif_file: gdOpen(tif_file)
 
     elif mode == "mod02_1km":
         names_1km = {
