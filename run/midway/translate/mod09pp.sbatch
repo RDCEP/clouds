@@ -1,20 +1,28 @@
 #!/bin/sh
 #SBATCH --job-name=mod09pp
 #SBATCH --output=%x_%A.out
+#SBATCH --error=%x_%A.err
 #SBATCH --partition=broadwl
 #SBATCH --ntasks=16
 #SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=32000
 
-module purge
-module load Anaconda3
+source activate clouds-cpu
 
-source activate cc2
+which python
 
-DAT=/project/foster/clouds/data/gee/gdrive17AUG2018Afternoon/
-OUT=/project/foster/clouds/data/gee/preprocessed
+BASEFOLDER=/home/rlourenco/rdcep_clouds
+DATA=$SCRATCH/clouds_high_enso
+OUT=$SCRATCH/clouds_high_enso_preprocessed
+MODE=mod09_tif
 STRIDES="128 128"
 SHAPE="128 128"
 PPR=10000
 
-mpiexec -n $SLURM_NTASKS python3 reproduction/pipeline/into_record.py $DAT pptif --out_dir $OUT --stride $STRIDES --shape $SHAPE --patches_per_record $PPR
+
+mpiexec -n $SLURM_NTASKS \
+    /home/rlourenco/miniconda3/envs/clouds-cpu/bin/python3 /home/rlourenco/rdcep_clouds/reproduction/pipeline/into_record.py \
+        $DATA $OUT $MODE \
+        --stride $STRIDES \
+        --shape $SHAPE \
+        --patches_per_record $PPR
