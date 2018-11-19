@@ -152,7 +152,7 @@ def write_patches(patches, out_dir, patches_per_record):
         example = tf.train.Example(features=tf.train.Features(feature=feature))
         f.write(example.SerializeToString())
 
-    print("Rank", rank, "wrote", i + 1, "patches", flush=True)
+        print("Rank", rank, "wrote", i + 1, "patches", flush=True)
 
 
 def get_args(verbose=False):
