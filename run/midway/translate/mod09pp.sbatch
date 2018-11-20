@@ -15,7 +15,7 @@ BASEFOLDER=/home/rlourenco/rdcep_clouds
 ### On DATA, always include the extension, or asterisk for all files
 DATA=$SCRATCH/clouds_high_enso/*
 OUT=$SCRATCH/clouds_high_enso_preprocessed
-MODE=mod09_tif
+MODE="mod09_tif"
 STRIDES="128 128"
 SHAPE="128 128"
 PPR=10000
