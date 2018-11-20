@@ -60,7 +60,8 @@ print("BPDNDictLearn solve time: %.2fs" % d.timer.elapsed("solve"))
 np.save(
     os.path.join(
         FLAGS.output,
-        "d1-n%d-d%d-l1r%f-nc%d.npy" % (*data.shape, FLAGS.l1_regularization, num_codes),
+        "d1-n%d-d%d-l1r%.2f-nc%d.npy"
+        % (*data.shape, FLAGS.l1_regularization, num_codes),
     ),
     D1,
 )

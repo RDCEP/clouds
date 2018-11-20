@@ -1,17 +1,23 @@
+"""Iterate through tfrecords, encode the examples and save the encodings.
+
+Encodings are saved in the format expected by parallel-kmeans. First 8 bytes of the file
+are two int32 specifying number of vectors and their dimensionality. The rest of the file
+are float32s representing the values of those vectors in C order.
+"""
+__author__ = "casperneo@uchicago.edu"
+
 from argparse import ArgumentParser
 
 import os, sys
 import tensorflow as tf
 import numpy as np
+from utils import load_model_def, load_latest_model_weights
+from pipeline import load
 
-sys.path.insert(1, os.path.join(sys.path[0], ".."))
-from reproduction.pipeline import load
 
-
-p = ArgumentParser()
+p = ArgumentParser(description=__doc__)
 p.add_argument("out_file")
 p.add_argument("encoder")
-p.add_argument("encoder_step")
 p.add_argument("--latent", choices=["flatten", "spatial_mean"], default="spatial_mean")
 load.add_pipeline_cli_arguments(p)
 FLAGS = p.parse_args()
@@ -33,8 +39,7 @@ ds = load.load_data(
     repeat=False,
 )
 
-with open(os.path.join(FLAGS.encoder, "encoder.json"), "r") as f:
-    encoder = tf.keras.models.model_from_json(f.read())
+encoder = load_model_def(FLAGS.encoder, "encoder")
 
 _, _, imgs = ds.make_one_shot_iterator().get_next()
 codes = encoder(imgs)
@@ -48,11 +53,10 @@ elif FLAGS.latent == "flatten":
 else:
     raise ValueError("Invalid latent vector treatment", FLAGS.latent)
 
-
 print("Starting session", flush=True)
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
-    encoder.load_weights(os.path.join(FLAGS.encoder, "encoder-" + FLAGS.encoder_step + ".h5"))
+    load_latest_model_weights(encoder, FLAGS.encoder, "encoder")
 
     with open(FLAGS.out_file, "wb") as f:
         print("Writing", flush=True)
@@ -66,13 +70,12 @@ with tf.Session() as sess:
                 b, d = c.shape
 
                 if dims is not None:
-                    assert dims == d
+                    assert dims == d, "Dimensions inconsistent."
                 else:
                     dims = d
 
                 f.write(c.astype(np.float32).ravel().tobytes())
                 count += b
-                print(count, flush=True)
 
         except tf.errors.OutOfRangeError:
             f.seek(0)
