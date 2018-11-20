@@ -21,3 +21,4 @@ functions considered to be used in the project
 - Analysis: Set of jupyter notebooks with different techniques for
 analysis of datasets, their encodings, as well on
 unsupervised classification of latent representation.
+- GEE: Routines developed using Google Earth Engine.
