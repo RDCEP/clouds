@@ -42,7 +42,7 @@ def gen_swaths(fnames, mode, resize):
 
     # Define helper function to catch the exception from gdal directly
     def gdOpen(file):
-        print('Filename being opened by gdal:',file, flush=True)
+        # print('Filename being opened by gdal:',file, flush=True)
         try:
             output = gdal.Open(file).ReadAsArray()
         except IOError:
@@ -225,7 +225,9 @@ if __name__ == "__main__":
     for i, f in enumerate(sorted(glob.glob(FLAGS.source_glob))):
         if i % size == rank:
             fnames.append(os.path.abspath(f))
-    print('Filenames fetched in the folder: ',fnames)
+    if not fnames:
+        print('Warning! Input folder seems to be empty. Please check your job submission.', flush=True)
+        raise SystemExit(1) # Not successful execution
     swaths = gen_swaths(fnames, FLAGS.mode, FLAGS.resize)
     patches = gen_patches(swaths, FLAGS.shape, FLAGS.stride)
     write_patches(patches, FLAGS.out_dir, FLAGS.patches_per_record)

@@ -12,7 +12,8 @@ source activate clouds-cpu
 which python
 
 BASEFOLDER=/home/rlourenco/rdcep_clouds
-DATA=$SCRATCH/clouds_high_enso
+### On DATA, always include the extension, or asterisk for all files
+DATA=$SCRATCH/clouds_high_enso/*
 OUT=$SCRATCH/clouds_high_enso_preprocessed
 MODE=mod09_tif
 STRIDES="128 128"
