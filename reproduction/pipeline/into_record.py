@@ -225,7 +225,7 @@ if __name__ == "__main__":
     for i, f in enumerate(sorted(glob.glob(FLAGS.source_glob))):
         if i % size == rank:
             fnames.append(os.path.abspath(f))
-
+    print('Filenames fetched in the folder: ',fnames)
     swaths = gen_swaths(fnames, FLAGS.mode, FLAGS.resize)
     patches = gen_patches(swaths, FLAGS.shape, FLAGS.stride)
     write_patches(patches, FLAGS.out_dir, FLAGS.patches_per_record)
