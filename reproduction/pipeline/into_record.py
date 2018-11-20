@@ -42,11 +42,11 @@ def gen_swaths(fnames, mode, resize):
 
     # Define helper function to catch the exception from gdal directly
     def gdOpen(file):
-        print('Filename being opened by gdal:',file)
+        print('Filename being opened by gdal:',file, flush=True)
         try:
             output = gdal.Open(file).ReadAsArray()
         except IOError:
-            print('Error while opening file:',file)
+            print('Error while opening file:',file, flush=True)
         return output
 
 
