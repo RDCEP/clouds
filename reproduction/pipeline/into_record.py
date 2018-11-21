@@ -276,12 +276,10 @@ if __name__ == "__main__":
     for i, f in enumerate(sorted(glob.glob(FLAGS.source_glob))):
         if i % size == rank:
             fnames.append(os.path.abspath(f))
+
     if not fnames:
-        print(
-            "Warning! Input folder seems to be empty. Please check your job submission.",
-            flush=True,
-        )
-        raise SystemExit(1)  # Not successful execution
+        raise ValueError("source_glob does not match any files")
+
     swaths = gen_swaths(fnames, FLAGS.mode, FLAGS.resize)
     patches = gen_patches(swaths, FLAGS.shape, FLAGS.stride)
 
