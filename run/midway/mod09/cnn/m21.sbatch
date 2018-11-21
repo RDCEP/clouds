@@ -1,20 +1,16 @@
 #!/bin/sh
-#SBATCH --job-name=mod9cnn21-dense-b
+#SBATCH --job-name=m9cnn21-dse-henso
 #SBATCH --partition=gpu2
 #SBATCH --output=%x_%A.out
 #SBATCH --error=%x_%A.err
 #SBATCH --gres=gpu:1
 #SBATCH --account=pi-chard
 
-module purge
-module load horovod
-#module load Anaconda3/5.0.0.1
-#module load cuda/9.0
-source activate clouds
+source activate clouds-gpu
 
 
 MODEL_PATH=/project/foster/clouds/output/$SLURM_JOB_NAME
-DATA=/project/foster/clouds/data/gee/preprocessed/"*".tfrecord
+DATA=/project/foster/clouds/data/2015_05"*".tfrecord
 
 
 python reproduction/train.py $MODEL_PATH \
