@@ -12,6 +12,7 @@ import numpy as np
 
 from osgeo import gdal
 from mpi4py import MPI
+from matplotlib import pyplot as plt
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from pyhdf.SD import SD, SDC
 
@@ -46,9 +47,8 @@ def gen_swaths(fnames, mode, resize):
         try:
             output = gdal.Open(file).ReadAsArray()
         except IOError:
-            print('Error while opening file:',file, flush=True)
+            print("Error while opening file:", file, flush=True)
         return output
-
 
     if mode == "mod09_tif":
         # read = lambda tif_file: gdal.Open(tif_file).ReadAsArray()
@@ -138,6 +138,56 @@ def gen_patches(swaths, shape, strides):
                     yield fname, (x, y), patch
 
 
+def write_feature(writer, filename, coord, patch):
+    feature = {
+        "filename": _bytes_feature(bytes(filename, encoding="utf-8")),
+        "coordinate": _int64_feature(coord),
+        "shape": _int64_feature(patch.shape),
+        "patch": _bytes_feature(patch.ravel().tobytes()),
+    }
+    example = tf.train.Example(features=tf.train.Features(feature=feature))
+    writer.write(example.SerializeToString())
+
+
+def interactive_writer(patches, categories, out_dir=""):
+    """Writes patches to categories interactively.
+    """
+    writers = [
+        tf.python_io.TFRecordWriter(os.path.join(out_dir, c + ".tfrecord"))
+        for c in categories
+    ]
+    categories += ["Noise"]
+
+    for filename, coord, patch in patches:
+        plt.imshow(patch[:, :, 0], cmap="bone")
+        plt.show(block=False)
+        while True:
+            print("Please label the patch:")
+            for i, cat in enumerate(categories):
+                print("({}): {}".format(i, cat))
+
+            try:
+                label = int(input("label:"))
+                assert 0 <= label <= len(writers), "label not in range"
+
+                if label < len(writers):
+                    write_feature(writers[label], filename, coord, patch)
+                else:
+                    print("Patch thrown away as noise")
+
+                break
+
+            except KeyboardInterrupt as e:
+                print("Keyboard interrupt detected, exiting.")
+                exit()
+
+            except Exception as e:
+                print("Exception caught:", e)
+        plt.close()
+
+    print("All patches processed. Thank you!")
+
+
 def write_patches(patches, out_dir, patches_per_record):
     """Writes `patches_per_record` patches into a tfrecord file in `out_dir`.
     Args:
@@ -150,19 +200,13 @@ def write_patches(patches, out_dir, patches_per_record):
         where k means its the "k^th" record that `rank` has written.
     """
     rank = MPI.COMM_WORLD.Get_rank()
-    for i, (filename, coord, patch) in enumerate(patches):
+    for i, patch in enumerate(patches):
         if i % patches_per_record == 0:
             rec = "{}-{}.tfrecord".format(rank, i // patches_per_record)
             print("Writing to", rec, flush=True)
             f = tf.python_io.TFRecordWriter(os.path.join(out_dir, rec))
-        feature = {
-            "filename": _bytes_feature(bytes(filename, encoding="utf-8")),
-            "coordinate": _int64_feature(coord),
-            "shape": _int64_feature(patch.shape),
-            "patch": _bytes_feature(patch.ravel().tobytes()),
-        }
-        example = tf.train.Example(features=tf.train.Features(feature=feature))
-        f.write(example.SerializeToString())
+
+        write_feature(f, *patch)
 
         print("Rank", rank, "wrote", i + 1, "patches", flush=True)
 
@@ -202,6 +246,13 @@ def get_args(verbose=False):
     p.add_argument(
         "--patches_per_record", type=int, help="Only used for pptif", default=500
     )
+    p.add_argument(
+        "--interactive_categories",
+        nargs="+",
+        metavar="c",
+        help="Categories for manually labeling patches. 'Noise' category will be added "
+        "and those patches thrown away automatically.",
+    )
 
     FLAGS = p.parse_args()
     if verbose:
@@ -226,10 +277,18 @@ if __name__ == "__main__":
         if i % size == rank:
             fnames.append(os.path.abspath(f))
     if not fnames:
-        print('Warning! Input folder seems to be empty. Please check your job submission.', flush=True)
-        raise SystemExit(1) # Not successful execution
+        print(
+            "Warning! Input folder seems to be empty. Please check your job submission.",
+            flush=True,
+        )
+        raise SystemExit(1)  # Not successful execution
     swaths = gen_swaths(fnames, FLAGS.mode, FLAGS.resize)
     patches = gen_patches(swaths, FLAGS.shape, FLAGS.stride)
-    write_patches(patches, FLAGS.out_dir, FLAGS.patches_per_record)
+
+    if FLAGS.interactive_categories is None:
+        write_patches(patches, FLAGS.out_dir, FLAGS.patches_per_record)
+
+    else:
+        interactive_writer(patches, FLAGS.interactive_categories, FLAGS.out_dir)
 
     print("Rank %d done." % rank, flush=True)
