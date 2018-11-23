@@ -244,8 +244,9 @@ def get_flags(verbose):
 
     logging.basicConfig(level=getattr(logging, FLAGS.logLevel.upper()))
 
-    if verbose:
-        log_flag_arguments(FLAGS)
+    #TODO: Why using git? -- Removed to avoid crash on RCC Horovod
+    # if verbose:
+    #     log_flag_arguments(FLAGS)
 
     makedirs(path.join(FLAGS.model_dir, "timelines"), exist_ok=True)
 
