@@ -8,12 +8,12 @@
 
 source activate clouds-gpu
 
-
+BASEFOLDER=/home/rlourenco/rdcep_clouds
 MODEL_PATH=/project/foster/clouds/output/$SLURM_JOB_NAME
 DATA=/project/foster/clouds/data/2015_05"*".tfrecord
 
 ### M15 with new data
-python reproduction/train.py $MODEL_PATH \
+python $BASEFOLDER/reproduction/train.py $MODEL_PATH \
     --data $DATA \
     --max_steps 100000 \
     --save_every 5000 \
