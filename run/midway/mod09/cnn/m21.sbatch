@@ -6,7 +6,8 @@
 #SBATCH --gres=gpu:1
 #SBATCH --account=pi-chard
 
-source activate clouds-gpu
+source activate horovod
+###-source activate clouds-gpu
 
 BASEFOLDER=/home/rlourenco/rdcep_clouds
 MODEL_PATH=/project/foster/clouds/output/$SLURM_JOB_NAME
