@@ -6,6 +6,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --account=pi-chard
 
+module load git
 module load horovod
 ###-source activate clouds-gpu
 
