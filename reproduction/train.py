@@ -543,7 +543,7 @@ if __name__ == "__main__":
             run_metadata=run_metadata,
         )
 
-        if hvd.size > 1:
+        if hvd.size() > 1:
             hvd.broadcast_global_variables(0)
 
         logging.info("%d Loading model weights", hvd.rank())
