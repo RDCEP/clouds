@@ -6,7 +6,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --account=pi-chard
 
-source activate horovod
+module load horovod
 ###-source activate clouds-gpu
 
 BASEFOLDER=/home/rlourenco/rdcep_clouds
