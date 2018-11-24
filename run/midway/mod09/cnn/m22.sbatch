@@ -12,7 +12,7 @@ module load horovod
 
 BASEFOLDER=/home/rlourenco/rdcep_clouds
 MODEL_PATH=/project/foster/clouds/output/$SLURM_JOB_NAME
-DATA=/project/foster/clouds/data/2015_05"*".tfrecord
+DATA=/project/foster/clouds/data/2015_05/"*".tfrecord
 
 ### M15 with new data
 python $BASEFOLDER/reproduction/train.py $MODEL_PATH \
