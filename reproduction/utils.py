@@ -42,7 +42,7 @@ def load_model_def(model_dir, name, weights=False):
     if path.exists(json):
         with open(json, "r") as f:
             model = tf.keras.models.model_from_json(f.read())
-        logging.info("model definition loaded from", json)
+            logging.info("model definition loaded from", json)
         if weights:
             load_latest_model_weights(model, model_dir, name)
         return model
