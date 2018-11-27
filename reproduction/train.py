@@ -244,8 +244,9 @@ def get_flags(verbose):
 
     logging.basicConfig(level=getattr(logging, FLAGS.logLevel.upper()))
 
-    if verbose:
-        log_flag_arguments(FLAGS)
+    #TODO: Why using git? -- Removed to avoid crash on RCC Horovod
+    # if verbose:
+    #     log_flag_arguments(FLAGS)
 
     makedirs(path.join(FLAGS.model_dir, "timelines"), exist_ok=True)
 
@@ -542,7 +543,7 @@ if __name__ == "__main__":
             run_metadata=run_metadata,
         )
 
-        if hvd.size > 1:
+        if hvd.size() > 1:
             hvd.broadcast_global_variables(0)
 
         logging.info("%d Loading model weights", hvd.rank())
