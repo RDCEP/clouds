@@ -3,8 +3,12 @@
 #SBATCH --partition=gpu2
 #SBATCH --output=%x_%A.out
 #SBATCH --error=%x_%A.err
-#SBATCH --gres=gpu:1
 #SBATCH --account=pi-chard
+###
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem-per-cpu=16000
+#SBATCH --gres=gpu:1
 
 module load git
 module load horovod
