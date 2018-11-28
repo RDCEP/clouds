@@ -35,10 +35,13 @@ def load_encodings(encodings):
     return data
 
 
-def load_model_def(model_dir, name, weights=False):
+def load_model_def(model_dir, name, sngl=False, weights=False):
     """Loads the model definition `name`.json from `model_dir`.
     """
-    json, _ = path.join(model_dir, name + ".json")
+    if sngl:
+        json  = path.join(model_dir, name + ".json")
+    else:
+        json, _ = path.join(model_dir, name + ".json")
     if path.exists(json):
         with open(json, "r") as f:
             model = tf.keras.models.model_from_json(f.read())
