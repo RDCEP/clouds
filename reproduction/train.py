@@ -244,9 +244,9 @@ def get_flags(verbose):
 
     logging.basicConfig(level=getattr(logging, FLAGS.logLevel.upper()))
 
-    #TODO: Why using git? -- Removed to avoid crash on RCC Horovod
-    # if verbose:
-    #     log_flag_arguments(FLAGS)
+    #TODO: Why using git? -- crashed on midway
+    if verbose:
+        log_flag_arguments(FLAGS)
 
     makedirs(path.join(FLAGS.model_dir, "timelines"), exist_ok=True)
 
@@ -497,7 +497,7 @@ if __name__ == "__main__":
         # There is a minimum shape thats 139 or so but we only need early layers
         # Set input height / width to None so Keras doesn't complain
         inp_shape = None, None, 3
-        per = our_models.classifier(inp_shape)
+        per = our_models.classifier(inp_shape) #TODO: lookup for 'our_models' object - probably missed during refactoring
         with tf.name_scope("perceptual_loss"):
             loss_per = tf.reduce_mean(tf.square(per(cimg) - per(camg)))
             loss_ae += loss_per * FLAGS.lambda_per

@@ -7,16 +7,16 @@
 #COBALT --queue debug-cache-quad
 #COBALT --cwd /home/rlourenc/rdcep_clouds
 
-PROJ='/projects/CSC249ADCD01/clouds_ricardo'
-MODEL_PATH=$PROJ'/output/$COBALT_JOBNAME'-debug
-DATA_DIR=$PROJ'/data/mod09/2015_05'
+PROJ='/projects/'${COBALT_PROJECT}'/clouds_ricardo'
+MODEL_PATH=${PROJ}'/output/'${COBALT_JOBNAME}'-debug'
+DATA_DIR=${PROJ}'/data/mod09/2015_05'
 
 module load datascience/tensorflow-1.10
 module load datascience/horovod-0.15.0
 
 aprun -n 64 -N 16 \
-    python3 reproduction/train.py $MODEL_PATH \
-        --data $DATA_DIR/"*".tfrecord \
+    python3 reproduction/train.py ${MODEL_PATH} \
+        --data ${DATA_DIR}/"*".tfrecord \
         --shape 128 128 7 \
         --batch_size 8 \
         --max_steps 150000 \
