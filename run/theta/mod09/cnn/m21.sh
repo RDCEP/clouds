@@ -1,19 +1,11 @@
 #!/bin/bash
 #COBALT --jobname m9cnnm21
 #COBALT --outputprefix theta-logs/$COBALT_JOBNAME-debug
-
-### Queue (debug for nodes < 128)
-#COBALT --queue debug-cache-quad
-### -- #COBALT --queue default
-
-### cwd is root folder for github repo
-#COBALT --cwd /home/rlourenc/rdcep_clouds
-
 #COBALT --time 00:30:00
 #COBALT --nodecount 4
 #COBALT --project CSC249ADCD01
-### --JUST on COOLEY!!!   #COBALT --attrs=pubnet
-
+#COBALT --queue debug-cache-quad
+#COBALT --cwd /home/rlourenc/rdcep_clouds
 
 PROJ='/projects/CSC249ADCD01/clouds'
 MODEL_PATH=$PROJ'/output/$COBALT_JOBNAME'-debug'
