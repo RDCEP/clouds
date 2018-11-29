@@ -40,8 +40,9 @@ def load_encodings(encodings):
 def load_model_def(model_dir, name, weights=False):
     """Loads the model definition `name`.json from `model_dir`.
     """
-    print('DEBUG: ',str(path.join(model_dir, name + ".json")),flush=True) #TODO: Debugging path.join error
-    json, _ = path.join(model_dir, name + ".json")
+
+    # TODO: Why error show up on Midway/GPU2 and not on ALCF Theta - ref commit 9d98a0c4cbacf3633bc2ca324e9b5c09d8de0ad8
+    json = path.join(model_dir, name + ".json")
 
     if path.exists(json):
         with open(json, "r") as f:
