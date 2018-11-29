@@ -14,7 +14,6 @@ DATA_DIR=$PROJ'/data/mod09/2015_05'
 module load datascience/tensorflow-1.10
 module load datascience/horovod-0.15.0
 
-### n = number of processes ; N = no. proc / node
 aprun -n 64 -N 16 \
     python3 reproduction/train.py $MODEL_PATH \
         --data $DATA_DIR/"*".tfrecord \
