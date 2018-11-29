@@ -40,7 +40,7 @@ def load_encodings(encodings):
 def load_model_def(model_dir, name, weights=False):
     """Loads the model definition `name`.json from `model_dir`.
     """
-    print(path.join(model_dir, name + ".json"),flush=True) #TODO: Debugging path.join error
+    print('DEBUG: ',str(path.join(model_dir, name + ".json")),flush=True) #TODO: Debugging path.join error
     json, _ = path.join(model_dir, name + ".json")
 
     if path.exists(json):
