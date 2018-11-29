@@ -1,13 +1,13 @@
 #!/bin/bash
 #COBALT --jobname m9cnnm21
-#COBALT --outputprefix theta-logs/$COBALT_JOBNAME-debug
+#COBALT --outputprefix theta-logs/m9cnnm21-debug
 #COBALT --time 00:30:00
 #COBALT --nodecount 4
 #COBALT --project CSC249ADCD01
 #COBALT --queue debug-cache-quad
 #COBALT --cwd /home/rlourenc/rdcep_clouds
 
-PROJ='/projects/CSC249ADCD01/clouds'
+PROJ='/projects/CSC249ADCD01/clouds_ricardo'
 MODEL_PATH=$PROJ'/output/$COBALT_JOBNAME'-debug'
 DATA_DIR=$PROJ'/data/mod09/2015_05'
 
