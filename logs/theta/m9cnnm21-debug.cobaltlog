@@ -1,0 +1,30 @@
+Jobid: 293489
+qsub --mode script --jobname m9cnnm21 --outputprefix logs/theta/m9cnnm21-debug --time 00:30:00 --nodecount 4 --project CSC249ADCD01 --queue debug-cache-quad --cwd /home/rlourenc/rdcep_clouds ./rdcep_clouds/run/theta/mod09/cnn/m21.sh
+Thu Nov 29 20:56:45 2018 +0000 (UTC) submitted with cwd set to: /home/rlourenc/rdcep_clouds
+jobid 293489 submitted from terminal /dev/pts/26
+2018-11-29 20:57:56,093 INFO: Starting Resource_Prologue
+2018-11-29 20:57:56,094 DEBUG: no enabling attribute found
+2018-11-29 20:57:56,095 INFO: Resource_Prologue finished with exit code 0
+Thu Nov 29 20:58:24 2018 +0000 (UTC) 
+Thu Nov 29 20:58:24 2018 +0000 (UTC) Command: '/gpfs/mira-home/rlourenc/./rdcep_clouds/run/theta/mod09/cnn/m21.sh'
+Thu Nov 29 20:58:24 2018 +0000 (UTC) 
+Thu Nov 29 20:58:24 2018 +0000 (UTC) Environment:
+Thu Nov 29 20:58:24 2018 +0000 (UTC) COBALT_PARTCORES=64
+Thu Nov 29 20:58:24 2018 +0000 (UTC) SHELL=/bin/bash
+Thu Nov 29 20:58:24 2018 +0000 (UTC) COBALT_PROJECT=CSC249ADCD01
+Thu Nov 29 20:58:24 2018 +0000 (UTC) COBALT_PARTNAME=3830,3834-3836
+Thu Nov 29 20:58:24 2018 +0000 (UTC) COBALT_JOBID=293489
+Thu Nov 29 20:58:24 2018 +0000 (UTC) COBALT_STARTTIME=1543525065
+Thu Nov 29 20:58:24 2018 +0000 (UTC) LOGNAME=rlourenc
+Thu Nov 29 20:58:24 2018 +0000 (UTC) USER=rlourenc
+Thu Nov 29 20:58:24 2018 +0000 (UTC) COBALT_ENDTIME=1543526865
+Thu Nov 29 20:58:24 2018 +0000 (UTC) COBALT_PARTSIZE=4
+Thu Nov 29 20:58:24 2018 +0000 (UTC) HOME=/home/rlourenc
+Thu Nov 29 20:58:24 2018 +0000 (UTC) COBALT_JOBSIZE=4
+Thu Nov 29 20:58:24 2018 +0000 (UTC) COBALT_QUEUE=debug-cache-quad
+Thu Nov 29 20:58:24 2018 +0000 (UTC) 
+Thu Nov 29 20:58:24 2018 +0000 (UTC) Info: stdin received from /dev/null
+Thu Nov 29 20:58:24 2018 +0000 (UTC) Info: stdout sent to /home/rlourenc/rdcep_clouds/logs/theta/m9cnnm21-debug.output
+Thu Nov 29 20:58:24 2018 +0000 (UTC) Info: stderr sent to /home/rlourenc/rdcep_clouds/logs/theta/m9cnnm21-debug.error
+Thu Nov 29 20:58:24 2018 +0000 (UTC) 
+Thu Nov 29 21:06:33 2018 +0000 (UTC) Info: task completed normally with an exit code of 1; initiating job cleanup and removal
