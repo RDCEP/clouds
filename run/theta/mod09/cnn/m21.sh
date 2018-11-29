@@ -7,8 +7,8 @@
 #COBALT --queue debug-cache-quad
 #COBALT --cwd /home/rlourenc/rdcep_clouds
 
-PROJ='/projects/'${COBALT_PROJECT}'/clouds_ricardo'
-MODEL_PATH=${PROJ}'/output/'${COBALT_JOBNAME}'-debug'
+PROJ='/projects/CSC249ADCD01/clouds_ricardo'
+MODEL_PATH=${PROJ}'/output/m9cnnm21-debug'
 DATA_DIR=${PROJ}'/data/mod09/2015-05'
 
 module load datascience/tensorflow-1.10
