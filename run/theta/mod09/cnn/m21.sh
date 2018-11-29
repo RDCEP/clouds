@@ -4,7 +4,7 @@
 
 ### Queue (debug for nodes < 128)
 #COBALT --queue debug-cache-quad
-### #COBALT --queue default
+### -- #COBALT --queue default
 
 ### cwd is root folder for github repo
 #COBALT --cwd /home/rlourenc/rdcep_clouds
