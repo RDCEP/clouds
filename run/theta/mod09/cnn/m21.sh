@@ -9,7 +9,7 @@
 
 PROJ='/projects/'${COBALT_PROJECT}'/clouds_ricardo'
 MODEL_PATH=${PROJ}'/output/'${COBALT_JOBNAME}'-debug'
-DATA_DIR=${PROJ}'/data/mod09/2015_05'
+DATA_DIR=${PROJ}'/data/mod09/2015-05'
 
 module load datascience/tensorflow-1.10
 module load datascience/horovod-0.15.0
