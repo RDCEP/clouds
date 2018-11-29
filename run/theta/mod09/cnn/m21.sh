@@ -1,6 +1,6 @@
 #!/bin/bash
 #COBALT --jobname m9cnnm21
-#COBALT --outputprefix theta-logs/m9cnnm21-debug
+#COBALT --outputprefix logs/theta/m9cnnm21-debug
 #COBALT --time 00:30:00
 #COBALT --nodecount 4
 #COBALT --project CSC249ADCD01
