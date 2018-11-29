@@ -8,7 +8,7 @@
 #COBALT --cwd /home/rlourenc/rdcep_clouds
 
 PROJ='/projects/CSC249ADCD01/clouds_ricardo'
-MODEL_PATH=$PROJ'/output/$COBALT_JOBNAME'-debug'
+MODEL_PATH=$PROJ'/output/$COBALT_JOBNAME'-debug
 DATA_DIR=$PROJ'/data/mod09/2015_05'
 
 module load datascience/tensorflow-1.10
