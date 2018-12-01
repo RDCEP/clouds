@@ -6,10 +6,10 @@
 #SBATCH --account=pi-chard
 ###
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=2
+#SBATCH --ntasks-per-node=1
 #SBATCH --mem-per-cpu=16000
-#SBATCH --gres=gpu:2
-#SBATCH --time=24:00:00
+#SBATCH --gres=gpu:1
+#SBATCH --time=48:00:00
 
 module load git
 module load env/rcc
