@@ -5,10 +5,10 @@
 #SBATCH --error=%x_%A.err
 #SBATCH --account=pi-chard
 ###
-#SBATCH --nodes=2
-#SBATCH --ntasks-per-node=2
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=3
 #SBATCH --mem-per-cpu=16000
-#SBATCH --gres=gpu:4
+#SBATCH --gres=gpu:3
 #SBATCH --time=24:00:00
 
 module load git
