@@ -6,7 +6,7 @@
 #SBATCH --account=pi-chard
 ###
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1
+#SBATCH --ntasks-per-node=4
 #SBATCH --mem-per-cpu=16000
 #SBATCH --gres=gpu:4
 #SBATCH --time=24:00:00
