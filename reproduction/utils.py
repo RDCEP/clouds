@@ -15,7 +15,7 @@ def log_flag_arguments(flags, tf_version=True):
     """Logs the git commit, flags, and tensorflow version.
     """
     # commit = subprocess.check_output(["git", "describe", "--always"]).strip() TODO: Debugging git crash on Midway
-    commit = subprocess.check_output(shlex.split('git describe --always'))
+    commit = subprocess.check_output(shlex.split('git describe --always'), shell=True)
     if tf_version:
         logging.info("Tensorflow version: %s", tf.__version__)
     logging.info("Current Git Commit: %s", commit)
