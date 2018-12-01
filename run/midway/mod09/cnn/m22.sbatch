@@ -8,7 +8,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --mem-per-cpu=16000
-#SBATCH --gres=gpu:1
+#SBATCH --gres=gpu:4
 #SBATCH --time=24:00:00
 
 module load git
@@ -19,6 +19,7 @@ BASEFOLDER=/home/rlourenco/rdcep_clouds
 MODEL_PATH=/project/foster/clouds/output/$SLURM_JOB_NAME
 DATA=/project/foster/clouds/data/2015_05/"*".tfrecord
 
+cd $BASEFOLDER
 ### M15 with new data
 python $BASEFOLDER/reproduction/train.py $MODEL_PATH \
     --data $DATA \
