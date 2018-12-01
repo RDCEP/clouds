@@ -5,6 +5,7 @@ from ipykernel.tests.utils import flush_channels
 __author__ = "casperneo@uchicago.edu"
 import logging
 import subprocess
+import shlex
 import numpy as np
 import tensorflow as tf
 from os import path, listdir
@@ -13,7 +14,8 @@ from os import path, listdir
 def log_flag_arguments(flags, tf_version=True):
     """Logs the git commit, flags, and tensorflow version.
     """
-    commit = subprocess.check_output(["git", "describe", "--always"]).strip()
+    # commit = subprocess.check_output(["git", "describe", "--always"]).strip() TODO: Debugging git crash on Midway
+    commit = subprocess.check_output(shlex.split('git describe --always'))
     if tf_version:
         logging.info("Tensorflow version: %s", tf.__version__)
     logging.info("Current Git Commit: %s", commit)
