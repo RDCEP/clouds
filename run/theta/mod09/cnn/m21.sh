@@ -1,10 +1,10 @@
 #!/bin/bash
 #COBALT --jobname m9cnnm21
 #COBALT --outputprefix logs/theta/m9cnnm21-debug
-#COBALT --time 06:00:00
-#COBALT --nodecount 16
+#COBALT --time 00:30:00
+#COBALT --nodecount 128
 #COBALT --project CSC249ADCD01
-#COBALT --queue sc2018_intel
+#COBALT --queue default
 #COBALT --cwd /home/rlourenc/rdcep_clouds
 
 PROJ='/projects/CSC249ADCD01/clouds_ricardo'
@@ -14,7 +14,7 @@ DATA_DIR=${PROJ}'/data/mod09/2015-05'
 module load datascience/tensorflow-1.10
 module load datascience/horovod-0.15.0
 
-aprun -n 1152 -N 72 \
+aprun -n 9216 -N 72 \
     python3 reproduction/train.py ${MODEL_PATH} \
         --data ${DATA_DIR}/"*".tfrecord \
         --shape 128 128 7 \
