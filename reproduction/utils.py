@@ -14,8 +14,12 @@ from os import path, listdir
 def log_flag_arguments(flags, tf_version=True):
     """Logs the git commit, flags, and tensorflow version.
     """
-    # commit = subprocess.check_output(["git", "describe", "--always"]).strip() TODO: Debugging git crash on Midway
     commit = subprocess.check_output(shlex.split('git describe --always'))
+    '''
+    Note: Crash on Midway solved. To be able to run git describe, the command needs to be called within a folder of the 
+    program. A solution for this is at the job being launched, enter at the codebase folder prior to execution or pass 
+    that folder to the PATH environment variable.
+    '''
     if tf_version:
         logging.info("Tensorflow version: %s", tf.__version__)
     logging.info("Current Git Commit: %s", commit)
