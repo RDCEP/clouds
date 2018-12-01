@@ -6,9 +6,9 @@
 #SBATCH --account=pi-chard
 ###
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=3
+#SBATCH --ntasks-per-node=2
 #SBATCH --mem-per-cpu=16000
-#SBATCH --gres=gpu:3
+#SBATCH --gres=gpu:2
 #SBATCH --time=24:00:00
 
 module load git
