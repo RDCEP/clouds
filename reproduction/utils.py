@@ -79,7 +79,13 @@ def load_latest_model_weights(model, model_dir, name):
         if ".h5" in m and name in m:
             step = int(m.split("-")[1].replace(".h5", ""))
             latest = max(latest, (step, m))
+
     step, model_file = latest
+
+    #TODO: Write a better fix for the case the folder is empty
+    if not listdir(model_dir):
+        step = None
+        return step
 
     if model_file:
         model_file = path.join(model_dir, model_file)
