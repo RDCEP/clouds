@@ -5,8 +5,8 @@
 #SBATCH --error=%x_%A.err
 #SBATCH --account=pi-chard
 ###
-#SBATCH --nodes=1
-#SBATCH --ntasks-per-node=4
+#SBATCH --nodes=2
+#SBATCH --ntasks-per-node=2
 #SBATCH --mem-per-cpu=16000
 #SBATCH --gres=gpu:4
 #SBATCH --time=24:00:00
