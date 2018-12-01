@@ -4,7 +4,7 @@
 #COBALT --time 06:00:00
 #COBALT --nodecount 16
 #COBALT --project CSC249ADCD01
-#COBALT --queue cache-quad
+#COBALT --queue sc2018_intel
 #COBALT --cwd /home/rlourenc/rdcep_clouds
 
 PROJ='/projects/CSC249ADCD01/clouds_ricardo'
