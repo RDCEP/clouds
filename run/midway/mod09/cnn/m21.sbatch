@@ -19,7 +19,7 @@ BASEFOLDER=/home/rlourenco/rdcep_clouds
 MODEL_PATH=/project/foster/clouds/output/$SLURM_JOB_NAME
 DATA=/project/foster/clouds/data/2015_05/"*".tfrecord
 
-
+cd $BASEFOLDER
 python $BASEFOLDER/reproduction/train.py $MODEL_PATH \
     --data $DATA \
     --base_dim 8 \
