@@ -1,10 +1,10 @@
 #!/bin/bash
 #COBALT --jobname m9cnnm21
 #COBALT --outputprefix logs/theta/m9cnnm21-debug
-#COBALT --time 24:00:00
+#COBALT --time 06:00:00
 #COBALT --nodecount 16
 #COBALT --project CSC249ADCD01
-#COBALT --queue debug-cache-quad
+#COBALT --queue cache-quad
 #COBALT --cwd /home/rlourenc/rdcep_clouds
 
 PROJ='/projects/CSC249ADCD01/clouds_ricardo'
