@@ -163,13 +163,17 @@ class AEData:
 
         try:
             swath = gdal.Open(self.names[i])
+            xoff, xsize, left = rebox(xoff, xsize, swath.RasterXSize)
+            yoff, ysize, top = rebox(yoff, ysize, swath.RasterYSize)
+
+            p = swath.ReadAsArray(xoff, yoff, xsize, ysize)
         except RuntimeError:
             print('ERROR:',RuntimeError,flush=True)
 
-        xoff, xsize, left = rebox(xoff, xsize, swath.RasterXSize)
-        yoff, ysize, top = rebox(yoff, ysize, swath.RasterYSize)
-
-        p = swath.ReadAsArray(xoff, yoff, xsize, ysize)
+        # xoff, xsize, left = rebox(xoff, xsize, swath.RasterXSize)
+        # yoff, ysize, top = rebox(yoff, ysize, swath.RasterYSize)
+        #
+        # p = swath.ReadAsArray(xoff, yoff, xsize, ysize)
 
         return p, (left, top)
 
