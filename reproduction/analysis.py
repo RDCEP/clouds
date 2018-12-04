@@ -15,6 +15,9 @@ from collections import namedtuple
 from matplotlib import patches
 from osgeo import gdal
 
+# TODO: Extend gdal exception control to the entire codebase
+# Enable exception treatment using gdal
+gdal.UseExceptions()
 
 class AEData:
     """Struct of arrays containing autoencoded data for analysis.
@@ -158,7 +161,11 @@ class AEData:
             new_size = r_most - l_most
             return map(int, [l_most, new_size, off - l_most])
 
-        swath = gdal.Open(self.names[i])
+        try:
+            swath = gdal.Open(self.names[i])
+        except RuntimeError:
+            print('ERROR:',RuntimeError,flush=True)
+
         xoff, xsize, left = rebox(xoff, xsize, swath.RasterXSize)
         yoff, ysize, top = rebox(yoff, ysize, swath.RasterYSize)
 
