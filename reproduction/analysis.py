@@ -131,8 +131,8 @@ class AEData:
             a.set_yticks([])
         return fig, ax
 
-    def plot_neighborhood(self, i, context_width=128):
-        p, orig = self.open_neighborhood(i, context_width)
+    def plot_neighborhood(self, i, context_width=128, override_base_folder=None):
+        p, orig = self.open_neighborhood(i, context_width, override_base_folder)
 
         _, (a, b) = plt.subplots(1, 2, figsize=(20, 10))
         normalization = None  # plt.Normalize(p[0].min(), p[0].max())
