@@ -19,6 +19,7 @@ from osgeo import gdal
 # Enable exception treatment using gdal
 gdal.UseExceptions()
 
+
 class AEData:
     """Struct of arrays containing autoencoded data for analysis.
 
@@ -112,7 +113,7 @@ class AEData:
 
         for s in range(n_samples):
             for c, field in enumerate(self.fields):
-                orig, diff, deco = ax[s * 3 : s * 3 + 3, c]
+                orig, diff, deco = ax[s * 3: s * 3 + 3, c]
                 orig.imshow(self.imgs[s, :, :, c], cmap="bone")
                 diff.imshow(
                     self.imgs[s, :, :, c] - self.ae_imgs[s, :, :, c], cmap="coolwarm"
@@ -164,8 +165,8 @@ class AEData:
         swath = None  # Initialize variable due to exception treatment
         try:
             swath = gdal.Open(self.names[i])
-        except RuntimeError:
-            print('ERROR:',RuntimeError,flush=True)
+        except Exception as e:
+            print('ERROR:', e.message, e.args, flush=True)
 
         xoff, xsize, left = rebox(xoff, xsize, swath.RasterXSize)
         yoff, ysize, top = rebox(yoff, ysize, swath.RasterYSize)
@@ -206,7 +207,7 @@ def plot_cluster_channel_distributions(imgs, labels, fields=None, width=3):
     """
     n_bands = imgs.shape[-1]
     assert (
-        not fields or len(fields) == n_bands
+            not fields or len(fields) == n_bands
     ), "Number of field labels do not match number of channels"
     n_clusters = len(set(labels))
 
@@ -295,7 +296,7 @@ def plot_ae_output(dataset, predictions, n_samples, n_bands, height=4, width=4):
 
     for i in range(n_samples):
         for j in range(n_bands):
-            orig, pred = ax[i * 2 : i * 2 + 2, j]
+            orig, pred = ax[i * 2: i * 2 + 2, j]
             orig.imshow(dataset[i, :, :, j], cmap="copper")
             pred.imshow(predictions[i, :, :, j], cmap="copper")
             for a in (orig, pred):
