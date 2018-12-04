@@ -148,7 +148,7 @@ class AEData:
             )
         )
 
-    def open_neighborhood(self, i, context_width):
+    def open_neighborhood(self, i, context_width, override_base_folder=None):
         """Opens `context_width` size neighborhood around patch `i`.
         Returns this enlarged patch (unnormalized) and the coordinate of the original
         patch within it.
@@ -163,8 +163,16 @@ class AEData:
             return map(int, [l_most, new_size, off - l_most])
 
         swath = None  # Initialize variable due to exception treatment
+        # TODO: Provide a better fix for the issue of source file url used on training
+        # Issue lies on full url names being stored, instead of relative paths
+        if not (override_base_folder is None):
+            tif_filename = os.path.basename(self.names[i])
+            newurl = override_base_folder+tif_filename
+            print('WARNING: Overriding base folder name, from the one used on model training', flush=True)
+        else:
+            newurl = self.names[i]
         try:
-            swath = gdal.Open(self.names[i])
+            swath = gdal.Open(newurl)
         except Exception as e:
             print('ERROR:', e.message, e.args, flush=True)
 
