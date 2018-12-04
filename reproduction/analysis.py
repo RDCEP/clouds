@@ -161,19 +161,16 @@ class AEData:
             new_size = r_most - l_most
             return map(int, [l_most, new_size, off - l_most])
 
+        swath = None  # Initialize variable due to exception treatment
         try:
             swath = gdal.Open(self.names[i])
-            xoff, xsize, left = rebox(xoff, xsize, swath.RasterXSize)
-            yoff, ysize, top = rebox(yoff, ysize, swath.RasterYSize)
-
-            p = swath.ReadAsArray(xoff, yoff, xsize, ysize)
         except RuntimeError:
             print('ERROR:',RuntimeError,flush=True)
 
-        # xoff, xsize, left = rebox(xoff, xsize, swath.RasterXSize)
-        # yoff, ysize, top = rebox(yoff, ysize, swath.RasterYSize)
-        #
-        # p = swath.ReadAsArray(xoff, yoff, xsize, ysize)
+        xoff, xsize, left = rebox(xoff, xsize, swath.RasterXSize)
+        yoff, ysize, top = rebox(yoff, ysize, swath.RasterYSize)
+
+        p = swath.ReadAsArray(xoff, yoff, xsize, ysize)
 
         return p, (left, top)
 
