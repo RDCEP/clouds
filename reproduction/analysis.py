@@ -15,6 +15,10 @@ from collections import namedtuple
 from matplotlib import patches
 from osgeo import gdal
 
+# TODO: Extend gdal exception control to the entire codebase
+# Enable exception treatment using gdal
+gdal.UseExceptions()
+
 
 class AEData:
     """Struct of arrays containing autoencoded data for analysis.
@@ -109,7 +113,7 @@ class AEData:
 
         for s in range(n_samples):
             for c, field in enumerate(self.fields):
-                orig, diff, deco = ax[s * 3 : s * 3 + 3, c]
+                orig, diff, deco = ax[s * 3: s * 3 + 3, c]
                 orig.imshow(self.imgs[s, :, :, c], cmap="bone")
                 diff.imshow(
                     self.imgs[s, :, :, c] - self.ae_imgs[s, :, :, c], cmap="coolwarm"
@@ -127,8 +131,8 @@ class AEData:
             a.set_yticks([])
         return fig, ax
 
-    def plot_neighborhood(self, i, context_width=128):
-        p, orig = self.open_neighborhood(i, context_width)
+    def plot_neighborhood(self, i, context_width=128, override_base_folder=None):
+        p, orig = self.open_neighborhood(i, context_width, override_base_folder)
 
         _, (a, b) = plt.subplots(1, 2, figsize=(20, 10))
         normalization = None  # plt.Normalize(p[0].min(), p[0].max())
@@ -144,7 +148,7 @@ class AEData:
             )
         )
 
-    def open_neighborhood(self, i, context_width):
+    def open_neighborhood(self, i, context_width, override_base_folder=None):
         """Opens `context_width` size neighborhood around patch `i`.
         Returns this enlarged patch (unnormalized) and the coordinate of the original
         patch within it.
@@ -158,7 +162,20 @@ class AEData:
             new_size = r_most - l_most
             return map(int, [l_most, new_size, off - l_most])
 
-        swath = gdal.Open(self.names[i])
+        swath = None  # Initialize variable due to exception treatment
+        # TODO: Provide a better fix for the issue of source file url used on training
+        # Issue lies on full url names being stored, instead of relative paths
+        if not (override_base_folder is None):
+            tif_filename = os.path.basename(self.names[i])
+            newurl = override_base_folder+tif_filename
+            print('WARNING: Overriding base folder name, from the one used on model training', flush=True)
+        else:
+            newurl = self.names[i]
+        try:
+            swath = gdal.Open(newurl)
+        except Exception as e:
+            print('ERROR:', e.message, e.args, flush=True)
+
         xoff, xsize, left = rebox(xoff, xsize, swath.RasterXSize)
         yoff, ysize, top = rebox(yoff, ysize, swath.RasterYSize)
 
@@ -198,7 +215,7 @@ def plot_cluster_channel_distributions(imgs, labels, fields=None, width=3):
     """
     n_bands = imgs.shape[-1]
     assert (
-        not fields or len(fields) == n_bands
+            not fields or len(fields) == n_bands
     ), "Number of field labels do not match number of channels"
     n_clusters = len(set(labels))
 
@@ -287,7 +304,7 @@ def plot_ae_output(dataset, predictions, n_samples, n_bands, height=4, width=4):
 
     for i in range(n_samples):
         for j in range(n_bands):
-            orig, pred = ax[i * 2 : i * 2 + 2, j]
+            orig, pred = ax[i * 2: i * 2 + 2, j]
             orig.imshow(dataset[i, :, :, j], cmap="copper")
             pred.imshow(predictions[i, :, :, j], cmap="copper")
             for a in (orig, pred):
