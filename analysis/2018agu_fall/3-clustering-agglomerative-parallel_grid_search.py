@@ -43,12 +43,12 @@ def trial_test(i, j, trials):
     return search_results
 
 
-def grid_search(start, step, stop, max_samples=5000, sample_steps=4, trials=30):
+def grid_search(start, step, stop, max_samples=5000, sample_steps=4, trials=[30]):
     samples = np.logspace(np.log10(start + 2), np.log10(max_samples), num=sample_steps).astype(int)
 
     print(list(product(samples, range(start, stop, step), list(trials))), flush=True)
     with mp.Pool(processes=8) as pool:
-        results = pool.starmap(trial_test, product(samples, range(start, stop, step), list(trials)))
+        results = pool.starmap(trial_test, product(samples, range(start, stop, step), trials))
 
     return results
 
