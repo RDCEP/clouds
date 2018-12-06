@@ -42,6 +42,7 @@ def gridsearch(start, step, stop, max_samples=5000, sample_steps=4, trials=30):
               np.count_nonzero(~np.isnan(minfoac)), flush=True)
         return search_results
 
+    print(list(product(samples, range(start, stop, step))), flush=True)
     with mp.Pool(processes=8) as pool:
         results = pool.starmap(trial_test, product(samples, range(start, stop, step)))
 
