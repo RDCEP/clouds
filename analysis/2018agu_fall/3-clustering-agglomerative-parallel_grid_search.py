@@ -22,12 +22,12 @@ tf.logging.set_verbosity(tf.logging.WARN)
 
 def gridsearch(start, step, stop, max_samples=5000, sample_steps=4, trials=30):
 
+    samples = np.logspace(np.log10(start + 2), np.log10(max_samples), num=sample_steps).astype(int)
+
     def trial_test(i, j):
         with open(ENCODER_DEF, "r") as f:
             encoder = tf.keras.models.model_from_json(f.read())
         encoder.load_weights(ENCODER_WEIGHTS)
-
-        samples = np.logspace(np.log10(start + 2), np.log10(max_samples), num=sample_steps).astype(int)
 
         search_results = []  # Force initialization
         print('Samples: ', i, ' Clusters: ', j)
