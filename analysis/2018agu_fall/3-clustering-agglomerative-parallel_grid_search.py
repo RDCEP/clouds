@@ -21,13 +21,14 @@ tf.logging.set_verbosity(tf.logging.WARN)
 
 
 def gridsearch(start, step, stop, max_samples=5000, sample_steps=4, trials=30):
-    with open(ENCODER_DEF, "r") as f:
-        encoder = tf.keras.models.model_from_json(f.read())
-    encoder.load_weights(ENCODER_WEIGHTS)
 
-    samples = np.logspace(np.log10(start + 2), np.log10(max_samples), num=sample_steps).astype(int)
+    def trial_test(i, j):
+        with open(ENCODER_DEF, "r") as f:
+            encoder = tf.keras.models.model_from_json(f.read())
+        encoder.load_weights(ENCODER_WEIGHTS)
 
-    def trial_test(i, j, samples, encoder):
+        samples = np.logspace(np.log10(start + 2), np.log10(max_samples), num=sample_steps).astype(int)
+
         search_results = []  # Force initialization
         print('Samples: ', i, ' Clusters: ', j)
         minfoac = []
@@ -47,7 +48,7 @@ def gridsearch(start, step, stop, max_samples=5000, sample_steps=4, trials=30):
 
     print(list(product(samples, range(start, stop, step))), flush=True)
     with mp.Pool(processes=8) as pool:
-        results = pool.starmap(trial_test, product(samples, range(start, stop, step), samples, encoder))
+        results = pool.starmap(trial_test, product(samples, range(start, stop, step)))
 
     return results
 
