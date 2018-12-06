@@ -57,7 +57,7 @@ DATA = "/project/foster/clouds/data/2015_05/*.tfrecord"
 ENCODER_DEF = "/home/rlourenco/rdcep_clouds/output/m9-22_oceans/encoder.json"
 ENCODER_WEIGHTS = "/home/rlourenco/rdcep_clouds/output/m9-22_oceans/encoder.h5"
 
-result = grid_search(2, 1, 40, max_samples=10000, sample_steps=10)
+result = grid_search(2, 1, 40, max_samples=10000, sample_steps=4)
 
 df_export = pd.DataFrame.from_records(result, columns=['Samples', 'Clusters', 'Avg_MInfo', 'Std_MInfo'])
 df_export.to_csv('searched_results.csv', encoding='utf-8', index=False)
