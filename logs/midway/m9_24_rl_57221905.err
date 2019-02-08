@@ -1,0 +1,917 @@
+INFO:root:Tensorflow version: 1.10.0
+INFO:root:Current Git Commit: b'v0.1-130-g37839cc\n'
+INFO:root:Flags:
+INFO:root:	 logLevel                 info
+INFO:root:	 model_dir                /project/foster/clouds/output/m9_24_rl_2016_01/
+INFO:root:	 log_device_placement     False
+INFO:root:	 data                     ['/project2/chard/clouds/data/GEE/clouds_gee_preprocessed_2016_01/11-0.tfrecord', '/project2/chard/clouds/data/GEE/clouds_gee_preprocessed_2016_01/12-0.tfrecord', '/project2/chard/clouds/data/GEE/clouds_gee_preprocessed_2016_01/13-0.tfrecord', '/project2/chard/clouds/data/GEE/clouds_gee_preprocessed_2016_01/14-0.tfrecord', '/project2/chard/clouds/data/GEE/clouds_gee_preprocessed_2016_01/15-0.tfrecord', '/project2/chard/clouds/data/GEE/clouds_gee_preprocessed_2016_01/2-0.tfrecord', '/project2/chard/clouds/data/GEE/clouds_gee_preprocessed_2016_01/3-0.tfrecord', '/project2/chard/clouds/data/GEE/clouds_gee_preprocessed_2016_01/4-0.tfrecord', '/project2/chard/clouds/data/GEE/clouds_gee_preprocessed_2016_01/5-0.tfrecord', '/project2/chard/clouds/data/GEE/clouds_gee_preprocessed_2016_01/6-0.tfrecord', '/project2/chard/clouds/data/GEE/clouds_gee_preprocessed_2016_01/7-0.tfrecord', '/project2/chard/clouds/data/GEE/clouds_gee_preprocessed_2016_01/8-0.tfrecord', '/project2/chard/clouds/data/GEE/clouds_gee_preprocessed_2016_01/9-0.tfrecord']
+INFO:root:	 shape                    [128, 128, 7]
+INFO:root:	 batch_size               32
+INFO:root:	 read_threads             64
+INFO:root:	 prefetch                 1
+INFO:root:	 shuffle_buffer_size      1000
+INFO:root:	 no_augment_flip          False
+INFO:root:	 no_augment_rotate        True
+INFO:root:	 channel_order            channels_last
+INFO:root:	 gaussian_noise           0
+INFO:root:	 salt_pepper              0
+INFO:root:	 max_steps                200000
+INFO:root:	 save_every               5000
+INFO:root:	 summary_every            250
+INFO:root:	 depths                   None
+INFO:root:	 n_blocks                 4
+INFO:root:	 base_dim                 16
+INFO:root:	 block_len                0
+INFO:root:	 scale                    2
+INFO:root:	 batchnorm                True
+INFO:root:	 dense_ae                 None
+INFO:root:	 variational              False
+INFO:root:	 vae_beta                 1.0
+INFO:root:	 image_loss_weights       [1.0, 1.0, 1.0, 1.0]
+INFO:root:	 autoencoder_adam         [0.001, 0.9, 0.999]
+INFO:root:	 adversarial              False
+INFO:root:	 discriminator_adam       (0.0004, 0, 0.9)
+INFO:root:	 lambda_disc              0.001
+INFO:root:	 lambda_gradient_penalty  10
+INFO:root:	 perceptual               False
+INFO:root:	 lambda_per               1.0
+INFO:root:	 display_imgs             10
+INFO:root:	 red_bands                [1, 4, 5, 6]
+INFO:root:	 green_bands              [0]
+INFO:root:	 blue_bands               [2, 3]
+INFO:root:	 no_grad_histogram        False
+INFO:root:2 Building dataset...
+INFO:root:0 Building dataset...
+INFO:root:1 Building dataset...
+INFO:root:3 Building dataset...
+WARNING:tensorflow:From /home/rlourenco/rdcep_clouds/reproduction/pipeline/load.py:152: batch_and_drop_remainder (from tensorflow.contrib.data.python.ops.batching) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use `tf.data.Dataset.batch(..., drop_remainder=True)`.
+WARNING:tensorflow:From /home/rlourenco/rdcep_clouds/reproduction/pipeline/load.py:152: batch_and_drop_remainder (from tensorflow.contrib.data.python.ops.batching) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use `tf.data.Dataset.batch(..., drop_remainder=True)`.
+WARNING:tensorflow:From /home/rlourenco/rdcep_clouds/reproduction/pipeline/load.py:152: batch_and_drop_remainder (from tensorflow.contrib.data.python.ops.batching) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use `tf.data.Dataset.batch(..., drop_remainder=True)`.
+WARNING:tensorflow:From /home/rlourenco/rdcep_clouds/reproduction/pipeline/load.py:152: batch_and_drop_remainder (from tensorflow.contrib.data.python.ops.batching) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use `tf.data.Dataset.batch(..., drop_remainder=True)`.
+WARNING:tensorflow:From /home/rlourenco/rdcep_clouds/reproduction/pipeline/load.py:152: batch_and_drop_remainder (from tensorflow.contrib.data.python.ops.batching) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use `tf.data.Dataset.batch(..., drop_remainder=True)`.
+WARNING:tensorflow:From /home/rlourenco/rdcep_clouds/reproduction/pipeline/load.py:152: batch_and_drop_remainder (from tensorflow.contrib.data.python.ops.batching) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use `tf.data.Dataset.batch(..., drop_remainder=True)`.
+WARNING:tensorflow:From /home/rlourenco/rdcep_clouds/reproduction/pipeline/load.py:152: batch_and_drop_remainder (from tensorflow.contrib.data.python.ops.batching) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use `tf.data.Dataset.batch(..., drop_remainder=True)`.
+WARNING:tensorflow:From /home/rlourenco/rdcep_clouds/reproduction/pipeline/load.py:152: batch_and_drop_remainder (from tensorflow.contrib.data.python.ops.batching) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use `tf.data.Dataset.batch(..., drop_remainder=True)`.
+INFO:root:Defining New encoder and decoder.
+INFO:root:Defining New encoder and decoder.
+INFO:root:Defining New encoder and decoder.
+INFO:root:Defining New encoder and decoder.
+INFO:tensorflow:Summary name autoencoder/conv2d/kernel:0/histogram is illegal; using autoencoder/conv2d/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/conv2d/kernel:0/histogram is illegal; using autoencoder/conv2d/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/conv2d/bias:0/histogram is illegal; using autoencoder/conv2d/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/conv2d/bias:0/histogram is illegal; using autoencoder/conv2d/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_1/kernel:0/histogram is illegal; using autoencoder/encoding_0/conv2d_1/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_1/kernel:0/histogram is illegal; using autoencoder/encoding_0/conv2d_1/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_1/bias:0/histogram is illegal; using autoencoder/encoding_0/conv2d_1/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_1/bias:0/histogram is illegal; using autoencoder/encoding_0/conv2d_1/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_2/kernel:0/histogram is illegal; using autoencoder/encoding_0/conv2d_2/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_2/kernel:0/histogram is illegal; using autoencoder/encoding_0/conv2d_2/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/conv2d/kernel:0/histogram is illegal; using autoencoder/conv2d/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/conv2d/kernel:0/histogram is illegal; using autoencoder/conv2d/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_2/bias:0/histogram is illegal; using autoencoder/encoding_0/conv2d_2/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_2/bias:0/histogram is illegal; using autoencoder/encoding_0/conv2d_2/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/conv2d/bias:0/histogram is illegal; using autoencoder/conv2d/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/conv2d/bias:0/histogram is illegal; using autoencoder/conv2d/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/batch_normalization/gamma:0/histogram is illegal; using autoencoder/encoding_0/batch_normalization/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/batch_normalization/gamma:0/histogram is illegal; using autoencoder/encoding_0/batch_normalization/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_1/kernel:0/histogram is illegal; using autoencoder/encoding_0/conv2d_1/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/batch_normalization/beta:0/histogram is illegal; using autoencoder/encoding_0/batch_normalization/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/batch_normalization/beta:0/histogram is illegal; using autoencoder/encoding_0/batch_normalization/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_3/kernel:0/histogram is illegal; using autoencoder/encoding_1/conv2d_3/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_3/kernel:0/histogram is illegal; using autoencoder/encoding_1/conv2d_3/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_3/bias:0/histogram is illegal; using autoencoder/encoding_1/conv2d_3/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_3/bias:0/histogram is illegal; using autoencoder/encoding_1/conv2d_3/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_1/kernel:0/histogram is illegal; using autoencoder/encoding_0/conv2d_1/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_4/kernel:0/histogram is illegal; using autoencoder/encoding_1/conv2d_4/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_1/bias:0/histogram is illegal; using autoencoder/encoding_0/conv2d_1/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_1/bias:0/histogram is illegal; using autoencoder/encoding_0/conv2d_1/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_2/kernel:0/histogram is illegal; using autoencoder/encoding_0/conv2d_2/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_2/kernel:0/histogram is illegal; using autoencoder/encoding_0/conv2d_2/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_2/bias:0/histogram is illegal; using autoencoder/encoding_0/conv2d_2/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_2/bias:0/histogram is illegal; using autoencoder/encoding_0/conv2d_2/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/batch_normalization/gamma:0/histogram is illegal; using autoencoder/encoding_0/batch_normalization/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/batch_normalization/gamma:0/histogram is illegal; using autoencoder/encoding_0/batch_normalization/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_4/kernel:0/histogram is illegal; using autoencoder/encoding_1/conv2d_4/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/batch_normalization/beta:0/histogram is illegal; using autoencoder/encoding_0/batch_normalization/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_4/bias:0/histogram is illegal; using autoencoder/encoding_1/conv2d_4/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/batch_normalization/beta:0/histogram is illegal; using autoencoder/encoding_0/batch_normalization/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_4/bias:0/histogram is illegal; using autoencoder/encoding_1/conv2d_4/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_3/kernel:0/histogram is illegal; using autoencoder/encoding_1/conv2d_3/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_3/kernel:0/histogram is illegal; using autoencoder/encoding_1/conv2d_3/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/batch_normalization_1/gamma:0/histogram is illegal; using autoencoder/encoding_1/batch_normalization_1/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/batch_normalization_1/gamma:0/histogram is illegal; using autoencoder/encoding_1/batch_normalization_1/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_3/bias:0/histogram is illegal; using autoencoder/encoding_1/conv2d_3/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_3/bias:0/histogram is illegal; using autoencoder/encoding_1/conv2d_3/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/batch_normalization_1/beta:0/histogram is illegal; using autoencoder/encoding_1/batch_normalization_1/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/batch_normalization_1/beta:0/histogram is illegal; using autoencoder/encoding_1/batch_normalization_1/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_4/kernel:0/histogram is illegal; using autoencoder/encoding_1/conv2d_4/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_5/kernel:0/histogram is illegal; using autoencoder/encoding_2/conv2d_5/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_5/kernel:0/histogram is illegal; using autoencoder/encoding_2/conv2d_5/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_5/bias:0/histogram is illegal; using autoencoder/encoding_2/conv2d_5/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_5/bias:0/histogram is illegal; using autoencoder/encoding_2/conv2d_5/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_6/kernel:0/histogram is illegal; using autoencoder/encoding_2/conv2d_6/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_6/kernel:0/histogram is illegal; using autoencoder/encoding_2/conv2d_6/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_6/bias:0/histogram is illegal; using autoencoder/encoding_2/conv2d_6/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_6/bias:0/histogram is illegal; using autoencoder/encoding_2/conv2d_6/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/batch_normalization_2/gamma:0/histogram is illegal; using autoencoder/encoding_2/batch_normalization_2/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_4/kernel:0/histogram is illegal; using autoencoder/encoding_1/conv2d_4/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_4/bias:0/histogram is illegal; using autoencoder/encoding_1/conv2d_4/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_4/bias:0/histogram is illegal; using autoencoder/encoding_1/conv2d_4/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/batch_normalization_1/gamma:0/histogram is illegal; using autoencoder/encoding_1/batch_normalization_1/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/batch_normalization_1/gamma:0/histogram is illegal; using autoencoder/encoding_1/batch_normalization_1/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/batch_normalization_1/beta:0/histogram is illegal; using autoencoder/encoding_1/batch_normalization_1/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/batch_normalization_1/beta:0/histogram is illegal; using autoencoder/encoding_1/batch_normalization_1/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_5/kernel:0/histogram is illegal; using autoencoder/encoding_2/conv2d_5/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_5/kernel:0/histogram is illegal; using autoencoder/encoding_2/conv2d_5/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_5/bias:0/histogram is illegal; using autoencoder/encoding_2/conv2d_5/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_5/bias:0/histogram is illegal; using autoencoder/encoding_2/conv2d_5/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_6/kernel:0/histogram is illegal; using autoencoder/encoding_2/conv2d_6/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/batch_normalization_2/gamma:0/histogram is illegal; using autoencoder/encoding_2/batch_normalization_2/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_6/kernel:0/histogram is illegal; using autoencoder/encoding_2/conv2d_6/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_6/bias:0/histogram is illegal; using autoencoder/encoding_2/conv2d_6/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/batch_normalization_2/beta:0/histogram is illegal; using autoencoder/encoding_2/batch_normalization_2/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_6/bias:0/histogram is illegal; using autoencoder/encoding_2/conv2d_6/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/batch_normalization_2/beta:0/histogram is illegal; using autoencoder/encoding_2/batch_normalization_2/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/batch_normalization_2/gamma:0/histogram is illegal; using autoencoder/encoding_2/batch_normalization_2/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_7/kernel:0/histogram is illegal; using autoencoder/encoding_3/conv2d_7/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_7/kernel:0/histogram is illegal; using autoencoder/encoding_3/conv2d_7/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_7/bias:0/histogram is illegal; using autoencoder/encoding_3/conv2d_7/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_7/bias:0/histogram is illegal; using autoencoder/encoding_3/conv2d_7/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_8/kernel:0/histogram is illegal; using autoencoder/encoding_3/conv2d_8/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_8/kernel:0/histogram is illegal; using autoencoder/encoding_3/conv2d_8/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_8/bias:0/histogram is illegal; using autoencoder/encoding_3/conv2d_8/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_8/bias:0/histogram is illegal; using autoencoder/encoding_3/conv2d_8/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/batch_normalization_3/gamma:0/histogram is illegal; using autoencoder/encoding_3/batch_normalization_3/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/batch_normalization_3/gamma:0/histogram is illegal; using autoencoder/encoding_3/batch_normalization_3/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/batch_normalization_3/beta:0/histogram is illegal; using autoencoder/encoding_3/batch_normalization_3/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/batch_normalization_3/beta:0/histogram is illegal; using autoencoder/encoding_3/batch_normalization_3/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_transpose/kernel:0/histogram is illegal; using autoencoder/decoding_0/conv2d_transpose/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_transpose/kernel:0/histogram is illegal; using autoencoder/decoding_0/conv2d_transpose/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_transpose/bias:0/histogram is illegal; using autoencoder/decoding_0/conv2d_transpose/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/batch_normalization_2/gamma:0/histogram is illegal; using autoencoder/encoding_2/batch_normalization_2/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/batch_normalization_2/beta:0/histogram is illegal; using autoencoder/encoding_2/batch_normalization_2/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/batch_normalization_2/beta:0/histogram is illegal; using autoencoder/encoding_2/batch_normalization_2/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_7/kernel:0/histogram is illegal; using autoencoder/encoding_3/conv2d_7/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_7/kernel:0/histogram is illegal; using autoencoder/encoding_3/conv2d_7/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_7/bias:0/histogram is illegal; using autoencoder/encoding_3/conv2d_7/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_7/bias:0/histogram is illegal; using autoencoder/encoding_3/conv2d_7/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_8/kernel:0/histogram is illegal; using autoencoder/encoding_3/conv2d_8/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_8/kernel:0/histogram is illegal; using autoencoder/encoding_3/conv2d_8/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_8/bias:0/histogram is illegal; using autoencoder/encoding_3/conv2d_8/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_8/bias:0/histogram is illegal; using autoencoder/encoding_3/conv2d_8/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/batch_normalization_3/gamma:0/histogram is illegal; using autoencoder/encoding_3/batch_normalization_3/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/batch_normalization_3/gamma:0/histogram is illegal; using autoencoder/encoding_3/batch_normalization_3/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/batch_normalization_3/beta:0/histogram is illegal; using autoencoder/encoding_3/batch_normalization_3/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/batch_normalization_3/beta:0/histogram is illegal; using autoencoder/encoding_3/batch_normalization_3/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_transpose/bias:0/histogram is illegal; using autoencoder/decoding_0/conv2d_transpose/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_9/kernel:0/histogram is illegal; using autoencoder/decoding_0/conv2d_9/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_9/kernel:0/histogram is illegal; using autoencoder/decoding_0/conv2d_9/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_9/bias:0/histogram is illegal; using autoencoder/decoding_0/conv2d_9/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_9/bias:0/histogram is illegal; using autoencoder/decoding_0/conv2d_9/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/batch_normalization_4/gamma:0/histogram is illegal; using autoencoder/decoding_0/batch_normalization_4/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/batch_normalization_4/gamma:0/histogram is illegal; using autoencoder/decoding_0/batch_normalization_4/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/batch_normalization_4/beta:0/histogram is illegal; using autoencoder/decoding_0/batch_normalization_4/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/batch_normalization_4/beta:0/histogram is illegal; using autoencoder/decoding_0/batch_normalization_4/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_transpose_1/kernel:0/histogram is illegal; using autoencoder/decoding_1/conv2d_transpose_1/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_transpose_1/kernel:0/histogram is illegal; using autoencoder/decoding_1/conv2d_transpose_1/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_transpose_1/bias:0/histogram is illegal; using autoencoder/decoding_1/conv2d_transpose_1/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_transpose_1/bias:0/histogram is illegal; using autoencoder/decoding_1/conv2d_transpose_1/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_10/kernel:0/histogram is illegal; using autoencoder/decoding_1/conv2d_10/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_10/kernel:0/histogram is illegal; using autoencoder/decoding_1/conv2d_10/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_10/bias:0/histogram is illegal; using autoencoder/decoding_1/conv2d_10/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_10/bias:0/histogram is illegal; using autoencoder/decoding_1/conv2d_10/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/batch_normalization_5/gamma:0/histogram is illegal; using autoencoder/decoding_1/batch_normalization_5/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_transpose/kernel:0/histogram is illegal; using autoencoder/decoding_0/conv2d_transpose/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_transpose/kernel:0/histogram is illegal; using autoencoder/decoding_0/conv2d_transpose/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_transpose/bias:0/histogram is illegal; using autoencoder/decoding_0/conv2d_transpose/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_transpose/bias:0/histogram is illegal; using autoencoder/decoding_0/conv2d_transpose/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_9/kernel:0/histogram is illegal; using autoencoder/decoding_0/conv2d_9/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_9/kernel:0/histogram is illegal; using autoencoder/decoding_0/conv2d_9/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_9/bias:0/histogram is illegal; using autoencoder/decoding_0/conv2d_9/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_9/bias:0/histogram is illegal; using autoencoder/decoding_0/conv2d_9/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/batch_normalization_4/gamma:0/histogram is illegal; using autoencoder/decoding_0/batch_normalization_4/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/batch_normalization_4/gamma:0/histogram is illegal; using autoencoder/decoding_0/batch_normalization_4/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/batch_normalization_4/beta:0/histogram is illegal; using autoencoder/decoding_0/batch_normalization_4/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/batch_normalization_4/beta:0/histogram is illegal; using autoencoder/decoding_0/batch_normalization_4/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_transpose_1/kernel:0/histogram is illegal; using autoencoder/decoding_1/conv2d_transpose_1/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_transpose_1/kernel:0/histogram is illegal; using autoencoder/decoding_1/conv2d_transpose_1/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_transpose_1/bias:0/histogram is illegal; using autoencoder/decoding_1/conv2d_transpose_1/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_transpose_1/bias:0/histogram is illegal; using autoencoder/decoding_1/conv2d_transpose_1/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/batch_normalization_5/gamma:0/histogram is illegal; using autoencoder/decoding_1/batch_normalization_5/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_10/kernel:0/histogram is illegal; using autoencoder/decoding_1/conv2d_10/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_10/kernel:0/histogram is illegal; using autoencoder/decoding_1/conv2d_10/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/batch_normalization_5/beta:0/histogram is illegal; using autoencoder/decoding_1/batch_normalization_5/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/batch_normalization_5/beta:0/histogram is illegal; using autoencoder/decoding_1/batch_normalization_5/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_10/bias:0/histogram is illegal; using autoencoder/decoding_1/conv2d_10/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_10/bias:0/histogram is illegal; using autoencoder/decoding_1/conv2d_10/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_transpose_2/kernel:0/histogram is illegal; using autoencoder/decoding_2/conv2d_transpose_2/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_transpose_2/kernel:0/histogram is illegal; using autoencoder/decoding_2/conv2d_transpose_2/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/batch_normalization_5/gamma:0/histogram is illegal; using autoencoder/decoding_1/batch_normalization_5/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_transpose_2/bias:0/histogram is illegal; using autoencoder/decoding_2/conv2d_transpose_2/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_transpose_2/bias:0/histogram is illegal; using autoencoder/decoding_2/conv2d_transpose_2/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_11/kernel:0/histogram is illegal; using autoencoder/decoding_2/conv2d_11/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_11/kernel:0/histogram is illegal; using autoencoder/decoding_2/conv2d_11/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_11/bias:0/histogram is illegal; using autoencoder/decoding_2/conv2d_11/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_11/bias:0/histogram is illegal; using autoencoder/decoding_2/conv2d_11/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/batch_normalization_6/gamma:0/histogram is illegal; using autoencoder/decoding_2/batch_normalization_6/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/batch_normalization_6/gamma:0/histogram is illegal; using autoencoder/decoding_2/batch_normalization_6/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/batch_normalization_6/beta:0/histogram is illegal; using autoencoder/decoding_2/batch_normalization_6/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/batch_normalization_6/beta:0/histogram is illegal; using autoencoder/decoding_2/batch_normalization_6/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_transpose_3/kernel:0/histogram is illegal; using autoencoder/decoding_3/conv2d_transpose_3/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_transpose_3/kernel:0/histogram is illegal; using autoencoder/decoding_3/conv2d_transpose_3/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/batch_normalization_5/gamma:0/histogram is illegal; using autoencoder/decoding_1/batch_normalization_5/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/batch_normalization_5/beta:0/histogram is illegal; using autoencoder/decoding_1/batch_normalization_5/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/batch_normalization_5/beta:0/histogram is illegal; using autoencoder/decoding_1/batch_normalization_5/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_transpose_2/kernel:0/histogram is illegal; using autoencoder/decoding_2/conv2d_transpose_2/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_transpose_2/kernel:0/histogram is illegal; using autoencoder/decoding_2/conv2d_transpose_2/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_transpose_2/bias:0/histogram is illegal; using autoencoder/decoding_2/conv2d_transpose_2/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_transpose_2/bias:0/histogram is illegal; using autoencoder/decoding_2/conv2d_transpose_2/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_11/kernel:0/histogram is illegal; using autoencoder/decoding_2/conv2d_11/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_11/kernel:0/histogram is illegal; using autoencoder/decoding_2/conv2d_11/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_11/bias:0/histogram is illegal; using autoencoder/decoding_2/conv2d_11/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_11/bias:0/histogram is illegal; using autoencoder/decoding_2/conv2d_11/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/batch_normalization_6/gamma:0/histogram is illegal; using autoencoder/decoding_2/batch_normalization_6/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/batch_normalization_6/gamma:0/histogram is illegal; using autoencoder/decoding_2/batch_normalization_6/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/conv2d/kernel:0/histogram is illegal; using autoencoder/conv2d/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/batch_normalization_6/beta:0/histogram is illegal; using autoencoder/decoding_2/batch_normalization_6/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/batch_normalization_6/beta:0/histogram is illegal; using autoencoder/decoding_2/batch_normalization_6/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_transpose_3/bias:0/histogram is illegal; using autoencoder/decoding_3/conv2d_transpose_3/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_transpose_3/bias:0/histogram is illegal; using autoencoder/decoding_3/conv2d_transpose_3/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/conv2d/kernel:0/histogram is illegal; using autoencoder/conv2d/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/conv2d/kernel:0/histogram is illegal; using autoencoder/conv2d/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_12/kernel:0/histogram is illegal; using autoencoder/decoding_3/conv2d_12/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_12/kernel:0/histogram is illegal; using autoencoder/decoding_3/conv2d_12/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/conv2d/bias:0/histogram is illegal; using autoencoder/conv2d/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/conv2d/kernel:0/histogram is illegal; using autoencoder/conv2d/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_12/bias:0/histogram is illegal; using autoencoder/decoding_3/conv2d_12/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_12/bias:0/histogram is illegal; using autoencoder/decoding_3/conv2d_12/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/batch_normalization_7/gamma:0/histogram is illegal; using autoencoder/decoding_3/batch_normalization_7/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/batch_normalization_7/gamma:0/histogram is illegal; using autoencoder/decoding_3/batch_normalization_7/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/conv2d/bias:0/histogram is illegal; using autoencoder/conv2d/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/conv2d/bias:0/histogram is illegal; using autoencoder/conv2d/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/batch_normalization_7/beta:0/histogram is illegal; using autoencoder/decoding_3/batch_normalization_7/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/batch_normalization_7/beta:0/histogram is illegal; using autoencoder/decoding_3/batch_normalization_7/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_1/kernel:0/histogram is illegal; using autoencoder/encoding_0/conv2d_1/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/conv2d/bias:0/histogram is illegal; using autoencoder/conv2d/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/reconstructed/kernel:0/histogram is illegal; using autoencoder/reconstructed/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/reconstructed/kernel:0/histogram is illegal; using autoencoder/reconstructed/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_1/kernel:0/histogram is illegal; using autoencoder/encoding_0/conv2d_1/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_1/kernel:0/histogram is illegal; using autoencoder/encoding_0/conv2d_1/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/reconstructed/bias:0/histogram is illegal; using autoencoder/reconstructed/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/reconstructed/bias:0/histogram is illegal; using autoencoder/reconstructed/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_1/bias:0/histogram is illegal; using autoencoder/encoding_0/conv2d_1/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_1/kernel:0/histogram is illegal; using autoencoder/encoding_0/conv2d_1/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_1/bias:0/histogram is illegal; using autoencoder/encoding_0/conv2d_1/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_1/bias:0/histogram is illegal; using autoencoder/encoding_0/conv2d_1/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_2/kernel:0/histogram is illegal; using autoencoder/encoding_0/conv2d_2/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_1/bias:0/histogram is illegal; using autoencoder/encoding_0/conv2d_1/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_transpose_3/kernel:0/histogram is illegal; using autoencoder/decoding_3/conv2d_transpose_3/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_transpose_3/kernel:0/histogram is illegal; using autoencoder/decoding_3/conv2d_transpose_3/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_2/kernel:0/histogram is illegal; using autoencoder/encoding_0/conv2d_2/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_2/kernel:0/histogram is illegal; using autoencoder/encoding_0/conv2d_2/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_transpose_3/bias:0/histogram is illegal; using autoencoder/decoding_3/conv2d_transpose_3/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_transpose_3/bias:0/histogram is illegal; using autoencoder/decoding_3/conv2d_transpose_3/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_2/bias:0/histogram is illegal; using autoencoder/encoding_0/conv2d_2/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_2/bias:0/histogram is illegal; using autoencoder/encoding_0/conv2d_2/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_12/kernel:0/histogram is illegal; using autoencoder/decoding_3/conv2d_12/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_12/kernel:0/histogram is illegal; using autoencoder/decoding_3/conv2d_12/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/batch_normalization/gamma:0/histogram is illegal; using autoencoder/encoding_0/batch_normalization/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_2/kernel:0/histogram is illegal; using autoencoder/encoding_0/conv2d_2/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_12/bias:0/histogram is illegal; using autoencoder/decoding_3/conv2d_12/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_12/bias:0/histogram is illegal; using autoencoder/decoding_3/conv2d_12/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_2/bias:0/histogram is illegal; using autoencoder/encoding_0/conv2d_2/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/batch_normalization/gamma:0/histogram is illegal; using autoencoder/encoding_0/batch_normalization/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/batch_normalization_7/gamma:0/histogram is illegal; using autoencoder/decoding_3/batch_normalization_7/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/batch_normalization_7/gamma:0/histogram is illegal; using autoencoder/decoding_3/batch_normalization_7/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/batch_normalization/beta:0/histogram is illegal; using autoencoder/encoding_0/batch_normalization/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/conv2d_2/bias:0/histogram is illegal; using autoencoder/encoding_0/conv2d_2/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/batch_normalization_7/beta:0/histogram is illegal; using autoencoder/decoding_3/batch_normalization_7/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/batch_normalization_7/beta:0/histogram is illegal; using autoencoder/decoding_3/batch_normalization_7/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/batch_normalization/gamma:0/histogram is illegal; using autoencoder/encoding_0/batch_normalization/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/batch_normalization/beta:0/histogram is illegal; using autoencoder/encoding_0/batch_normalization/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/reconstructed/kernel:0/histogram is illegal; using autoencoder/reconstructed/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/reconstructed/kernel:0/histogram is illegal; using autoencoder/reconstructed/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_3/kernel:0/histogram is illegal; using autoencoder/encoding_1/conv2d_3/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/batch_normalization/gamma:0/histogram is illegal; using autoencoder/encoding_0/batch_normalization/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/reconstructed/bias:0/histogram is illegal; using autoencoder/reconstructed/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/reconstructed/bias:0/histogram is illegal; using autoencoder/reconstructed/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/batch_normalization/beta:0/histogram is illegal; using autoencoder/encoding_0/batch_normalization/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_3/kernel:0/histogram is illegal; using autoencoder/encoding_1/conv2d_3/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_0/batch_normalization/beta:0/histogram is illegal; using autoencoder/encoding_0/batch_normalization/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_3/kernel:0/histogram is illegal; using autoencoder/encoding_1/conv2d_3/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_3/bias:0/histogram is illegal; using autoencoder/encoding_1/conv2d_3/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_3/bias:0/histogram is illegal; using autoencoder/encoding_1/conv2d_3/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_4/kernel:0/histogram is illegal; using autoencoder/encoding_1/conv2d_4/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_3/kernel:0/histogram is illegal; using autoencoder/encoding_1/conv2d_3/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_3/bias:0/histogram is illegal; using autoencoder/encoding_1/conv2d_3/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_4/kernel:0/histogram is illegal; using autoencoder/encoding_1/conv2d_4/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_4/bias:0/histogram is illegal; using autoencoder/encoding_1/conv2d_4/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_3/bias:0/histogram is illegal; using autoencoder/encoding_1/conv2d_3/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_4/kernel:0/histogram is illegal; using autoencoder/encoding_1/conv2d_4/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_4/bias:0/histogram is illegal; using autoencoder/encoding_1/conv2d_4/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/batch_normalization_1/gamma:0/histogram is illegal; using autoencoder/encoding_1/batch_normalization_1/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_4/kernel:0/histogram is illegal; using autoencoder/encoding_1/conv2d_4/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_4/bias:0/histogram is illegal; using autoencoder/encoding_1/conv2d_4/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/batch_normalization_1/gamma:0/histogram is illegal; using autoencoder/encoding_1/batch_normalization_1/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/conv2d_4/bias:0/histogram is illegal; using autoencoder/encoding_1/conv2d_4/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/batch_normalization_1/gamma:0/histogram is illegal; using autoencoder/encoding_1/batch_normalization_1/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/batch_normalization_1/beta:0/histogram is illegal; using autoencoder/encoding_1/batch_normalization_1/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/batch_normalization_1/beta:0/histogram is illegal; using autoencoder/encoding_1/batch_normalization_1/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_5/kernel:0/histogram is illegal; using autoencoder/encoding_2/conv2d_5/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/batch_normalization_1/gamma:0/histogram is illegal; using autoencoder/encoding_1/batch_normalization_1/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/batch_normalization_1/beta:0/histogram is illegal; using autoencoder/encoding_1/batch_normalization_1/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_5/kernel:0/histogram is illegal; using autoencoder/encoding_2/conv2d_5/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_5/bias:0/histogram is illegal; using autoencoder/encoding_2/conv2d_5/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_1/batch_normalization_1/beta:0/histogram is illegal; using autoencoder/encoding_1/batch_normalization_1/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_5/kernel:0/histogram is illegal; using autoencoder/encoding_2/conv2d_5/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_5/bias:0/histogram is illegal; using autoencoder/encoding_2/conv2d_5/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_6/kernel:0/histogram is illegal; using autoencoder/encoding_2/conv2d_6/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_5/kernel:0/histogram is illegal; using autoencoder/encoding_2/conv2d_5/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_5/bias:0/histogram is illegal; using autoencoder/encoding_2/conv2d_5/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_6/kernel:0/histogram is illegal; using autoencoder/encoding_2/conv2d_6/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_6/bias:0/histogram is illegal; using autoencoder/encoding_2/conv2d_6/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_5/bias:0/histogram is illegal; using autoencoder/encoding_2/conv2d_5/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_6/kernel:0/histogram is illegal; using autoencoder/encoding_2/conv2d_6/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_6/bias:0/histogram is illegal; using autoencoder/encoding_2/conv2d_6/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/batch_normalization_2/gamma:0/histogram is illegal; using autoencoder/encoding_2/batch_normalization_2/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_6/kernel:0/histogram is illegal; using autoencoder/encoding_2/conv2d_6/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_6/bias:0/histogram is illegal; using autoencoder/encoding_2/conv2d_6/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/batch_normalization_2/gamma:0/histogram is illegal; using autoencoder/encoding_2/batch_normalization_2/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/batch_normalization_2/beta:0/histogram is illegal; using autoencoder/encoding_2/batch_normalization_2/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/conv2d_6/bias:0/histogram is illegal; using autoencoder/encoding_2/conv2d_6/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/batch_normalization_2/gamma:0/histogram is illegal; using autoencoder/encoding_2/batch_normalization_2/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/batch_normalization_2/beta:0/histogram is illegal; using autoencoder/encoding_2/batch_normalization_2/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_7/kernel:0/histogram is illegal; using autoencoder/encoding_3/conv2d_7/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/batch_normalization_2/gamma:0/histogram is illegal; using autoencoder/encoding_2/batch_normalization_2/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/batch_normalization_2/beta:0/histogram is illegal; using autoencoder/encoding_2/batch_normalization_2/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_7/kernel:0/histogram is illegal; using autoencoder/encoding_3/conv2d_7/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_7/bias:0/histogram is illegal; using autoencoder/encoding_3/conv2d_7/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_2/batch_normalization_2/beta:0/histogram is illegal; using autoencoder/encoding_2/batch_normalization_2/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_7/kernel:0/histogram is illegal; using autoencoder/encoding_3/conv2d_7/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_7/bias:0/histogram is illegal; using autoencoder/encoding_3/conv2d_7/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_8/kernel:0/histogram is illegal; using autoencoder/encoding_3/conv2d_8/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_7/kernel:0/histogram is illegal; using autoencoder/encoding_3/conv2d_7/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_7/bias:0/histogram is illegal; using autoencoder/encoding_3/conv2d_7/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_8/kernel:0/histogram is illegal; using autoencoder/encoding_3/conv2d_8/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_8/bias:0/histogram is illegal; using autoencoder/encoding_3/conv2d_8/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_7/bias:0/histogram is illegal; using autoencoder/encoding_3/conv2d_7/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_8/kernel:0/histogram is illegal; using autoencoder/encoding_3/conv2d_8/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_8/bias:0/histogram is illegal; using autoencoder/encoding_3/conv2d_8/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/batch_normalization_3/gamma:0/histogram is illegal; using autoencoder/encoding_3/batch_normalization_3/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_8/kernel:0/histogram is illegal; using autoencoder/encoding_3/conv2d_8/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_8/bias:0/histogram is illegal; using autoencoder/encoding_3/conv2d_8/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/batch_normalization_3/gamma:0/histogram is illegal; using autoencoder/encoding_3/batch_normalization_3/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/batch_normalization_3/beta:0/histogram is illegal; using autoencoder/encoding_3/batch_normalization_3/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/conv2d_8/bias:0/histogram is illegal; using autoencoder/encoding_3/conv2d_8/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/batch_normalization_3/beta:0/histogram is illegal; using autoencoder/encoding_3/batch_normalization_3/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_transpose/kernel:0/histogram is illegal; using autoencoder/decoding_0/conv2d_transpose/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/batch_normalization_3/gamma:0/histogram is illegal; using autoencoder/encoding_3/batch_normalization_3/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/batch_normalization_3/gamma:0/histogram is illegal; using autoencoder/encoding_3/batch_normalization_3/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/batch_normalization_3/beta:0/histogram is illegal; using autoencoder/encoding_3/batch_normalization_3/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_transpose/kernel:0/histogram is illegal; using autoencoder/decoding_0/conv2d_transpose/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_transpose/bias:0/histogram is illegal; using autoencoder/decoding_0/conv2d_transpose/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/encoding_3/batch_normalization_3/beta:0/histogram is illegal; using autoencoder/encoding_3/batch_normalization_3/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_transpose/kernel:0/histogram is illegal; using autoencoder/decoding_0/conv2d_transpose/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_transpose/bias:0/histogram is illegal; using autoencoder/decoding_0/conv2d_transpose/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_9/kernel:0/histogram is illegal; using autoencoder/decoding_0/conv2d_9/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_transpose/kernel:0/histogram is illegal; using autoencoder/decoding_0/conv2d_transpose/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_transpose/bias:0/histogram is illegal; using autoencoder/decoding_0/conv2d_transpose/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_9/kernel:0/histogram is illegal; using autoencoder/decoding_0/conv2d_9/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_9/bias:0/histogram is illegal; using autoencoder/decoding_0/conv2d_9/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_transpose/bias:0/histogram is illegal; using autoencoder/decoding_0/conv2d_transpose/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_9/kernel:0/histogram is illegal; using autoencoder/decoding_0/conv2d_9/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_9/bias:0/histogram is illegal; using autoencoder/decoding_0/conv2d_9/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/batch_normalization_4/gamma:0/histogram is illegal; using autoencoder/decoding_0/batch_normalization_4/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_9/kernel:0/histogram is illegal; using autoencoder/decoding_0/conv2d_9/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_9/bias:0/histogram is illegal; using autoencoder/decoding_0/conv2d_9/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/batch_normalization_4/gamma:0/histogram is illegal; using autoencoder/decoding_0/batch_normalization_4/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/batch_normalization_4/beta:0/histogram is illegal; using autoencoder/decoding_0/batch_normalization_4/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/conv2d_9/bias:0/histogram is illegal; using autoencoder/decoding_0/conv2d_9/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/batch_normalization_4/gamma:0/histogram is illegal; using autoencoder/decoding_0/batch_normalization_4/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/batch_normalization_4/beta:0/histogram is illegal; using autoencoder/decoding_0/batch_normalization_4/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_transpose_1/kernel:0/histogram is illegal; using autoencoder/decoding_1/conv2d_transpose_1/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/batch_normalization_4/gamma:0/histogram is illegal; using autoencoder/decoding_0/batch_normalization_4/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/batch_normalization_4/beta:0/histogram is illegal; using autoencoder/decoding_0/batch_normalization_4/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_transpose_1/kernel:0/histogram is illegal; using autoencoder/decoding_1/conv2d_transpose_1/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_transpose_1/bias:0/histogram is illegal; using autoencoder/decoding_1/conv2d_transpose_1/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_0/batch_normalization_4/beta:0/histogram is illegal; using autoencoder/decoding_0/batch_normalization_4/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_transpose_1/kernel:0/histogram is illegal; using autoencoder/decoding_1/conv2d_transpose_1/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_transpose_1/bias:0/histogram is illegal; using autoencoder/decoding_1/conv2d_transpose_1/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_transpose_1/kernel:0/histogram is illegal; using autoencoder/decoding_1/conv2d_transpose_1/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_10/kernel:0/histogram is illegal; using autoencoder/decoding_1/conv2d_10/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_transpose_1/bias:0/histogram is illegal; using autoencoder/decoding_1/conv2d_transpose_1/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_10/kernel:0/histogram is illegal; using autoencoder/decoding_1/conv2d_10/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_10/bias:0/histogram is illegal; using autoencoder/decoding_1/conv2d_10/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_transpose_1/bias:0/histogram is illegal; using autoencoder/decoding_1/conv2d_transpose_1/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_10/kernel:0/histogram is illegal; using autoencoder/decoding_1/conv2d_10/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_10/bias:0/histogram is illegal; using autoencoder/decoding_1/conv2d_10/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/batch_normalization_5/gamma:0/histogram is illegal; using autoencoder/decoding_1/batch_normalization_5/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_10/kernel:0/histogram is illegal; using autoencoder/decoding_1/conv2d_10/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_10/bias:0/histogram is illegal; using autoencoder/decoding_1/conv2d_10/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/batch_normalization_5/gamma:0/histogram is illegal; using autoencoder/decoding_1/batch_normalization_5/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/batch_normalization_5/beta:0/histogram is illegal; using autoencoder/decoding_1/batch_normalization_5/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/conv2d_10/bias:0/histogram is illegal; using autoencoder/decoding_1/conv2d_10/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/batch_normalization_5/gamma:0/histogram is illegal; using autoencoder/decoding_1/batch_normalization_5/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/batch_normalization_5/beta:0/histogram is illegal; using autoencoder/decoding_1/batch_normalization_5/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/batch_normalization_5/gamma:0/histogram is illegal; using autoencoder/decoding_1/batch_normalization_5/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/batch_normalization_5/beta:0/histogram is illegal; using autoencoder/decoding_1/batch_normalization_5/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_transpose_2/kernel:0/histogram is illegal; using autoencoder/decoding_2/conv2d_transpose_2/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_transpose_2/kernel:0/histogram is illegal; using autoencoder/decoding_2/conv2d_transpose_2/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_transpose_2/bias:0/histogram is illegal; using autoencoder/decoding_2/conv2d_transpose_2/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_1/batch_normalization_5/beta:0/histogram is illegal; using autoencoder/decoding_1/batch_normalization_5/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_transpose_2/kernel:0/histogram is illegal; using autoencoder/decoding_2/conv2d_transpose_2/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_transpose_2/bias:0/histogram is illegal; using autoencoder/decoding_2/conv2d_transpose_2/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_11/kernel:0/histogram is illegal; using autoencoder/decoding_2/conv2d_11/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_transpose_2/kernel:0/histogram is illegal; using autoencoder/decoding_2/conv2d_transpose_2/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_transpose_2/bias:0/histogram is illegal; using autoencoder/decoding_2/conv2d_transpose_2/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_11/kernel:0/histogram is illegal; using autoencoder/decoding_2/conv2d_11/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_11/bias:0/histogram is illegal; using autoencoder/decoding_2/conv2d_11/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_transpose_2/bias:0/histogram is illegal; using autoencoder/decoding_2/conv2d_transpose_2/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_11/kernel:0/histogram is illegal; using autoencoder/decoding_2/conv2d_11/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_11/bias:0/histogram is illegal; using autoencoder/decoding_2/conv2d_11/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/batch_normalization_6/gamma:0/histogram is illegal; using autoencoder/decoding_2/batch_normalization_6/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_11/kernel:0/histogram is illegal; using autoencoder/decoding_2/conv2d_11/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_11/bias:0/histogram is illegal; using autoencoder/decoding_2/conv2d_11/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/batch_normalization_6/gamma:0/histogram is illegal; using autoencoder/decoding_2/batch_normalization_6/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/batch_normalization_6/beta:0/histogram is illegal; using autoencoder/decoding_2/batch_normalization_6/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/conv2d_11/bias:0/histogram is illegal; using autoencoder/decoding_2/conv2d_11/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/batch_normalization_6/gamma:0/histogram is illegal; using autoencoder/decoding_2/batch_normalization_6/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/batch_normalization_6/beta:0/histogram is illegal; using autoencoder/decoding_2/batch_normalization_6/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_transpose_3/kernel:0/histogram is illegal; using autoencoder/decoding_3/conv2d_transpose_3/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/batch_normalization_6/gamma:0/histogram is illegal; using autoencoder/decoding_2/batch_normalization_6/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/batch_normalization_6/beta:0/histogram is illegal; using autoencoder/decoding_2/batch_normalization_6/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_transpose_3/kernel:0/histogram is illegal; using autoencoder/decoding_3/conv2d_transpose_3/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_transpose_3/bias:0/histogram is illegal; using autoencoder/decoding_3/conv2d_transpose_3/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_2/batch_normalization_6/beta:0/histogram is illegal; using autoencoder/decoding_2/batch_normalization_6/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_transpose_3/kernel:0/histogram is illegal; using autoencoder/decoding_3/conv2d_transpose_3/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_transpose_3/bias:0/histogram is illegal; using autoencoder/decoding_3/conv2d_transpose_3/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_12/kernel:0/histogram is illegal; using autoencoder/decoding_3/conv2d_12/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_transpose_3/kernel:0/histogram is illegal; using autoencoder/decoding_3/conv2d_transpose_3/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_transpose_3/bias:0/histogram is illegal; using autoencoder/decoding_3/conv2d_transpose_3/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_12/kernel:0/histogram is illegal; using autoencoder/decoding_3/conv2d_12/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_12/bias:0/histogram is illegal; using autoencoder/decoding_3/conv2d_12/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_transpose_3/bias:0/histogram is illegal; using autoencoder/decoding_3/conv2d_transpose_3/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_12/kernel:0/histogram is illegal; using autoencoder/decoding_3/conv2d_12/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_12/bias:0/histogram is illegal; using autoencoder/decoding_3/conv2d_12/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/batch_normalization_7/gamma:0/histogram is illegal; using autoencoder/decoding_3/batch_normalization_7/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_12/kernel:0/histogram is illegal; using autoencoder/decoding_3/conv2d_12/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_12/bias:0/histogram is illegal; using autoencoder/decoding_3/conv2d_12/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/batch_normalization_7/gamma:0/histogram is illegal; using autoencoder/decoding_3/batch_normalization_7/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/batch_normalization_7/beta:0/histogram is illegal; using autoencoder/decoding_3/batch_normalization_7/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/conv2d_12/bias:0/histogram is illegal; using autoencoder/decoding_3/conv2d_12/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/batch_normalization_7/gamma:0/histogram is illegal; using autoencoder/decoding_3/batch_normalization_7/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/batch_normalization_7/beta:0/histogram is illegal; using autoencoder/decoding_3/batch_normalization_7/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/reconstructed/kernel:0/histogram is illegal; using autoencoder/reconstructed/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/batch_normalization_7/gamma:0/histogram is illegal; using autoencoder/decoding_3/batch_normalization_7/gamma_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/reconstructed/kernel:0/histogram is illegal; using autoencoder/reconstructed/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/reconstructed/bias:0/histogram is illegal; using autoencoder/reconstructed/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/batch_normalization_7/beta:0/histogram is illegal; using autoencoder/decoding_3/batch_normalization_7/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/decoding_3/batch_normalization_7/beta:0/histogram is illegal; using autoencoder/decoding_3/batch_normalization_7/beta_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/reconstructed/kernel:0/histogram is illegal; using autoencoder/reconstructed/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/reconstructed/bias:0/histogram is illegal; using autoencoder/reconstructed/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/reconstructed/kernel:0/histogram is illegal; using autoencoder/reconstructed/kernel_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/reconstructed/bias:0/histogram is illegal; using autoencoder/reconstructed/bias_0/histogram instead.
+INFO:tensorflow:Summary name autoencoder/reconstructed/bias:0/histogram is illegal; using autoencoder/reconstructed/bias_0/histogram instead.
+INFO:root:2 Starting Session...
+2019-02-08 13:38:54.973810: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+INFO:root:3 Starting Session...
+2019-02-08 13:38:54.998882: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+INFO:root:0 Starting Session...
+2019-02-08 13:38:55.097625: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+INFO:root:1 Starting Session...
+2019-02-08 13:38:55.123565: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2019-02-08 13:38:55.901786: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1405] Found device 0 with properties: 
+name: Tesla K80 major: 3 minor: 7 memoryClockRate(GHz): 0.8235
+pciBusID: 0000:08:00.0
+totalMemory: 11.17GiB freeMemory: 11.10GiB
+2019-02-08 13:38:55.901856: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1484] Adding visible gpu devices: 0
+2019-02-08 13:38:55.903691: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1405] Found device 0 with properties: 
+name: Tesla K80 major: 3 minor: 7 memoryClockRate(GHz): 0.8235
+pciBusID: 0000:89:00.0
+totalMemory: 11.17GiB freeMemory: 11.10GiB
+2019-02-08 13:38:55.903716: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1484] Adding visible gpu devices: 3
+2019-02-08 13:38:55.930654: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1405] Found device 0 with properties: 
+name: Tesla K80 major: 3 minor: 7 memoryClockRate(GHz): 0.8235
+pciBusID: 0000:09:00.0
+totalMemory: 11.17GiB freeMemory: 11.10GiB
+2019-02-08 13:38:55.930679: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1484] Adding visible gpu devices: 1
+2019-02-08 13:38:55.937382: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1405] Found device 0 with properties: 
+name: Tesla K80 major: 3 minor: 7 memoryClockRate(GHz): 0.8235
+pciBusID: 0000:88:00.0
+totalMemory: 11.17GiB freeMemory: 11.10GiB
+2019-02-08 13:38:55.937453: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1484] Adding visible gpu devices: 2
+2019-02-08 13:39:13.149528: I tensorflow/core/common_runtime/gpu/gpu_device.cc:965] Device interconnect StreamExecutor with strength 1 edge matrix:
+2019-02-08 13:39:13.153419: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971]      3 
+2019-02-08 13:39:13.153471: I tensorflow/core/common_runtime/gpu/gpu_device.cc:984] 3:   N 
+2019-02-08 13:39:13.155263: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1097] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 10753 MB memory) -> physical GPU (device: 3, name: Tesla K80, pci bus id: 0000:89:00.0, compute capability: 3.7)
+INFO:root:3 init profiler and broadcast global variables
+2019-02-08 13:39:13.173775: I tensorflow/core/common_runtime/gpu/gpu_device.cc:965] Device interconnect StreamExecutor with strength 1 edge matrix:
+2019-02-08 13:39:13.173840: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971]      0 
+2019-02-08 13:39:13.173876: I tensorflow/core/common_runtime/gpu/gpu_device.cc:984] 0:   N 
+2019-02-08 13:39:13.174215: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1097] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 10753 MB memory) -> physical GPU (device: 0, name: Tesla K80, pci bus id: 0000:08:00.0, compute capability: 3.7)
+INFO:root:0 init profiler and broadcast global variables
+2019-02-08 13:39:13.317477: I tensorflow/core/common_runtime/gpu/gpu_device.cc:965] Device interconnect StreamExecutor with strength 1 edge matrix:
+2019-02-08 13:39:13.317602: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971]      1 
+2019-02-08 13:39:13.317648: I tensorflow/core/common_runtime/gpu/gpu_device.cc:984] 1:   N 
+2019-02-08 13:39:13.318078: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1097] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 10753 MB memory) -> physical GPU (device: 1, name: Tesla K80, pci bus id: 0000:09:00.0, compute capability: 3.7)
+INFO:root:1 init profiler and broadcast global variables
+2019-02-08 13:39:13.363617: I tensorflow/core/common_runtime/gpu/gpu_device.cc:965] Device interconnect StreamExecutor with strength 1 edge matrix:
+2019-02-08 13:39:13.363651: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971]      2 
+2019-02-08 13:39:13.363673: I tensorflow/core/common_runtime/gpu/gpu_device.cc:984] 2:   N 
+2019-02-08 13:39:13.363975: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1097] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 10753 MB memory) -> physical GPU (device: 2, name: Tesla K80, pci bus id: 0000:88:00.0, compute capability: 3.7)
+INFO:root:2 init profiler and broadcast global variables
+2019-02-08 13:39:26.306505: I tensorflow/stream_executor/dso_loader.cc:151] successfully opened CUDA library libcupti.so.9.0 locally
+2019-02-08 13:39:26.412872: I tensorflow/stream_executor/dso_loader.cc:151] successfully opened CUDA library libcupti.so.9.0 locally
+2019-02-08 13:39:26.662701: I tensorflow/stream_executor/dso_loader.cc:151] successfully opened CUDA library libcupti.so.9.0 locally
+2019-02-08 13:39:26.669354: I tensorflow/stream_executor/dso_loader.cc:151] successfully opened CUDA library libcupti.so.9.0 locally
+337 ops no flops stats due to incomplete shapes.
+INFO:root:2 Loading model weights
+INFO:root:no weights for encoder in /project/foster/clouds/output/m9_24_rl_2016_01/
+337 ops no flops stats due to incomplete shapes.
+INFO:root:0 Loading model weights
+INFO:root:no weights for encoder in /project/foster/clouds/output/m9_24_rl_2016_01/
+337 ops no flops stats due to incomplete shapes.
+INFO:root:1 Loading model weights
+INFO:root:no weights for encoder in /project/foster/clouds/output/m9_24_rl_2016_01/
+337 ops no flops stats due to incomplete shapes.
+INFO:root:3 Loading model weights
+INFO:root:no weights for encoder in /project/foster/clouds/output/m9_24_rl_2016_01/
+INFO:root:no weights for decoder in /project/foster/clouds/output/m9_24_rl_2016_01/
+INFO:root:no weights for decoder in /project/foster/clouds/output/m9_24_rl_2016_01/
+INFO:root:no weights for decoder in /project/foster/clouds/output/m9_24_rl_2016_01/
+INFO:root:no weights for decoder in /project/foster/clouds/output/m9_24_rl_2016_01/
+INFO:root:2 Entering training loop
+INFO:root:0 Entering training loop
+INFO:root:1 Entering training loop
+INFO:root:3 Entering training loop
+2019-02-08 13:40:08.605662: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.632740: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.633411: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.633483: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.650214: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.677464: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.704298: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.704747: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.704778: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.713294: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.721772: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.739852: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.740293: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.740387: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.757268: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.763499: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.763859: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.794608: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.795149: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.795226: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.804210: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.835301: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.835612: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.866507: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.866892: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.866907: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.869865: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.869995: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.870239: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.870367: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.876146: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.889597: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.890149: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.890162: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.894915: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.900823: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.901231: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.901231: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.910351: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.940964: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.941303: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.941641: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.941983: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.955427: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.955846: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.955925: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.958533: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.961519: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.961951: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.962045: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.966821: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.975431: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.975747: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.990433: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.990693: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.995035: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.995441: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.995441: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.998979: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.999483: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:08.999565: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.000314: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.000489: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.013084: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.013427: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.015388: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.015663: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.020088: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.020570: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.020571: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.021981: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.027573: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.027964: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.028039: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.030653: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.036612: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.036904: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.042876: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.043309: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.043310: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.046142: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.046104: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.046464: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.060727: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.061110: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.061191: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.062711: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.062952: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.063902: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.068692: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.068992: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.071311: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.071732: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.071810: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.072820: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.078307: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.078713: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.078716: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.084518: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.087613: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.087915: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.092367: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.092756: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.092756: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.094246: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.095661: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.095884: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.104129: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.104549: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.104553: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.105652: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.108904: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.109194: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.115162: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.115628: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.115702: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.118379: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.120342: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.120651: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.123313: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.123609: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.125076: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.125454: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.125528: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.126860: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.140939: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.141297: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.141222: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.141746: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.147548: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.147947: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.148021: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.150594: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.150756: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.151062: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.151146: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.156774: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.158005: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.158297: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.173116: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.173444: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.182723: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.183116: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.183122: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.188914: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.195661: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.195893: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.206614: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.227511: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.227761: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.230341: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.230558: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.262000: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.262161: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.279005: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+2019-02-08 13:40:09.310495: W tensorflow/core/framework/op_kernel.cc:1275] OP_REQUIRES failed at mpi_ops.cc:298 : Aborted: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+Traceback (most recent call last):
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1278, in _do_call
+    return fn(*args)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1263, in _run_fn
+    options, feed_dict, fetch_list, target_list, run_metadata)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1350, in _call_tf_sessionrun
+    run_metadata)
+tensorflow.python.framework.errors_impl.AbortedError: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+	 [[Node: grad_info/DistributedAdamOptimizer_Allreduce/HorovodAllreduce_grad_info_gradients_decoder_reconstructed_BiasAdd_grad_tuple_control_dependency_1_0 = HorovodAllreduce[T=DT_FLOAT, _device="/job:localhost/replica:0/task:0/device:GPU:0"](grad_info/gradients/decoder/reconstructed/BiasAdd_grad/BiasAddGrad)]]
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/rlourenco/rdcep_clouds/reproduction/train.py", line 567, in <module>
+    [global_step, train_ops], options=run_opts, run_metadata=run_metadata
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 877, in run
+    run_metadata_ptr)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1100, in _run
+    feed_dict_tensor, options, run_metadata)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1272, in _do_run
+    run_metadata)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1291, in _do_call
+    raise type(e)(node_def, op, message)
+tensorflow.python.framework.errors_impl.AbortedError: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+	 [[Node: grad_info/DistributedAdamOptimizer_Allreduce/HorovodAllreduce_grad_info_gradients_decoder_reconstructed_BiasAdd_grad_tuple_control_dependency_1_0 = HorovodAllreduce[T=DT_FLOAT, _device="/job:localhost/replica:0/task:0/device:GPU:0"](grad_info/gradients/decoder/reconstructed/BiasAdd_grad/BiasAddGrad)]]
+
+Caused by op 'grad_info/DistributedAdamOptimizer_Allreduce/HorovodAllreduce_grad_info_gradients_decoder_reconstructed_BiasAdd_grad_tuple_control_dependency_1_0', defined at:
+  File "/home/rlourenco/rdcep_clouds/reproduction/train.py", line 511, in <module>
+    loss_ae, var_list=encoder.trainable_weights + decoder.trainable_weights
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/horovod/tensorflow/__init__.py", line 194, in compute_gradients
+    compression=self._compression)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/horovod/tensorflow/__init__.py", line 83, in allreduce
+    summed_tensor_compressed = _allreduce(tensor_compressed)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/horovod/tensorflow/mpi_ops.py", line 90, in _allreduce
+    return MPI_LIB.horovod_allreduce(tensor, name=name)
+  File "<string>", line 50, in horovod_allreduce
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/framework/op_def_library.py", line 787, in _apply_op_helper
+    op_def=op_def)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/util/deprecation.py", line 454, in new_func
+    return func(*args, **kwargs)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/framework/ops.py", line 3155, in create_op
+    op_def=op_def)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/framework/ops.py", line 1717, in __init__
+    self._traceback = tf_stack.extract_stack()
+
+AbortedError (see above for traceback): Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+	 [[Node: grad_info/DistributedAdamOptimizer_Allreduce/HorovodAllreduce_grad_info_gradients_decoder_reconstructed_BiasAdd_grad_tuple_control_dependency_1_0 = HorovodAllreduce[T=DT_FLOAT, _device="/job:localhost/replica:0/task:0/device:GPU:0"](grad_info/gradients/decoder/reconstructed/BiasAdd_grad/BiasAddGrad)]]
+
+Traceback (most recent call last):
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1278, in _do_call
+    return fn(*args)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1263, in _run_fn
+    options, feed_dict, fetch_list, target_list, run_metadata)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1350, in _call_tf_sessionrun
+    run_metadata)
+tensorflow.python.framework.errors_impl.DataLossError: truncated record at 148268050
+	 [[Node: IteratorGetNext = IteratorGetNext[output_shapes=[[32], [32,2], [32,128,128,7]], output_types=[DT_STRING, DT_INT64, DT_FLOAT], _device="/job:localhost/replica:0/task:0/device:CPU:0"](OneShotIterator)]]
+	 [[Node: GroupCrossDeviceControlEdges_0/image_loss/ms_ssim/MS-SSIM/Scale2/Identity/_70 = _Recv[client_terminated=false, recv_device="/job:localhost/replica:0/task:0/device:GPU:0", send_device="/job:localhost/replica:0/task:0/device:CPU:0", send_device_incarnation=1, tensor_name="edge_1540_...2/Identity", tensor_type=DT_FLOAT, _device="/job:localhost/replica:0/task:0/device:GPU:0"]()]]
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/rlourenco/rdcep_clouds/reproduction/train.py", line 567, in <module>
+    [global_step, train_ops], options=run_opts, run_metadata=run_metadata
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 877, in run
+    run_metadata_ptr)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1100, in _run
+    feed_dict_tensor, options, run_metadata)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1272, in _do_run
+    run_metadata)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1291, in _do_call
+    raise type(e)(node_def, op, message)
+tensorflow.python.framework.errors_impl.DataLossError: truncated record at 148268050
+	 [[Node: IteratorGetNext = IteratorGetNext[output_shapes=[[32], [32,2], [32,128,128,7]], output_types=[DT_STRING, DT_INT64, DT_FLOAT], _device="/job:localhost/replica:0/task:0/device:CPU:0"](OneShotIterator)]]
+	 [[Node: GroupCrossDeviceControlEdges_0/image_loss/ms_ssim/MS-SSIM/Scale2/Identity/_70 = _Recv[client_terminated=false, recv_device="/job:localhost/replica:0/task:0/device:GPU:0", send_device="/job:localhost/replica:0/task:0/device:CPU:0", send_device_incarnation=1, tensor_name="edge_1540_...2/Identity", tensor_type=DT_FLOAT, _device="/job:localhost/replica:0/task:0/device:GPU:0"]()]]
+
+Caused by op 'IteratorGetNext', defined at:
+  File "/home/rlourenco/rdcep_clouds/reproduction/train.py", line 383, in <module>
+    _, _, img = dataset.make_one_shot_iterator().get_next()
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/data/ops/iterator_ops.py", line 410, in get_next
+    name=name)), self._output_types,
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/ops/gen_dataset_ops.py", line 2069, in iterator_get_next
+    output_shapes=output_shapes, name=name)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/framework/op_def_library.py", line 787, in _apply_op_helper
+    op_def=op_def)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/util/deprecation.py", line 454, in new_func
+    return func(*args, **kwargs)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/framework/ops.py", line 3155, in create_op
+    op_def=op_def)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/framework/ops.py", line 1717, in __init__
+    self._traceback = tf_stack.extract_stack()
+
+DataLossError (see above for traceback): truncated record at 148268050
+	 [[Node: IteratorGetNext = IteratorGetNext[output_shapes=[[32], [32,2], [32,128,128,7]], output_types=[DT_STRING, DT_INT64, DT_FLOAT], _device="/job:localhost/replica:0/task:0/device:CPU:0"](OneShotIterator)]]
+	 [[Node: GroupCrossDeviceControlEdges_0/image_loss/ms_ssim/MS-SSIM/Scale2/Identity/_70 = _Recv[client_terminated=false, recv_device="/job:localhost/replica:0/task:0/device:GPU:0", send_device="/job:localhost/replica:0/task:0/device:CPU:0", send_device_incarnation=1, tensor_name="edge_1540_...2/Identity", tensor_type=DT_FLOAT, _device="/job:localhost/replica:0/task:0/device:GPU:0"]()]]
+
+Traceback (most recent call last):
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1278, in _do_call
+    return fn(*args)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1263, in _run_fn
+    options, feed_dict, fetch_list, target_list, run_metadata)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1350, in _call_tf_sessionrun
+    run_metadata)
+tensorflow.python.framework.errors_impl.AbortedError: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+	 [[Node: grad_info/DistributedAdamOptimizer_Allreduce/HorovodAllreduce_grad_info_gradients_decoder_reconstructed_BiasAdd_grad_tuple_control_dependency_1_0 = HorovodAllreduce[T=DT_FLOAT, _device="/job:localhost/replica:0/task:0/device:GPU:0"](grad_info/gradients/decoder/reconstructed/BiasAdd_grad/BiasAddGrad)]]
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/rlourenco/rdcep_clouds/reproduction/train.py", line 567, in <module>
+    [global_step, train_ops], options=run_opts, run_metadata=run_metadata
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 877, in run
+    run_metadata_ptr)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1100, in _run
+    feed_dict_tensor, options, run_metadata)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1272, in _do_run
+    run_metadata)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1291, in _do_call
+    raise type(e)(node_def, op, message)
+tensorflow.python.framework.errors_impl.AbortedError: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+	 [[Node: grad_info/DistributedAdamOptimizer_Allreduce/HorovodAllreduce_grad_info_gradients_decoder_reconstructed_BiasAdd_grad_tuple_control_dependency_1_0 = HorovodAllreduce[T=DT_FLOAT, _device="/job:localhost/replica:0/task:0/device:GPU:0"](grad_info/gradients/decoder/reconstructed/BiasAdd_grad/BiasAddGrad)]]
+
+Caused by op 'grad_info/DistributedAdamOptimizer_Allreduce/HorovodAllreduce_grad_info_gradients_decoder_reconstructed_BiasAdd_grad_tuple_control_dependency_1_0', defined at:
+  File "/home/rlourenco/rdcep_clouds/reproduction/train.py", line 511, in <module>
+    loss_ae, var_list=encoder.trainable_weights + decoder.trainable_weights
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/horovod/tensorflow/__init__.py", line 194, in compute_gradients
+    compression=self._compression)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/horovod/tensorflow/__init__.py", line 83, in allreduce
+    summed_tensor_compressed = _allreduce(tensor_compressed)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/horovod/tensorflow/mpi_ops.py", line 90, in _allreduce
+    return MPI_LIB.horovod_allreduce(tensor, name=name)
+  File "<string>", line 50, in horovod_allreduce
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/framework/op_def_library.py", line 787, in _apply_op_helper
+    op_def=op_def)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/util/deprecation.py", line 454, in new_func
+    return func(*args, **kwargs)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/framework/ops.py", line 3155, in create_op
+    op_def=op_def)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/framework/ops.py", line 1717, in __init__
+    self._traceback = tf_stack.extract_stack()
+
+AbortedError (see above for traceback): Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+	 [[Node: grad_info/DistributedAdamOptimizer_Allreduce/HorovodAllreduce_grad_info_gradients_decoder_reconstructed_BiasAdd_grad_tuple_control_dependency_1_0 = HorovodAllreduce[T=DT_FLOAT, _device="/job:localhost/replica:0/task:0/device:GPU:0"](grad_info/gradients/decoder/reconstructed/BiasAdd_grad/BiasAddGrad)]]
+
+Traceback (most recent call last):
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1278, in _do_call
+    return fn(*args)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1263, in _run_fn
+    options, feed_dict, fetch_list, target_list, run_metadata)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1350, in _call_tf_sessionrun
+    run_metadata)
+tensorflow.python.framework.errors_impl.AbortedError: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+	 [[Node: grad_info/DistributedAdamOptimizer_Allreduce/HorovodAllreduce_grad_info_gradients_decoder_reconstructed_BiasAdd_grad_tuple_control_dependency_1_0 = HorovodAllreduce[T=DT_FLOAT, _device="/job:localhost/replica:0/task:0/device:GPU:0"](grad_info/gradients/decoder/reconstructed/BiasAdd_grad/BiasAddGrad)]]
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/rlourenco/rdcep_clouds/reproduction/train.py", line 567, in <module>
+    [global_step, train_ops], options=run_opts, run_metadata=run_metadata
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 877, in run
+    run_metadata_ptr)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1100, in _run
+    feed_dict_tensor, options, run_metadata)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1272, in _do_run
+    run_metadata)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1291, in _do_call
+    raise type(e)(node_def, op, message)
+tensorflow.python.framework.errors_impl.AbortedError: Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+	 [[Node: grad_info/DistributedAdamOptimizer_Allreduce/HorovodAllreduce_grad_info_gradients_decoder_reconstructed_BiasAdd_grad_tuple_control_dependency_1_0 = HorovodAllreduce[T=DT_FLOAT, _device="/job:localhost/replica:0/task:0/device:GPU:0"](grad_info/gradients/decoder/reconstructed/BiasAdd_grad/BiasAddGrad)]]
+
+Caused by op 'grad_info/DistributedAdamOptimizer_Allreduce/HorovodAllreduce_grad_info_gradients_decoder_reconstructed_BiasAdd_grad_tuple_control_dependency_1_0', defined at:
+  File "/home/rlourenco/rdcep_clouds/reproduction/train.py", line 511, in <module>
+    loss_ae, var_list=encoder.trainable_weights + decoder.trainable_weights
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/horovod/tensorflow/__init__.py", line 194, in compute_gradients
+    compression=self._compression)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/horovod/tensorflow/__init__.py", line 83, in allreduce
+    summed_tensor_compressed = _allreduce(tensor_compressed)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/horovod/tensorflow/mpi_ops.py", line 90, in _allreduce
+    return MPI_LIB.horovod_allreduce(tensor, name=name)
+  File "<string>", line 50, in horovod_allreduce
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/framework/op_def_library.py", line 787, in _apply_op_helper
+    op_def=op_def)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/util/deprecation.py", line 454, in new_func
+    return func(*args, **kwargs)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/framework/ops.py", line 3155, in create_op
+    op_def=op_def)
+  File "/software/Anaconda3-5.3.0-el7-x86_64/lib/python3.6/site-packages/tensorflow/python/framework/ops.py", line 1717, in __init__
+    self._traceback = tf_stack.extract_stack()
+
+AbortedError (see above for traceback): Horovod has been shut down. This was caused by an exception on one of the ranks or an attempt to allreduce, allgather or broadcast a tensor after one of the ranks finished execution. If the shutdown was caused by an exception, you should see the exception in the log before the first shutdown message.
+	 [[Node: grad_info/DistributedAdamOptimizer_Allreduce/HorovodAllreduce_grad_info_gradients_decoder_reconstructed_BiasAdd_grad_tuple_control_dependency_1_0 = HorovodAllreduce[T=DT_FLOAT, _device="/job:localhost/replica:0/task:0/device:GPU:0"](grad_info/gradients/decoder/reconstructed/BiasAdd_grad/BiasAddGrad)]]
+
+--------------------------------------------------------------------------
+mpirun detected that one or more processes exited with non-zero status, thus causing
+the job to be terminated. The first process to do so was:
+
+  Process name: [[5875,1],3]
+  Exit code:    1
+--------------------------------------------------------------------------
