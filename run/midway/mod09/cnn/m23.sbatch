@@ -5,7 +5,7 @@
 #SBATCH --error=%x_%A.err
 #SBATCH --account=pi-chard
 ### -- Longer version of 15b
-#SBATCH --nodes=2
+#SBATCH --nodes=1
 #SBATCH --ntasks-per-node=4
 #SBATCH --mem-per-cpu=16000
 #SBATCH --gres=gpu:4
