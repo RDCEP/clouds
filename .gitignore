@@ -1,3 +1,23 @@
+# 
+#############################################
+# Settings for mod021KM 
+#  * Additional setting
+#############################################
+/analysis/
+/dev/  
+/experimental  
+/gee 
+/__init__.py  
+/logs  
+/notebook.sh 
+/static  
+/tb.sh
+
+
+#############################################
+# Settings for master
+#############################################
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
