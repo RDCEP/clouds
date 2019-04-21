@@ -16,9 +16,7 @@ import json
 import glob
 import copy
 import numpy as np
-#import seaborn as sns
 
-from osgeo import gdal
 from mpi4py import MPI
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from pyhdf.SD import SD, SDC
@@ -36,6 +34,7 @@ def _float_feature(value):
     return tf.train.Feature(float_list=tf.train.FloatList(value=value))
 
 
+# FIXME: No longer used this function:gen_swaths
 def gen_swaths(fnames, mode, resize):
     """Reads and yields resized swaths.
     Args:
@@ -91,18 +90,81 @@ def gen_swaths(fnames, mode, resize):
         yield t, swath
 
 
-def read_hdf(hdf_file, fields, x_range=(None, None), y_range=(None, None)):
-    """Read `hdf_file` and extract relevant fields as per `names_1km`.
+def read_hdf(hdf_file, varname='varname'):
+    """Read `hdf_file` and extract relevant varname .
     """
-    x_min, x_max = x_range
-    y_min, y_max = y_range
     hdf = SD(hdf_file, SDC.READ)
+    return hdf.select(varname)
 
-    swath = [hdf.select(f)[:, x_min:x_max, y_min:y_max][fields[f]] for f in fields]
-    return np.concatenate(swath, axis=0)
+def proc_sds(sds_array):
+    """
+    IN: array = hdf_data.select(variable_name)
+    """
+    array = sds_array.get()
+    array = array.astype(np.float32)
+    
+    # check bandinfo
+    _bands = sds_array.attributes()['band_names']
+    #print("Process bands", _bands)
+    bands = _bands.split(",")
+    
+    # nan process
+    nan_idx = np.where( array == sds_array.attributes()['_FillValue'])
+    if len(nan_idx) > 0:
+        array[nan_idx] = np.nan
+    else:
+        pass
+    #TODO in future, offse and scale argument also should be *kargs
+    # radiacne offset
+    offset = sds_array.attributes()['radiance_offsets']
+    offset_array = np.zeros(array.shape) # new matrix
+    offset_ones  = np.ones(array.shape)  # 1 Matrix 
+    for iband in range(len(offset)):
+        offset_array[iband, :,:] = array[iband, :,:] - offset[iband]*offset_ones[iband,:,:]
+    
+    # radiance scale
+    scales = sds_array.attributes()['radiance_scales']
+    scales_array = np.zeros(array.shape) # new matrix
+    for iband in range(len(scales)):
+        scales_array[iband, :,:] = scales[iband]*offset_array[iband,:,:]
+    return scales_array, bands
+
+def aug_array(ref_array, ems_array, ref_bands=[], ems_bands=[], cref_bands=[], cems_bands=[]):
+
+    _,nx,ny = ref_array.shape
+
+    # ref SB
+    array_list = []
+    for idx, iband in enumerate(cref_bands):
+      for iref_band in ref_bands:
+        if iband ==  iref_band:
+          array_list+=[ref_array[idx].reshape(nx,ny,1)]
+    
+    # emissive SB
+    for idx, iband in enumerate(cems_bands):
+      for iems_band in ems_bands:
+        if iband ==  iems_band:
+          array_list+=[ems_array[idx].reshape(nx,ny,1)]
+    # concatenation
+    return np.concatenate(array_list, axis=2)
+
+def gen_sds(filelist=[], ref_var='EV_500_Aggr1km_RefSB', ems_var='EV_1KM_Emissive',
+            ref_bands=[], ems_bands=[] ):
+  
+  for ifile in filelist:
+    ref_sds = read_hdf(ifile, varname=ref_var)
+    ems_sds = read_hdf(ifile, varname=ems_var)
+    ref_array, cref_bands = proc_sds(ref_sds)
+    ems_array, cems_bands = proc_sds(ems_sds)
+
+    # data concatenation
+    swath = aug_array(ref_array, ems_array, 
+                      ref_bands=ref_bands, ems_bands=ems_bands,
+                      cref_bands=cref_bands, cems_bands=cems_bands)
+    yield ifile, swath
 
 
-def gen_patches(swaths, shape, strides):
+def old_gen_patches(swaths, shape, strides):
     """Normalizes swaths and yields patches of size `shape` every `strides` pixels
     Args:
         swaths: Iterable of (filename, np.ndarray) to slice patches from
@@ -144,6 +206,75 @@ def gen_patches(swaths, shape, strides):
                 if not np.isnan(patch).any():
                     yield fname, (x, y), patch
 
+def gen_patches(swaths, stride=64, patch_size=128, 
+                 normalization=False, flag_nan=True, flag_shuffle=True):
+    
+    """Normalizes swaths and yields patches of size `shape` every `strides` pixels
+        IN:  swath;   image data in hdf file
+             stride;  # patch stride size. size/2 is defualt
+             size;    # patch in x/y direction  
+             normalization; z-score normalization. For MODIS data, MUST False
+             flag_nan; # detect option for np.nan information
+             flag_shuffle; shuffle data or not
+
+        * Document 
+        For Decoded SDS MODIS Dataset, User should NOT normalize the input data
+        because z-score normalization mess up radiance infromation
+
+        IF user get patches WITH Normalization
+         normalization = True
+         Otherwise, vals in patch are NOT normalized
+        IF user want to get patches WITHOUT NAN value
+         flag_nan=True
+         Then, nanvalue will be excluded
+
+    * Generic document by Casper
+    Args:
+        swaths: Iterable of (filename, np.ndarray) to slice patches from
+        shape: (height, width) patch size
+        strides: (x_steps, y_steps) how many pixels between patches
+    Yields:
+        (filename, coordinate, patch): where the coordinate is the pixel coordinate of the
+        patch inside of filename. BUG: pixel coorindate is miscalculated if swath is
+        resized. Patches come from the swath in random order and are whiten-normalized.
+    """
+    # params
+    for fname, swath in swaths:
+      # Numpy nan option
+      if flag_nan:
+        swath_mean = np.nanmean(swath, axis=(0,1))
+        swath_std = np.nanstd(swath, axis=(0,1))
+      else :
+        swath_mean = swath.mean(axis=(0,1))
+        swath_std = swath.std(axis=(0,1))
+      # modify small std value 
+      ill_stds = np.where(swath_std < 1.0e-20)[0]
+      if len(ill_stds) > 0 :
+        for idx in ill_stds:
+          swath_std[idx] += 1.0e-20
+
+      print(fname)
+      print(swath.shape)
+      max_x, max_y, _ = swath.shape
+
+      # Shuffle patches
+      coords = []
+      for x in range(0, max_x, stride):
+         for y in range(0, max_y, stride):
+           if x + patch_size < max_x and y + patch_size < max_y:
+              coords.append((x, y))
+      if flag_shuffle:
+        np.random.shuffle(coords)
+
+      for i, j in coords:
+        patch = swath[i:i + patch_size, j:j + patch_size]
+        if normalization:
+          patch -= swath_mean
+          patch /= swath_std
+        
+        if not np.isnan(patch).any():
+          yield fname, (i, j), patch
+            
 
 def write_feature(writer, filename, coord, patch):
     feature = {
@@ -155,25 +286,6 @@ def write_feature(writer, filename, coord, patch):
     example = tf.train.Example(features=tf.train.Features(feature=feature))
     writer.write(example.SerializeToString())
 
-def old_get_blob_ratio(patch):
-    """ + Document  
-    ** This scheme may not be suitable. 2018/12/24
-        Compute Ratio of white parts in images
-    """
-    img = copy.deepcopy(patch[:,:,0])
-    nmax = np.amax(img)
-    nmin = np.amin(img)
-    # normalization
-    img += abs(nmin)  # range 0 -  max+abs(min)
-    img  = img / (nmax + abs(nmin)) * 255  # range 0 -255   
-    blob_ratio = len(np.where(img > 35 )[0])/(img.shape[0]**2)*100
-    # bone ==> higher number gets whiter color 
-    #_img = np.rint(img) TODO: conv float to int and cut .0000
-    # check for color
-    #sns.heatmap(img[:11,:11].astype(dtype='int32'), 
-    #            annot=True, fmt="d", cmap='bone', vmin=0, vmax=255)
-    return blob_ratio
-
 
 def get_blob_ratio(patch, thres_val=0.00):
     """ Compute Ratio of non-negative pixels in an image
@@ -183,8 +295,6 @@ def get_blob_ratio(patch, thres_val=0.00):
     clouds_ratio = len(np.argwhere(img > thres_val))/len(img)*100
     return clouds_ratio
     
-
-
 
 def write_patches(patches, out_dir, patches_per_record):
     """Writes `patches_per_record` patches into a tfrecord file in `out_dir`.
@@ -215,20 +325,22 @@ def get_args(verbose=False):
     )
     p.add_argument("source_glob", help="Glob of files to convert to tfrecord")
     p.add_argument("out_dir", help="Directory to save results")
-    p.add_argument(
-        "mode",
-        choices=["mod09_tif", "mod02_1km"],
-        help="`mod09_tif`: Turn whole .tif swath into tfrecord. "
-        "`mod02_1km` : Extracts EV_250_Aggr1km_RefSB, EV_500_Aggr1km_RefSB, "
-        "EV_1KM_RefSB, and EV_1KM_Emissive.",
-    )
+    #FIXME here 
+    # NOT USED NOW
+    #p.add_argument(
+    #    "mode",
+    #    choices=["mod09_tif", "mod02_1km"],
+    #    help="`mod09_tif`: Turn whole .tif swath into tfrecord. "
+    #    "`mod02_1km` : Extracts EV_250_Aggr1km_RefSB, EV_500_Aggr1km_RefSB, "
+    #    "EV_1KM_RefSB, and EV_1KM_Emissive.",
+    #)
     p.add_argument(
         "--shape",
-        nargs=2,
         type=int,
-        help="patch shape. Only used for pptif",
-        default=(128, 128),
+        help="patch size. Assume Square image",
+        default=128,
     )
+    # NOT USED NOW
     p.add_argument(
         "--resize",
         type=float,
@@ -236,21 +348,27 @@ def get_args(verbose=False):
     )
     p.add_argument(
         "--stride",
-        nargs=2,
         type=int,
-        help="patch stride. Only used for pptif",
-        default=(64, 64),
+        help="patch stride. patch size/2 to compesate boundry information",
+        default=64,
+    )
+    p.add_argument(
+        "--ems_band",
+        type=str,
+        help="Emissive(Thermal/NearIR) additional band name. i.e. 28 or 29 or 31  ",
+        default='29',
     )
     p.add_argument(
         "--patches_per_record", type=int, help="Only used for pptif", default=500
     )
-    p.add_argument(
-        "--interactive_categories",
-        nargs="+",
-        metavar="c",
-        help="Categories for manually labeling patches. 'Noise' category will be added "
-        "and those patches thrown away automatically.",
-    )
+    # NOT USED NOW
+    #p.add_argument(
+    #    "--interactive_categories",
+    #    nargs="+",
+    #    metavar="c",
+    #    help="Categories for manually labeling patches. 'Noise' category will be added "
+    #    "and those patches thrown away automatically.",
+    #)
 
     FLAGS = p.parse_args()
     if verbose:
@@ -278,8 +396,13 @@ if __name__ == "__main__":
     if not fnames:
         raise ValueError("source_glob does not match any files")
 
-    swaths = gen_swaths(fnames, FLAGS.mode, FLAGS.resize)
-    patches = gen_patches(swaths, FLAGS.shape, FLAGS.stride)
+    #TODO make arg for ref_var & ems_var if using other modis dataset
+    #TODO modify arg to add multiple temp/altitude bands  
+    swaths  = gen_sds(fnames, 
+                      ref_var='EV_500_Aggr1km_RefSB', ems_var='EV_1KM_Emissive',
+                      ref_bands=["6","7"], ems_bands=["20"]+[FLAGS.ems_band])
+    patches = gen_patches(swaths, FLAGS.stride, FLAGS.shape, 
+                          normalization=False, flag_nan=True, flag_shuffle=True)
 
     write_patches(patches, FLAGS.out_dir, FLAGS.patches_per_record)
 
