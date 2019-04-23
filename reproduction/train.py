@@ -384,7 +384,8 @@ if __name__ == "__main__":
 
     if FLAGS.channel_order == "channels_first":
         img = tf.transpose(img, perm=[0, 3, 1, 2])
-        shape = shape[2], * shape[:2]
+        shape = shape[2], shape[:2]
+        #shape = shape[2], * shape[:2]
         logging.debug("shape %s", shape)
 
     # DEBUG: I have no idea if this helps (remove if unneeded)
@@ -416,6 +417,9 @@ if __name__ == "__main__":
                 scale=FLAGS.scale,
                 data_format=FLAGS.channel_order,
             )
+
+    # TF floating point change
+    img = tf.cast(img, tf.float32)
 
     # Using Autoencoder
     with tf.name_scope("noise"):
@@ -559,7 +563,8 @@ if __name__ == "__main__":
         if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
             for m in save_models:
                 save_models[m].summary()
-            print("", flush=True)
+            print("")
+            #print("", flush=True)
 
         logging.info("%d Entering training loop", hvd.rank())
         for _ in range(FLAGS.max_steps):

@@ -2,7 +2,8 @@
 This is mostly experimental and oneoff code that has been moved from the analysis
 notebooks to keep them clean. The analysis notebooks import from this library.
 """
-__author__ = "casperneo@uchicago.edu"
+__author__  = "casperneo@uchicago.edu"
+__author2__ = "tkurihana@uchicago.edu"
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import numpy as np
@@ -18,6 +19,214 @@ from osgeo import gdal
 # TODO: Extend gdal exception control to the entire codebase
 # Enable exception treatment using gdal
 gdal.UseExceptions()
+
+
+class _AEData:
+    """ Extended class based on AEData, specially for sensitivity analysis
+        Takuya Kurihana
+    """
+    """Struct of arrays containing autoencoded data for analysis.
+
+    imgs        [n_samples, height, width, channels] array of patches
+    names       tif-files where the patches are sourced from
+    coords      index within tif file of the top left corner of the original patch
+    ae_imgs     patches after being autoencoded
+    raw_encs    encoded state of the patches
+    encs        spatially averaged encoded state of the patches
+    fields      names for each of the channels in imgs
+    """
+
+    def __init__(self, dataset, band=-10, ae=None, fields=None,isDebug=False, n=500):
+        """
+        INPUT
+        band:
+          band argument is  number to choose specified band in MOD09(7bands)
+          Assume range of band is between 0 - 6 (band number 0 ==> band 1 in MOD09)
+        isDebug:
+          boolean to on/off print out array-shape
+        """
+        # get data from dataset
+        names, coords, _imgs = [], [], []
+        batch = dataset.make_one_shot_iterator().get_next()
+        with tf.Session() as sess:
+            while len(_imgs) < n:
+                names_, coords_, imgs_ = sess.run(batch)
+                names.extend(names_)
+                coords.extend(coords_)
+                _imgs.extend(imgs_)
+
+        # Try-Except band number 
+        try:
+            if band >= 0: 
+                print("     ## Processing Band %d  ## " %band)
+        except:
+            raise ValueError(" Inappropriate band value: Band = %d " %band)
+
+        img_array = np.asarray(_imgs)
+        nband   = img_array.shape[-1]
+        tmp_img = img_array[:,:,:,band].reshape(img_array.shape[0], img_array.shape[1], 
+                                                img_array.shape[2], 1 )
+        if isDebug:
+            print(' img_array.shape', img_array.shape)
+            print(' tmp_img.shape  ', tmp_img.shape)
+
+        def amplified_layers(img):
+            imgs = img
+            for idx, iband in enumerate(range(nband-1)):
+                imgs = np.concatenate((img,imgs), axis=-1)
+            if isDebug:
+                print(imgs.shape)
+            return imgs
+        imgs = amplified_layers(tmp_img)
+        
+        # Check Tensor value after the replacement
+        if isDebug:
+            res = img_array - imgs
+            for idx in range(nband):
+                i = res[:,:,:,idx]
+                print(' band: %d , mean:%f ' %(idx, np.mean(i)))
+
+        self.names = np.array([str(n)[2:-1] for n in names])
+        self.coords, self.imgs = np.stack(coords[:n]), np.stack(imgs[:n])
+        self.colored_imgs = cmap_and_normalize(self.imgs)
+        self.fields = (
+            fields if fields else ["b%d" % (i + 1) for i in range(self.imgs.shape[-1])]
+        )
+
+        if ae is not None:
+            self.compute_ae(ae)
+            self.compute_pca()
+
+    def add_encoder(self, encoder):
+        self.encoder = encoder
+        self.raw_encs = encoder.predict(self.imgs)
+        self.encs = self.raw_encs.mean(axis=(1, 2))
+
+    def compute_ae(self, ae):
+        self.raw_encs, self.ae_imgs = ae.predict(self.imgs)
+        self.encs = self.raw_encs.mean(axis=(1, 2))
+        self.ae = ae
+
+    def compute_pca(self):
+        if not hasattr(self, "encs"):
+            raise ValueError("Need to have encoded vectors to compute pca")
+
+        centered = self.encs - self.encs.mean(axis=0)
+        cov = centered.transpose().dot(centered) / centered.shape[0]
+        evals, evecs = np.linalg.eigh(cov)
+        evals = np.flip(evals)
+        evecs = np.flip(evecs, axis=1)
+        self._evals = evals
+        self._evecs = evecs
+        self._center = self.encs.mean(axis=0)
+
+    def pca_project(self, x, d=3):
+        if not hasattr(self, "_evecs"):
+            self.compute_pca()
+        centered = x - self._center
+        if isinstance(d, list):
+            return centered.dot(self._evecs[:, d]).transpose()
+        else:
+            return centered.dot(self._evecs[:, :d]).transpose()
+
+    def plot_pca_projection(self, x, title="", width=3, cbar=True, **kwargs):
+        pc = self.pca_project(x)
+        fig, ax = plt.subplots(ncols=3, nrows=1, figsize=(width * 3 + 2, width))
+        for i in range(3):
+            j = (i + 1) % 3
+            a = ax[i]
+            im = a.scatter(pc[i], pc[j], **kwargs)
+            a.set_xlabel("PC %d" % i)
+            a.set_ylabel("PC %d" % j)
+
+        if cbar:
+            fig.subplots_adjust(right=0.95)
+            cbar_ax = fig.add_axes([0.99, 0.15, 0.01, 0.7])
+            fig.colorbar(im, cax=cbar_ax)
+
+        fig.suptitle(title)
+
+    def plot_residuals(self, n_samples=2, width=2):
+        fig, ax = plt.subplots(
+            nrows=n_samples * 3,
+            ncols=len(self.fields),
+            figsize=(len(self.fields) * width, n_samples * width * 3),
+        )
+        plt.subplots_adjust(wspace=0.01, hspace=0.01)
+
+        for s in range(n_samples):
+            for c, field in enumerate(self.fields):
+                orig, diff, deco = ax[s * 3: s * 3 + 3, c]
+                orig.imshow(self.imgs[s, :, :, c], cmap="bone")
+                diff.imshow(
+                    self.imgs[s, :, :, c] - self.ae_imgs[s, :, :, c], cmap="coolwarm"
+                )
+                deco.imshow(self.ae_imgs[s, :, :, c], cmap="bone")
+                if s == 0:
+                    orig.set_title(field)
+                if c == 0:
+                    orig.set_ylabel("original")
+                    diff.set_ylabel("residual")
+                    deco.set_ylabel("decoded")
+
+        for a in ax.ravel():
+            a.set_xticks([])
+            a.set_yticks([])
+        return fig, ax
+
+    def plot_neighborhood(self, i, context_width=128, override_base_folder=None):
+        p, orig = self.open_neighborhood(i, context_width, override_base_folder)
+
+        _, (a, b) = plt.subplots(1, 2, figsize=(20, 10))
+        normalization = None  # plt.Normalize(p[0].min(), p[0].max())
+        a.imshow(self.imgs[i, :, :, 0], norm=normalization, cmap="bone")
+        b.imshow(p[0], norm=normalization, cmap="bone")
+        b.add_patch(
+            patches.Rectangle(
+                orig,
+                *self.imgs.shape[1:3],
+                linewidth=1,
+                edgecolor="r",
+                facecolor="none",
+            )
+        )
+
+    def open_neighborhood(self, i, context_width, override_base_folder=None):
+        """Opens `context_width` size neighborhood around patch `i`.
+        Returns this enlarged patch (unnormalized) and the coordinate of the original
+        patch within it.
+        """
+        yoff, xoff = self.coords[i]
+        xsize, ysize = self.imgs.shape[1:3]
+
+        def rebox(off, size, mx):
+            l_most = max(off - context_width, 0)
+            r_most = min(mx, off + size + context_width)
+            new_size = r_most - l_most
+            return map(int, [l_most, new_size, off - l_most])
+
+        swath = None  # Initialize variable due to exception treatment
+        # TODO: Provide a better fix for the issue of source file url used on training
+        # Issue lies on full url names being stored, instead of relative paths
+        if not (override_base_folder is None):
+            tif_filename = os.path.basename(self.names[i])
+            newurl = override_base_folder+tif_filename
+            print('WARNING: Overriding base folder name, from the one used on model training', flush=True)
+        else:
+            newurl = self.names[i]
+        try:
+            swath = gdal.Open(newurl)
+        except Exception as e:
+            print('ERROR:', e.message, e.args, flush=True)
+
+        xoff, xsize, left = rebox(xoff, xsize, swath.RasterXSize)
+        yoff, ysize, top = rebox(yoff, ysize, swath.RasterYSize)
+
+        p = swath.ReadAsArray(xoff, yoff, xsize, ysize)
+
+        return p, (left, top)
+
+
 
 
 class AEData:
@@ -378,3 +587,52 @@ def read_kmeans_centers(filename, is_ascii=True):
             [float(x) for x in line.strip().split(" ")[1:]] for line in f.readlines()
         ]
     return np.array(centers)
+
+
+#====================================================================
+#
+#  ++ New Functions
+#         coded by Takuya Kurihana
+#  some functions are based on 12.3-4types-other-radiance.ipynb 
+#====================================================================
+
+def _get_imgs(dataset,ae=None,fields=None, n=500):
+    """ Based on  class AEData __init__ coded by casper
+    INPUT
+     dataset: return from  load_data() function in load_data.py
+     n      : number of input images 
+
+    OUTPUT
+     imgs   : image array (Radiance Matrix/Tensor) for plotting etc...
+    """
+    # get data from dataset
+    names, coords, imgs = [], [], []
+    batch = dataset.make_one_shot_iterator().get_next()
+    with tf.Session() as sess:
+        while len(imgs) < n:
+            names_, coords_, imgs_ = sess.run(batch)
+            names.extend(names_)
+            coords.extend(coords_)
+            imgs.extend(imgs_)
+    return np.asarray(imgs)
+
+
+def _plot_in_cluster(x, x_array, cluster=100, band=0, cloud_label='NONE'):
+    """ Plot All figures in specified cluser
+    INPUT
+     x       : x.encs
+     x_array : image array of x 
+    """
+    fig = plt.figure(figsize=(12,9))
+    icount = 0
+    row    = int(len(np.argwhere( x == cluster ))/4)+1
+    print('### Cloud Label == %s' %cloud_label)
+    for ix , i in enumerate(np.argwhere( x == cluster) ):
+        ax = plt.subplot(row, 4, icount+1)
+        ax.set_title(' %d th cluster, band %d' %(cluster, band) )
+        plt.imshow(x_array[i[0],:,:,band], norm=None, cmap="bone")
+        icount+=1
+        ax.get_xaxis().set_visible(False)
+        ax.get_yaxis().set_visible(False)
+    fig.tight_layout()
+    plt.show()
