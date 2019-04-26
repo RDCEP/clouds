@@ -96,7 +96,7 @@ def read_hdf(hdf_file, varname='varname'):
     hdf = SD(hdf_file, SDC.READ)
     return hdf.select(varname)
 
-def proc_sds(sds_array):
+def proc_sds(sds_array, sdsmax=32767):
     """
     IN: array = hdf_data.select(variable_name)
     """
@@ -108,12 +108,23 @@ def proc_sds(sds_array):
     #print("Process bands", _bands)
     bands = _bands.split(",")
     
+    # error code 
+    # higher value than 32767
+    # C6 MODIS02 version, 65500-65534 are error code defined by algorithm
+    # 65535 is _FillValue 
+    err_idx = np.where( (array > sdsmax) 
+                      & (array < sds_array.attributes()['_FillValue']) )
     # nan process
     nan_idx = np.where( array == sds_array.attributes()['_FillValue'])
     if len(nan_idx) > 0:
         array[nan_idx] = np.nan
     else:
         pass
+    if len(err_idx) > 0:
+        array[err_idx] = np.nan
+    else:
+        pass
+    
     #TODO in future, offse and scale argument also should be *kargs
     # radiacne offset
     offset = sds_array.attributes()['radiance_offsets']
