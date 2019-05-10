@@ -112,6 +112,7 @@ def load_data(
     See `add_pipeline_cli_arguments` for argument descriptions.
     """
 
+    #TODO add parser for floating point
     def parser(ser):
         features = {
             "shape": tf.FixedLenFeature([3], tf.int64),
@@ -121,7 +122,8 @@ def load_data(
         }
         decoded = tf.parse_single_example(ser, features)
         patch = tf.reshape(
-            tf.decode_raw(decoded["patch"], tf.float32), decoded["shape"]
+            tf.decode_raw(decoded["patch"], tf.float64), decoded["shape"]
+            #tf.decode_raw(decoded["patch"], tf.float32), decoded["shape"]
         )
         if rotate:
             angle = tf.random_uniform((), 0, 6.28)
