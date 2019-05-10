@@ -22,3 +22,16 @@ functions considered to be used in the project
 analysis of datasets, their encodings, as well on
 unsupervised classification of latent representation.
 - GEE: Routines developed using Google Earth Engine.
+
+---
+#### Main framework change
+Create new branch ```mod021KM``` where modified codes for MOS021KM dataset are pushed.
+
+- Reproduction/train.py  
+  - add new parser arguments  
+  - add tf.cast line to map tf.float64 to tf.float32 before tensorflow run
+- Reproduction/pipeline/load.py  
+  master    `tf.decode(data, tf.float32)`  
+  mod021KM  `tf.decode(data, tf.float64)`  
+  This modification means hdf to tfrecord pre-process was stored in 64bit data.  
+- Preprocess code is modified
