@@ -6,6 +6,8 @@ import numpy as np
 import random
 import argparse
 import time
+import pandas as pd
+import matplotlib.pyplot as plt
 
 p = argparse.ArgumentParser()
 p.add_argument(
@@ -94,6 +96,22 @@ def save_filelist(filelist=[], outdir='./', oname='output' ):
     for iline in filelist:
         ofile.write(iline+'\n')
   print( " ### File Saved %s/%s.txt " % (outdir ,  oname) )
+
+
+def check_date_dist(date_lst):
+	'''
+	Checks the distribution of dates "randomly" generated for uniform
+	distribution
+
+	Inputs: a list of dates with each date as a string
+			e.g. the output of gen_randomDate
+
+	Outputs: plot of distribution of dates by year
+	'''
+	df = pd.DataFrame.from_dict({'date': date_lst})
+	df['date'] = pd.to_datetime(df['date'], infer_datetime_format=True)
+	df.groupby(df['date'].dt.year).count().plot(kind='bar')
+	plt.show()
  
 
 if __name__ == "__main__":
