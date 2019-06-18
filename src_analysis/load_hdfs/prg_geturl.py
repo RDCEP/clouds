@@ -5,6 +5,8 @@ import datetime
 import urllib
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
+import requests
+import multiprocessing as mp
 
 def get_href_lists(url, keyward="MOD021KM.A"):
   """
@@ -38,11 +40,7 @@ def bool_fsize(url, thresval=100, mode='above'):
     coef = 1/1000/1000
     site = urlopen(url)
     fsize = site.length*coef
-    if fsize >= thresval:
-        flag = True
-    else:
-        flag = False
-    return flag
+    return fsize >= thresval
 
 def download_data(url, outputdir='.'):
     filename = os.path.basename(url)
@@ -103,21 +101,27 @@ if __name__ == "__main__":
   with open(args.datedata, 'r') as ifile:
      for iline in ifile.readlines():
         idate = iline.split('\n')[0]
-        #date_list.append([ idate[:4], idate[5:7], idate[8:] ])
-        date_list.append([idate[:4], 
-                         delta_day(year=idate[:4], month=idate[5:7], day=idate[8:])
-                         ])
-  for idate in date_list:
+        date_list.append(idate)
+  for date in date_list:
+    year = date[:4]
+    days = delta_day(year=date[:4], month=date[5:7], day=date[8:])
     # URL
-    url = args.url+'/'+idate[0]+'/'+idate[1]+'/'
-  
-    # href_lists
-    href_list = get_href_lists(url, keyward=args.keyward)
+    url = args.url+'/'+year+'/'+days+'/'
+    # Check if valid url
+    response = requests.get(url)
+    if response.status_code == 200:
+      # href_lists
+      href_list = get_href_lists(url, keyward=args.keyward)
 
-    # select url over 100M
-    for ihref in href_list:
-      https = url+os.path.basename(ihref)
-      bfsize = bool_fsize(https,thresval=args.thresval)
-      if bfsize:
-        download_data(https, outputdir=outputdir) 
-   
+      # select url over 100M
+      for ihref in href_list:
+        https = url+os.path.basename(ihref)
+        bfsize = bool_fsize(https,thresval=args.thresval)
+        if bfsize:
+          download_data(https, outputdir=outputdir)
+    else:
+      print("No data available for " + str(idate))
+
+# Do you want me to keep a running list of dates w/ no data available?
+# If so, how do you want them returned?
+# Should we keep a running file of bad dates? Not just the hardcoded list in prg_gen_rndm_metadata.py
