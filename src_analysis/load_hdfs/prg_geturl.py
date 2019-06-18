@@ -6,6 +6,7 @@ import urllib
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import requests
+import multiprocessing as mp
 
 
 def get_href_lists(url, keyward="MOD021KM.A"):
@@ -69,12 +70,12 @@ def delta_day(year='0000',month='00', day='00'):
   return delta_day
 
 
-def combining_fn(datedata, base_url, keyward, thresval, outputdir):
+def combining_fn(iline, base_url, keyward, thresval, outputdir):
   '''
   Download requests HDF files into specified directory
 
   Inputs:
-    datedata
+    iline
     base_url
     keyward
     thresval
@@ -82,31 +83,30 @@ def combining_fn(datedata, base_url, keyward, thresval, outputdir):
 
   Outputs: saved .out file with list HDF files downlading
   '''
-  # Loads date metadata
-  with open(datedata, 'r') as ifile:
-    for iline in ifile.readlines():
-      date = iline.split('\n')[0]
-      year = date[:4]
-      days = delta_day(year=date[:4], month=date[5:7], day=date[8:])
-      url = base_url+'/'+year+'/'+days+'/'
-      # Check if valid url
-      response = requests.get(url)
-      if response.status_code == 200:
-        # href_lists
-        href_list = get_href_lists(url, keyward)
-        # select url over 100M
-        for ihref in href_list:
-          https = url + os.path.basename(ihref)
-          bfsize = bool_fsize(https, thresval)
-          if bfsize:
-            req = urllib.request.Request(url=https)
-            response = urllib.request.urlopen(req)
-            if response.getcode() == 200:
-              download_data(https, outputdir)
-            else:
-              href_list.append(ihref)
-      else:
-        print("No data available for " + str(date))
+  date = iline.split('\n')[0]
+  year = date[:4]
+  days = delta_day(year=date[:4], month=date[5:7], day=date[8:])
+  url = base_url+'/'+year+'/'+days+'/'
+  # Check if valid url
+  response = requests.get(url)
+  if response.status_code == 200:
+    # href_lists
+    href_list = get_href_lists(url, keyward)
+    # select url over 100M
+    for ihref in href_list:
+      https = url + os.path.basename(ihref)
+      bfsize = bool_fsize(https, thresval)
+      if bfsize:
+        req = urllib.request.Request(url=https)
+        response = urllib.request.urlopen(req)
+        if response.getcode() == 200:
+          download_data(https, outputdir)
+        else:
+          href_list.append(ihref)
+  else:
+    # Adds dates w/o data available to running list of dates
+    with open('no-data-dates.txt', 'a') as f:
+      f.write(str(date) + "\n")
 
 
 if __name__ == "__main__":
@@ -135,6 +135,16 @@ if __name__ == "__main__":
     type=int,
     default=100
   )
+  p.add_argument(
+  '--processors',
+  type=int,
+  default=4
+  )
   args = p.parse_args()
   os.makedirs(args.outputdir, exist_ok=True)
-  combining_fn(args.datedata, args.url, args.keyward, args.thresval, args.outputdir)
+  # Initializes pooling proess for parallelization
+  pool = mp.Pool(processes=args.processors)  
+  # Loads date metadata
+  with open(args.datedata, 'r') as ifile:
+    for iline in ifile.readlines():
+      pool.apply(combining_fn, args=(iline, args.url, args.keyward, args.thresval, args.outputdir))
