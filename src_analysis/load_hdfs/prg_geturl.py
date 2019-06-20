@@ -51,7 +51,7 @@ def get_href_lists2(url, keyward="MOD021KM.A"):
     if link.has_attr('href'):
       raw_site = link['href']
       if keyward in raw_site and ".hdf" in raw_site:
-        #print(raw_site)
+        print(raw_site)
         hrefs.append(raw_site)
   return hrefs
 
@@ -84,7 +84,7 @@ def bool_fsize2(url, thresval=100):
   '''
   coef = 1/1000/1000
   r = requests.get(url)
-  fsize = len(r.content)
+  fsize = len(r.content)*coef
   return fsize >= thresval
 
 
@@ -94,26 +94,6 @@ def download_data(url, start_time, outputdir='.'):
   print("## FINISH DOWNLOAD ! ## %s" % filename)
   curr_time = datetime.datetime.now()
   print(pd.Timedelta(curr_time - start_time))
-
-
-# def download_data2(url, start_time, outputdir='.'):
-#   '''
-#   Downloads images from specified website to specified directory
-
-#   Inputs:
-#     url: a string presenting a url
-#     start_time: datetime object representing when entire process began
-#     outputdir: string of directory name
-
-#   Outputs: None (saves images)
-#   '''
-#   filename = os.path.basename(url)
-#   r = requests.get(url)
-#   i = Image.open(BytesIO(r.content))
-#   i.save(filename)
-#   print("## FINISH DOWNLOAD ! ## %s" % filename)
-#   curr_time = datetime.datetime.now()
-#   print(pd.Timedelta(curr_time - start_time))
 
 
 def delta_day(year='0000',month='00', day='00'):
@@ -135,29 +115,41 @@ def delta_day(year='0000',month='00', day='00'):
   return delta_day
 
 
-def combining_fn(href_list, ihref, url, thresval, outputdir, start_time):
+def combining_fn(iline, url, thresval, outputdir, start_time):
   '''
   Download requests HDF files into specified directory
 
   Inputs:
-    iline
-    base_url
-    keyward
-    thresval
-    outputdir
+      iline(datetime obj): date for data requested
+      base_url(str): url base
+      keyward(str): keyword to find relevant images
+      thresval(int): value for threshold
+      outputdir(str): folder in which downloaded objected save
 
-  Outputs: saved .out file with list HDF files downlading
+  Outputs: saved HDF files
   '''
-  https = url + os.path.basename(ihref)
-  bfsize = bool_fsize2(https, thresval)
-  if bfsize:
-    response = requests.get(https)
-    if response.status_code == 200:
-      print('about to download')
-      download_data(https, start_time, outputdir)
-    else:
-      href_list.append(ihref)
-
+  date = iline.split('\n')[0]
+  year = date[:4]
+  days = delta_day(year=date[:4], month=date[5:7], day=date[8:])
+  url = args.url+'/'+year+'/'+days+'/'
+  # Check if valid url
+  response = requests.get(url)
+  if response.status_code == 200:
+    # href_lists
+    href_list = get_href_lists2(url, args.keyward)
+    for ihref in href_list: 
+      https = url + os.path.basename(ihref)
+      bfsize = bool_fsize2(https, thresval)
+      if bfsize:
+        response = requests.get(https)
+        if response.status_code == 200:
+          download_data(https, start_time, outputdir)
+        else:
+          href_list.append(ihref)
+  else:
+    # Adds dates w/o data available to running list of dates
+    with open('no-data-dates.txt', 'a') as f:
+      f.write(str(date) + "\n")
 
 
 if __name__ == "__main__":
@@ -197,25 +189,13 @@ if __name__ == "__main__":
   print(start_time)
   print(args.processors)
   # Initializes pooling proess for parallelization
-  pool = mp.Pool(processes=args.processors)  
-  # Loads date metadata
+  pool = mp.Pool(processes=args.processors)
+  # Loads date metadata and creates arg tuple for each worker in pool
+  args_lst = []
   with open(args.datedata, 'r') as ifile:
     for iline in ifile.readlines():
-      date = iline.split('\n')[0]
-      year = date[:4]
-      days = delta_day(year=date[:4], month=date[5:7], day=date[8:])
-      url = args.url+'/'+year+'/'+days+'/'
-      # Check if valid url
-      response = requests.get(url)
-      if response.status_code == 200:
-        # href_lists
-        href_list = get_href_lists2(url, args.keyward)
-        for ihref in href_list[:20]:
-          pool.apply(combining_fn, args=(href_list, ihref, url, args.thresval, args.outputdir, start_time))
-      else:
-        # Adds dates w/o data available to running list of dates
-        with open('no-data-dates.txt', 'a') as f:
-          f.write(str(date) + "\n")
+      args_lst.append((iline, args.url, args.thresval, args.outputdir, start_time))
+  pool.starmap_async(combining_fn, args_lst)
   pool.close()
   pool.join()
   ifile.close()
