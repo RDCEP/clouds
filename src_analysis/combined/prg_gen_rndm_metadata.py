@@ -7,7 +7,8 @@ import random
 import time
 import pandas as pd
 
-
+UNUSABLE_DATES = ['no-data-dates.txt', 'mod02_training_dates.txt', 'pv_ecal.csv']
+#
 def get_proptime(stime='2000-02-24', etime='2019-03-27', _format='%Y-%m-%d',
                  prop=1.0):
     '''
@@ -21,7 +22,7 @@ def get_proptime(stime='2000-02-24', etime='2019-03-27', _format='%Y-%m-%d',
     return time.strftime(_format, time.localtime(ptime))
 
 
-def get_missing_dates(filename='no-data-dates.txt'):
+def get_bad_dates(file_lst=UNUSABLE_DATES):
     '''
     Returns list of dates from a text file
 
@@ -30,7 +31,17 @@ def get_missing_dates(filename='no-data-dates.txt'):
 
     Outputs: list of dates as strings
     '''
-    df = pd.read_fwf(filename, header=None)
+
+    dfs_to_concat = []
+    for file in file_lst:
+        if 'txt' in file:
+            ind_df = pd.read_fwf(file, header=None)
+        if 'csv' in file:
+            ind_df = pd.read_csv(file, header=None)
+            ind_df[0] = ind_df[0].map(lambda x: x[5:15])
+            ind_df = ind_df[0].to_frame()
+        dfs_to_concat.append(ind_df)
+    df = pd.concat(dfs_to_concat)
     df.rename(columns={0: 'date'}, inplace=True)
     return list(df['date'])
 
@@ -50,7 +61,7 @@ def gen_random_date(ndays=1, stime='2000-02-24', etime='2019-03-27',
     Output: list of dates
     '''
     filelist = []
-    missing_date_list = get_missing_dates() # avoid missing data days
+    missing_bad_list = get_bad_dates() # avoid missing data days
     random.seed(rand_seed)
     while len(filelist) < ndays:
         ctime = get_proptime(stime=stime, etime=etime, _format=_format,
