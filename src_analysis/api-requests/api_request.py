@@ -4,8 +4,7 @@ June 2019
 
 Functions to request downloads of modis data from NASA API
 '''
-from zeep import Client, xsd
-from sklearn.model_selection import ParameterGrid
+from zeep import Client, xsd, Settings
 import csv
 import pandas as pd
 
@@ -14,9 +13,20 @@ DATE_FILE = 'label1.txt'
 COORDINATES_FILE = 'coords.csv'
 WSDL_FILE = 'https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices?wsdl'
 ACCESS_POINT = 'http://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices'
+EMAIL = 'koenig1@uchicago.edu'
 
-def request_downloads(dates=DATE_FILE, coords=COORDINATES_FILE):
+def request_downloads(dates=DATE_FILE, coords=COORDINATES_FILE, url=WSDL_FILE, email_address=EMAIL):
     '''
+    Calls NASA LWS API to order downloads of specified files
+
+    Inputs:
+        dates(str): txt filename with desired dates
+        coords(str): csv filename with desired coordinates
+        url(str): website for public interface to be queried
+        email_address(str): email address previously registered to NASA site
+
+    Outputs:
+        total_orders: list of order ids (ints)
     '''
     # Initialize params for request
     search_params = {'products': 'MOD35_L2', 'collection': 61, 'dayNightBoth': 'DB'}
@@ -25,6 +35,7 @@ def request_downloads(dates=DATE_FILE, coords=COORDINATES_FILE):
     dates_file = open(dates, 'r')
     label_dates = dates_file.read().split('\n')
     coords_df = pd.read_csv(coords)
+    total_orders = []
     for row in coords_df.iterrows():
         search_params['north'] = row[1][0]
         search_params['south'] = row[1][1]
@@ -34,33 +45,17 @@ def request_downloads(dates=DATE_FILE, coords=COORDINATES_FILE):
         for date in label_dates[:-1]: 
             search_params['startTime'] = str(date) + ' 00:00:00'
             search_params['endTime'] = str(date) + ' 23:59:59'
-
-
-#     searchForFiles(**p)
-#     client = Client(wsdl)
-
-#     with client.settings(raw_response=True):
-#         response = client.service.OrderFiles()
-
-#         # response is now a regular requests.Response object
-#         assert response.status_code == 200
-#         assert response.content
-
-
-#     label_dates = text_file.read().split('\n')
-
-# Params for OrderFiles
-#     email='koenig1@uchicago.edu'
-#     doMosaic=True
-#     fileIds=id_lst
-
-
-
-# Params for getAllOrders
-#     email=
-
-# Params for getOrderStatus
-#     orderId
+            # API Request for each set of parameters
+            # Initialize interface for SOAP interactions
+            sets = Settings(raw_response=True, xml_huge_tree=True)
+            client = Client(wsdl, settings=sets)
+            # Find relevant files
+            file_id_lst = client.service.searchForFiles(**p)
+            # Order downloads of files
+            order_ids = service.OrderFiles(email=email_address, fileIds=file_id_lst, doMosaic=True)
+            total_orders += order
+    return total_orders
+    
 
 def write_csv(outputfile='coords.csv'):
     '''
