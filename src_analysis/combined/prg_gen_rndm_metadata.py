@@ -8,7 +8,7 @@ import time
 import pandas as pd
 
 UNUSABLE_DATES = ['no-data-dates.txt', 'mod02_training_dates.txt', 'pv_ecal.csv']
-#
+
 def get_proptime(stime='2000-02-24', etime='2019-03-27', _format='%Y-%m-%d',
                  prop=1.0):
     '''
@@ -27,11 +27,11 @@ def get_bad_dates(file_lst=UNUSABLE_DATES):
     Returns list of dates from a text file
 
     Input:
-    filename(str): filename with dates
+        file_lst(list): list of strings of files with the dates NOT to be
+                        downloaded
 
     Outputs: list of dates as strings
     '''
-
     dfs_to_concat = []
     for file in file_lst:
         if 'txt' in file:
