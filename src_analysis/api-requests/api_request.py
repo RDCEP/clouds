@@ -19,14 +19,13 @@ ACCESS_POINT = 'http://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSser
 EMAIL = 'koenig1@uchicago.edu'
 APP_KEY = '126AA2A4-96BA-11E9-9D2C-D7883D88392C'
 
-def request_downloads(dates=DATE_FILE, coords=COORDINATES_FILE, url=WSDL_FILE, email_address=EMAIL):
+def request_downloads(dates=DATE_FILE, coords=COORDINATES_FILE, email_address=EMAIL):
     '''
     Calls NASA LWS API to order downloads of specified files
 
     Inputs:
         dates(str): txt filename with desired dates
         coords(str): csv filename with desired coordinates
-        url(str): website for public interface to be queried
         email_address(str): email address previously registered to NASA site
 
     Outputs:
@@ -38,7 +37,8 @@ def request_downloads(dates=DATE_FILE, coords=COORDINATES_FILE, url=WSDL_FILE, e
     dates_file = open(dates, 'r')
     label_dates = dates_file.read().split('\n')
     coords_df = pd.read_csv(coords)
-    total_orders = []
+    file_ids = []
+    order_ids = []
     for row in coords_df.iterrows():
         search_params['north'] = row[1][0]
         search_params['south'] = row[1][1]
@@ -52,18 +52,15 @@ def request_downloads(dates=DATE_FILE, coords=COORDINATES_FILE, url=WSDL_FILE, e
             response = requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/searchForFiles?', search_params)
             soup = BeautifulSoup(response.content, 'html5lib')
             for id in soup.find_all('return'):
-                total_orders.append(int(id.text))
-    return total_orders
-            
+                file_ids.append(id.text)
             # Order downloads of files
-
-    #         order_ids = requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/orderFiles?', order_params)
-    #         total_orders += order_ids
-    # return total_orders
-
-
-#https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/orderFiles?orderIds=[2760357367]&email=koenig1@uchicago.edu
-
+            order_params = {'email': email_address, 'fileIds': ','.join(file_ids)}
+            order_response = requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/orderFiles?', order_params)
+            print(order_response.status_code)
+            if order_response.status_code == 200:
+                order_soup = BeautifulSoup(order_response.content, 'html5lib')
+                order_ids.append(order_soup.find('return').text)
+    return order_ids
 
 
 def download_order(order_lst, destination='hdf_files', token=APP_KEY, email_address=EMAIL):
