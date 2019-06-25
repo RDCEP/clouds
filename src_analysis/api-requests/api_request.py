@@ -53,7 +53,7 @@ def request_downloads(dates=DATE_FILE, coords=COORDINATES_FILE, url=WSDL_FILE, e
             soup = BeautifulSoup(response.content, 'html5lib')
             for id in soup.find_all('return'):
                 total_orders.append(int(id.text))
-            return total_orders
+    return total_orders
             
             # Order downloads of files
 
@@ -86,7 +86,7 @@ def download_order(order_lst, destination='hdf_files', token=APP_KEY, email_addr
         if status.text == 'Available':
             source = 'https://ladsweb.modaps.eosdis.nasa.gov/archive/orders/' + str(order) + '/'
             ldd.sync(source, destination, token)
-            #params = {'order': order, 'email': email_address}
+            #params = {'orderId': order, 'email': email_address}
             # To delete -- NASA not working
             #requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/releaseOrder?', params)
         else:
