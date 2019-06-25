@@ -14,8 +14,6 @@ import laads_data_download as ldd
 
 DATE_FILE = 'label1.txt'
 COORDINATES_FILE = 'coords.csv'
-WSDL_FILE = 'https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices?wsdl'
-ACCESS_POINT = 'http://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices'
 EMAIL = 'koenig1@uchicago.edu'
 APP_KEY = '126AA2A4-96BA-11E9-9D2C-D7883D88392C'
 
