@@ -4,9 +4,12 @@ June 2019
 
 Functions to request downloads of modis data from NASA API
 '''
-from zeep import Client, xsd, Settings
+import os
+import requests
+from bs4 import BeautifulSoup
 import csv
 import pandas as pd
+import laads_data_download as ldd
 
 
 DATE_FILE = 'label1.txt'
@@ -14,6 +17,7 @@ COORDINATES_FILE = 'coords.csv'
 WSDL_FILE = 'https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices?wsdl'
 ACCESS_POINT = 'http://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices'
 EMAIL = 'koenig1@uchicago.edu'
+APP_KEY = '126AA2A4-96BA-11E9-9D2C-D7883D88392C'
 
 def request_downloads(dates=DATE_FILE, coords=COORDINATES_FILE, url=WSDL_FILE, email_address=EMAIL):
     '''
@@ -29,8 +33,7 @@ def request_downloads(dates=DATE_FILE, coords=COORDINATES_FILE, url=WSDL_FILE, e
         total_orders: list of order ids (ints)
     '''
     # Initialize params for request
-    search_params = {'products': 'MOD35_L2', 'collection': 61, 'dayNightBoth': 'DB'}
-    order_params = {'doMosaic': True}
+    search_params = {'products': 'MOD35_L2', 'collection': 61, 'dayNightBoth': 'DB', 'coordsOrTiles': 'coords'}
     # Add additional params of locations
     dates_file = open(dates, 'r')
     label_dates = dates_file.read().split('\n')
@@ -45,17 +48,50 @@ def request_downloads(dates=DATE_FILE, coords=COORDINATES_FILE, url=WSDL_FILE, e
         for date in label_dates[:-1]: 
             search_params['startTime'] = str(date) + ' 00:00:00'
             search_params['endTime'] = str(date) + ' 23:59:59'
-            # API Request for each set of parameters
-            # Initialize interface for SOAP interactions
-            sets = Settings(raw_response=True, xml_huge_tree=True)
-            client = Client(wsdl, settings=sets)
             # Find relevant files
-            file_id_lst = client.service.searchForFiles(**p)
+            response = requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/searchForFiles?', search_params)
+            soup = BeautifulSoup(response.content, 'html5lib')
+            for id in soup.find_all('return'):
+                total_orders.append(int(id.text))
+            return total_orders
+            
             # Order downloads of files
-            order_ids = service.OrderFiles(email=email_address, fileIds=file_id_lst, doMosaic=True)
-            total_orders += order
-    return total_orders
-    
+
+    #         order_ids = requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/orderFiles?', order_params)
+    #         total_orders += order_ids
+    # return total_orders
+
+
+#https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/orderFiles?orderIds=[2760357367]&email=koenig1@uchicago.edu
+
+
+
+def download_order(order_lst, destination='hdf_files', token=APP_KEY, email_address=EMAIL):
+    '''
+    Checks to see if order status complete; when complete, downloads files in order
+
+    Inputs:
+        order_lst: list of integers, each representing an order placed
+        destination(str): folder name in which to save images
+        token(str): app key from NASA
+
+    Outputs: None (saved images)
+    '''
+    if not os.path.exists(destination):
+        os.makedirs(destination)
+    for order in order_lst:
+        response = requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/getOrderStatus?orderId=' + str(order))
+        soup = BeautifulSoup(response.content, 'html5lib')
+        status = soup.find('return')
+        if status.text == 'Available':
+            source = 'https://ladsweb.modaps.eosdis.nasa.gov/archive/orders/' + str(order) + '/'
+            ldd.sync(source, destination, token)
+            #params = {'order': order, 'email': email_address}
+            # To delete -- NASA not working
+            #requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/releaseOrder?', params)
+        else:
+            order_lst.append(order)
+
 
 def write_csv(outputfile='coords.csv'):
     '''
