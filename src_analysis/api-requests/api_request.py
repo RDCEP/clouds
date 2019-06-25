@@ -54,7 +54,6 @@ def request_downloads(dates=DATE_FILE, coords=COORDINATES_FILE, email_address=EM
             # Order downloads of files
             order_params = {'email': email_address, 'fileIds': ','.join(file_ids)}
             order_response = requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/orderFiles?', order_params)
-            print(order_response.status_code)
             if order_response.status_code == 200:
                 order_soup = BeautifulSoup(order_response.content, 'html5lib')
                 order_ids.append(order_soup.find('return').text)
