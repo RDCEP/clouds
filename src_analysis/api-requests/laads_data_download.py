@@ -15,6 +15,8 @@ import os
 import os.path
 import shutil
 import sys
+import time
+import requests
 
 try:
     from StringIO import StringIO   # python2
@@ -32,55 +34,40 @@ def geturl(url, token=None, out=None):
     headers = { 'user-agent' : USERAGENT }
     if not token is None:
         headers['Authorization'] = 'Bearer ' + token
-    try:
-        import ssl
-        CTX = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-        if sys.version_info.major == 2:
-            import urllib2
-            try:
-                fh = urllib2.urlopen(urllib2.Request(url, headers=headers), context=CTX)
-                if out is None:
-                    return fh.read()
-                else:
-                    shutil.copyfileobj(fh, out)
-            except urllib2.HTTPError as e:
-                print('HTTP GET error code: %d' % e.code(), file=sys.stderr)
-                print('HTTP GET error message: %s' % e.message, file=sys.stderr)
-            except urllib2.URLError as e:
-                print('Failed to make request: %s' % e.reason, file=sys.stderr)
-            return None
 
-        else:
-            from urllib.request import urlopen, Request, URLError, HTTPError
-            try:
-                fh = urlopen(Request(url, headers=headers), context=CTX)
-                if out is None:
-                    return fh.read().decode('utf-8')
-                else:
-                    shutil.copyfileobj(fh, out)
-            except HTTPError as e:
-                print('HTTP GET error code: %d' % e.code(), file=sys.stderr)
-                print('HTTP GET error message: %s' % e.message, file=sys.stderr)
-            except URLError as e:
-                print('Failed to make request: %s' % e.reason, file=sys.stderr)
-            return None
+    from urllib.request import urlopen, Request, URLError, HTTPError
+    fh = urlopen(Request(url, headers=headers), context=CTX)
+    print(fh)
+    if out is None:
+        return fh.read().decode('utf-8')
+    else:
+        shutil.copyfileobj(fh, out)
+    # except:
+    #     time.sleep(1)
+    #     response = requests.get(url)
+    #     print(response.status_code)
+    #     geturl(url, token, out)
+            # except HTTPError as e:
+            #     print('HTTP GET error code: %d' % e.code(), file=sys.stderr)
+            #     print('HTTP GET error message: %s' % e.message, file=sys.stderr)
+            # except URLError as e:
+            #     print('Failed to make request: %s' % e.reason, file=sys.stderr)
 
-    except AttributeError:
-        # OS X Python 2 and 3 don't support tlsv1.1+ therefore... curl
-        import subprocess
-        try:
-            args = ['curl', '--fail', '-sS', '-L', '--get', url]
-            for (k,v) in headers.items():
-                args.extend(['-H', ': '.join([k, v])])
-            if out is None:
-                # python3's subprocess.check_output returns stdout as a byte string
-                result = subprocess.check_output(args)
-                return result.decode('utf-8') if isinstance(result, bytes) else result
-            else:
-                subprocess.call(args, stdout=out)
-        except subprocess.CalledProcessError as e:
-            print('curl GET error message: %' + (e.message if hasattr(e, 'message') else e.output), file=sys.stderr)
-        return None
+    # except AttributeError:
+    #     # OS X Python 2 and 3 don't support tlsv1.1+ therefore... curl
+    #     import subprocess
+    #     try:
+    #         args = ['curl', '--fail', '-sS', '-L', '--get', url]
+    #         for (k,v) in headers.items():
+    #             args.extend(['-H', ': '.join([k, v])])
+    #         if out is None:
+    #             # python3's subprocess.check_output returns stdout as a byte string
+    #             result = subprocess.check_output(args)
+    #             return result.decode('utf-8') if isinstance(result, bytes) else result
+    #         else:
+    #             subprocess.call(args, stdout=out)
+    #     except subprocess.CalledProcessError as e:
+    #         print('curl GET error message: %' + (e.message if hasattr(e, 'message') else e.output), file=sys.stderr)
 
 
 
@@ -92,6 +79,7 @@ DESC = "This script will recursively download all files if they don't exist from
 
 def sync(src, dest, tok):
     '''synchronize src url with dest directory'''
+    print('nsync')
     try:
         import csv
         files = [ f for f in csv.DictReader(StringIO(geturl('%s.csv' % src, tok)), skipinitialspace=True) ]
@@ -124,7 +112,6 @@ def sync(src, dest, tok):
             except IOError as e:
                 print("open `%s': %s" % (e.filename, e.strerror), file=sys.stderr)
                 sys.exit(-1)
-    return 0
 
 
 def _main(argv):
