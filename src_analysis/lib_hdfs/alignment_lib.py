@@ -95,6 +95,13 @@ def mod02_proc_sds(sds_array):
         array[nan_idx] = np.nan
     else:
         pass
+    # invalid value process
+    # TODO: future change 32767 to other value
+    invalid_idx = np.where( array > 32767 )
+    if len(nan_idx) > 0:
+        array[invalid_idx] = np.nan
+    else:
+        pass
     
     # radiacne offset
     offset = sds_array.attributes()['radiance_offsets']
