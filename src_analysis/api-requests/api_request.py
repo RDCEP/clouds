@@ -56,7 +56,7 @@ def request_downloads(dates=DATE_FILE, coords=COORDINATES_FILE, email_address=EM
             order_response = requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/orderFiles?', order_params)
             if order_response.status_code == 200:
                 order_soup = BeautifulSoup(order_response.content, 'html5lib')
-                order_ids.append(order_soup.find('return').text)
+                order_ids.append(int(order_soup.find('return').text))
     return order_ids
 
 
@@ -77,12 +77,17 @@ def download_order(order_lst, destination='hdf_files', token=APP_KEY, email_addr
         response = requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/getOrderStatus?orderId=' + str(order))
         soup = BeautifulSoup(response.content, 'html5lib')
         status = soup.find('return')
+        # Continuously checks if order processed & downloads if ready
         if status.text == 'Available':
             source = 'https://ladsweb.modaps.eosdis.nasa.gov/archive/orders/' + str(order) + '/'
-            ldd.sync(source, destination, token)
-            #params = {'orderId': order, 'email': email_address}
-            # To delete -- NASA not working
-            #requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/releaseOrder?', params)
+            response = requests.get(source)
+            if response.status_code == 200:
+                ldd.sync(source, destination, token)
+                # After downloading, order is released
+                #params = {'orderId': order, 'email': email_address}
+                #requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/releaseOrder?', params)
+            else:
+                order_lst.append(order)
         else:
             order_lst.append(order)
 
@@ -100,11 +105,17 @@ def write_csv(outputfile='coords.csv'):
         outputwriter = csv.writer(csvfile, delimiter=',')
         outputwriter.writerow(['north', 'south', 'east', 'west'])
         outputwriter.writerow([32.5, 12.4, 127.7, -155.4])
-        outputwriter.writerow([-34.3, -49.9, 40.2, 23.5])
-        outputwriter.writerow([-19.6, -44.9, 14.2, -5.6])
-        outputwriter.writerow([42, 23.6, -48.1, -74.7])
-        outputwriter.writerow([33.6, 12.4, -15.9, -37.5])
-        outputwriter.writerow([-4, 34.5, -107.6, -137.3])
-        outputwriter.writerow([-6.5, -31.8, -72.3, -102.3])
-        outputwriter.writerow([32.6, 3.4, -109.6, -135.9])
+        # outputwriter.writerow([-34.3, -49.9, 40.2, 23.5])
+        # outputwriter.writerow([-19.6, -44.9, 14.2, -5.6])
+        # outputwriter.writerow([42, 23.6, -48.1, -74.7])
+        # outputwriter.writerow([33.6, 12.4, -15.9, -37.5])
+        # outputwriter.writerow([-4, 34.5, -107.6, -137.3])
+        # outputwriter.writerow([-6.5, -31.8, -72.3, -102.3])
+        # outputwriter.writerow([32.6, 3.4, -109.6, -135.9])
     csvfile.close()
+
+
+def go():
+    order_ids = request_downloads()
+    print(order_ids)
+    download_order(order_ids) 
