@@ -27,9 +27,9 @@ This file contains the following:
 
 Note: you must already have a registered email address through NASA's LAADS DAAC website as well as an app_key created after registration.
 
-1.) Edit the api_request.py file to include user's NASA-registered email address and app key. This is located that the top of the file and noted by a comment for clarity.
-2.) Ensure you have the correct coords.csv. As currently pushed on 27 June 2019, write_csv() generates a csv with coordinates for eight locations. If you would like to add to or delete from this list, please edit the code accordingly with corresponding cardinal directions and call write_csv().
-3.) Call combining_fn() from api_request.py. Notes:
+1. Edit the api_request.py file to include user's NASA-registered email address and app key. This is located that the top of the file and noted by a comment for clarity.
+2. Ensure you have the correct coords.csv. As currently pushed on 27 June 2019, write_csv() generates a csv with coordinates for eight locations. If you would like to add to or delete from this list, please edit the code accordingly with corresponding cardinal directions and call write_csv().
+3. Call combining_fn() from api_request.py. Notes:
 	* Any available past orders for the user's account will be released when combining_fn() called and will have to be reorder if needed in the future.
 	* Files will automatically be downloed into a folder called "hdf_files" in the user's current working directory. If the user would like to change the output file, please edit the OUTPUT_FILE string at the top of the api_request.pys
 	* All orders placed with this call will be released upon termination of downloading processes. If process is interrupted, files ordered but not yet downloaded will not be released. If you wish to release all files then, please call clear_all_orders()
