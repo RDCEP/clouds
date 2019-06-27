@@ -18,7 +18,6 @@ This file contains the following:
 
 ### Necessary Modules:
 
-* argparse 1.4.0
 * requests 2.22.0
 * bs4 0.0.1
 * pandas 0.24.2
