@@ -23,6 +23,12 @@ APP_KEY = '126AA2A4-96BA-11E9-9D2C-D7883D88392C'
 
 def clear_all_orders(email_address=EMAIL):
     '''
+    Releases all orders for given account on NASA website
+
+    Inputs:
+        email_address(str): email address for NASA account
+
+    Outputs: None
     '''
     alive_lst = get_alive_orders(email_address)
     for order in alive_lst:
@@ -88,7 +94,7 @@ def write_csv(outputfile='coords.csv'):
         outputwriter = csv.writer(csvfile, delimiter=',')
         outputwriter.writerow(['north', 'south', 'east', 'west'])
         outputwriter.writerow([32.5, 12.4, 127.7, -155.4])
-        outputwriter.writerow([-34.3, -49.9, 40.2, 23.5])
+        #outputwriter.writerow([-34.3, -49.9, 40.2, 23.5])
         #outputwriter.writerow([-19.6, -44.9, 14.2, -5.6])
         #outputwriter.writerow([42, 23.6, -48.1, -74.7])
         #outputwriter.writerow([33.6, 12.4, -15.9, -37.5])
@@ -98,9 +104,9 @@ def write_csv(outputfile='coords.csv'):
     csvfile.close()
 
 
-### Now, we download: you need only call INSERT COMBINING FN NAME (also available through command line if above csv already created###
+### To actually download images: you need only call combining_fn() located at bottom of file
 
-def request_downloads(dates=DATE_FILE, coords=COORDINATES_FILE, email_address=EMAIL):
+def find_files(dates=DATE_FILE, coords=COORDINATES_FILE, email_address=EMAIL):
     '''
     Calls NASA LWS API to order downloads of specified files
 
@@ -120,7 +126,6 @@ def request_downloads(dates=DATE_FILE, coords=COORDINATES_FILE, email_address=EM
     coords_df = pd.read_csv(coords)
     order_ids = []
     total_params =[]
-    all_ids = []
     for row in coords_df.iterrows():
         search_params['north'] = row[1][0]
         search_params['south'] = row[1][1]
@@ -144,6 +149,12 @@ def request_downloads(dates=DATE_FILE, coords=COORDINATES_FILE, email_address=EM
 
 def batch_order_and_delete(total_params):
     '''
+    Orders and downloads batches for files due to the NASA request limit
+
+    Inputs:
+        total_params: list of dictionaries of parameters to be passed
+
+    Outputs: list of order ids that were ordered, downloaded and released
     '''
     order_ids = []
     max_size = 100
@@ -154,20 +165,20 @@ def batch_order_and_delete(total_params):
             order_files(order_param, order_ids)
         print('Waiting for Availability to Download')
         download_order(order_ids)
-    return all_ids
-
-
+        print('Releasing orders')
+        clear_all_orders()
+    return order_ids
 
 
 def order_files(order_params, order_ids):
     '''
-    Places orders via NASA API to for downloading data
+    Places orders via NASA API to for downloading data and updates order_ids list to reflect new orders
 
     Inputs:
         order_params: dictionary of parameters to pass to build url
         order_ids: list of integers
 
-    Outputs: None
+    Outputs: None (modified order_ids list in place)
     '''
     order_response = requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/orderFiles?', order_params)
     if order_response.status_code == 200:
@@ -199,16 +210,20 @@ def download_order(order_lst, destination='hdf_files', token=APP_KEY, email_addr
         # Continuously checks if order processed & downloads if ready
         if status.text == 'Available':
             source = 'https://ladsweb.modaps.eosdis.nasa.gov/archive/orders/' + str(order) + '/'
-            print(source)
             response = requests.get(source)
             if response.status_code == 200:
-                #ldd.sync(source, destination, token)
-                # After downloading, order is released
-                print('Deleting order ' + str(order))
-                release_order(order)
+                ldd.sync(source, destination, token)
             else:
                 order_lst.append(order)
         else:
             order_lst.append(order)
 
 
+def combining_fn():
+    '''
+    Combining function to search, order, download and release all files in batches
+
+    Inputs:
+
+    Outputs:
+    '''

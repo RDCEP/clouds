@@ -17,6 +17,7 @@ import shutil
 import sys
 import time
 import requests
+import ssl
 
 try:
     from StringIO import StringIO   # python2
@@ -34,14 +35,17 @@ def geturl(url, token=None, out=None):
     headers = { 'user-agent' : USERAGENT }
     if not token is None:
         headers['Authorization'] = 'Bearer ' + token
-
-    from urllib.request import urlopen, Request, URLError, HTTPError
-    fh = urlopen(Request(url, headers=headers), context=CTX)
-    print(fh)
-    if out is None:
-        return fh.read().decode('utf-8')
-    else:
-        shutil.copyfileobj(fh, out)
+    try:
+        CTX = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+        from urllib.request import urlopen, Request, URLError, HTTPError
+        fh = urlopen(Request(url, headers=headers), context=CTX)
+        print(fh)
+        if out is None:
+            return fh.read().decode('utf-8')
+        else:
+            shutil.copyfileobj(fh, out)
+    except:
+        geturl(url, token, out)
     # except:
     #     time.sleep(1)
     #     response = requests.get(url)
@@ -79,7 +83,6 @@ DESC = "This script will recursively download all files if they don't exist from
 
 def sync(src, dest, tok):
     '''synchronize src url with dest directory'''
-    print('nsync')
     try:
         import csv
         files = [ f for f in csv.DictReader(StringIO(geturl('%s.csv' % src, tok)), skipinitialspace=True) ]
