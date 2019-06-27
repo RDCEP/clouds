@@ -227,3 +227,6 @@ def combining_fn():
 
     Outputs:
     '''
+    order_params = find_files(dates=DATE_FILE, coords=COORDINATES_FILE, email_address=EMAIL)
+    order_ids = batch_order_and_delete(order_params)
+    return order_ids
