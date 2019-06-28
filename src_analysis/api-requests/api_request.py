@@ -38,14 +38,15 @@ def write_csv(outputfile='coords.csv'):
     with open(outputfile, 'w') as csvfile:
         outputwriter = csv.writer(csvfile, delimiter=',')
         outputwriter.writerow(['name', 'north', 'south', 'east', 'west'])
-        outputwriter.writerow(['open_pacific', 32.5, 12.4, 127.7, -155.4])
-        #outputwriter.writerow(['open_south_sf', -34.3, -49.9, 40.2, 23.5])
-        # outputwriter.writerow(['closed_west_sf', -19.6, -44.9, 14.2, -5.6])
-        # outputwriter.writerow(['open_west_atlantic', 42, 23.6, -48.1, -74.7])
-        # outputwriter.writerow(['closed_east_atlantic', 33.6, 12.4, -15.9, -37.5])
-        # outputwriter.writerow(['open_chile', -4, 34.5, -107.6, -137.3])
-        # outputwriter.writerow(['closed_chile', -6.5, -31.8, -72.3, -102.3])
-        # outputwriter.writerow(['closed_california', 32.6, 3.4, -109.6, -135.9])
+        # open pacific already downloaded
+        # outputwriter.writerow(['open_pacific', 32.5, 12.4, 127.7, -155.4])
+        outputwriter.writerow(['open_south_sf', -34.3, -49.9, 40.2, 23.5])
+        outputwriter.writerow(['closed_west_sf', -19.6, -44.9, 14.2, -5.6])
+        outputwriter.writerow(['open_west_atlantic', 42, 23.6, -48.1, -74.7])
+        outputwriter.writerow(['closed_east_atlantic', 33.6, 12.4, -15.9, -37.5])
+        outputwriter.writerow(['open_chile', -4, 34.5, -107.6, -137.3])
+        outputwriter.writerow(['closed_chile', -6.5, -31.8, -72.3, -102.3])
+        outputwriter.writerow(['closed_california', 32.6, 3.4, -109.6, -135.9])
     csvfile.close()
 
 
