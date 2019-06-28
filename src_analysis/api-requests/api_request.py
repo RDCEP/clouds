@@ -39,15 +39,15 @@ def write_csv(outputfile='coords.csv'):
     '''
     with open(outputfile, 'w') as csvfile:
         outputwriter = csv.writer(csvfile, delimiter=',')
-        outputwriter.writerow(['north', 'south', 'east', 'west'])
-        outputwriter.writerow([32.5, 12.4, 127.7, -155.4])
-        outputwriter.writerow([-34.3, -49.9, 40.2, 23.5])
-        outputwriter.writerow([-19.6, -44.9, 14.2, -5.6])
-        outputwriter.writerow([42, 23.6, -48.1, -74.7])
-        outputwriter.writerow([33.6, 12.4, -15.9, -37.5])
-        outputwriter.writerow([-4, 34.5, -107.6, -137.3])
-        outputwriter.writerow([-6.5, -31.8, -72.3, -102.3])
-        outputwriter.writerow([32.6, 3.4, -109.6, -135.9])
+        outputwriter.writerow(['name', 'north', 'south', 'east', 'west'])
+        outputwriter.writerow(['open_pacific' 32.5, 12.4, 127.7, -155.4])
+        outputwriter.writerow(['open_south_sf', -34.3, -49.9, 40.2, 23.5])
+        outputwriter.writerow(['closed_west_sf', -19.6, -44.9, 14.2, -5.6])
+        outputwriter.writerow(['open_west_atlantic', 42, 23.6, -48.1, -74.7])
+        outputwriter.writerow(['closed_east_atlantic', 33.6, 12.4, -15.9, -37.5])
+        outputwriter.writerow(['open_chile', -4, 34.5, -107.6, -137.3])
+        outputwriter.writerow(['closed_chile', -6.5, -31.8, -72.3, -102.3])
+        outputwriter.writerow(['closed_california', 32.6, 3.4, -109.6, -135.9])
     csvfile.close()
 
 
@@ -115,7 +115,7 @@ def release_order(order, email_address=EMAIL):
 
 ### To actually download images: you need only call combining_fn() located at bottom of file
 
-def find_files(dates=DATE_FILE, coords=COORDINATES_FILE, email_address=EMAIL):
+def find_files(dates=DATE_FILE, coords=COORDINATES_FILE, email_address=EMAIL, prods):
     '''
     Calls NASA LWS API to order downloads of specified files
 
@@ -128,7 +128,11 @@ def find_files(dates=DATE_FILE, coords=COORDINATES_FILE, email_address=EMAIL):
         total_params: list of dictionaries of parameters
     '''
     # Initialize params for request
+<<<<<<< HEAD
     search_params = {'products': 'MOD35_L2,MOD021KM',
+=======
+    search_params = {'products': prods,
+>>>>>>> 0eda8cb298f1341fa539795e0fb3a6a80c750962
                      'collection': 61,
                      'dayNightBoth': 'DB',
                      'coordsOrTiles': 'coords'}
@@ -235,7 +239,11 @@ def download_order(order_lst, destination='hdf_files', token=APP_KEY):
 
 
 def combining_fn(email_address=EMAIL, token=APP_KEY, dates=DATE_FILE,
+<<<<<<< HEAD
                  coords=COORDINATES_FILE):
+=======
+                 coords=COORDINATES_FILE, products='MOD35_L2'):
+>>>>>>> 0eda8cb298f1341fa539795e0fb3a6a80c750962
     '''
     Combining function to search, order, download and release all files in batches
 
@@ -249,7 +257,7 @@ def combining_fn(email_address=EMAIL, token=APP_KEY, dates=DATE_FILE,
     # First, releases all orders to make space for new orders
     clear_all_orders(email_address)
     # Generates list of order parameters
-    order_params = find_files(dates, coords, email_address)
+    order_params = find_files(dates, coords, email_address, products)
     # Orders, downloads and releases files
     order_ids = batch_order_and_delete(order_params, destination, token, email_address)
     return set(order_ids)
@@ -257,5 +265,10 @@ def combining_fn(email_address=EMAIL, token=APP_KEY, dates=DATE_FILE,
 if __name__ == '__main__':
     email = argv[1]
     app_key = argv[2]
+<<<<<<< HEAD
     combining_fn(email_address=email, token=app_key)
 
+=======
+    prods = argv[3]
+    combining_fn(email_address=email, token=app_key, products=prods)
+>>>>>>> 0eda8cb298f1341fa539795e0fb3a6a80c750962
