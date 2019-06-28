@@ -8,6 +8,8 @@
 /experimental  
 /gee 
 /logs  
+/src_analysis/__pycache__/
+/src_analysis/*/__pycache__/
 
 
 #############################################
