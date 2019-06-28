@@ -43,7 +43,7 @@ def get_bad_dates(file_lst=UNUSABLE_DATES):
         dfs_to_concat.append(ind_df)
     df = pd.concat(dfs_to_concat)
     df.rename(columns={0: 'date'}, inplace=True)
-    df.to_csv('total_bad_dates')
+    df.to_csv('total_bad_dates.csv')
     return list(df['date'])
 
 
