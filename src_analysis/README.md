@@ -12,7 +12,20 @@
 - lib_hdfs  
   directory for decoding hdf library.
   * Important notice  
-    Major updated donw on June 26th 2019. Check 
+    Major updated done on June 26th 2019. Check below modification was seen at following programs  
+    1. Filename: alignment_lib.py, Function: mod02_proc_sds  
+
+    Contents  
+    ```
+     # invalid value process
+     # TODO: future change 32767 to other value
+     invalid_idx = np.where( array > 32767 )
+     if len(nan_idx) > 0:
+         array[invalid_idx] = np.nan
+     else:
+         pass
+    ``` 
+
 - load_hdfs  
 - metadata
 - tools
