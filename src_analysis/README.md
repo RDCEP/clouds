@@ -12,8 +12,10 @@
 - lib_hdfs  
   directory for decoding hdf library.
   * Important notice  
-    Major updated done on June 26th 2019. Check below modification was seen at following programs  
-    1. Filename: alignment_lib.py, Function: mod02_proc_sds  
+    Major updated done on June 26th 2019. Check below modification was seen at following program(s)  
+      
+    Filename: alignment_lib.py  
+    Function: mod02_proc_sds  
 
     Contents  
     ```
