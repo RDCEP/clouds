@@ -6,6 +6,7 @@ Functions to request downloads of modis data from NASA API
 '''
 
 import os
+from sys import argv
 import time
 import csv
 import requests
@@ -16,12 +17,9 @@ import laads_data_download as ldd
 
 ########################################################
 #INPUT REGISTERED NASA EMAIL AND APP KEY IN QUOTES BELOW
-EMAIL = ''
-APP_KEY = ''
+EMAIL = 'koenig1@uchicago.edu'
+APP_KEY = '126AA2A4-96BA-11E9-9D2C-D7883D88392C'
 ########################################################
-OUTPUT_FILE = 'hdf_files' # edit for desired filename/path
-
-
 DATE_FILE = 'one_date.txt'
 COORDINATES_FILE = 'coords.csv'
 
@@ -40,14 +38,14 @@ def write_csv(outputfile='coords.csv'):
     with open(outputfile, 'w') as csvfile:
         outputwriter = csv.writer(csvfile, delimiter=',')
         outputwriter.writerow(['name', 'north', 'south', 'east', 'west'])
-        outputwriter.writerow(['open_pacific' 32.5, 12.4, 127.7, -155.4])
+        outputwriter.writerow(['open_pacific', 32.5, 12.4, 127.7, -155.4])
         outputwriter.writerow(['open_south_sf', -34.3, -49.9, 40.2, 23.5])
-        outputwriter.writerow(['closed_west_sf', -19.6, -44.9, 14.2, -5.6])
-        outputwriter.writerow(['open_west_atlantic', 42, 23.6, -48.1, -74.7])
-        outputwriter.writerow(['closed_east_atlantic', 33.6, 12.4, -15.9, -37.5])
-        outputwriter.writerow(['open_chile', -4, 34.5, -107.6, -137.3])
-        outputwriter.writerow(['closed_chile', -6.5, -31.8, -72.3, -102.3])
-        outputwriter.writerow(['closed_california', 32.6, 3.4, -109.6, -135.9])
+        # outputwriter.writerow(['closed_west_sf', -19.6, -44.9, 14.2, -5.6])
+        # outputwriter.writerow(['open_west_atlantic', 42, 23.6, -48.1, -74.7])
+        # outputwriter.writerow(['closed_east_atlantic', 33.6, 12.4, -15.9, -37.5])
+        # outputwriter.writerow(['open_chile', -4, 34.5, -107.6, -137.3])
+        # outputwriter.writerow(['closed_chile', -6.5, -31.8, -72.3, -102.3])
+        # outputwriter.writerow(['closed_california', 32.6, 3.4, -109.6, -135.9])
     csvfile.close()
 
 
@@ -115,7 +113,7 @@ def release_order(order, email_address=EMAIL):
 
 ### To actually download images: you need only call combining_fn() located at bottom of file
 
-def find_files(dates=DATE_FILE, coords=COORDINATES_FILE, email_address=EMAIL, prods):
+def find_files(prods='MOD35_L2', dates=DATE_FILE, coords=COORDINATES_FILE, email_address=EMAIL):
     '''
     Calls NASA LWS API to order downloads of specified files
 
@@ -128,11 +126,9 @@ def find_files(dates=DATE_FILE, coords=COORDINATES_FILE, email_address=EMAIL, pr
         total_params: list of dictionaries of parameters
     '''
     # Initialize params for request
-<<<<<<< HEAD
-    search_params = {'products': 'MOD35_L2,MOD021KM',
-=======
+    bad_dates = pd.read_csv('total_bad_dates.csv')
+    destination_lst = []
     search_params = {'products': prods,
->>>>>>> 0eda8cb298f1341fa539795e0fb3a6a80c750962
                      'collection': 61,
                      'dayNightBoth': 'DB',
                      'coordsOrTiles': 'coords'}
@@ -142,34 +138,38 @@ def find_files(dates=DATE_FILE, coords=COORDINATES_FILE, email_address=EMAIL, pr
     coords_df = pd.read_csv(coords)
     total_params = []
     for row in coords_df.iterrows():
-        search_params['north'] = row[1][0]
-        search_params['south'] = row[1][1]
-        search_params['east'] = row[1][2]
-        search_params['west'] = row[1][3]
+        location = row[1][0]
+        search_params['north'] = row[1][1]
+        search_params['south'] = row[1][2]
+        search_params['east'] = row[1][3]
+        search_params['west'] = row[1][4]
         # Iterate through date list of each location
         for date in label_dates[:-1]:
-            search_params['startTime'] = str(date) + ' 00:00:00'
-            search_params['endTime'] = str(date) + ' 23:59:59'
-            # Find relevant files
-            response = requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/searchForFiles?',
-                                    search_params)
-            soup = BeautifulSoup(response.content, 'html5lib')
-            file_ids = []
-            for f_id in soup.find_all('return'):
-                file_ids.append(f_id.text)
-            # Order downloads of files
-            order_params = {'email': email_address, 'fileIds': ','.join(file_ids)}
-            total_params.append(order_params)
-    return total_params
+            if date not in bad_dates['date']:
+                search_params['startTime'] = str(date) + ' 00:00:00'
+                search_params['endTime'] = str(date) + ' 23:59:59'
+                # Find relevant files
+                response = requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/searchForFiles?',
+                                        search_params)
+                soup = BeautifulSoup(response.content, 'html5lib')
+                file_ids = []
+                for f_id in soup.find_all('return'):
+                    file_ids.append(f_id.text)
+                # Order downloads of files
+                order_params = {'email': email_address, 'fileIds': ','.join(file_ids)}
+                total_params.append(order_params)
+                destination = 'data/' + str(prods) + '/clustering/' + str(location) + '/' + str(date)
+                destination_lst.append(destination)
+    return total_params, destination_lst
 
 
-def batch_order_and_delete(total_params, destination='hdf_files',
-                           token=APP_KEY, email_address=EMAIL):
+def batch_order_and_delete(total_params, destination_lst, token=APP_KEY, email_address=EMAIL):
     '''
     Orders and downloads batches for files due to the NASA request limit
 
     Inputs:
         total_params: list of dictionaries of parameters to be passed
+        destination_lst: list of strings of foldernames
 
     Outputs: list of order ids that were ordered, downloaded and released
     '''
@@ -177,11 +177,17 @@ def batch_order_and_delete(total_params, destination='hdf_files',
     max_size = 100
     for i in range(0, len(total_params), max_size):
         chunk = total_params[i:i+max_size]
-        print('Requesting orders')
+        dest_chunk = destination_lst[i:i+max_size]
+        print('Requesting Orders')
         for order_param in chunk:
             order_files(order_param, order_ids)
         print('Waiting for Availability to Download')
-        download_order(order_ids, destination, token)
+        # NASA takes minutes to prepare files
+        time.sleep(300)
+        for i in range(len(order_ids)):
+            order = order_ids[i]
+            destination = dest_chunk[i]
+            download_order(order, destination, token)
         clear_all_orders(email_address)
     return order_ids
 
@@ -203,47 +209,35 @@ def order_files(order_params, order_ids):
         order_soup = BeautifulSoup(order_response.content, 'html5lib')
         order_ids.append(int(order_soup.find('return').text))
     else:
-        print("Issue with NASA orderFiles API; will retry url until success")
-        time.sleep(1)
+        print("Retrying NASA orderFiles API")
+        time.sleep(5)
         order_files(order_params, order_ids)
 
 
-def download_order(order_lst, destination='hdf_files', token=APP_KEY):
+def download_order(order, destination, token=APP_KEY):
     '''
-    Checks to see if order status complete
-    When complete, downloads files in order
+    Downloads previously ordered file (tries continuously until file available)
 
     Inputs:
-        order_lst: list of integers, each representing an order placed
-        destination(str): folder name in which to save images
+        order(int): order number
+        destination(str): lfolder name to save file
         token(str): app key from NASA
 
     Outputs: None (saved images)
     '''
-    if not os.path.exists(destination):
-        os.makedirs(destination)
-    for order in order_lst:
-        response = requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/getOrderStatus?orderId=' + str(order))
-        soup = BeautifulSoup(response.content, 'html5lib')
-        status = soup.find('return')
-        # Continuously checks if order processed & downloads if ready
-        if status.text == 'Available':
-            source = 'https://ladsweb.modaps.eosdis.nasa.gov/archive/orders/' + str(order) + '/'
-            response = requests.get(source)
-            if response.status_code == 200:
-                ldd.sync(source, destination, token)
-            else:
-                order_lst.append(order)
-        else:
-            order_lst.append(order)
+    try:
+        source = 'https://ladsweb.modaps.eosdis.nasa.gov/archive/orders/' + str(order) + '/'
+        if not os.path.exists(destination):
+            os.makedirs(destination)
+        ldd.sync(source, destination, token)
+    except:
+        time.sleep(3)
+        print('trying again to download')
+        download_order(order, destination, token)
 
 
 def combining_fn(email_address=EMAIL, token=APP_KEY, dates=DATE_FILE,
-<<<<<<< HEAD
-                 coords=COORDINATES_FILE):
-=======
                  coords=COORDINATES_FILE, products='MOD35_L2'):
->>>>>>> 0eda8cb298f1341fa539795e0fb3a6a80c750962
     '''
     Combining function to search, order, download and release all files in batches
 
@@ -257,18 +251,14 @@ def combining_fn(email_address=EMAIL, token=APP_KEY, dates=DATE_FILE,
     # First, releases all orders to make space for new orders
     clear_all_orders(email_address)
     # Generates list of order parameters
-    order_params = find_files(dates, coords, email_address, products)
+    order_params, destination_lst = find_files(products, dates, coords, email_address)
     # Orders, downloads and releases files
-    order_ids = batch_order_and_delete(order_params, destination, token, email_address)
+    order_ids = batch_order_and_delete(order_params, destination_lst, token, email_address)
     return set(order_ids)
 
 if __name__ == '__main__':
     email = argv[1]
     app_key = argv[2]
-<<<<<<< HEAD
-    combining_fn(email_address=email, token=app_key)
-
-=======
     prods = argv[3]
-    combining_fn(email_address=email, token=app_key, products=prods)
->>>>>>> 0eda8cb298f1341fa539795e0fb3a6a80c750962
+    order_ids = combining_fn(email_address=email, token=app_key, products=prods)
+    print(order_ids)

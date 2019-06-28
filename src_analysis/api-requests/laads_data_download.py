@@ -28,7 +28,6 @@ USERAGENT = 'tis/download.py_1.0--' + sys.version.replace('\n', '').replace('\r'
 
 
 def geturl(url, token=None, out=None):
-    print('test2')
     headers = {'user-agent' : USERAGENT}
     if not token is None:
         headers['Authorization'] = 'Bearer ' + token
@@ -46,14 +45,12 @@ def geturl(url, token=None, out=None):
 
 ################################################################################
 
-
 #This script will recursively download all files if they don't exist from a
 #LAADS URLand stores them to the specified path
 
 
 def sync(src, dest, tok):
     '''synchronize src url with dest directory'''
-    print('test')
     try:
         import csv
         files = [f for f in csv.DictReader(StringIO(geturl('%s.csv' % src, tok)),
@@ -61,7 +58,6 @@ def sync(src, dest, tok):
     except ImportError:
         import json
         files = json.loads(geturl(src + '.json', tok))
-
     # use os.path since python 2/3 both support it while pathlib is 3.4+
     for f in files:
         # currently we use filesize of 0 to indicate directory
@@ -78,6 +74,7 @@ def sync(src, dest, tok):
                 sys.exit(-1)
         else:
             try:
+                print(path)
                 if not os.path.exists(path):
                     print('downloading: ', path)
                     with open(path, 'w+b') as fh:
