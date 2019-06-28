@@ -17,8 +17,8 @@ import laads_data_download as ldd
 
 ########################################################
 #INPUT REGISTERED NASA EMAIL AND APP KEY IN QUOTES BELOW
-EMAIL = 'koenig1@uchicago.edu'
-APP_KEY = '126AA2A4-96BA-11E9-9D2C-D7883D88392C'
+EMAIL = ''
+APP_KEY = ''
 ########################################################
 DATE_FILE = 'one_date.txt'
 COORDINATES_FILE = 'coords.csv'
