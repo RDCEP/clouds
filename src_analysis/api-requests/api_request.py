@@ -13,15 +13,17 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import laads_data_download as ldd
 
+
 ########################################################
 #INPUT REGISTERED NASA EMAIL AND APP KEY IN QUOTES BELOW
 EMAIL = ''
 APP_KEY = ''
 ########################################################
 OUTPUT_FILE = 'hdf_files' # edit for desired filename/path
+
+
 DATE_FILE = 'one_date.txt'
 COORDINATES_FILE = 'coords.csv'
-
 
 ### Function to make csv of coordinates for patches ####
 ### Feel free to add/delete any coordinates as needed ####
@@ -126,7 +128,7 @@ def find_files(dates=DATE_FILE, coords=COORDINATES_FILE, email_address=EMAIL):
         total_params: list of dictionaries of parameters
     '''
     # Initialize params for request
-    search_params = {'products': 'MOD35_L2',
+    search_params = {'products': 'MOD35_L2,MOD021KM',
                      'collection': 61,
                      'dayNightBoth': 'DB',
                      'coordsOrTiles': 'coords'}
@@ -232,8 +234,8 @@ def download_order(order_lst, destination='hdf_files', token=APP_KEY):
             order_lst.append(order)
 
 
-def combining_fn(dates=DATE_FILE, coords=COORDINATES_FILE, email_address=EMAIL,
-                 destination=OUTPUT_FILE, token=APP_KEY):
+def combining_fn(email_address=EMAIL, token=APP_KEY, dates=DATE_FILE,
+                 coords=COORDINATES_FILE):
     '''
     Combining function to search, order, download and release all files in batches
 
@@ -251,3 +253,9 @@ def combining_fn(dates=DATE_FILE, coords=COORDINATES_FILE, email_address=EMAIL,
     # Orders, downloads and releases files
     order_ids = batch_order_and_delete(order_params, destination, token, email_address)
     return set(order_ids)
+
+if __name__ == '__main__':
+    email = argv[1]
+    app_key = argv[2]
+    combining_fn(email_address=email, token=app_key)
+
