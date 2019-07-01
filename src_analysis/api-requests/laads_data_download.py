@@ -74,7 +74,6 @@ def sync(src, dest, tok):
                 sys.exit(-1)
         else:
             try:
-                print(path)
                 if not os.path.exists(path):
                     print('downloading: ', path)
                     with open(path, 'w+b') as fh:
