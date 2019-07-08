@@ -37,7 +37,7 @@
 #### Step 3
 - Open output npz file. The numpy array contain  
     `filename` : mod02 filename having invalid pixel   
-    `pixel_list` :  list of number of invalid pixel in each patch
+    `pixel_list` :  list of number of invalid pixel in each patch  
     `patch_list` :  list of 1. Each 1 entry means there is 1 patch. np.sum(patch_list) means number of patches having more than 30% of clouds
 
 #### Step 4
