@@ -30,7 +30,7 @@
 
 #### Step 2
 - Download necessary dataset to your storage
-- Based on `filelist_with_invalids.txt`, make directories for these MOD02 data
+- Based on `clustering_invalid_filelist.txt`, make directories for these MOD02 data
 - Run `job_StatsInvPixel.bash` which implemets `prg_StatsInvPixel.py`  
   Here, mod02_dir should be specified where you moved selected MOD02 data by `filelist_with_invalids.txt`
 
