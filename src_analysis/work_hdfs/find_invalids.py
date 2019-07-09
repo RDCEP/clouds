@@ -7,6 +7,7 @@ Functions to check for invalid hdf files and create graphs of distribution
 '''
 
 import os
+import sys
 import glob
 from pyhdf.SD import SD, SDC
 import prg_StatsInvPixel as stats
@@ -19,7 +20,7 @@ from alignment_lib import gen_mod35_img
 DATES_FILE = 'test.txt'
 MOD02_DIRECTORY = '/home/koenig1/scratch-midway2/MOD02/clustering'
 MOD35_DIRECTORY = '/home/koenig1/scratch-midway2/MOD35/clustering'
-DEST_DIRECTORY = '/home/koenig1/scratch-midway2/distribution'
+DEST_DIRECTORY = '/home/koenig1/scratch-midway2/clouds/distribution'
 
 def get_dates(dates_file=DATES_FILE, mod02_dir=MOD02_DIRECTORY, mod35_dir=MOD35_DIRECTORY, destination=DEST_DIRECTORY, output_file='output.csv'):
     '''
@@ -38,13 +39,13 @@ def get_dates(dates_file=DATES_FILE, mod02_dir=MOD02_DIRECTORY, mod35_dir=MOD35_
         dates = file.readlines()
     desired_files = dates[0].replace('hdf', 'hdf ').split()
     for file in desired_files:
-        mod02_path = glob.glob(mod02_dir + '/*/' + file)
+        mod02_path = glob.glob(mod02_dir + '/*/' + file)[0]
         os.link(mod02_path, destination)
         bname = os.path.basename(file)
         date = bname[10:22]
         mod35_path = glob.glob(mod35_dir + '/*/*' + date + '*.hdf')[0]
-        fillvalue_list, mod02_img = stats.gen_mod02_img(filename)
-        hdf_m35 = SD(m35_file, SDC.READ)
+        fillvalue_list, mod02_img = stats.gen_mod02_img(mod02_path)
+        hdf_m35 = SD(m35_path, SDC.READ)
         clouds_mask_img = stats.gen_mod35_img(hdf_m35)
         mod02_patches = _gen_patches(mod02_img, normalization=False)
         stats.check_invalid_clouds2(output_file, file, mod02_patches, clouds_mask_img, fillvalue_list, thres=0.3)

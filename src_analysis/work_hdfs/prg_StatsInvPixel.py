@@ -173,7 +173,7 @@ def check_invalid_clouds2(output_file, file, patches, clouds_mask, fillvalue_lis
     thres: range 0-1. ratio of clouds within the given patch
     dev_const_clouds_array in analysis_mode021KM/016
     """
-    with open(outputfile, 'a') as csvfile:
+    with open(output_file, 'a') as csvfile:
         outputwriter = csv.writer(csvfile, delimiter=',')
         nx, ny = patches.shape[:2]
         patch_counter = 0 
