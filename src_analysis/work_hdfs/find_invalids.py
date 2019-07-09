@@ -45,7 +45,7 @@ def get_dates(dates_file=DATES_FILE, mod02_dir=MOD02_DIRECTORY, mod35_dir=MOD35_
         date = bname[10:22]
         mod35_path = glob.glob(mod35_dir + '/*/*' + date + '*.hdf')[0]
         fillvalue_list, mod02_img = stats.gen_mod02_img(mod02_path)
-        hdf_m35 = SD(m35_path, SDC.READ)
+        hdf_m35 = SD(mod35_path, SDC.READ)
         clouds_mask_img = stats.gen_mod35_img(hdf_m35)
         mod02_patches = _gen_patches(mod02_img, normalization=False)
         stats.check_invalid_clouds2(output_file, file, mod02_patches, clouds_mask_img, fillvalue_list, thres=0.3)
