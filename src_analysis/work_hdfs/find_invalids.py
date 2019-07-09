@@ -8,6 +8,7 @@ Functions to check for invalid hdf files and create graphs of distribution
 
 import os
 import sys
+import sys
 import glob
 from pyhdf.SD import SD, SDC
 
