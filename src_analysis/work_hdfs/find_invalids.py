@@ -11,14 +11,14 @@ import glob
 from pyhdf.SD import SD, SDC
 import prg_StatsInvPixel as stats
 
-hdf_libdir = '/Users/katykoeing/Desktop/clouds/src_analysis/lib_hdfs' # change here
+hdf_libdir = '/home/koenig1/scratch-midway2/clouds/src_analysis/lib_hdfs' # change here
 sys.path.insert(1,os.path.join(sys.path[0],hdf_libdir))
 from alignment_lib import _gen_patches
 from alignment_lib import gen_mod35_img 
 
-DATES_FILE = 'clustering_invalid_filelists.txt'
+DATES_FILE = 'test.txt'
 MOD02_DIRECTORY = '/home/koenig1/scratch-midway2/MOD02/clustering'
-MOD35_DIRECTORY = ''
+MOD35_DIRECTORY = '/home/koenig1/scratch-midway2/MOD35/clustering'
 DEST_DIRECTORY = '/home/koenig1/scratch-midway2/distribution'
 
 def get_dates(dates_file=DATES_FILE, mod02_dir=MOD02_DIRECTORY, mod35_dir=MOD35_DIRECTORY, destination=DEST_DIRECTORY, output_file='output.csv'):
