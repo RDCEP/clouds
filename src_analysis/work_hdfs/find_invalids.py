@@ -21,37 +21,47 @@ import prg_StatsInvPixel as stats
 DATES_FILE = 'test.txt'
 MOD02_DIRECTORY = '/home/koenig1/scratch-midway2/MOD02/clustering'
 MOD35_DIRECTORY = '/home/koenig1/scratch-midway2/MOD35/clustering'
-DEST_DIRECTORY = '/home/koenig1/scratch-midway2/clouds/src_analysis/work_hdfs/distribution'
 
-def get_dates(dates_file=DATES_FILE, mod02_dir=MOD02_DIRECTORY, mod35_dir=MOD35_DIRECTORY, destination=DEST_DIRECTORY, output_file='output.csv'):
+def get_dates(dates_file=DATES_FILE, mod02_dir=MOD02_DIRECTORY,
+              mod35_dir=MOD35_DIRECTORY, output_file='output.csv'):
     '''
-    Searches for desired files and links them to destination directory to be called later
+    Searches for desired files and writes csv with each row being a MOD02
+    filename, patch number and number of invalid pixels in the patch
 
     Inputs:
-        filename(str):
-        mod02_dir(str):
-        mod35_dir(str):
-        destination(str):
-
+        dates_file(str): txt file with list of desired MOD02
+        mod02_dir(str): path where MOD021KM files are located
+        mod35_dir(str): path where MOD35_L2 files are located
+        Note for both mod02_dir & mod35_dir:
+            dir = '/home/koenig1/scratch-midway2/MOD02/clustering'
+            when hdf files located in 
+            '/home/koenig1/scratch-midway2/MOD02/clustering/clustering_laads_2000_2018_2'
+        output_file(str): name of desired output csv
+    
     Outputs:
-        None
+        None (writes csv)
     '''
+    # Initializes output csv to be appended later
     with open(output_file, 'w') as csvfile:
         outputwriter = csv.writer(csvfile, delimiter=',')
         outputwriter.writerow(['filename', 'patch_no', 'inval_pixels'])
     csvfile.close()
+    # Finds name of desired MOD02 hdf files to be analyzed
     with open(dates_file, "r") as file:
         dates = file.readlines()
     desired_files = dates[0].replace('hdf', 'hdf ').split()
     for file in desired_files:
+        # Finds actual MOD02 files
         mod02_path = glob.glob(mod02_dir + '/*/' + file)[0]
-        #os.link(mod02_path, destination)
         bname = os.path.basename(file)
         date = bname[10:22]
-        mod35_path = glob.glob(mod35_dir + '/*/*' + date + '*.hdf')[0]
+        # Finds corresponding MOD35
+        mod35_path = glob.glob(mod35_dir + '/*/' + date + '*.hdf')[0]
         fillvalue_list, mod02_img = stats.gen_mod02_img(mod02_path)
         hdf_m35 = SD(mod35_path, SDC.READ)
         clouds_mask_img = stats.gen_mod35_img(hdf_m35)
         mod02_patches = _gen_patches(mod02_img, normalization=False)
-        stats.check_invalid_clouds2(output_file, file, mod02_patches, clouds_mask_img, fillvalue_list, thres=0.3)
+        # Checks validity of pixels for each file and writes csv
+        stats.check_invalid_clouds2(output_file, file, mod02_patches,
+                                    clouds_mask_img, fillvalue_list, thres=0.3)
 

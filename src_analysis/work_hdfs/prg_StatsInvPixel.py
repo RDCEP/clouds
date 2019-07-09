@@ -169,40 +169,44 @@ def check_invalid_clouds_array(patches, clouds_mask, fillvalue_list,
     return patches_list, inv_pixel_list
 
 def check_invalid_clouds2(output_file, file, patches, clouds_mask, fillvalue_list, width=128, height=128, thres=0.3, sdsmax=32767):
-    """
-    thres: range 0-1. ratio of clouds within the given patch
-    dev_const_clouds_array in analysis_mode021KM/016
-    """
+    '''
+    Inputs:
+        output_file(str):
+        file(str):
+        patches():
+        clouds_mask():
+        fillvalue_list:
+        width(int):
+        height(int):
+        thres(float):
+        sdsmax(int):
+
+    Outputs: None (appends to existing csv)
+    '''
     with open(output_file, 'a') as csvfile:
         outputwriter = csv.writer(csvfile, delimiter=',')
         nx, ny = patches.shape[:2]
-        patch_counter = 0 
-        patches_list = []   # just insert 1
+        patch_counter = 0
         inv_pixel_list = [] # number of invalid pixel
         for i in range(nx):
             for j in range(ny):
                 #if not np.isnan(patches[i, j]).any():
-                if np.any(clouds_mask[i*width:(i+1)*width, j*height:(j+1)*height] == 0):
+                if np.any(clouds_mask[i*width:(i+1)*width,
+                          j*height:(j+1)*height] == 0):
                     tmp = clouds_mask[i*width:(i+1)*width, j*height:(j+1)*height]
                     nclouds = len(np.argwhere(tmp == 0))
                     if nclouds/(width*height) > thres:
-                      # valid patches. Search number of invalid pixel
-                      patches_list += [1]
-                      # search invalid pixel
-                      # NOTE here number of pixel sums up each layer
                       n_inv_pixel = 0
                       for iband in range(6):
                         tmp_array = patches[i, j, :, :, iband]
                         tmp_fillvalue = fillvalue_list[iband]
-                        #err2 = tmp_array[(tmp_array > sdsmax) & (tmp_array < tmp_fillvalue)]
-                        err_idx = np.where((tmp_array > sdsmax) & (tmp_array < tmp_fillvalue))
+                        err_idx = np.where((tmp_array > sdsmax) & \
+                                  (tmp_array < tmp_fillvalue))
                         n_inv_pixel += len(err_idx[0]) # should state 0
                     inv_pixel_list.append(n_inv_pixel)
                     outputwriter.writerow([file, patch_counter, n_inv_pixel])
                     patch_counter += 1
     csvfile.close()
-    return patches_list, inv_pixel_list
-
 
 
 def save_file(filename, outputdir, outputname, inv_pixel_list, patches_list):
