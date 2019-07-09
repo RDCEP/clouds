@@ -3,34 +3,49 @@ Katy Koenig
 
 July 2019
 
-Functions to check for invalid hdf files
+Functions to check for invalid hdf files and create graphs of distribution
 '''
 
 import os
+import glob
+from pyhdf.SD import SD, SDC
+import prg_StatsInvPixel as stats
 
+hdf_libdir = '/Users/katykoeing/Desktop/clouds/src_analysis/lib_hdfs' # change here
+sys.path.insert(1,os.path.join(sys.path[0],hdf_libdir))
+from alignment_lib import _gen_patches
+from alignment_lib import gen_mod35_img 
 
 DATES_FILE = 'clustering_invalid_filelists.txt'
-HDF_DIRECTORY = '/home/koenig1/scratch-midway2/MOD02/clustering'
+MOD02_DIRECTORY = '/home/koenig1/scratch-midway2/MOD02/clustering'
+MOD35_DIRECTORY = ''
 DEST_DIRECTORY = '/home/koenig1/scratch-midway2/distribution'
 
-def get_dates(filename=DATES_FILE, directory=HDF_DIRECTORY, destination=DEST_DIRECTORY):
+def get_dates(dates_file=DATES_FILE, mod02_dir=MOD02_DIRECTORY, mod35_dir=MOD35_DIRECTORY, destination=DEST_DIRECTORY, output_file='output.csv'):
     '''
     Searches for desired files and links them to destination directory to be called later
 
     Inputs:
-        filename:
-        directory:
-        destination:
+        filename(str):
+        mod02_dir(str):
+        mod35_dir(str):
+        destination(str):
 
     Outputs:
         None
     '''
-    with open(filename, "r") as file:
+    with open(dates_file, "r") as file:
         dates = file.readlines()
     desired_files = dates[0].replace('hdf', 'hdf ').split()
-
-    for path, directories, files in os.walk(directory):
-        for file in files:
-            if file in desired_files:
-                os.link(path + "/" + file, destination)
+    for file in desired_files:
+        mod02_path = glob.glob(mod02_dir + '/*/' + file)
+        os.link(mod02_path, destination)
+        bname = os.path.basename(file)
+        date = bname[10:22]
+        mod35_path = glob.glob(mod35_dir + '/*/*' + date + '*.hdf')[0]
+        fillvalue_list, mod02_img = stats.gen_mod02_img(filename)
+        hdf_m35 = SD(m35_file, SDC.READ)
+        clouds_mask_img = stats.gen_mod35_img(hdf_m35)
+        mod02_patches = _gen_patches(mod02_img, normalization=False)
+        stats.check_invalid_clouds2(output_file, file, mod02_patches, clouds_mask_img, fillvalue_list, thres=0.3)
 
