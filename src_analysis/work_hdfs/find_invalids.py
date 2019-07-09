@@ -20,7 +20,7 @@ import prg_StatsInvPixel as stats
 DATES_FILE = 'test.txt'
 MOD02_DIRECTORY = '/home/koenig1/scratch-midway2/MOD02/clustering'
 MOD35_DIRECTORY = '/home/koenig1/scratch-midway2/MOD35/clustering'
-DEST_DIRECTORY = '/home/koenig1/scratch-midway2/clouds/distribution/'
+DEST_DIRECTORY = '/home/koenig1/scratch-midway2/clouds/scr_analysis/work_hdfs/distribution/'
 
 def get_dates(dates_file=DATES_FILE, mod02_dir=MOD02_DIRECTORY, mod35_dir=MOD35_DIRECTORY, destination=DEST_DIRECTORY, output_file='output.csv'):
     '''
@@ -35,13 +35,13 @@ def get_dates(dates_file=DATES_FILE, mod02_dir=MOD02_DIRECTORY, mod35_dir=MOD35_
     Outputs:
         None
     '''
+    if not os.path.isdir(destination):
+        os.mkdir(destination)
     with open(dates_file, "r") as file:
         dates = file.readlines()
     desired_files = dates[0].replace('hdf', 'hdf ').split()
     for file in desired_files:
         mod02_path = glob.glob(mod02_dir + '/*/' + file)[0]
-        if not os.path.isdir(destination):
-            os.mkdir(destination)
         os.link(mod02_path, destination)
         bname = os.path.basename(file)
         date = bname[10:22]
