@@ -35,6 +35,10 @@ def get_dates(dates_file=DATES_FILE, mod02_dir=MOD02_DIRECTORY, mod35_dir=MOD35_
     Outputs:
         None
     '''
+    with open(output_file, 'w') as csvfile:
+        outputwriter = csv.writer(csvfile, delimiter=',')
+        outputwriter.writerow(['filename', 'patch_no', 'inval_pixels'])
+    csvfile.close()
     with open(dates_file, "r") as file:
         dates = file.readlines()
     desired_files = dates[0].replace('hdf', 'hdf ').split()
