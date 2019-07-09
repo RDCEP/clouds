@@ -198,8 +198,8 @@ def check_invalid_clouds2(output_file, file, patches, clouds_mask, fillvalue_lis
                         err_idx = np.where((tmp_array > sdsmax) & (tmp_array < tmp_fillvalue))
                         n_inv_pixel += len(err_idx[0]) # should state 0
                     inv_pixel_list.append(n_inv_pixel)
-                    outputwriter.writerow([file, counter, n_inv_pixel])
-                    counter += 1
+                    outputwriter.writerow([file, patch_counter, n_inv_pixel])
+                    patch_counter += 1
     csvfile.close()
     return patches_list, inv_pixel_list
 
