@@ -18,12 +18,13 @@ from alignment_lib import _gen_patches
 from alignment_lib import gen_mod35_img
 import prg_StatsInvPixel as stats
 
-DATES_FILE = 'test.txt'
+DATES_FILE = 'clustering_invalid_filelists.txt'
 MOD02_DIRECTORY = '/home/koenig1/scratch-midway2/MOD02/clustering'
 MOD35_DIRECTORY = '/home/koenig1/scratch-midway2/MOD35/clustering'
+OUTPUT_CSV = 'output07102019.csv'
 
 def get_dates(dates_file=DATES_FILE, mod02_dir=MOD02_DIRECTORY,
-              mod35_dir=MOD35_DIRECTORY, output_file='output.csv'):
+              mod35_dir=MOD35_DIRECTORY, output_file=OUTPUT_CSV):
     '''
     Searches for desired files and writes csv with each row being a MOD02
     filename, patch number and number of invalid pixels in the patch
