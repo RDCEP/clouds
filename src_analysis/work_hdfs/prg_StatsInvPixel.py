@@ -6,6 +6,7 @@ import sys
 import glob
 import argparse
 import csv
+import datetime
 import numpy as np
 from pyhdf.SD import SD, SDC
 
@@ -213,6 +214,7 @@ def check_invalid_clouds2(output_file, file, patches, clouds_mask,
                       outputwriter.writerow([file, patch_counter, n_inv_pixel])
                       patch_counter += 1
     csvfile.close()
+    print(datetime.datetime.now())
 
 
 def save_file(filename, outputdir, outputname, inv_pixel_list, patches_list):

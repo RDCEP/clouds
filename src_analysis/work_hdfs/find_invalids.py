@@ -130,7 +130,7 @@ def get_invalid_info2(file):
 if __name__ == "__main__":
     output_file = OUTPUT_CSV
     p = argparse.ArgumentParser()
-    p.add_argument('--processors', type=int, default=10)
+    p.add_argument('--processors', type=int, default=8)
     args = p.parse_args()
     start_time = datetime.datetime.now()
     print(start_time)
