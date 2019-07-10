@@ -8,11 +8,13 @@ Functions to check for invalid hdf files and create graphs of distribution
 
 import os
 import sys
+import argparse
 import csv
+import datetime
 import glob
 import pandas as pd
-import plotnine as p9
-import matplotlib.pyplot as plt
+#import plotnine as p9
+#import matplotlib.pyplot as plt
 from pyhdf.SD import SD, SDC
 import multiprocessing as mp
 
@@ -25,7 +27,7 @@ import prg_StatsInvPixel as stats
 DATES_FILE = 'clustering_invalid_filelists.txt'
 MOD02_DIRECTORY = '/home/koenig1/scratch-midway2/MOD02/clustering'
 MOD35_DIRECTORY = '/home/koenig1/scratch-midway2/MOD35/clustering'
-OUTPUT_CSV = 'output07102019.csv'
+OUTPUT_CSV = 'output07102019-2.csv'
 
 def get_invalid_info(dates_file=DATES_FILE, mod02_dir=MOD02_DIRECTORY,
                      mod35_dir=MOD35_DIRECTORY, output_file=OUTPUT_CSV):
@@ -81,12 +83,10 @@ def create_distributions(csvfile):
     Outputs:
     '''
     df = pd.read_csv(csvfile)
-    grouped = df.groupby('filename')
-                .agg({'patch_no': 'count', 'inval_pixels':'sum'}).reset_index()
-                .rename(columns={'inval_pixels': 'sum_invalid_pixels', 'patch_no': 'patch_count'})
+    grouped = df.groupby('filename').agg({'patch_no': 'count', 'inval_pixels':'sum'}).reset_index().rename(columns={'inval_pixels': 'sum_invalid_pixels', 'patch_no': 'patch_count'})
     scatter = p9.ggplot(data=grouped, mapping=p9.aes(x='sum_invalid_pixels',
-                        y='patch_count')) + p9.geom_point(alpha=0.3, color='green')
-                        + p9.theme_minimal()
+                        y='patch_count')) + p9.geom_point(alpha=0.3, color='green') + p9.theme_minimal()
+
     p9.ggsave(plot=scatter, filename='scatterplot.png')
 
 
@@ -130,22 +130,23 @@ def get_invalid_info2(file):
 if __name__ == "__main__":
     output_file = OUTPUT_CSV
     p = argparse.ArgumentParser()
-    p.add_argument('--processors', type=int, default=mp.cpu_count() - 1)
+    p.add_argument('--processors', type=int, default=10)
     args = p.parse_args()
     start_time = datetime.datetime.now()
     print(start_time)
     print(args.processors)
-    #Initializes pooling process for parallelization
+    dates_file = DATES_FILE
+	#Initializes pooling process for parallelization
     pool = mp.Pool(processes=args.processors)
     # Initializes output csv to be appended later
     with open(output_file, 'w') as csvfile:
         outputwriter = csv.writer(csvfile, delimiter=',')
-        outputwriter.writerow(['filename', 'patcih_no', 'inval_pixels'])
+        outputwriter.writerow(['filename', 'patch_no', 'inval_pixels'])
     csvfile.close()
     # Finds name of desired MOD02 hdf files to be analyzed
     with open(dates_file, "r") as file:
         dates = file.readlines()
     desired_files = dates[0].replace('hdf', 'hdf ').split()
-    pool.starmap(combining_fn, desired_files)
+    pool.map(get_invalid_info2, desired_files)
     pool.close()
     pool.join()
