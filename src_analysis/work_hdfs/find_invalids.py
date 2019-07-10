@@ -57,7 +57,7 @@ def get_dates(dates_file=DATES_FILE, mod02_dir=MOD02_DIRECTORY,
         bname = os.path.basename(file)
         date = bname[10:22]
         # Finds corresponding MOD35
-        mod35_path = glob.glob(mod35_dir + '/*/' + date + '*.hdf')[0]
+        mod35_path = glob.glob(mod35_dir + '/*/*' + date + '*.hdf')[0]
         fillvalue_list, mod02_img = stats.gen_mod02_img(mod02_path)
         hdf_m35 = SD(mod35_path, SDC.READ)
         clouds_mask_img = stats.gen_mod35_img(hdf_m35)
