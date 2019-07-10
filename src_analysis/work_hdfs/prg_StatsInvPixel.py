@@ -139,7 +139,7 @@ def get_filepath(filepath, datadir, prefix='MOD35_L2.A'):
 
 
 def check_invalid_clouds_array(patches, clouds_mask, fillvalue_list,
-                               width=128, height=128, thres=0.3,sdsmax=32767):
+                               width=128, height=128, thres=0.3, sdsmax=32767):
     """
     thres: range 0-1. ratio of clouds within the given patch
     dev_const_clouds_array in analysis_mode021KM/016
@@ -175,12 +175,12 @@ def check_invalid_clouds2(output_file, file, patches, clouds_mask,
     '''
     Inputs:
         output_file(str): csv filename to save results
-        file(str): 
-        patches():
-        clouds_mask():
-        fillvalue_list:
-        width(int):
-        height(int):
+        file(str): name of MOD02 file to be used only as identifier in CSV row
+        patches: numpy array of arrays representing MOD02 patches
+        clouds_mask: numpy array created from MOD35 image
+        fillvalue_list: list of integers for each fill value
+        width(int): number of pixels for width of a siengle patch
+        height(int): number of pixels for height of a srngle path
         thres(float): number between 0 and 1 representing the percentage
           required of cloud cover to be considered an analyzable patch
         sdsmax(int): represents valid range of data [0, 32767] as given on pg. 32 of
