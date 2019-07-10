@@ -12,14 +12,15 @@ import argparse
 import csv
 import datetime
 import glob
+import multiprocessing as mp
 import pandas as pd
-#import plotnine as p9
+import plotnine as p9
 #import matplotlib.pyplot as plt
 from pyhdf.SD import SD, SDC
-import multiprocessing as mp
+
 
 hdf_libdir = '/home/koenig1/scratch-midway2/clouds/src_analysis/lib_hdfs' # change here
-sys.path.insert(1,os.path.join(sys.path[0],hdf_libdir))
+sys.path.insert(1, os.path.join(sys.path[0], hdf_libdir))
 from alignment_lib import _gen_patches
 from alignment_lib import gen_mod35_img
 import prg_StatsInvPixel as stats
@@ -41,10 +42,10 @@ def get_invalid_info(dates_file=DATES_FILE, mod02_dir=MOD02_DIRECTORY,
         mod35_dir(str): path where MOD35_L2 files are located
         Note for both mod02_dir & mod35_dir:
             dir = '/home/koenig1/scratch-midway2/MOD02/clustering'
-            when hdf files located in 
+            when hdf files located in
             '/home/koenig1/scratch-midway2/MOD02/clustering/clustering_laads_2000_2018_2'
         output_file(str): name of desired output csv
-    
+
     Outputs:
         None (writes csv)
     '''
@@ -83,9 +84,11 @@ def create_distributions(csvfile):
     Outputs:
     '''
     df = pd.read_csv(csvfile)
-    grouped = df.groupby('filename').agg({'patch_no': 'count', 'inval_pixels':'sum'}).reset_index().rename(columns={'inval_pixels': 'sum_invalid_pixels', 'patch_no': 'patch_count'})
-    scatter = p9.ggplot(data=grouped, mapping=p9.aes(x='sum_invalid_pixels',
-                        y='patch_count')) + p9.geom_point(alpha=0.3, color='green') + p9.theme_minimal()
+    grouped = df.groupby('filename') \
+                .agg({'patch_no': 'count', 'inval_pixels':'sum'}).reset_index() \
+                .rename(columns={'inval_pixels': 'sum_invalid_pixels', 'patch_no': 'patch_count'})
+    scatter = p9.ggplot(data=grouped, mapping=p9.aes(x='sum_invalid_pixels', y='patch_count')) \
+                        + p9.geom_point(alpha=0.3, color='green') + p9.theme_minimal()
 
     p9.ggsave(plot=scatter, filename='scatterplot.png')
 
@@ -100,16 +103,16 @@ def get_invalid_info2(file):
         mod02_dir(str): path where MOD021KM files are located
         mod35_dir(str): path where MOD35_L2 files are locatedf
             dir = '/home/koenig1/scratch-midway2/MOD02/clustering'
-            when hdf files located in 
+            when hdf files located in
             '/home/koenig1/scratch-midway2/MOD02/clustering/clustering_laads_2000_2018_2'
         output_file(str): name of desired output csv
-    
+
     Outputs:
         None (writes csv)
     '''
-    mod02_dir=MOD02_DIRECTORY
-    mod35_dir=MOD35_DIRECTORY
-    output_file=OUTPUT_CSV
+    mod02_dir = MOD02_DIRECTORY
+    mod35_dir = MOD35_DIRECTORY
+    output_file = OUTPUT_CSV
 
     # Finds actual MOD02 files
     mod02_path = glob.glob(mod02_dir + '/*/' + file)[0]
@@ -128,25 +131,40 @@ def get_invalid_info2(file):
 
 
 if __name__ == "__main__":
-    output_file = OUTPUT_CSV
     p = argparse.ArgumentParser()
+    p.add_argument('--dates_files', type=str, default=DATES_FILE)
     p.add_argument('--processors', type=int, default=8)
+    p.add_argument('--outputfile', type=str, default=OUTPUT_CSV)
     args = p.parse_args()
     start_time = datetime.datetime.now()
     print(start_time)
     print(args.processors)
-    dates_file = DATES_FILE
-	#Initializes pooling process for parallelization
+    
+    #Initializes pooling process for parallelization
     pool = mp.Pool(processes=args.processors)
-    # Initializes output csv to be appended later
-    with open(output_file, 'w') as csvfile:
-        outputwriter = csv.writer(csvfile, delimiter=',')
-        outputwriter.writerow(['filename', 'patch_no', 'inval_pixels'])
-    csvfile.close()
+
+    # If output csv exits, assumes cutoff by RCC so deletes last entry and appends only new dates
+    if os.path.exits(output_file):
+        print('Checking for completion')
+        completed = pd.read_csv(output_file)
+        last_file = completed.tail(1)['filename']
+        done = completed[completed['filename'] != last_file]
+        print('Writing updated csv')
+        done.to_csv(output_file)
+    else:
+        print(datetime.datetime.now())
+        # Initializes output csv to be appended later
+        with open(output_file, 'w') as csvfile:
+            outputwriter = csv.writer(csvfile, delimiter=',')
+            outputwriter.writerow(['filename', 'patch_no', 'inval_pixels'])
+        csvfile.close()
     # Finds name of desired MOD02 hdf files to be analyzed
     with open(dates_file, "r") as file:
         dates = file.readlines()
     desired_files = dates[0].replace('hdf', 'hdf ').split()
+    if last_file:
+        last_idx = desired.index(last_file)
+        desired_files = desired_files[last_idx:]
     pool.map(get_invalid_info2, desired_files)
     pool.close()
     pool.join()
