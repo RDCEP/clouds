@@ -149,23 +149,23 @@ def check_invalid_clouds_array(patches, clouds_mask, fillvalue_list,
     inv_pixel_list = [] # number of invalid pixel
     for i in range(nx):
         for j in range(ny):
-            #if not np.isnan(patches[i, j]).any():
-                if np.any(clouds_mask[i*width:(i+1)*width, j*height:(j+1)*height] == 0):
-                    tmp = clouds_mask[i*width:(i+1)*width, j*height:(j+1)*height]
-                    nclouds = len(np.argwhere(tmp == 0))
-                    if nclouds/(width*height) > thres:
-                      # valid patches. Search number of invalid pixel
-                      patches_list += [1]
-                      # search invalid pixel
-                      # NOTE here number of pixel sums up each layer
-                      n_inv_pixel = 0
-                      for iband in range(6):
-                        tmp_array = patches[i, j, :, :, iband]
-                        tmp_fillvalue = fillvalue_list[iband]                      
-                        err_idx = np.where((tmp_array > sdsmax) & (tmp_array < tmp_fillvalue))
-                        n_inv_pixel += len(err_idx[0]) # should state 0
-                      # sum up!
-                      inv_pixel_list += [n_inv_pixel]
+            if not np.isnan(patches[i, j]).any():
+              if np.any(clouds_mask[i*width:(i+1)*width, j*height:(j+1)*height] == 0):
+                tmp = clouds_mask[i*width:(i+1)*width, j*height:(j+1)*height]
+                nclouds = len(np.argwhere(tmp == 0))
+                if nclouds/(width*height) > thres:
+                  # valid patches. Search number of invalid pixel
+                  patches_list += [1]
+                  # search invalid pixel
+                  # NOTE here number of pixel sums up each layer
+                  n_inv_pixel = 0
+                  for iband in range(6):
+                    tmp_array = patches[i, j, :, :, iband]
+                    tmp_fillvalue = fillvalue_list[iband]                      
+                    err_idx = np.where((tmp_array > sdsmax) & (tmp_array < tmp_fillvalue))
+                    n_inv_pixel += len(err_idx[0]) # should state 0
+                    # sum up!
+                  inv_pixel_list += [n_inv_pixel]
     return patches_list, inv_pixel_list
 
 def check_invalid_clouds2(output_file, file, patches, clouds_mask, fillvalue_list, width=128, height=128, thres=0.3, sdsmax=32767):
@@ -190,9 +190,9 @@ def check_invalid_clouds2(output_file, file, patches, clouds_mask, fillvalue_lis
         inv_pixel_list = [] # number of invalid pixel
         for i in range(nx):
             for j in range(ny):
-                #if not np.isnan(patches[i, j]).any():
-                if np.any(clouds_mask[i*width:(i+1)*width,
-                          j*height:(j+1)*height] == 0):
+                if not np.isnan(patches[i, j]).any():
+                  if np.any(clouds_mask[i*width:(i+1)*width,
+                            j*height:(j+1)*height] == 0):
                     tmp = clouds_mask[i*width:(i+1)*width, j*height:(j+1)*height]
                     nclouds = len(np.argwhere(tmp == 0))
                     if nclouds/(width*height) > thres:
@@ -203,9 +203,9 @@ def check_invalid_clouds2(output_file, file, patches, clouds_mask, fillvalue_lis
                         err_idx = np.where((tmp_array > sdsmax) & \
                                   (tmp_array < tmp_fillvalue))
                         n_inv_pixel += len(err_idx[0]) # should state 0
-                    inv_pixel_list.append(n_inv_pixel)
-                    outputwriter.writerow([file, patch_counter, n_inv_pixel])
-                    patch_counter += 1
+                      inv_pixel_list.append(n_inv_pixel)
+                      outputwriter.writerow([file, patch_counter, n_inv_pixel])
+                      patch_counter += 1
     csvfile.close()
 
 
