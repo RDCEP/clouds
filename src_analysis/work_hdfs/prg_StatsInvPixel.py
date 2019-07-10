@@ -162,24 +162,29 @@ def check_invalid_clouds_array(patches, clouds_mask, fillvalue_list,
                   for iband in range(6):
                     tmp_array = patches[i, j, :, :, iband]
                     tmp_fillvalue = fillvalue_list[iband]                      
-                    err_idx = np.where((tmp_array > sdsmax) & (tmp_array < tmp_fillvalue))
+                    err_idx = np.where((tmp_array >= sdsmax) & (tmp_array < tmp_fillvalue))
                     n_inv_pixel += len(err_idx[0]) # should state 0
                     # sum up!
                   inv_pixel_list += [n_inv_pixel]
     return patches_list, inv_pixel_list
 
-def check_invalid_clouds2(output_file, file, patches, clouds_mask, fillvalue_list, width=128, height=128, thres=0.3, sdsmax=32767):
+
+def check_invalid_clouds2(output_file, file, patches, clouds_mask,
+                          fillvalue_list, width=128, height=128, thres=0.3,
+                          sdsmax=32767):
     '''
     Inputs:
-        output_file(str):
-        file(str):
+        output_file(str): csv filename to save results
+        file(str): 
         patches():
         clouds_mask():
         fillvalue_list:
         width(int):
         height(int):
-        thres(float):
-        sdsmax(int):
+        thres(float): number between 0 and 1 representing the percentage
+          required of cloud cover to be considered an analyzable patch
+        sdsmax(int): represents valid range of data [0, 32767] as given on pg. 32 of
+          https://mcst.gsfc.nasa.gov/sites/default/files/file_attachments/M1054D_PUG_083112_final.pdf
 
     Outputs: None (appends to existing csv)
     '''
@@ -193,14 +198,15 @@ def check_invalid_clouds2(output_file, file, patches, clouds_mask, fillvalue_lis
                 if not np.isnan(patches[i, j]).any():
                   if np.any(clouds_mask[i*width:(i+1)*width,
                             j*height:(j+1)*height] == 0):
-                    tmp = clouds_mask[i*width:(i+1)*width, j*height:(j+1)*height]
+                    tmp = clouds_mask[i*width:(i+1)*width,
+                                      j*height:(j+1)*height]
                     nclouds = len(np.argwhere(tmp == 0))
                     if nclouds/(width*height) > thres:
                       n_inv_pixel = 0
                       for iband in range(6):
                         tmp_array = patches[i, j, :, :, iband]
                         tmp_fillvalue = fillvalue_list[iband]
-                        err_idx = np.where((tmp_array > sdsmax) & \
+                        err_idx = np.where((tmp_array >= sdsmax) & \
                                   (tmp_array < tmp_fillvalue))
                         n_inv_pixel += len(err_idx[0]) # should state 0
                       inv_pixel_list.append(n_inv_pixel)
