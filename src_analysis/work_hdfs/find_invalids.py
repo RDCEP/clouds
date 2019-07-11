@@ -14,16 +14,16 @@ import datetime
 import glob
 import multiprocessing as mp
 import pandas as pd
-import plotnine as p9
+#import plotnine as p9
 #import matplotlib.pyplot as plt
-from pyhdf.SD import SD, SDC
+#from pyhdf.SD import SD, SDC
 
 
-hdf_libdir = '/home/koenig1/scratch-midway2/clouds/src_analysis/lib_hdfs' # change here
-sys.path.insert(1, os.path.join(sys.path[0], hdf_libdir))
-from alignment_lib import _gen_patches
-from alignment_lib import gen_mod35_img
-import prg_StatsInvPixel as stats
+# hdf_libdir = '/home/koenig1/scratch-midway2/clouds/src_analysis/lib_hdfs' # change here
+# sys.path.insert(1, os.path.join(sys.path[0], hdf_libdir))
+# from alignment_lib import _gen_patches
+# from alignment_lib import gen_mod35_img
+# import prg_StatsInvPixel as stats
 
 DATES_FILE = 'clustering_invalid_filelists.txt'
 MOD02_DIRECTORY = '/home/koenig1/scratch-midway2/MOD02/clustering'
@@ -147,7 +147,7 @@ if __name__ == "__main__":
     if os.path.exists(args.outputfile):
         print('Checking for completion')
         completed = pd.read_csv(args.outputfile)
-        last_file = completed.tail(1)['filename']
+        last_file = completed.tail(1)['filename'].tolist()[0]
         done = completed[completed['filename'] != last_file]
         print('Writing updated csv')
         done.to_csv(args.outputfile)
