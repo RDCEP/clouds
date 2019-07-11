@@ -14,16 +14,16 @@ import datetime
 import glob
 import multiprocessing as mp
 import pandas as pd
-#import plotnine as p9
-#import matplotlib.pyplot as plt
-#from pyhdf.SD import SD, SDC
+import plotnine as p9
+import matplotlib.pyplot as plt
+from pyhdf.SD import SD, SDC
 
 
-# hdf_libdir = '/home/koenig1/scratch-midway2/clouds/src_analysis/lib_hdfs' # change here
-# sys.path.insert(1, os.path.join(sys.path[0], hdf_libdir))
-# from alignment_lib import _gen_patches
-# from alignment_lib import gen_mod35_img
-# import prg_StatsInvPixel as stats
+hdf_libdir = '/home/koenig1/scratch-midway2/clouds/src_analysis/lib_hdfs' # change here
+sys.path.insert(1, os.path.join(sys.path[0], hdf_libdir))
+from alignment_lib import _gen_patches
+from alignment_lib import gen_mod35_img
+import prg_StatsInvPixel as stats
 
 DATES_FILE = 'clustering_invalid_filelists.txt'
 MOD02_DIRECTORY = '/home/koenig1/scratch-midway2/MOD02/clustering'
@@ -132,8 +132,8 @@ def get_invalid_info2(file):
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
-    p.add_argument('--dates_files', type=str, default=DATES_FILE)
-    p.add_argument('--processors', type=int, default=15)
+    p.add_argument('--dates_file', type=str, default=DATES_FILE)
+    p.add_argument('--processors', type=int, default=5)
     p.add_argument('--outputfile', type=str, default=OUTPUT_CSV)
     args = p.parse_args()
     start_time = datetime.datetime.now()
@@ -163,7 +163,7 @@ if __name__ == "__main__":
         dates = file.readlines()
     desired_files = dates[0].replace('hdf', 'hdf ').split()
     if last_file:
-        last_idx = desired.index(last_file)
+        last_idx = desired_files.index(last_file)
         desired_files = desired_files[last_idx:]
     pool.map(get_invalid_info2, desired_files)
     pool.close()
