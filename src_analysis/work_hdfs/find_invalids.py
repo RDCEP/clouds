@@ -10,7 +10,6 @@ import os
 import sys
 import argparse
 import csv
-import datetime
 import glob
 import multiprocessing as mp
 import pandas as pd
@@ -74,25 +73,6 @@ def get_invalid_info(dates_file=DATES_FILE, mod02_dir=MOD02_DIRECTORY,
                                     clouds_mask_img, fillvalue_list, thres=0.3)
 
 
-def create_distributions(csvfile):
-    '''
-    Creates distribution plots of invalid pixels by patches for each file
-
-    Inputs:
-        csvfile(str):
-
-    Outputs:
-    '''
-    df = pd.read_csv(csvfile)
-    grouped = df.groupby('filename') \
-                .agg({'patch_no': 'count', 'inval_pixels':'sum'}).reset_index() \
-                .rename(columns={'inval_pixels': 'sum_invalid_pixels', 'patch_no': 'patch_count'})
-    scatter = p9.ggplot(data=grouped, mapping=p9.aes(x='sum_invalid_pixels', y='patch_count')) \
-                        + p9.geom_point(alpha=0.3, color='green') + p9.theme_minimal()
-
-    p9.ggsave(plot=scatter, filename='scatterplot.png')
-
-
 def get_invalid_info2(file):
     '''
     Searches for desired files and writes csv with each row being a MOD02
@@ -142,17 +122,17 @@ if __name__ == "__main__":
     #Initializes pooling process for parallelization
     pool = mp.Pool(processes=args.processors)
 
-    # If output csv exits, assumes cutoff by RCC so deletes last entry and appends only new dates
+    # If output csv exits, assumes cutoff by RCC so deletes last entry
+    # and appends only new dates
     if os.path.exists(args.outputfile):
         print('Checking for completion')
         completed = pd.read_csv(args.outputfile)
         completed = completed[completed['filename'].notnull()]
         last_file = completed.tail(1)['filename'].tolist()[0]
         done = completed[completed['filename'] != last_file]
-        print('Writing updated csv')
+        print('Writing updated csv w/ only completed MOD02 files')
         done.to_csv(args.outputfile, index=False)
     else:
-        print(datetime.datetime.now())
         # Initializes output csv to be appended later
         with open(args.outputfile, 'w') as csvfile:
             outputwriter = csv.writer(csvfile, delimiter=',')
