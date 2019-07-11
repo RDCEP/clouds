@@ -28,7 +28,7 @@ import prg_StatsInvPixel as stats
 DATES_FILE = 'clustering_invalid_filelists.txt'
 MOD02_DIRECTORY = '/home/koenig1/scratch-midway2/MOD02/clustering'
 MOD35_DIRECTORY = '/home/koenig1/scratch-midway2/MOD35/clustering'
-OUTPUT_CSV = 'output07112019-2.csv'
+OUTPUT_CSV = 'output07102019.csv'
 
 def get_invalid_info(dates_file=DATES_FILE, mod02_dir=MOD02_DIRECTORY,
                      mod35_dir=MOD35_DIRECTORY, output_file=OUTPUT_CSV):
@@ -150,7 +150,7 @@ if __name__ == "__main__":
         last_file = completed.tail(1)['filename'].tolist()[0]
         done = completed[completed['filename'] != last_file]
         print('Writing updated csv')
-        done.to_csv(args.output_file, index=False)
+        done.to_csv(args.outputfile, index=False)
     else:
         print(datetime.datetime.now())
         # Initializes output csv to be appended later
@@ -158,6 +158,7 @@ if __name__ == "__main__":
             outputwriter = csv.writer(csvfile, delimiter=',')
             outputwriter.writerow(['filename', 'patch_no', 'inval_pixels'])
         csvfile.close()
+        last_file = None
     # Finds name of desired MOD02 hdf files to be analyzed
     with open(args.dates_file, "r") as file:
         dates = file.readlines()
