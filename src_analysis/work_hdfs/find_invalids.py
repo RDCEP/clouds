@@ -147,6 +147,7 @@ if __name__ == "__main__":
     if os.path.exists(args.outputfile):
         print('Checking for completion')
         completed = pd.read_csv(args.outputfile)
+        completed = completed[completed['filename'].notnull()]
         last_file = completed.tail(1)['filename'].tolist()[0]
         done = completed[completed['filename'] != last_file]
         print('Writing updated csv')
@@ -163,6 +164,7 @@ if __name__ == "__main__":
         dates = file.readlines()
     desired_files = dates[0].replace('hdf', 'hdf ').split()
     if last_file:
+        print(last_file)
         last_idx = desired_files.index(last_file)
         desired_files = desired_files[last_idx:]
     pool.map(get_invalid_info2, desired_files)
