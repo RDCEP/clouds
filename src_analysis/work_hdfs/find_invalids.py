@@ -133,7 +133,7 @@ def get_invalid_info2(file):
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument('--dates_files', type=str, default=DATES_FILE)
-    p.add_argument('--processors', type=int, default=8)
+    p.add_argument('--processors', type=int, default=15)
     p.add_argument('--outputfile', type=str, default=OUTPUT_CSV)
     args = p.parse_args()
     start_time = datetime.datetime.now()
@@ -144,22 +144,22 @@ if __name__ == "__main__":
     pool = mp.Pool(processes=args.processors)
 
     # If output csv exits, assumes cutoff by RCC so deletes last entry and appends only new dates
-    if os.path.exits(output_file):
+    if os.path.exists(args.outputfile):
         print('Checking for completion')
-        completed = pd.read_csv(output_file)
+        completed = pd.read_csv(args.outputfile)
         last_file = completed.tail(1)['filename']
         done = completed[completed['filename'] != last_file]
         print('Writing updated csv')
-        done.to_csv(output_file)
+        done.to_csv(args.outputfile)
     else:
         print(datetime.datetime.now())
         # Initializes output csv to be appended later
-        with open(output_file, 'w') as csvfile:
+        with open(args.outputfile, 'w') as csvfile:
             outputwriter = csv.writer(csvfile, delimiter=',')
             outputwriter.writerow(['filename', 'patch_no', 'inval_pixels'])
         csvfile.close()
     # Finds name of desired MOD02 hdf files to be analyzed
-    with open(dates_file, "r") as file:
+    with open(args.dates_file, "r") as file:
         dates = file.readlines()
     desired_files = dates[0].replace('hdf', 'hdf ').split()
     if last_file:
