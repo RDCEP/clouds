@@ -215,11 +215,6 @@ def check_invalid_clouds2(output_file, file, patches, clouds_mask,
     csvfile.close()
 
 
-outF = open("myOutFile.txt", "w")
-for line in textList:
-  print >>outF, line
-outF.close()
-
 def save_file(filename, outputdir, outputname, inv_pixel_list, patches_list):
   # save as file
   date = gen_date(filename)
