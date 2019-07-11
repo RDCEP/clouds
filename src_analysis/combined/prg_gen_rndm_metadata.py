@@ -7,7 +7,8 @@ import random
 import time
 import pandas as pd
 
-UNUSABLE_DATES = ['no-data-dates.txt', 'mod02_training_dates.txt', 'pv_ecal.csv']
+UNUSABLE_DATES = ['../dates/avoid_dates.txt']
+#UNUSABLE_DATES = ['no-data-dates.txt', 'mod02_training_dates.txt', 'pv_ecal.csv']
 
 def get_proptime(stime='2000-02-24', etime='2019-03-27', _format='%Y-%m-%d',
                  prop=1.0):
@@ -62,7 +63,9 @@ def gen_random_date(ndays=1, stime='2000-02-24', etime='2019-03-27',
     Output: list of dates
     '''
     filelist = []
-    missing_bad_list = get_bad_dates() # avoid missing data days
+    missing_date_list = get_bad_dates() # avoid missing data days
+    #FIXME bug fix T.kurihana 
+    #missing_bad_list = get_bad_dates() # avoid missing data days
     random.seed(rand_seed)
     while len(filelist) < ndays:
         ctime = get_proptime(stime=stime, etime=etime, _format=_format,
