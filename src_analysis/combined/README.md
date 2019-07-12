@@ -27,24 +27,24 @@
  There are two ways in which to download the edit and editing the bash script depends on your desired call:
  1. You wish to generate random dates to download.
  	You must change the following arguments:
-	 	* days (int): number of days you wish to randomly generate
-	 	* start(str in the style of YYYY-MM-DD): lower bound for date generation, i.e. you cannot generate a date earlier than this date
-	 	* end(str in the style of YYYY-MM-DD): lower bound for date generation, i.e. you cannot generate a date later than this date
- 2. You have a list of dates to download.
+	* days (int): number of days you wish to randomly generate
+	* start(str in the style of YYYY-MM-DD): lower bound for date generation, i.e. you cannot generate a date earlier than this date
+	* end(str in the style of YYYY-MM-DD): lower bound for date generation, i.e. you cannot generate a date later than this date
+ 2. You have a list of dates to download. <br />
  	If you have a txt file of the dates for which you wish to download data (example: clustering_mod35_list.txt in this repo), you need only modify the `datedata` argument in the bash script with the path to the txt file as a string.
 
  Note that for both options you **must** check (and probably edit) the following arguments:
  1. outputdir
  	* this is a string representing the directory in which you want to store your files (can be created in downloading process)
  2. url
-  * url as determined by desired product as a string
-  * e.g. 'https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD06_L2/', 'https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD35_L2'
+ 	* url as determined by desired product as a string
+ 	* e.g. 'https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD06_L2/', 'https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD35_L2'
  3. keyward
-  * keyword associated with product as a string
-  * e.g. 'MOD35_L2.A', 'MOD06_L2.A'
+ 	* keyword associated with product as a string
+ 	* e.g. 'MOD35_L2.A', 'MOD06_L2.A'
  4. processors
-  * number of desired processors to use as an integer
-  * this program supports multiprocessing to increase speed
-  * it is recommended to use no more than 1 less than your computer's CPU count
+ 	* number of desired processors to use as an integer
+ 	* this program supports multiprocessing to increase speed
+ 	* it is recommended to use no more than 1 less than your computer's CPU count
 
 2. Run `bash download.bash`
