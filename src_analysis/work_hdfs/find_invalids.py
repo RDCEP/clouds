@@ -124,29 +124,32 @@ if __name__ == "__main__":
 
     # If output csv exits, assumes cutoff by RCC so deletes last entry
     # and appends only new dates
-    if os.path.exists(args.outputfile):
-        print('Checking for completion')
-        completed = pd.read_csv(args.outputfile)
-        completed = completed[completed['filename'].notnull()]
-        last_file = completed.tail(1)['filename'].tolist()[0]
-        done = completed[completed['filename'] != last_file]
-        print('Writing updated csv w/ only completed MOD02 files')
-        done.to_csv(args.outputfile, index=False)
-    else:
-        # Initializes output csv to be appended later
-        with open(args.outputfile, 'w') as csvfile:
-            outputwriter = csv.writer(csvfile, delimiter=',')
-            outputwriter.writerow(['filename', 'patch_no', 'inval_pixels'])
-        csvfile.close()
-        last_file = None
-    # Finds name of desired MOD02 hdf files to be analyzed
-    with open(args.dates_file, "r") as file:
-        dates = file.readlines()
-    desired_files = dates[0].replace('hdf', 'hdf ').split()
-    if last_file:
-        print(last_file)
-        last_idx = desired_files.index(last_file)
-        desired_files = desired_files[last_idx:]
+    # if os.path.exists(args.outputfile):
+    #     print('Checking for completion')
+    #     completed = pd.read_csv(args.outputfile)
+    #     completed = completed[completed['filename'].notnull()]
+    #     last_file = completed.tail(1)['filename'].tolist()[0]
+    #     done = completed[completed['filename'] != last_file]
+    #     print('Writing updated csv w/ only completed MOD02 files')
+    #     done.to_csv(args.outputfile, index=False)
+    # else:
+    #     # Initializes output csv to be appended later
+    #     with open(args.outputfile, 'w') as csvfile:
+    #         outputwriter = csv.writer(csvfile, delimiter=',')
+    #         outputwriter.writerow(['filename', 'patch_no', 'inval_pixels'])
+    #     csvfile.close()
+    #     last_file = None
+    # # Finds name of desired MOD02 hdf files to be analyzed
+    # with open(args.dates_file, "r") as file:
+    #     dates = file.readlines()
+    # desired_files = dates[0].replace('hdf', 'hdf ').split()
+    # if last_file:
+    #     print(last_file)
+    #     last_idx = desired_files.index(last_file)
+    #     desired_files = desired_files[last_idx:]
+    difference = pd.read_csv('diff.csv')
+    desired_files = list(difference['0'])
     pool.map(get_invalid_info2, desired_files)
     pool.close()
     pool.join()
+
