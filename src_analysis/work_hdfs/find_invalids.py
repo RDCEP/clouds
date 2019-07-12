@@ -115,8 +115,6 @@ if __name__ == "__main__":
     p.add_argument('--processors', type=int, default=5)
     p.add_argument('--outputfile', type=str, default=OUTPUT_CSV)
     args = p.parse_args()
-    start_time = datetime.datetime.now()
-    print(start_time)
     print(args.processors)
     
     #Initializes pooling process for parallelization
