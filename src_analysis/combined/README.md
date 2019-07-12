@@ -25,13 +25,13 @@
 
 1. Edit download.bash (or copy, rename and edit download.bash)
  There are two ways in which to download the edit and editing the bash script depends on your desired call:
- 1. You wish to generate random dates to download.
+<p> 1. You wish to generate random dates to download.
  	You must change the following arguments:
 	* days (int): number of days you wish to randomly generate
 	* start(str in the style of YYYY-MM-DD): lower bound for date generation, i.e. you cannot generate a date earlier than this date
-	* end(str in the style of YYYY-MM-DD): lower bound for date generation, i.e. you cannot generate a date later than this date
- 2. You have a list of dates to download. <br />
- 	If you have a txt file of the dates for which you wish to download data (example: clustering_mod35_list.txt in this repo), you need only modify the `datedata` argument in the bash script with the path to the txt file as a string.
+	* end(str in the style of YYYY-MM-DD): lower bound for date generation, i.e. you cannot generate a date later than this date </p>
+<p> 2. You have a list of dates to download. <br />
+ 	If you have a txt file of the dates for which you wish to download data (example: clustering_mod35_list.txt in this repo), you need only modify the `datedata` argument in the bash script with the path to the txt file as a string. </p>
 
  Note that for both options you **must** check (and probably edit) the following arguments:
  1. outputdir
