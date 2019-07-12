@@ -28,8 +28,8 @@
 	1. You wish to generate random dates to download.
 	 	You must change the following arguments:
 		* days (int): number of days you wish to randomly generate
-		* start(str in the style of YYYY-MM-DD): lower bound for date generation, i.e. you cannot generate a date earlier than this date
-		* end(str in the style of YYYY-MM-DD): lower bound for date generation, i.e. you cannot generate a date later than this date
+		* start (str in the style of YYYY-MM-DD): lower bound for date generation, i.e. you cannot generate a date earlier than this date
+		* end (str in the style of YYYY-MM-DD): lower bound for date generation, i.e. you cannot generate a date later than this date
 	 2. You have a list of dates to download. <br />
 	 	If you have a txt file of the dates for which you wish to download data (example: clustering_mod35_list.txt in this repo), you need only modify the `datedata` argument in the bash script with the path to the txt file as a string.
 
