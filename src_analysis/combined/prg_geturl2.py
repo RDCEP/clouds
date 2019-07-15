@@ -112,7 +112,6 @@ def combining_fn(iline, url, thresval, outputdir, start_time):
 
     Outputs: saved HDF files
     '''
-    #url = 'https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD35_L2/2016/083/'
     date = iline.split('\n')[0]
     year = date[:4]
     days = delta_day(year=date[:4], month=date[5:7], day=date[8:])
