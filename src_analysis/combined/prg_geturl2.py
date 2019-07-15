@@ -6,6 +6,7 @@ import os
 import argparse
 import datetime
 import urllib
+import csv
 from urllib.request import urlopen
 import multiprocessing as mp
 from bs4 import BeautifulSoup
@@ -135,6 +136,33 @@ def combining_fn(iline, url, thresval, outputdir, start_time):
         with open('no-data-dates.txt', 'a') as f:
             f.write(str(date) + "\n")
         # Note: duplicates are allowed on list--remove duplicates periodically
+
+
+def download_mod03(csv_file='inval_files.csv',
+                   baseurl='https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD03/',
+                   keyword='MOD03', outputdir='/home/koenig1/scratch-midway2/MOD03/clustering/invalid_pixels', thresval=1):
+    start_time = datetime.datetime.now()
+    os.makedirs(outputdir, exist_ok=True)
+    with open(csv_file, 'r') as csv_file:
+        reader = csv.reader(csv_file)
+        for row in reader:
+            year = row[1][:4]
+            date = row[1][4:8]
+            url = baseurl +'/' + year + '/' + date + '/'
+            response = requests.get(url)
+            if response.status_code == 200:
+                # href_lists
+                href_list = get_href_lists2(url, keyword)
+                return href_list, row
+                # for ihref in href_list:
+                #     https = url + os.path.basename(ihref)
+                #     bfsize = bool_fsize2(https, thresval)
+                #     if bfsize:
+                #         response = requests.get(https)
+                #         if response.status_code == 200:
+                #             download_data(https, start_time, outputdir)
+                #         else:
+                #             href_list.append(ihref)
 
 
 if __name__ == "__main__":

@@ -8,5 +8,5 @@ python3 prg_geturl2.py --days=1 \
    --keyward='MOD35_L2.A' \
    --thresval=1 \
    --processors=7 \
-   --datedata='clustering_mod35_list.txt'\
+   --datedata='onedate.txt'\
 

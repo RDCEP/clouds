@@ -10,7 +10,6 @@ import os
 import sys
 import argparse
 import csv
-import datetime
 import glob
 import multiprocessing as mp
 import pandas as pd
@@ -28,7 +27,7 @@ import prg_StatsInvPixel as stats
 DATES_FILE = 'clustering_invalid_filelists.txt'
 MOD02_DIRECTORY = '/home/koenig1/scratch-midway2/MOD02/clustering'
 MOD35_DIRECTORY = '/home/koenig1/scratch-midway2/MOD35/clustering'
-OUTPUT_CSV = 'output07102019-2.csv'
+OUTPUT_CSV = 'output07102019.csv'
 
 def get_invalid_info(dates_file=DATES_FILE, mod02_dir=MOD02_DIRECTORY,
                      mod35_dir=MOD35_DIRECTORY, output_file=OUTPUT_CSV):
@@ -74,25 +73,6 @@ def get_invalid_info(dates_file=DATES_FILE, mod02_dir=MOD02_DIRECTORY,
                                     clouds_mask_img, fillvalue_list, thres=0.3)
 
 
-def create_distributions(csvfile):
-    '''
-    Creates distribution plots of invalid pixels by patches for each file
-
-    Inputs:
-        csvfile(str):
-
-    Outputs:
-    '''
-    df = pd.read_csv(csvfile)
-    grouped = df.groupby('filename') \
-                .agg({'patch_no': 'count', 'inval_pixels':'sum'}).reset_index() \
-                .rename(columns={'inval_pixels': 'sum_invalid_pixels', 'patch_no': 'patch_count'})
-    scatter = p9.ggplot(data=grouped, mapping=p9.aes(x='sum_invalid_pixels', y='patch_count')) \
-                        + p9.geom_point(alpha=0.3, color='green') + p9.theme_minimal()
-
-    p9.ggsave(plot=scatter, filename='scatterplot.png')
-
-
 def get_invalid_info2(file):
     '''
     Searches for desired files and writes csv with each row being a MOD02
@@ -113,21 +93,27 @@ def get_invalid_info2(file):
     mod02_dir = MOD02_DIRECTORY
     mod35_dir = MOD35_DIRECTORY
     output_file = OUTPUT_CSV
-
-    # Finds actual MOD02 files
-    mod02_path = glob.glob(mod02_dir + '/*/' + file)[0]
+    # Finds actual MOD02 file
+    mod02 = glob.glob(mod02_dir + '/*/' + file)
+    if mod02:
+        mod02_path = mod02[0]
+        fillvalue_list, mod02_img = stats.gen_mod02_img(mod02_path)
+        mod02_patches = _gen_patches(mod02_img, normalization=False)
+    else:
+        print("No mod02 file downloaded for " + filename)
     bname = os.path.basename(file)
     date = bname[10:22]
     # Finds corresponding MOD35
-    mod35_path = glob.glob(mod35_dir + '/*/*' + date + '*.hdf')[0]
-    fillvalue_list, mod02_img = stats.gen_mod02_img(mod02_path)
-    hdf_m35 = SD(mod35_path, SDC.READ)
-    clouds_mask_img = stats.gen_mod35_img(hdf_m35)
-    mod02_patches = _gen_patches(mod02_img, normalization=False)
-    # Checks validity of pixels for each file and writes csv
-    stats.check_invalid_clouds2(output_file, file, mod02_patches,
-                                clouds_mask_img, fillvalue_list, thres=0.3)
-
+    mod35 = glob.glob(mod35_dir + '/*/*' + date + '*.hdf')
+    if mod35:
+        mod35_path = mod35[0]
+        hdf_m35 = SD(mod35_path, SDC.READ)
+        clouds_mask_img = stats.gen_mod35_img(hdf_m35)
+        # Checks validity of pixels for each file and writes csv
+        stats.check_invalid_clouds2(output_file, file, mod02_patches,
+                                    clouds_mask_img, fillvalue_list, thres=0.3)
+    else:
+        print("No mod35 file downloaded for " + date)
 
 
 if __name__ == "__main__":
@@ -136,37 +122,37 @@ if __name__ == "__main__":
     p.add_argument('--processors', type=int, default=5)
     p.add_argument('--outputfile', type=str, default=OUTPUT_CSV)
     args = p.parse_args()
-    start_time = datetime.datetime.now()
-    print(start_time)
     print(args.processors)
     
     #Initializes pooling process for parallelization
     pool = mp.Pool(processes=args.processors)
 
-    # If output csv exits, assumes cutoff by RCC so deletes last entry and appends only new dates
+    # If output csv exits, assumes cutoff by RCC so deletes last entry
+    # and appends only new dates
     if os.path.exists(args.outputfile):
         print('Checking for completion')
         completed = pd.read_csv(args.outputfile)
         completed = completed[completed['filename'].notnull()]
         last_file = completed.tail(1)['filename'].tolist()[0]
         done = completed[completed['filename'] != last_file]
-        print('Writing updated csv')
-        done.to_csv(args.outputfile)
+        print('Writing updated csv w/ only completed MOD02 files')
+        done.to_csv(args.outputfile, index=False)
     else:
-        print(datetime.datetime.now())
         # Initializes output csv to be appended later
         with open(args.outputfile, 'w') as csvfile:
             outputwriter = csv.writer(csvfile, delimiter=',')
             outputwriter.writerow(['filename', 'patch_no', 'inval_pixels'])
         csvfile.close()
+        last_file = None
     # Finds name of desired MOD02 hdf files to be analyzed
     with open(args.dates_file, "r") as file:
         dates = file.readlines()
     desired_files = dates[0].replace('hdf', 'hdf ').split()
     if last_file:
-        print(last_file)
         last_idx = desired_files.index(last_file)
         desired_files = desired_files[last_idx:]
+
     pool.map(get_invalid_info2, desired_files)
     pool.close()
     pool.join()
+
