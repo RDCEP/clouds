@@ -147,7 +147,7 @@ def download_mod03(csv_file='inval_files.csv',
         for row in reader:
             year = row[1][:7]
             date = row[1][8:]
-            url = baseurl +'/'+year+'/'+days+'/'
+            url = baseurl +'/' + year + '/' + date + '/'
             response = requests.get(url)
             if response.status_code == 200:
                 # href_lists
