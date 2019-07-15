@@ -93,20 +93,27 @@ def get_invalid_info2(file):
     mod02_dir = MOD02_DIRECTORY
     mod35_dir = MOD35_DIRECTORY
     output_file = OUTPUT_CSV
-
-    # Finds actual MOD02 files
-    mod02_path = glob.glob(mod02_dir + '/*/' + file)[0]
+    # Finds actual MOD02 file
+    mod02 = glob.glob(mod02_dir + '/*/' + file)
+    if mod02:
+        mod02_path = mod02[0]
+        fillvalue_list, mod02_img = stats.gen_mod02_img(mod02_path)
+        mod02_patches = _gen_patches(mod02_img, normalization=False)
+    else:
+        print("No mod02 file downloaded for " + filename)
     bname = os.path.basename(file)
     date = bname[10:22]
     # Finds corresponding MOD35
-    mod35_path = glob.glob(mod35_dir + '/*/*' + date + '*.hdf')[0]
-    fillvalue_list, mod02_img = stats.gen_mod02_img(mod02_path)
-    hdf_m35 = SD(mod35_path, SDC.READ)
-    clouds_mask_img = stats.gen_mod35_img(hdf_m35)
-    mod02_patches = _gen_patches(mod02_img, normalization=False)
-    # Checks validity of pixels for each file and writes csv
-    stats.check_invalid_clouds2(output_file, file, mod02_patches,
-                                clouds_mask_img, fillvalue_list, thres=0.3)
+    mod35 = glob.glob(mod35_dir + '/*/*' + date + '*.hdf')
+    if mod35:
+        mod35_path = mod35[0]
+        hdf_m35 = SD(mod35_path, SDC.READ)
+        clouds_mask_img = stats.gen_mod35_img(hdf_m35)
+        # Checks validity of pixels for each file and writes csv
+        stats.check_invalid_clouds2(output_file, file, mod02_patches,
+                                    clouds_mask_img, fillvalue_list, thres=0.3)
+    else:
+        print("No mod35 file downloaded for " + date)
 
 
 if __name__ == "__main__":
@@ -147,6 +154,7 @@ if __name__ == "__main__":
     #     desired_files = desired_files[last_idx:]
     difference = pd.read_csv('diff.csv')
     desired_files = list(difference['0'])
+    print(len(desired_files))
     pool.map(get_invalid_info2, desired_files)
     pool.close()
     pool.join()

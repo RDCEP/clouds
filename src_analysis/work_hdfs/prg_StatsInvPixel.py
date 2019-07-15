@@ -212,8 +212,9 @@ def check_invalid_clouds2(output_file, file, patches, clouds_mask,
                       inv_pixel_list.append(n_inv_pixel)
                       outputwriter.writerow([file, patch_counter, n_inv_pixel])
                       patch_counter += 1
+                else:
+                    print('Null Values in ' + file)
     csvfile.close()
-    print(file)
 
 
 def save_file(filename, outputdir, outputname, inv_pixel_list, patches_list):
