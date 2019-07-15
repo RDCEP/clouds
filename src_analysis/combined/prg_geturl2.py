@@ -139,7 +139,7 @@ def combining_fn(iline, url, thresval, outputdir, start_time):
 
 
 def download_mod03(csv_file='inval_files.csv',
-                   url='https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD03/',
+                   baseurl='https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD03/',
                    keyword='MOD03', outputdir='/home/koenig1/scratch-midway2/MOD03/clustering/invalid_pixels', thresval=1):
     start_time = datetime.datetime.now()
     with open(csv_file, 'r') as csv_file:
