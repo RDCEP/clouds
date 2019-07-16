@@ -6,6 +6,7 @@ import os
 import argparse
 import datetime
 import urllib
+import csv
 from urllib.request import urlopen
 import multiprocessing as mp
 from bs4 import BeautifulSoup
@@ -140,39 +141,82 @@ def combining_fn(iline, url, thresval, outputdir, start_time):
         # Note: duplicates are allowed on list--remove duplicates periodically
 
 
+def download_mod03(row, start_time, baseurl='https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD03/',
+                   outputdir='/home/koenig1/scratch-midway2/MOD03/clustering/invalid_pixels'):
+    year = row[1][:4]
+    date = row[1][4:7]
+    keyword = row[1]
+    url = baseurl + year + '/' + date + '/'
+    response = requests.get(url)
+    if response.status_code == 200:
+        # href_lists
+        href_list = get_href_lists2(url, keyword)
+        for ihref in href_list:
+            https = url + os.path.basename(ihref)
+            response = requests.get(https)
+            if response.status_code == 200:
+                download_data(https, start_time, outputdir)
+            else:
+                href_list.append(ihref)
+
+
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
-    p.add_argument('--url', help=' base url without datenumber and year',
-                   type=str,
-                   default="https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD35_L2")
-    p.add_argument('--outputdir', type=str, default=os.getcwd())
-    p.add_argument('--keyward', type=str, default='MOD35_L2.A')
-    p.add_argument('--thresval', type=int, default=100)
+    p.add_argument('--csv_file', type=str, default="inval_files.csv")
+    p.add_argument('--baseurl', type=str, default='https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD03/')
+    p.add_argument('--outputdir', type=str, default='/home/koenig1/scratch-midway2/MOD03/clustering/invalid_pixels')
     p.add_argument('--processors', type=int, default=mp.cpu_count() - 1)
-    p.add_argument('--days', type=int, default=1)
-    p.add_argument('--start', type=str, default='2000-02-24')
-    p.add_argument('--end', type=str, default='2019-03-27')
-    p.add_argument('--datedata', type=str, default=None)
-
     args = p.parse_args()
     os.makedirs(args.outputdir, exist_ok=True)
     start_time = datetime.datetime.now()
     print(start_time)
     print(args.processors)
-    #Initializes pooling process for parallelization
     pool = mp.Pool(processes=args.processors)
     # Loads date metadata and creates arg tuple for each worker in pool
     args_lst = []
-    if args.datedata:
-        with open(args.datedata, 'r') as ifile:
-            for iline in ifile.readlines():
-                args_lst.append((iline, args.url, args.thresval, args.outputdir, start_time))
-    else:
-        datedata = pgrm.gen_random_date(ndays=args.days, stime=args.start, etime=args.end)
-        pgrm.save_filelist(datedata, args.outputdir, oname='dates_created ' + datetime.datetime.today()
-                           .strftime('%Y-%m-%d'))
-        for iline in datedata:
-            args_lst.append((iline, args.url, args.thresval, args.outputdir, start_time))
-    pool.starmap_async(combining_fn, args_lst)
+    with open(args.csv_file, 'r') as csv_file:
+        reader = csv.reader(csv_file)
+        for row in reader:
+        	args_lst.append((row, start_time, args.baseurl, args.outputdir))
+    pool.starmap_async(download_mod03, args_lst)
     pool.close()
     pool.join()
+
+
+
+# if __name__ == "__main__":
+#     p = argparse.ArgumentParser()
+#     p.add_argument('--url', help=' base url without datenumber and year',
+#                    type=str,
+#                    default="https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD35_L2")
+#     p.add_argument('--outputdir', type=str, default=os.getcwd())
+#     p.add_argument('--keyward', type=str, default='MOD35_L2.A')
+#     p.add_argument('--thresval', type=int, default=100)
+#     p.add_argument('--processors', type=int, default=mp.cpu_count() - 1)
+#     p.add_argument('--days', type=int, default=1)
+#     p.add_argument('--start', type=str, default='2000-02-24')
+#     p.add_argument('--end', type=str, default='2019-03-27')
+#     p.add_argument('--datedata', type=str, default=None)
+
+#     args = p.parse_args()
+#     os.makedirs(args.outputdir, exist_ok=True)
+#     start_time = datetime.datetime.now()
+#     print(start_time)
+#     print(args.processors)
+#     #Initializes pooling process for parallelization
+#     pool = mp.Pool(processes=args.processors)
+#     # Loads date metadata and creates arg tuple for each worker in pool
+#     args_lst = []
+#     if args.datedata:
+#         with open(args.datedata, 'r') as ifile:
+#             for iline in ifile.readlines():
+#                 args_lst.append((iline, args.url, args.thresval, args.outputdir, start_time))
+#     else:
+#         datedata = pgrm.gen_random_date(ndays=args.days, stime=args.start, etime=args.end)
+#         pgrm.save_filelist(datedata, args.outputdir, oname='dates_created ' + datetime.datetime.today()
+#                            .strftime('%Y-%m-%d'))
+#         for iline in datedata:
+#             args_lst.append((iline, args.url, args.thresval, args.outputdir, start_time))
+#     pool.starmap_async(combining_fn, args_lst)
+#     pool.close()
+#     pool.join()

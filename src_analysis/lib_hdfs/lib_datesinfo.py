@@ -40,9 +40,17 @@ def deltaday2date(cyear, timestamp, str_flag=False):
   
   if str_flag:
     if date.month < 10:
-       month = '0'+str(date.month)
-    if date.day < 10:
-       day = '0'+str(date.day)
-    return str(date.year), month, day
+       _month = '0'+str(date.month)
+       if date.day < 10:
+        _day = '0'+str(date.day)
+       else:
+        _day   = str(date.day)
+    elif date.month >= 10:
+       _month = str(date.month)
+       if date.day < 10:
+        _day = '0'+str(date.day)
+       else:
+        _day   = str(date.day)
+    return str(date.year), _month, _day
   else:
     return date.year, date.month, date.day
