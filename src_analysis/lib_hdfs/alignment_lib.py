@@ -2,9 +2,21 @@
 #
 # library for data alignment with MOD35 Cloud Fraction Data
 #
+import os
+import gc
+import re
+import sys
 import glob
+import copy
 import numpy as np
+import scipy as sc
 from pyhdf.SD import SD, SDC
+
+libdir = '/home/tkurihana/scratch-midway2/clouds/src_analysis/lib_hdfs'
+sys.path.insert(1,os.path.join(sys.path[0],libdir))
+from analysis_lib import mod06_proc_sds
+from analysis_lib import _gen_patches
+
 
 # 2d array version [ix, iy]
 def decode_cloud_flag(sds_array, fillna=True):
@@ -205,7 +217,11 @@ def gen_mod35_img_single(
 def get_filepath(filepath, datadir, prefix=''):
     """filepath for another modis data corresponding given filepath
     """
-    date = os.path.basename(filepath)[10:22] # ex. 2017213.2355
+    #FIXME
+    #date = os.path.basename(filepath)[10:22] # ex. 2017213.2355
+    bname = os.path.basename(filepath) # ex. 2017213.2355
+    dateinfo = re.findall('[0-9]{7}.[0-9]{4}' , bname)
+    date     = dateinfo[0].rstrip("['").lstrip("']")
     return glob.glob(datadir+'/'+prefix+date+'*.hdf')[0]
 
 
@@ -340,6 +356,13 @@ def mod02_proc_sds_single(sds_array):
         array[nan_idx] = np.nan
     else:
         pass
+    # invalid value process
+    # TODO: future change 32767 to other value
+    invalid_idx = np.where( array > 32767 )
+    if len(nan_idx) > 0:
+        array[invalid_idx] = np.nan
+    else:
+        pass
     
     # radiacne offset
     offset = sds_array.attributes()['radiance_offsets']
@@ -419,3 +442,95 @@ def _gen_patches(img, stride=128, size=128,
       return np.stack(patches)
     else:
       return patches
+
+# Add 2019/07/12
+def prep_process_data(npz_dir='./', npzfname='clouds_patches_XXX.npz', 
+                      mod06_datadir='./', prefix='MOD06_L2.A'
+  ):
+
+  # encs_mean & clouds_xy_list
+  data_array = np.load(npz_dir+'/'+npzfname)
+  encs_mean = data_array['encs_mean']
+  clouds_xy = data_array['clouds_xy']
+
+  # get mo06 file
+  m6_file = get_filepath(npzfname, mod06_datadir, prefix=prefix)
+
+  # mod06 file
+  m6_hdf = SD(m6_file, SDC.READ)
+
+  # gen train labels
+  mod06_labels = gen_mod06_labels(m6_hdf, clouds_xy)
+  gc.collect()
+
+  return encs_mean, mod06_labels
+
+
+def gen_mod06_labels(m6_hdf, clouds_xy, nparams=4):
+  """
+    INPUT: Opend MOD06 hdf.
+  """
+  #TODO: Feature, tie nparams and below read information
+  # should be more flexible
+
+  # resolution should be 1km
+  cot_sds = m6_hdf.select("Cloud_Optical_Thickness")
+  cwp_sds = m6_hdf.select("Cloud_Water_Path")
+  cpi_sds = m6_hdf.select("Cloud_Phase_Infrared_1km")
+  ctp_sds = m6_hdf.select("cloud_top_pressure_1km")
+
+  # decode after scaling & offset & nan process
+  cot_array = mod06_proc_sds(cot_sds, 'Cloud_Optical_Thickness')
+  cwp_array = mod06_proc_sds(cwp_sds, 'Cloud_Water_Path')
+  cpi_array = mod06_proc_sds(cpi_sds, 'Cloud_Phase_Infrared_1km')
+  ctp_array = mod06_proc_sds(ctp_sds, 'cloud_top_pressure_1km')
+
+  # integrate as one array 
+  nx, ny = cot_array.shape
+  d_list = [
+    cot_array.reshape(nx,ny,1),
+    cwp_array.reshape(nx,ny,1),
+    cpi_array.reshape(nx,ny,1),
+    ctp_array.reshape(nx,ny,1),
+  ]
+
+  # concatenate
+  mod06_img = np.concatenate(d_list, axis=2)
+
+  # patchenaization
+  mod06_patches = _gen_patches(mod06_img, normalization=False, flag_nan=True)
+  mod06_patches_mean = np.nanmean(mod06_patches, axis=(2,3))
+  prep_phase = copy.deepcopy(mod06_patches[:,:,:,:,2])
+  _x, _y = mod06_patches.shape[:2]
+  phase_mode = np.zeros((_x,_y))
+  for i in range(_x):
+    for j in range(_y):
+      phase, _= sc.stats.mode(prep_phase[i,j].ravel(), nan_policy='omit')
+      phase_mode[i,j] = phase
+  cpi_modes = np.zeros((_x,_y)).astype(np.float64)
+  cpi_modes[:,:] = np.nan
+  for idx, (x,y) in enumerate(clouds_xy):
+    cpi_modes[x,y] = phase_mode[x,y]
+  # finally join cpi mode to mod06_patches_mean
+  mod06_patches_mean[:,:,2] = cpi_modes
+  
+  # Process mod06 patches where align with clouds_xy information
+  mod06_patches_valid = np.zeros((mod06_patches_mean.shape))
+  mod06_patches_valid.astype(float)
+  mod06_patches_valid[:,:] = np.nan
+
+  for i in clouds_xy:
+    ii,jj = i
+    mod06_patches_valid[ii,jj] = mod06_patches_mean[ii,jj]
+
+  xx, yy = mod06_patches_valid.shape[:2]
+  tmp = mod06_patches_valid.reshape(xx*yy,nparams)
+  clist = []
+  for i in tmp:
+    if not np.isnan(i).all():
+        clist.append(i)
+  #Finally get labels == patch-wise mean physics parameters
+  encs_labels = np.asarray(clist)
+
+  return encs_labels
+
