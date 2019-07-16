@@ -116,7 +116,7 @@ def get_invalid_info2(file):
         print("No mod35 file downloaded for " + date)
 
 
-def make_connecting_dict(file_csv):
+def make_connecting_dict(file_csv, outputfile):
     '''
 
     Inputs:
@@ -145,9 +145,24 @@ def make_connecting_dict(file_csv):
                 latitude = lat[:, :]
                 lon = mod03_hdf.select('Longitude')
                 longitude = lon[:, :]
-                make_patches(invals_dict, mod02_path, latitude, longitude)
+                
             else:
                 print("No MOD03 file downloaded for " + date)
+            # Finds corresponding MOD35
+            mod35 = glob.glob(mod35_dir + '/*/*' + date + '*.hdf')
+            if mod35:
+                mod35_path = mod35[0]
+                hdf_m35 = SD(mod35_path, SDC.READ)
+                make_patches(invals_dict, mod02_path, latitude, longitude, hdf_m35)
+            else:
+                print("No mod35 file downloaded for " + date)
+    
+    with open(outputfile, 'w') as csvfile:
+        outputwriter = csv.writer(csvfile, delimiter=',')
+        outputwriter.writerow(['filename', 'patch_no', 'latitude', 'longitude'])
+    for key in invals_dict.keys():
+        patches, latitudes, longitudes, cloud_mask = invals_dict[key]
+        connect_geolocation(outputfile, key, patches, latitudes, longitudes, cloud_mask)
 
 
 def make_patches(invals_dict, mod02_path, latitude, longitude):
@@ -178,7 +193,35 @@ def make_patches(invals_dict, mod02_path, latitude, longitude):
             patches.append(patch_row)
             latitudes.append(lat_row)
             longitudes.append(lon_row)
-    invalds_dict[mod02_path] = [patches, latitudes, longitudes]
+    clouds_mask_img = stats.gen_mod35_img(hdf_m35)
+    invalds_dict[mod02_path] = [patches, latitudes, longitudes, clouds_mask_img]
+
+
+def connect_geolocation(name, patches, latitudes, longitudes, clouds_mask,
+                        output_file, width=128, height=128, thres=0.3,
+                        sdsmax=32767):
+    '''
+    '''
+    with open(output_file, 'a') as csvfile:
+        outputwriter = csv.writer(csvfile, delimiter=',')
+        nx, ny = patches.shape[:2]
+        patch_counter = 0
+        for i in range(nx):
+            for j in range(ny):
+                lat = latitudes[i, j]
+                lon = longitudes[i, j]
+                if not np.isnan(patches[i, j]).any():
+                  if np.any(clouds_mask[i * width:(i + 1) * width,
+                            j * height:(j + 1) * height] == 0):
+                    tmp = clouds_mask[i * width:(i + 1) * width,
+                                      j * height:(j + 1) * height]
+                    nclouds = len(np.argwhere(tmp == 0))
+                    if nclouds / (width * height) > thres:
+                        outputwriter.writerow([name, patch_counter, lat, lon])
+                        patch_counter += 1
+                else:
+                    print('Null Values in ' + file)
+    csvfile.close()
 
 
 if __name__ == "__main__":
