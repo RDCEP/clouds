@@ -116,6 +116,71 @@ def get_invalid_info2(file):
         print("No mod35 file downloaded for " + date)
 
 
+def make_connecting_dict(file_csv):
+    '''
+
+    Inputs:
+        files_csv
+        file:
+
+    Outputs:
+    '''
+    invals_dict = {}
+    with open(file_csv, 'r') as csv_file:
+        reader = csv.reader(csv_file)
+        for row in reader:
+            bname = os.path.basename(row)
+            date = bname[10:22]
+            mod02 = glob.glob(mod02_dir + '/*/' + file)
+            if mod02:
+                mod02_path = mod02[0]
+            else:
+                print("No mod02 file downloaded for " + date)
+            # Finds corresponding MOD)3
+            mod03 = glob.glob(mod35_dir + '/*/*' + date + '*.hdf')
+            if mod03 file:
+                mod03_path = mod03[0]
+                mod03_hdf = SD(mod35_path, SDC.READ)
+                lat = mod03_hdf.select('Latitude')
+                latitude = lat[:, :]
+                lon = mod03_hdf.select('Longitude')
+                longitude = lon[:, :]
+                make_patches(invals_dict, mod02_path, latitude, longitude)
+            else:
+                print("No MOD03 file downloaded for " + date)
+
+
+def make_patches(invals_dict, mod02_path, latitude, longitude):
+    '''
+    Inputs:
+
+    Outputs:
+    '''
+    stride = 128
+    patch_size = 128
+    patches = []
+    latitudes = []
+    longitudes = []
+    fillvalue_list, swath = stats.gen_mod02_img(mod02_path)
+    for i in range(0, swath.shape[0], stride):
+        patch_row = []
+        lat_row = []
+        lon_row = []
+        for j in range(0, swath.shape[1], stride):
+            if i + patch_size <= swath.shape[0] and j + patch_size <= swath.shape[1]:
+                p = swath[i:i + patch_size, j:j + patch_size].astype(float)
+                lat = latitude[i:i + patch_size, j:j + patch_size].astype(float)
+                lon = longitude[i:i + patch_size, j:j + patch_size].astype(float)
+                patch_row.append(p)
+                lat_row.append(lat)
+                lon_row.append(lon)
+        if row:
+            patches.append(patch_row)
+            latitudes.append(lat_row)
+            longitudes.append(lon_row)
+    invalds_dict[mod02_path] = [patches, latitudes, longitudes]
+
+
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument('--dates_file', type=str, default=DATES_FILE)
