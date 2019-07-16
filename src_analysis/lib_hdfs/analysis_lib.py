@@ -2,6 +2,7 @@
 
 import os
 import cv2
+import random
 import numpy as np
 import itertools
 import tensorflow as tf
@@ -61,6 +62,18 @@ def _get_colors(n=-1, cmap_name='jet'):
         rgb = cmap(i)[:3]
         #print(idx, matplotlib.colors.rgb2hex(rgb))
         colors += [matplotlib.colors.rgb2hex(rgb)]
+    return colors
+
+def get_rand_colors(n=10, cmap_name='jet', _seed = 12356):
+    #colormap
+    cmap = cm.get_cmap(cmap_name, n)
+    colors = []
+    for idx, i in enumerate(range(cmap.N)):
+        rgb = cmap(i)[:3]
+        colors += [matplotlib.colors.rgb2hex(rgb)]
+    # shuffle
+    rd.seed(_seed)
+    rd.shuffle(colors)
     return colors
 
 def _gen_patches(img, stride=128, size=128, 
