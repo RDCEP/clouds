@@ -145,15 +145,15 @@ def connect_geolocation(name, patches, latitudes, longitudes, clouds_mask,
 
 
 def make_geodf(dataframe):
-'''
-Turns a dataframe with latitude and longitude columns into a geodataframe
+    '''
+    Turns a dataframe with latitude and longitude columns into a geodataframe
 
-Inputs:
-    pandas dataframe with a column that is a list of coordinates
+    Inputs:
+        pandas dataframe with a column that is a list of coordinates
 
-Outputs:
-    geodataframe
-'''
+    Outputs:
+        geodataframe
+    '''
     results_df['geom'] = results_df.apply(lambda row: apply_func(row['latitude'], row['longitude']), axis=1)
     results_df['geom'] = results_df['geom'].apply(geometry.Polygon)
     results_gdf = gpd.GeoDataFrame(results_df, geometry='geom')
