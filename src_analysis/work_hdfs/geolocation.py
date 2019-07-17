@@ -19,7 +19,11 @@ from alignment_lib import gen_mod35_img
 import prg_StatsInvPixel as stats
 
 
-def make_connecting_dict(file_csv, outputfile):
+MOD02_DIRECTORY = '/home/koenig1/scratch-midway2/MOD02/clustering'
+MOD03_DIRECTORY = '/home/koenig1/scratch-midway2/MOD03/clustering'
+MOD35_DIRECTORY = '/home/koenig1/scratch-midway2/MOD35/clustering'
+
+def make_connecting_dict(file_csv, outputfile, mod02_dir, mod35_dir, mod03_dir):
     '''
 
     Inputs:
@@ -40,7 +44,7 @@ def make_connecting_dict(file_csv, outputfile):
             else:
                 print("No mod02 file downloaded for " + date)
             # Finds corresponding MOD)3
-            mod03 = glob.glob(mod35_dir + '/*/*' + date + '*.hdf')
+            mod03 = glob.glob(mod03_dir + '/*/*' + date + '*.hdf')
             if mod03:
                 mod03_path = mod03[0]
                 mod03_hdf = SD(mod35_path, SDC.READ)
