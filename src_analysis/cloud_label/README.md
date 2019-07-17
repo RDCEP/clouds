@@ -17,7 +17,7 @@
 * numpy
 * matplotlib
 * pyhdf.SD
-* tensorflow
+* Tensorflow 1.12.0 for CPU
 * pandas
 * seaborn
 * math
