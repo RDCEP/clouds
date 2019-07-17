@@ -37,6 +37,7 @@ def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY,
 
     Outputs:
     '''
+    print(file)
     bname = os.path.basename(file)
     date = bname[10:22]
     mod02 = glob.glob(mod02_dir + '/*/' + file)
@@ -195,7 +196,7 @@ if __name__ == "__main__":
     p.add_argument('--mod02dir', type=str, default=MOD02_DIRECTORY)
     p.add_argument('--mod35dir', type=str, default=MOD35_DIRECTORY)
     p.add_argument('--mod03dir', type=str, default=MOD03_DIRECTORY)
-    p.add_argument('--processors', type=int, default=20)
+    p.add_argument('--processors', type=int, default=5)
     p.add_argument('--outputfile', type=str, default=OUTPUT_CSV)
     args = p.parse_args()
     print(args.processors)
@@ -210,8 +211,9 @@ if __name__ == "__main__":
         completed = pd.read_csv(args.outputfile)
         completed = completed[completed['filename'].notnull()]
         last_file = completed.tail(1)['filename'].tolist()
+        if last_file:
+            last_file = last_file[0]
         done = completed[completed['filename'] != last_file]
-        print("Last file " + last_file)
         done.to_csv(args.outputfile, index=False)
     else:
         # Initializes output csv to be appended later
@@ -229,6 +231,7 @@ if __name__ == "__main__":
         files = files[last_idx:]
     for file in files:
         args_lst.append((file, args.outputfile, args.mod02dir, args.mod35dir, args.mod03dir))
+    print('about to pool')
     pool.starmap(make_connecting_csv, args_lst)
     pool.close()
     pool.join()
