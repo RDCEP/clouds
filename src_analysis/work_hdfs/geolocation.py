@@ -37,40 +37,34 @@ def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY,
 
     Outputs:
     '''
-    invals_dict = {}
-    with open(file, 'r') as csv_file:
-        reader = csv.reader(csv_file)
-        for row in reader:
-            file = row[1]
-            print(file)
-            bname = os.path.basename(file)
-            date = bname[10:22]
-            mod02 = glob.glob(mod02_dir + '/*/' + file)
-            if mod02:
-                mod02_path = mod02[0]
-            else:
-                print("No mod02 file downloaded for " + date)
-            # Finds corresponding MOD)3
-            mod03 = glob.glob(mod03_dir + '/*/*' + date + '*.hdf')
-            if mod03:
-                mod03_path = mod03[0]
-                mod03_hdf = SD(mod03_path, SDC.READ)
-                lat = mod03_hdf.select('Latitude')
-                latitude = lat[:, :]
-                lon = mod03_hdf.select('Longitude')
-                longitude = lon[:, :]
-            else:
-                print("No MOD03 file downloaded for " + date)
-            # Finds corresponding MOD35
-            mod35 = glob.glob(mod35_dir + '/*/*' + date + '*.hdf')
-            if mod35:
-                mod35_path = mod35[0]
-                hdf_m35 = SD(mod35_path, SDC.READ)
-                cloud_mask_img = stats.gen_mod35_img(hdf_m35)
-                patches, latitudes, longitudes = make_patches(output, mod02_path, latitude, longitude, cloud_mask_img)
-                connect_geolocation(output, mod02_path, patches, latitudes, longitudes, cloud_mask_img)
-            else:
-                print("No mod35 file downloaded for " + date)
+    bname = os.path.basename(file)
+    date = bname[10:22]
+    mod02 = glob.glob(mod02_dir + '/*/' + file)
+    if mod02:
+        mod02_path = mod02[0]
+    else:
+        print("No mod02 file downloaded for " + date)
+    # Finds corresponding MOD)3
+    mod03 = glob.glob(mod03_dir + '/*/*' + date + '*.hdf')
+    if mod03:
+        mod03_path = mod03[0]
+        mod03_hdf = SD(mod03_path, SDC.READ)
+        lat = mod03_hdf.select('Latitude')
+        latitude = lat[:, :]
+        lon = mod03_hdf.select('Longitude')
+        longitude = lon[:, :]
+    else:
+        print("No MOD03 file downloaded for " + date)
+    # Finds corresponding MOD35
+    mod35 = glob.glob(mod35_dir + '/*/*' + date + '*.hdf')
+    if mod35:
+        mod35_path = mod35[0]
+        hdf_m35 = SD(mod35_path, SDC.READ)
+        cloud_mask_img = stats.gen_mod35_img(hdf_m35)
+        patches, latitudes, longitudes = make_patches(output, mod02_path, latitude, longitude, cloud_mask_img)
+        connect_geolocation(output, mod02_path, patches, latitudes, longitudes, cloud_mask_img)
+    else:
+        print("No mod35 file downloaded for " + date)
 
 
 def make_patches(mod02_path, latitude, longitude):
@@ -215,7 +209,7 @@ if __name__ == "__main__":
         print('Checking for completion')
         completed = pd.read_csv(args.outputfile)
         completed = completed[completed['filename'].notnull()]
-        last_file = completed.tail(1)['filename'].tolist()[0]
+        last_file = completed.tail(1)['filename'].tolist()
         done = completed[completed['filename'] != last_file]
         print("Last file " + last_file)
         done.to_csv(args.outputfile, index=False)
