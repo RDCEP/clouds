@@ -38,7 +38,9 @@ def make_connecting_df(file_csv=INVALIDS_CSV, mod02_dir=MOD02_DIRECTORY,
     with open(file_csv, 'r') as csv_file:
         reader = csv.reader(csv_file)
         for row in reader:
-            bname = os.path.basename(row)
+            file = row[1]
+            print(file)
+            bname = os.path.basename(file)
             date = bname[10:22]
             mod02 = glob.glob(mod02_dir + '/*/' + file)
             if mod02:
@@ -49,7 +51,7 @@ def make_connecting_df(file_csv=INVALIDS_CSV, mod02_dir=MOD02_DIRECTORY,
             mod03 = glob.glob(mod03_dir + '/*/*' + date + '*.hdf')
             if mod03:
                 mod03_path = mod03[0]
-                mod03_hdf = SD(mod35_path, SDC.READ)
+                mod03_hdf = SD(mod03_path, SDC.READ)
                 lat = mod03_hdf.select('Latitude')
                 latitude = lat[:, :]
                 lon = mod03_hdf.select('Longitude')
@@ -61,7 +63,8 @@ def make_connecting_df(file_csv=INVALIDS_CSV, mod02_dir=MOD02_DIRECTORY,
             if mod35:
                 mod35_path = mod35[0]
                 hdf_m35 = SD(mod35_path, SDC.READ)
-                make_patches(invals_dict, mod02_path, latitude, longitude, hdf_m35)
+                cloud_mask_img = stats.gen_mod35_img(hdf_m35)
+                make_patches(invals_dict, mod02_path, latitude, longitude, cloud_mask_img)
             else:
                 print("No mod35 file downloaded for " + date)
     
@@ -72,7 +75,7 @@ def make_connecting_df(file_csv=INVALIDS_CSV, mod02_dir=MOD02_DIRECTORY,
     return results_df
 
 
-def make_patches(invals_dict, mod02_path, latitude, longitude):
+def make_patches(invals_dict, mod02_path, latitude, longitude, cloud_mask):
     '''
 
     Inputs:
@@ -106,7 +109,7 @@ def make_patches(invals_dict, mod02_path, latitude, longitude):
             latitudes.append(lat_row)
             longitudes.append(lon_row)
     invals_dict[mod02_path] = [np.stack(patches), np.stack(latitudes),
-                               np.stack(longitudes)]
+                               np.stack(longitudes), cloud_mask]
 
 
 def connect_geolocation(name, patches, latitudes, longitudes, clouds_mask,
