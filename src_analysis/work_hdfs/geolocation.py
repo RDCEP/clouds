@@ -23,8 +23,9 @@ MOD02_DIRECTORY = '/home/koenig1/scratch-midway2/MOD02/clustering'
 MOD03_DIRECTORY = '/home/koenig1/scratch-midway2/MOD03/clustering'
 MOD35_DIRECTORY = '/home/koenig1/scratch-midway2/MOD35/clustering'
 INVALIDS_CSV = 'patches_with_invalid_pixels.csv'
+OUTPUT_CSV = ''
 
-def make_connecting_df(file_csv=INVALIDS_CSV, mod02_dir=MOD02_DIRECTORY, 
+def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY, 
                        mod35_dir=MOD35_DIRECTORY, mod03_dir=MOD03_DIRECTORY):
     '''
 
@@ -64,18 +65,13 @@ def make_connecting_df(file_csv=INVALIDS_CSV, mod02_dir=MOD02_DIRECTORY,
                 mod35_path = mod35[0]
                 hdf_m35 = SD(mod35_path, SDC.READ)
                 cloud_mask_img = stats.gen_mod35_img(hdf_m35)
-                make_patches(invals_dict, mod02_path, latitude, longitude, cloud_mask_img)
+                patches, latitudes, longitudes = make_patches(output, mod02_path, latitude, longitude, cloud_mask_img)
+                connect_geolocation(output, mod02_path, patches, latitudes, longitudes, cloud_mask_img)
             else:
                 print("No mod35 file downloaded for " + date)
-    
-    results_df = pd.DataFrame(columns=['filename', 'patch_no', 'latitude', 'longitude'])
-    for key in invals_dict.keys():
-        patches, latitudes, longitudes, cloud_mask = invals_dict[key]
-        connect_geolocation(results_df, key, patches, latitudes, longitudes, cloud_mask)
-    return results_df
 
 
-def make_patches(invals_dict, mod02_path, latitude, longitude, cloud_mask):
+def make_patches(mod02_path, latitude, longitude):
     '''
 
     Inputs:
@@ -108,12 +104,11 @@ def make_patches(invals_dict, mod02_path, latitude, longitude, cloud_mask):
             patches.append(patch_row)
             latitudes.append(lat_row)
             longitudes.append(lon_row)
-    invals_dict[mod02_path] = [np.stack(patches), np.stack(latitudes),
-                               np.stack(longitudes), cloud_mask]
+    return np.stack(patches), np.stack(latitudes), np.stack(longitudes)
 
 
-def connect_geolocation(name, patches, latitudes, longitudes, clouds_mask,
-                        results_df, width=128, height=128, thres=0.3):
+def connect_geolocation(file, output, patches, latitudes, longitudes, clouds_mask,
+                        width=128, height=128, thres=0.3):
     '''
 
     Inputs:
@@ -129,24 +124,26 @@ def connect_geolocation(name, patches, latitudes, longitudes, clouds_mask,
 
     Outputs:
     '''
-    nx, ny = patches.shape[:2]
-    patch_counter = 0
-    for i in range(nx):
-        for j in range(ny):
-            lat = latitudes[i, j]
-            lon = longitudes[i, j]
-            if not np.isnan(patches[i, j]).any():
-              if np.any(clouds_mask[i * width:(i + 1) * width,
-                        j * height:(j + 1) * height] == 0):
-                tmp = clouds_mask[i * width:(i + 1) * width,
-                                  j * height:(j + 1) * height]
-                nclouds = len(np.argwhere(tmp == 0))
-                if nclouds / (width * height) > thres:
-                    results_df.loc[len(results_df)] = [name, patch_counter, lat, lon]
-                    patch_counter += 1
-            else:
-                print('Null Values in ' + file)
-    return results_df
+    with open(output_file, 'a') as csvfile:
+        outputwriter = csv.writer(csvfile, delimiter=',')
+        nx, ny = patches.shape[:2]
+        patch_counter = 0
+        for i in range(nx):
+            for j in range(ny):
+                lat = latitudes[i, j]
+                lon = longitudes[i, j]
+                if not np.isnan(patches[i, j]).any():
+                  if np.any(clouds_mask[i * width:(i + 1) * width,
+                            j * height:(j + 1) * height] == 0):
+                    tmp = clouds_mask[i * width:(i + 1) * width,
+                                      j * height:(j + 1) * height]
+                    nclouds = len(np.argwhere(tmp == 0))
+                    if nclouds / (width * height) > thres:
+                        outputwriter.writerow([file, patch_counter, lat, lon])
+                        patch_counter += 1
+                else:
+                    print('Null Values in ' + file)
+    csvfile.close()
 
 
 def make_geodf(dataframe):
@@ -194,3 +191,49 @@ def apply_func(x, y):
             else:
                 small_lon = curr_lon
     return [(small_lat, small_lon), (big_lat, small_lon), (small_lat, big_lon), (big_lat, big_lon)]
+
+
+if __name__ == "__main__":
+    p = argparse.ArgumentParser()
+    p.add_argument('--input_file', type=str, default=INVALIDS_CSV)
+    p.add_argument('--mod02dir', type=str, default=MOD02_DIRECTORY)
+    p.add_argument('--mod35dir', type=str, default=MOD35_DIRECTORY)
+    p.add_argument('--mod03dir', type=str, default=MOD03_DIRECTORY)
+    p.add_argument('--processors', type=int, default=20)
+    p.add_argument('--outputfile', type=str, default=OUTPUT_CSV)
+    args = p.parse_args()
+    print(args.processors)
+
+    #Initializes pooling process for parallelization
+    pool = mp.Pool(processes=args.processors)
+
+    # If output csv exits, assumes cutoff by RCC so deletes last entry
+    # and appends only new dates
+    if os.path.exists(args.outputfile):
+        print('Checking for completion')
+        completed = pd.read_csv(args.outputfile)
+        completed = completed[completed['filename'].notnull()]
+        last_file = completed.tail(1)['filename'].tolist()[0]
+        done = completed[completed['filename'] != last_file]
+        print("Last file " + last_file)
+        done.to_csv(args.outputfile, index=False)
+    else:
+        # Initializes output csv to be appended later
+        with open(args.outputfile, 'w') as csvfile:
+            outputwriter = csv.writer(csvfile, delimiter=',')
+            outputwriter.writerow(['filename', 'patch_no', 'latitude', 'longitude'])
+        csvfile.close()
+        last_file = None
+
+    args_lst = []
+    filenames_df = pd.read_csv(args.input_file)
+    files = list(filenames_df['filename'])
+    if last_file:
+        last_idx = files.index(last_file)
+        files = files[last_idx:]
+    for file in files:
+        args_lst.append((file, args.outputfile, args.mod02dir, args.mod35dir, args.mod03dir))
+    pool.starmap(make_connecting_csv, args_lst)
+    pool.close()
+    pool.join()
+
