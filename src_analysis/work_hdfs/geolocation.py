@@ -38,7 +38,7 @@ def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY,
     Outputs:
     '''
     invals_dict = {}
-    with open(file_csv, 'r') as csv_file:
+    with open(file, 'r') as csv_file:
         reader = csv.reader(csv_file)
         for row in reader:
             file = row[1]
