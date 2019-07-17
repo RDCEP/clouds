@@ -22,8 +22,10 @@ import prg_StatsInvPixel as stats
 MOD02_DIRECTORY = '/home/koenig1/scratch-midway2/MOD02/clustering'
 MOD03_DIRECTORY = '/home/koenig1/scratch-midway2/MOD03/clustering'
 MOD35_DIRECTORY = '/home/koenig1/scratch-midway2/MOD35/clustering'
+INVALIDS_CSV = 'patches_with_invalid_pixels.csv'
 
-def make_connecting_dict(file_csv, outputfile, mod02_dir, mod35_dir, mod03_dir):
+def make_connecting_df(file_csv=INVALIDS_CSV, mod02_dir=MOD02_DIRECTORY, 
+                       mod35_dir=MOD35_DIRECTORY, mod03_dir=MOD03_DIRECTORY):
     '''
 
     Inputs:
