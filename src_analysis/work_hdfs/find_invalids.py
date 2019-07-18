@@ -77,13 +77,7 @@ def get_invalid_info2(file):
     filename, patch number and number of invalid pixels in the patch
 
     Inputs:
-        dates_file(str): txt file with list of desired MOD02
-        mod02_dir(str): path where MOD021KM files are located
-        mod35_dir(str): path where MOD35_L2 files are locatedf
-            dir = '/home/koenig1/scratch-midway2/MOD02/clustering'
-            when hdf files located in
-            '/home/koenig1/scratch-midway2/MOD02/clustering/clustering_laads_2000_2018_2'
-        output_file(str): name of desired output csv
+        file(str): name of mod02 hdf file
 
     Outputs:
         None (writes csv)

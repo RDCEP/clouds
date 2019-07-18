@@ -30,12 +30,23 @@ OUTPUT_CSV = 'output_test07172019.csv'
 def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY, 
                        mod35_dir=MOD35_DIRECTORY, mod03_dir=MOD03_DIRECTORY):
     '''
+    Combining functions that connects mod02, mod03 (geolocation data) and mod35
+    files to create a csv with the patches that have invalid pixels and their
+    corresponding latitude and longitude coordinates
 
     Inputs:
-        files_csv
-        outputfile:
-
-    Outputs:
+        file(str): name of mod02 hdf file
+        output(str): name of output csv in which the individual file data
+                     should be appended
+        mod02_dir(str): path where MOD021KM files are located
+        mod35_dir(str): path where MOD35_L2 files are located
+        mod03_dir(str): path where MOD03 files are located
+        Note for mod02_dir, mod35_dir and mod03_dir:
+            dir = '/home/koenig1/scratch-midway2/MOD02/clustering'
+            when hdf files located in
+            '/home/koenig1/scratch-midway2/MOD02/clustering/clustering_laads_2000_2018_2'
+    
+    Outputs: None (appends to exisiting csv after connecting all three files)
     '''
     print(file)
     bname = os.path.basename(file)
@@ -70,14 +81,14 @@ def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY,
 
 def make_patches(mod02_path, latitude, longitude):
     '''
+    Converts data for an entire hdf image into appropriate sized patches
 
     Inputs:
-        invals_dict:
-        mod02_path:
-        latitdue:
-        longitude:
+        mod02_path(str): location of mod02 file
+        latitude: numpy array of arrays with the latitudes of each pixel
+        longitude: numpy array of arrays with the longitudes of each pixel
 
-    Outputs:
+    Outputs: numpy arrays of patches, latitudes and longitudes in matching formats
     '''
     stride = 128
     patch_size = 128
@@ -107,19 +118,24 @@ def make_patches(mod02_path, latitude, longitude):
 def connect_geolocation(file, outputfile, patches, latitudes, longitudes, clouds_mask,
                         width=128, height=128, thres=0.3):
     '''
+    Connects the geolocation data to each patch in an image/mod02 hdf file
 
     Inputs:
-        name:
-        patches:
-        latitudes:
-        longitudes:
-        clouds_mask:
-        results_df:
-        width:
-        height:
-        thres:
+        file(str):
+        output_file(str): csv filename to save results
+        latitudes: numpy array of arrays representing latitudinal data for each
+                   pixel in a patch
+        longitudes: numpy array of arrays representing longitudinal data for
+                    each pixel in a patch
+        file(str): name of MOD02 file to be used only as identifier in CSV row
+        patches: numpy array of arrays representing MOD02 patches
+        clouds_mask: numpy array created from MOD35 image
+        width(int): number of pixels for width of a siengle patch
+        height(int): number of pixels for height of a srngle path
+        thres(float): number between 0 and 1 representing the percentage
+                    required of cloud cover to be considered an analyzable patch
 
-    Outputs:
+    Outputs: Appends to existing csv file
     '''
     with open(outputfile, 'a') as csvfile:
         outputwriter = csv.writer(csvfile, delimiter=',')
@@ -147,11 +163,9 @@ def make_geodf(dataframe):
     '''
     Turns a dataframe with latitude and longitude columns into a geodataframe
 
-    Inputs:
-        pandas dataframe with a column that is a list of coordinates
+    Inputs: pandas dataframe with a column that is a list of coordinates
 
-    Outputs:
-        geodataframe
+    Outputs: geodataframe
     '''
     results_df['geom'] = results_df.apply(lambda row: apply_func(row['latitude'], row['longitude']), axis=1)
     results_df['geom'] = results_df['geom'].apply(geometry.Polygon)
