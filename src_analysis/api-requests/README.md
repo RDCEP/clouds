@@ -14,7 +14,7 @@ This file contains the following:
 4. label1.txt
 	* txt file of desired dates for which to download data
 5. total_bad_dates.csv
-	* csv file with 
+	* csv file with dates that should not be downloaded
 6. OpenClosedArea.txt
 	* txt file linking the coordinates with location names
 	* created using get_bad_dates() function in prg_gen_rndm_metadata.py located in clouds/src_analysis/combined
