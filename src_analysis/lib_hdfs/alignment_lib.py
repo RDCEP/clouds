@@ -527,7 +527,8 @@ def gen_mod06_labels(m6_hdf, clouds_xy, nparams=4):
   tmp = mod06_patches_valid.reshape(xx*yy,nparams)
   clist = []
   for i in tmp:
-    if not np.isnan(i).all():
+    if not np.isnan(i).any(): # <-- here maybe any
+    #if not np.isnan(i).all():
         clist.append(i)
   #Finally get labels == patch-wise mean physics parameters
   encs_labels = np.asarray(clist)

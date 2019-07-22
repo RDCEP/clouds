@@ -72,8 +72,8 @@ def get_rand_colors(n=10, cmap_name='jet', _seed = 12356):
         rgb = cmap(i)[:3]
         colors += [matplotlib.colors.rgb2hex(rgb)]
     # shuffle
-    rd.seed(_seed)
-    rd.shuffle(colors)
+    random.seed(_seed)
+    random.shuffle(colors)
     return colors
 
 def _gen_patches(img, stride=128, size=128, 
