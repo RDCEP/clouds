@@ -162,7 +162,7 @@ def connect_geolocation(file, outputfile, patches, latitudes, longitudes, clouds
     csvfile.close()
 
 
-def make_geodf(dataframe, n_cores):
+def make_geodf(dataframe, n_parts):
     '''
     Turns a dataframe with latitude and longitude columns into a geodataframe
 
@@ -173,7 +173,7 @@ def make_geodf(dataframe, n_cores):
     Outputs: geodataframe
     '''
     x = dd.from_pandas(dataframe, npartitions=n_parts).\
-       map_partitions(lambda df: df.apply(lambda row: apply_func(row['latitude'], row['longitude']), axis=1)).\
+       map_partitions(lambda df: df.apply(lambda row: apply_func(row['latitude'], row['longitude']), axis=1), meta=pd.Series(dtype='str', name='Column X')).\
        compute(get=get)
 
     # results_df['geom'] = dataframe.apply(lambda row: apply_func(row['latitude'], row['longitude']), axis=1)
