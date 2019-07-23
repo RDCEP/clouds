@@ -14,6 +14,8 @@ import multiprocessing as mp
 import numpy as np
 import pandas as pd
 from pyhdf.SD import SD, SDC
+from dask import dataframe as dd
+from dask.multiprocessing import get
 
 hdf_libdir = '/home/koenig1/scratch-midway2/clouds/src_analysis/lib_hdfs' # change here
 sys.path.insert(1, os.path.join(sys.path[0], hdf_libdir))
@@ -26,6 +28,7 @@ MOD03_DIRECTORY = '/home/koenig1/scratch-midway2/MOD03/clustering'
 MOD35_DIRECTORY = '/home/koenig1/scratch-midway2/MOD35/clustering'
 INVALIDS_CSV = 'patches_with_invalid_pixels.csv'
 OUTPUT_CSV = 'output_test07172019.csv'
+
 
 def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY, 
                        mod35_dir=MOD35_DIRECTORY, mod03_dir=MOD03_DIRECTORY):
@@ -159,15 +162,21 @@ def connect_geolocation(file, outputfile, patches, latitudes, longitudes, clouds
     csvfile.close()
 
 
-def make_geodf(dataframe):
+def make_geodf(dataframe, n_cores):
     '''
     Turns a dataframe with latitude and longitude columns into a geodataframe
 
-    Inputs: pandas dataframe with a column that is a list of coordinates
+    Inputs:
+        dataframe: pandas dataframe with a column that is a list of coordinates
+        n_parts(int): number of partitions of the dataframe to be created
 
     Outputs: geodataframe
     '''
-    results_df['geom'] = results_df.apply(lambda row: apply_func(row['latitude'], row['longitude']), axis=1)
+    dd.from_pandas(dataframe, npartitions=n_parts).\
+       map_partitions(lambda df: df.apply(lambda row: apply_func(row['latitude'], row['longitude']), axis=1)).\
+       compute(get=get)
+
+    results_df['geom'] = dataframe.apply(lambda row: apply_func(row['latitude'], row['longitude']), axis=1)
     results_df['geom'] = results_df['geom'].apply(geometry.Polygon)
     results_gdf = gpd.GeoDataFrame(results_df, geometry='geom')
     return results_gdf
@@ -226,7 +235,7 @@ if __name__ == "__main__":
         completed = completed[completed['filename'].notnull()]
         last_file = completed.tail(1)['filename'].tolist()
         if last_file:
-            last_file = last_file[0]
+            last_file = last_file[0][-44:]
         done = completed[completed['filename'] != last_file]
         done.to_csv(args.outputfile, index=False)
     else:
@@ -249,4 +258,3 @@ if __name__ == "__main__":
     pool.starmap(make_connecting_csv, args_lst)
     pool.close()
     pool.join()
-
