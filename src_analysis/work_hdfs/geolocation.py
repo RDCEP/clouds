@@ -169,6 +169,7 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
                                 else:
                                     results[x] = [count]
                             patch_counter += 1
+        print(results)
         results_df = pd.DataFrame.from_dict(results)
         ordered_df = find_corners(results_df[keys])
         ordered_df.to_csv(csvfile, header=False)
@@ -192,7 +193,7 @@ def find_corners(dataframe):
     results_df['geom'] = dataframe.apply(lambda row: apply_func(row['latitude'], row['longitude']), axis=1)
     results_df['geom'] = results_df['geom'].apply(geometry.Polygon)
     #results_gdf = gpd.GeoDataFrame(results_df, geometry='geom')
-    return results_df
+    return results_df.drop(columns=['latitude', 'longitude'])
 
 
 def apply_func(x, y):
@@ -232,7 +233,7 @@ if __name__ == "__main__":
     p.add_argument('--mod02dir', type=str, default=MOD02_DIRECTORY)
     p.add_argument('--mod35dir', type=str, default=MOD35_DIRECTORY)
     p.add_argument('--mod03dir', type=str, default=MOD03_DIRECTORY)
-    p.add_argument('--processors', type=int, default=5)
+    p.add_argument('--processors', type=int, default=1)
     p.add_argument('--outputfile', type=str, default=OUTPUT_CSV)
     args = p.parse_args()
     print(args.processors)
