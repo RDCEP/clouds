@@ -10,6 +10,7 @@ or `--gaussian_noise`. The image loss is a composite of L1 pixel error, L2 pixel
 `--red_bands`, and `--green_bands` which simply map the average of chosen bands to RGB.
 """
 __author__ = "casperneo@uchicago.edu"
+__author2__ = "tkurihana@uchicago.edu"
 
 import models
 import logging
@@ -232,11 +233,19 @@ def get_flags(verbose):
         help="0-indexed bands to map to red for tensorboard display and for input to "
         "pretrained classifiers",
     )
+    # Takuya add
     p.add_argument(
-        "--no_grad_histogram",
-        action="store_true",
-        help="Display gradient histogram on tensorboard",
+        "--nepoch",
+        type=int,
+        metavar="nr",
+        default=10,
+        help='Number of epoch: Number of repeat time of entire data'
     )
+    #p.add_argument(
+    #    "--no_grad_histogram",
+    #    action="store_true",
+    #    help="Display gradient histogram on tensorboard",
+    #)
 
     FLAGS = p.parse_args()
     if FLAGS.model_dir[-1] != "/":
@@ -361,6 +370,27 @@ def image_losses(img, ae_img, w_mse, w_mae, w_hfe, w_ssim):
     return l
 
 
+def count_number_trainable_params():
+    '''
+    Counts the number of trainable variables.
+    '''
+    tot_nb_params = 0
+    for trainable_variable in tf.trainable_variables():
+        shape = trainable_variable.get_shape() # e.g [D,F] or [W,H,C]
+        current_nb_params = get_nb_params_shape(shape)
+        tot_nb_params = tot_nb_params + current_nb_params
+    return tot_nb_params
+
+def get_nb_params_shape(shape):
+    '''
+    Computes the total number of params for a given shap.
+    Works for any number of shapes etc [D,F] or [W,H,C] computes D*F and W*H*C.
+    '''
+    nb_params = 1
+    for dim in shape:
+        nb_params = nb_params*int(dim)
+    return nb_params 
+
 if __name__ == "__main__":
     hvd.init()
     FLAGS = get_flags(hvd.rank() == 0)
@@ -380,6 +410,8 @@ if __name__ == "__main__":
     )
     shape = FLAGS.shape
 
+    # Tak added to prevent OutOfRange
+    #dataset = dataset.repeat(FLAGS.nepoch)
     _, _, img = dataset.make_one_shot_iterator().get_next()
 
     if FLAGS.channel_order == "channels_first":
@@ -438,8 +470,8 @@ if __name__ == "__main__":
 
     else:
         z = encoder(noised_img)
-        with tf.name_scope("bottleneck"):
-            tf.summary.histogram("histogram", z)
+        #with tf.name_scope("bottleneck"):
+        #    tf.summary.histogram("histogram", z)
         loss_ae = 0
 
     ae_img = decoder(z)
@@ -514,9 +546,9 @@ if __name__ == "__main__":
         grads_and_vars = ae_optimizer.compute_gradients(
             loss_ae, var_list=encoder.trainable_weights + decoder.trainable_weights
         )
-        for grad, var in grads_and_vars:
-            if grad is not None and not FLAGS.no_grad_histogram:
-                tf.summary.histogram("{}/histogram".format(var.name), grad)
+        #for grad, var in grads_and_vars:
+            #if grad is not None and not FLAGS.no_grad_histogram:
+            #    tf.summary.histogram("{}/histogram".format(var.name), grad)
     train_ops.append(ae_optimizer.apply_gradients(grads_and_vars, global_step))
     tf.summary.scalar("loss_ae", loss_ae)
 
@@ -538,67 +570,75 @@ if __name__ == "__main__":
             log_device_placement=FLAGS.log_device_placement,
         )
     ) as sess:
-        logging.info("%d init profiler and broadcast global variables", hvd.rank())
-        profiler = Profiler(sess.graph)
-
-        sess.run(
-            tf.global_variables_initializer(),
-            options=run_opts,
-            run_metadata=run_metadata,
-        )
-
-        if hvd.size() > 1:
-            hvd.broadcast_global_variables(0)
-
-        logging.info("%d Loading model weights", hvd.rank())
-        for m in save_models:
-            gs = load_latest_model_weights(save_models[m], FLAGS.model_dir, m)
-            if gs is not None:
-                sess.run(global_step.assign(gs))
-
-        log_dir = path.join(FLAGS.model_dir, "summary")
-        tb_graph = sess.graph if not path.exists(log_dir) else None
-        summary_writer = tf.summary.FileWriter(log_dir, graph=tb_graph)
-
-        if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
-            for m in save_models:
-                save_models[m].summary()
-            print("")
-            #print("", flush=True)
-
-        logging.info("%d Entering training loop", hvd.rank())
-        for _ in range(FLAGS.max_steps):
-            gs, _ = sess.run(
-                [global_step, train_ops], options=run_opts, run_metadata=run_metadata
-            )
-
-            if gs % FLAGS.summary_every == 0 and hvd.rank() == 0:
-                summary = sess.run(
-                    summary_op, options=run_opts, run_metadata=run_metadata
-                )
-                summary_writer.add_run_metadata(run_metadata, "step%d" % gs)
-                summary_writer.add_summary(summary, gs)
-                summary_writer.flush()
-                profiler.add_step(int(gs), run_metadata)
-                timeline_json = path.join(FLAGS.model_dir, "timelines", "t.json")
-                profiler.profile_graph(
-                    options=(
-                        ProfileOptionBuilder(ProfileOptionBuilder.time_and_memory())
-                        .with_step(gs)
-                        .with_timeline_output(timeline_json)
-                        .build()
-                    )
-                )
-                profiler.advise(
-                    {
-                        "ExpensiveOperationChecker": {},
-                        "AcceleratorUtilizationChecker": {},
-                        "OperationChecker": {},
-                    }
-                )
-
-            if gs % FLAGS.save_every == 0 and hvd.rank() == 0:
-                for m in save_models:
-                    save_models[m].save_weights(
-                        path.join(FLAGS.model_dir, "{}-{}.h5".format(m, gs))
-                    )
+      try: 
+        while True:
+           logging.info("%d init profiler and broadcast global variables", hvd.rank())
+           profiler = Profiler(sess.graph)
+           # Number of total trainable parameters
+           # maybe bug and training stop if add below line
+           #logging.info("Number of trainable parameters: %d",count_number_trainable_params())
+          
+           sess.run(
+               tf.global_variables_initializer(),
+               options=run_opts,
+               run_metadata=run_metadata,
+           )
+           
+           if hvd.size() > 1:
+               hvd.broadcast_global_variables(0)
+           
+           logging.info("%d Loading model weights", hvd.rank())
+           for m in save_models:
+               gs = load_latest_model_weights(save_models[m], FLAGS.model_dir, m)
+               if gs is not None:
+                   sess.run(global_step.assign(gs))
+           
+           log_dir = path.join(FLAGS.model_dir, "summary")
+           tb_graph = sess.graph if not path.exists(log_dir) else None
+           summary_writer = tf.summary.FileWriter(log_dir, graph=tb_graph)
+           
+           if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
+               for m in save_models:
+                   save_models[m].summary()
+               print("")
+               #print("", flush=True)
+           
+           logging.info("%d Entering training loop", hvd.rank())
+           for _ in range(FLAGS.max_steps):
+               gs, _ = sess.run(
+                   [global_step, train_ops], options=run_opts, run_metadata=run_metadata
+               )
+           
+               if gs % FLAGS.summary_every == 0 and hvd.rank() == 0:
+                   summary = sess.run(
+                       summary_op, options=run_opts, run_metadata=run_metadata
+                   )
+                   summary_writer.add_run_metadata(run_metadata, "step%d" % gs)
+                   summary_writer.add_summary(summary, gs)
+                   summary_writer.flush()
+                   profiler.add_step(int(gs), run_metadata)
+                   timeline_json = path.join(FLAGS.model_dir, "timelines", "t.json")
+                   profiler.profile_graph(
+                       options=(
+                           ProfileOptionBuilder(ProfileOptionBuilder.time_and_memory())
+                           .with_step(gs)
+                           .with_timeline_output(timeline_json)
+                           .build()
+                       )
+                   )
+                   profiler.advise(
+                       {
+                           "ExpensiveOperationChecker": {},
+                           "AcceleratorUtilizationChecker": {},
+                           "OperationChecker": {},
+                       }
+                   )
+           
+               if gs % FLAGS.save_every == 0 and hvd.rank() == 0:
+                   for m in save_models:
+                       save_models[m].save_weights(
+                           path.join(FLAGS.model_dir, "{}-{}.h5".format(m, gs))
+                       )
+      except tf.errors.OutOfRangeError:
+        logging.info(" End of Training: Train all data ", hvd.rank())
+        pass
