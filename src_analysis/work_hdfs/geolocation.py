@@ -173,7 +173,7 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
     csvfile.close()
 
 
-def find_corners(dataframe):
+def find_corners(results_df):
     '''
     Turns a dataframe with latitude and longitude columns into a geodataframe
 
