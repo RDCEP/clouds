@@ -170,7 +170,7 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
         results_df = pd.DataFrame.from_dict(results)
         ordered_df = find_corners(results_df[keys])
         print('Writing out for' + file)
-        ordered_df.to_csv(csvfile, header=False)
+        ordered_df.to_csv(csvfile, header=False, index=False)
     csvfile.close()
 
 
@@ -231,7 +231,7 @@ if __name__ == "__main__":
     p.add_argument('--mod02dir', type=str, default=MOD02_DIRECTORY)
     p.add_argument('--mod35dir', type=str, default=MOD35_DIRECTORY)
     p.add_argument('--mod03dir', type=str, default=MOD03_DIRECTORY)
-    p.add_argument('--processors', type=int, default=1)
+    p.add_argument('--processors', type=int, default=5)
     p.add_argument('--outputfile', type=str, default=OUTPUT_CSV)
     args = p.parse_args()
     print(args.processors)
