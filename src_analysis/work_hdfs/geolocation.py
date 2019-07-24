@@ -154,6 +154,7 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
         outputwriter = csv.writer(csvfile, delimiter=',')
         nx, ny = patches.shape[:2]
         patch_counter = 0
+        print('test')
         for i in range(nx):
             for j in range(ny):
                 lat = latitudes[i, j]
@@ -257,8 +258,8 @@ if __name__ == "__main__":
         # Initializes output csv to be appended later
         with open(args.outputfile, 'w') as csvfile:
             outputwriter = csv.writer(csvfile, delimiter=',')
-            cols = copy.deepcopy(KEYS)
-            outputwriter.writerow(cols.remove(['latitude', 'longitude']))
+            cols = [x for x in copy.deepcopy(KEYS) if x not in ['latitude', 'longitude']]
+            outputwriter.writerow(cols)
         csvfile.close()
         last_file = None
 
