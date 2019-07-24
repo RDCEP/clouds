@@ -26,12 +26,13 @@ import prg_StatsInvPixel as stats
 MOD02_DIRECTORY = '/home/koenig1/scratch-midway2/MOD02/clustering'
 MOD03_DIRECTORY = '/home/koenig1/scratch-midway2/MOD03/clustering'
 MOD35_DIRECTORY = '/home/koenig1/scratch-midway2/MOD35/clustering'
-INVALIDS_CSV = 'patches_with_invalid_pixels.csv'
-OUTPUT_CSV = 'output_test07172019.csv'
-
+INVALIDS_CSV = 'test.csv'
+OUTPUT_CSV = 'output_test.csv'
+KEYS = ['filename', 'patch_no', 'latitude', 'longitude', 65535, 65534,
+        65533, 65532, 65531, 65530, 65529, 65528, 65527, 65526, 65524]
 
 def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY, 
-                       mod35_dir=MOD35_DIRECTORY, mod03_dir=MOD03_DIRECTORY):
+                        mod35_dir=MOD35_DIRECTORY, mod03_dir=MOD03_DIRECTORY):
     '''
     Combining functions that connects mod02, mod03 (geolocation data) and mod35
     files to create a csv with the patches that have invalid pixels and their
@@ -141,8 +142,7 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
 
     Outputs: Appends to existing csv file
     '''
-    keys = ['filename', 'patch_no', 'latitude', 'longitude', 65535, 65534,
-            65533, 65532, 65531, 65530, 65529, 65528, 65527, 65526, 65524]
+    keys = KEYS
     results = {key: [] for key in keys}
     with open(outputfile, 'a') as csvfile:
         outputwriter = csv.writer(csvfile, delimiter=',')
@@ -254,7 +254,7 @@ if __name__ == "__main__":
         # Initializes output csv to be appended later
         with open(args.outputfile, 'w') as csvfile:
             outputwriter = csv.writer(csvfile, delimiter=',')
-            outputwriter.writerow(['filename', 'patch_no', 'latitude', 'longitude'])
+            outputwriter.writerow(KEYS)
         csvfile.close()
         last_file = None
 
