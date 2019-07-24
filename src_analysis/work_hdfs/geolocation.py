@@ -52,7 +52,6 @@ def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY,
     
     Outputs: None (appends to exisiting csv after connecting all three files)
     '''
-    print(file)
     bname = os.path.basename(file)
     date = bname[10:22]
     mod02 = glob.glob(mod02_dir + '/*/' + file)
@@ -167,9 +166,9 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
                             for code in codes:
                                 results[code].append(fillvalue_list.count(code))
                             patch_counter += 1
-        print(results)
         results_df = pd.DataFrame.from_dict(results)
         ordered_df = find_corners(results_df[keys])
+        print('Writing out for' + file)
         ordered_df.to_csv(csvfile, header=False)
     csvfile.close()
 
