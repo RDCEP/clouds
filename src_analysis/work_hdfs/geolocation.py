@@ -187,7 +187,7 @@ def find_corners(results_df):
     #    map_partitions(lambda df: df.apply(lambda row: apply_func(row['latitude'], row['longitude']), axis=1), meta=pd.Series(dtype='str', name='Column X')).\
     #    compute(get=get)
 
-    results_df['geom'] = dataframe.apply(lambda row: apply_func(row['latitude'], row['longitude']), axis=1)
+    results_df['geom'] = results_df.apply(lambda row: apply_func(row['latitude'], row['longitude']), axis=1)
     results_df['geom'] = results_df['geom'].apply(geometry.Polygon)
     #results_gdf = gpd.GeoDataFrame(results_df, geometry='geom')
     return results_df.drop(columns=['latitude', 'longitude'])
