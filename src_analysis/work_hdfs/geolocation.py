@@ -77,8 +77,9 @@ def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY,
         mod35_path = mod35[0]
         hdf_m35 = SD(mod35_path, SDC.READ)
         cloud_mask_img = stats.gen_mod35_img(hdf_m35)
-        patches, latitudes, longitudes = make_patches(mod02_path, latitude, longitude)
-        connect_geolocation(mod02_path, output, patches, latitudes, longitudes, cloud_mask_img)
+        patches, latitudes, longitudes, fillvalue_list = make_patches(mod02_path, latitude, longitude)
+        connect_geolocation(mod02_path, output, patches, fillvalue_list,
+                            latitudes, longitudes, cloud_mask_img)
     else:
         print("No mod35 file downloaded for " + date)
 
@@ -116,12 +117,12 @@ def make_patches(mod02_path, latitude, longitude):
             patches.append(patch_row)
             latitudes.append(lat_row)
             longitudes.append(lon_row)
-    return np.stack(patches), np.stack(latitudes), np.stack(longitudes)
+    return np.stack(patches), np.stack(latitudes), np.stack(longitudes), fillvalue_list
 
 
 def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
-                        longitudes, clouds_mask, outputfile, width=128,
-                        height=128, thres=0.3):
+                        longitudes, clouds_mask, width=128, height=128,
+                        thres=0.3):
     '''NEEDS EDITS
     Connects the geolocation data to each patch in an image/mod02 hdf file
 
