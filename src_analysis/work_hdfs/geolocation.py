@@ -121,7 +121,7 @@ def make_patches(mod02_path, latitude, longitude):
 
 
 def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
-                        longitudes, clouds_mask, width=128, height=128,
+                        longitudes, cloud_mask, width=128, height=128,
                         thres=0.3):
     '''NEEDS EDITS
     Connects the geolocation data to each patch in an image/mod02 hdf file
