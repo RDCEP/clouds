@@ -144,6 +144,8 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
     Outputs: Appends to existing csv file
     '''
     keys = KEYS
+    codes = [65535, 65534, 65533, 65532, 65531, 65530, 65529, 65528, 65527,
+             65526, 65524]
     results = {key: [] for key in keys}
     with open(outputfile, 'a') as csvfile:
         outputwriter = csv.writer(csvfile, delimiter=',')
@@ -162,12 +164,8 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
                             results['patch_no'].append(patch_counter)
                             results['latitude'].append(lat)
                             results['longitude'].append(lon)
-                            for x in set(fillvalue_list):
-                                count = fillvalue_list.count(x)
-                                if x in results:
-                                    results[x].append(count)
-                                else:
-                                    results[x] = [count]
+                            for code in codes:
+                                results[code].append(fillvalue_list.count(code))
                             patch_counter += 1
         print(results)
         results_df = pd.DataFrame.from_dict(results)
