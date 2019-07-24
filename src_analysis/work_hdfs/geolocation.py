@@ -257,8 +257,8 @@ if __name__ == "__main__":
         # Initializes output csv to be appended later
         with open(args.outputfile, 'w') as csvfile:
             outputwriter = csv.writer(csvfile, delimiter=',')
-            cols = copy.deepcopy(KEYS).remove(['latitude', 'longitude'])
-            outputwriter.writerow(KEYS)
+            cols = copy.deepcopy(KEYS)
+            outputwriter.writerow(cols.remove(['latitude', 'longitude']))
         csvfile.close()
         last_file = None
 
