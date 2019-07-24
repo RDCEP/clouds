@@ -118,9 +118,10 @@ def make_patches(mod02_path, latitude, longitude):
     return np.stack(patches), np.stack(latitudes), np.stack(longitudes)
 
 
-def connect_geolocation(file, outputfile, patches, latitudes, longitudes, clouds_mask,
-                        width=128, height=128, thres=0.3):
-    '''
+def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
+                        longitudes, clouds_mask, outputfile, width=128,
+                        height=128, thres=0.3):
+    '''NEEDS EDITS
     Connects the geolocation data to each patch in an image/mod02 hdf file
 
     Inputs:
@@ -140,6 +141,9 @@ def connect_geolocation(file, outputfile, patches, latitudes, longitudes, clouds
 
     Outputs: Appends to existing csv file
     '''
+    keys = ['filename', 'patch_no', 'latitude', 'longitude', 65535, 65534,
+            65533, 65532, 65531, 65530, 65529, 65528, 65527, 65526, 65524]
+    results = {key: [] for key in keys}
     with open(outputfile, 'a') as csvfile:
         outputwriter = csv.writer(csvfile, delimiter=',')
         nx, ny = patches.shape[:2]
@@ -149,20 +153,28 @@ def connect_geolocation(file, outputfile, patches, latitudes, longitudes, clouds
                 lat = latitudes[i, j]
                 lon = longitudes[i, j]
                 if not np.isnan(patches[i, j]).any():
-                  if np.any(clouds_mask[i * width:(i + 1) * width,
-                            j * height:(j + 1) * height] == 0):
-                    tmp = clouds_mask[i * width:(i + 1) * width,
-                                      j * height:(j + 1) * height]
-                    nclouds = len(np.argwhere(tmp == 0))
-                    if nclouds / (width * height) > thres:
-                        outputwriter.writerow([file, patch_counter, lat, lon])
-                        patch_counter += 1
-                else:
-                    print('Null Values in ' + file)
+                    tmp = cloud_mask[i*width:(i+1)*width, j*height:(j+1)*height]
+                    if np.any(tmp == 0):
+                        nclouds = len(np.argwhere(tmp ==0))
+                        if nclouds / (width * height) > thres:
+                            results['filename'].append(file)
+                            results['patch_no'].append(patch_counter)
+                            results['latitude'].append(lat)
+                            results['longitude'].append(lon)
+                            for x in set(fillvalue_list):
+                                count = fillvalue_list.count(x)
+                                if x in results:
+                                    results[x].append(count)
+                                else:
+                                    results[x] = [count]
+                            patch_counter += 1
+        results_df = pd.DataFrame.from_dict(results)
+        ordered_df = find_corners(results_df[keys])
+        ordered_df.to_csv(csvfile, header=False)
     csvfile.close()
 
 
-def make_geodf(dataframe, n_parts):
+def find_corners(dataframe):
     '''
     Turns a dataframe with latitude and longitude columns into a geodataframe
 
@@ -178,8 +190,8 @@ def make_geodf(dataframe, n_parts):
 
     results_df['geom'] = dataframe.apply(lambda row: apply_func(row['latitude'], row['longitude']), axis=1)
     results_df['geom'] = results_df['geom'].apply(geometry.Polygon)
-    results_gdf = gpd.GeoDataFrame(results_df, geometry='geom')
-    return results_gdf
+    #results_gdf = gpd.GeoDataFrame(results_df, geometry='geom')
+    return results_df
 
 
 def apply_func(x, y):
