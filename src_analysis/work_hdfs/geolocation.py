@@ -10,11 +10,14 @@ import sys
 import csv
 import glob
 import argparse
+import copy
 import multiprocessing as mp
 import numpy as np
 import pandas as pd
 from shapely import geometry
 from pyhdf.SD import SD, SDC
+
+
 from dask import dataframe as dd
 from dask.multiprocessing import get
 
@@ -29,7 +32,7 @@ MOD03_DIRECTORY = '/home/koenig1/scratch-midway2/MOD03/clustering'
 MOD35_DIRECTORY = '/home/koenig1/scratch-midway2/MOD35/clustering'
 INVALIDS_CSV = 'test.csv'
 OUTPUT_CSV = 'output_test.csv'
-KEYS = ['filename', 'patch_no', 'latitude', 'longitude', 65535, 65534,
+KEYS = ['filename', 'patch_no', 'latitude', 'longitude', 'geometry', 65535, 65534,
         65533, 65532, 65531, 65530, 65529, 65528, 65527, 65526, 65524]
 
 def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY, 
@@ -143,10 +146,10 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
 
     Outputs: Appends to existing csv file
     '''
-    keys = KEYS
+    keys = copy.deepcopy(KEYS)
     codes = [65535, 65534, 65533, 65532, 65531, 65530, 65529, 65528, 65527,
              65526, 65524]
-    results = {key: [] for key in keys}
+    results = {key: [] for key in keys.remove('geometry')}
     with open(outputfile, 'a') as csvfile:
         outputwriter = csv.writer(csvfile, delimiter=',')
         nx, ny = patches.shape[:2]
@@ -254,6 +257,7 @@ if __name__ == "__main__":
         # Initializes output csv to be appended later
         with open(args.outputfile, 'w') as csvfile:
             outputwriter = csv.writer(csvfile, delimiter=',')
+            cols = copy.deepcopy(KEYS).remove(['latitude', 'longitude'])
             outputwriter.writerow(KEYS)
         csvfile.close()
         last_file = None
