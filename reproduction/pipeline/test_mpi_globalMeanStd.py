@@ -127,11 +127,12 @@ def compute_local(m2_filelist=[],
     all_list = []
     for ipatch in clouds_patches_list:
       all_list.append(ipatch.reshape(nx*ny, nbands))
-    alls = np.concatenate(clouds_patches_list, axis=0) 
+    alls = np.concatenate(all_list, axis=0) 
     #alls  [# of patches][128*128, 6]
 
     ndata=int(len(clouds_patches_list)*128*128) # number of data in one band
     # In general, all band must have same number of data(# of patches by # of pixels/patch )
+    gc.collect()
     #
   else:
     #
@@ -160,20 +161,24 @@ def compute_local(m2_filelist=[],
     all_list = []
     for ipatch in clouds_patches_list:
       all_list.append(ipatch.reshape(nx*ny, nbands))
-    alls = np.concatenate(clouds_patches_list, axis=0) 
+    alls = np.concatenate(all_list, axis=0) 
+    #alls = np.concatenate(clouds_patches_list, axis=0) 
     #alls  [# of patches][128*128, 6]
 
     ndata=int(len(clouds_patches_list)*128*128) # number of data in one band
     # In general, all band must have same number of data(# of patches by # of pixels/patch )
+    gc.collect()
 
 
   try:
     if compute_type == 'mean':
-      sums = np.sum(np.concatenate(alls, axis=0), axis=0)
+      sums = np.sum(alls, axis=0)
+      #sums = np.sum(np.concatenate(alls, axis=0), axis=0)
       return sums, ndata
 
     elif compute_type == 'stdv' or compute_type == 'std':
-      stdv = np.sum(np.concatenate(pow((alls- global_mean),2), axis=0), axis=0) 
+      stdv = np.sum(pow((alls- global_mean),2), axis=0) 
+      #stdv = np.sum(np.concatenate(pow((alls- global_mean),2), axis=0), axis=0) 
       return stdv, ndata
 
   except:
@@ -290,6 +295,7 @@ if __name__ == "__main__":
     # scatter global mean
     #comm.Scatter(global_mean,computed_global_mean, root=0)
     comm.Bcast(global_mean, root=0)
+    gc.collect()
 
     # compute standard deviation
     # global_mean; np.ndarray [ # of bands ]        
