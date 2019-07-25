@@ -25,6 +25,13 @@ from mpi4py import MPI
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from pyhdf.SD import SD, SDC
 
+# own library
+homedir=str(Path.home())
+clouds_dir="/clouds/src_analysis/lib_hdfs"
+sys.path.insert(1,os.path.join(sys.path[0],homedir+clouds_dir))
+from alignment_lib import gen_mod35_img
+from alignment_lib import get_filepath
+from alignment_lib import translate_const_clouds_array
 
 def _int64_feature(value):
     return tf.train.Feature(int64_list=tf.train.Int64List(value=value))
@@ -127,7 +134,8 @@ def gen_sds(filelist=[], ref_var='EV_500_Aggr1km_RefSB', ems_var='EV_1KM_Emissiv
 
 def gen_patches(swaths, stride=64, patch_size=128, 
                  normalization=False, flag_shuffle=False,
-                 global_mean=np.zeros((6)), global_stdv=np.ones((6)) ):
+                 global_mean=np.zeros((6)), global_stdv=np.ones((6)) 
+                 mod35_datadir='./', thres=0.3):
     
     """Normalizes swaths and yields patches of size `shape` every `strides` pixels
         IN:  swath;   image data in hdf file
@@ -198,7 +206,7 @@ def gen_patches(swaths, stride=64, patch_size=128,
       #    swath_std[idx] += 1.0e-20
 
       print(fname)
-      print(swath.shape)
+      #print(swath.shape)
       max_x, max_y, _ = swath.shape
 
       # Shuffle patches
@@ -207,8 +215,14 @@ def gen_patches(swaths, stride=64, patch_size=128,
          for y in range(0, max_y, stride):
            if x + patch_size < max_x and y + patch_size < max_y:
               coords.append((x, y))
-      if flag_shuffle:
-        np.random.shuffle(coords)
+      # Baseically OFF
+      #if flag_shuffle:
+      #  np.random.shuffle(coords)
+      
+      # Get MOD35 data
+      m35_file = get_filepath(fname, mod35_datadir, prefix='MOD35_L2.A')
+      hdf_m35 = SD(m35_file, SDC.READ)
+      clouds_mask_img = gen_mod35_img(hdf_m35)
 
       for i, j in coords:
         patch = swath[i:i + patch_size, j:j + patch_size]
@@ -217,7 +231,13 @@ def gen_patches(swaths, stride=64, patch_size=128,
           patch /= global_stdv
         
         if not np.isnan(patch).any():
-          yield fname, (i, j), patch
+          #TODO: Add lines below to compare MOD35
+          # translate_const_clouds_array is based on const_clouds_array
+          clouds_patch, clouds_flag = translate_const_clouds_array(
+              patch, clouds_mask_img, thres=thres, (i,j)
+          )
+          if clouds_flag:
+            yield fname, (i, j), clouds_patch
             
 
 def write_feature(writer, filename, coord, patch):
@@ -231,15 +251,7 @@ def write_feature(writer, filename, coord, patch):
     writer.write(example.SerializeToString())
 
 
-def get_blob_ratio(patch, thres_val=0.00):
-    """ Compute Ratio of non-negative pixels in an image
-        thres_val : threshold vale; defualt is 0/non-negative value
-    """
-    img = copy.deepcopy(patch[:,:,0]).flatten()
-    clouds_ratio = len(np.argwhere(img > thres_val))/len(img)*100
-    return clouds_ratio
     
-
 def write_patches(patches, out_dir, patches_per_record):
     """Writes `patches_per_record` patches into a tfrecord file in `out_dir`.
     Args:
@@ -269,15 +281,6 @@ def get_args(verbose=False):
     )
     p.add_argument("source_glob", help="Glob of files to convert to tfrecord")
     p.add_argument("out_dir", help="Directory to save results")
-    #FIXME here 
-    # NOT USED NOW
-    #p.add_argument(
-    #    "mode",
-    #    choices=["mod09_tif", "mod02_1km"],
-    #    help="`mod09_tif`: Turn whole .tif swath into tfrecord. "
-    #    "`mod02_1km` : Extracts EV_250_Aggr1km_RefSB, EV_500_Aggr1km_RefSB, "
-    #    "EV_1KM_RefSB, and EV_1KM_Emissive.",
-    #)
     p.add_argument(
         "--shape",
         type=int,
