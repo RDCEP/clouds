@@ -191,6 +191,14 @@ def get_args():
         type=str
     )
     p.add_argument(
+        "--outputdir",
+        type=str
+    )
+    p.add_argument(
+        "--outputfname",
+        type=str
+    )
+    p.add_argument(
         "--operate_single",
         help="operate global mean & stdv operation by single core/ Debug for No parallelized version",
         type=int,
@@ -204,6 +212,10 @@ if __name__ == "__main__":
 
     # flags
     FLAGS = get_args()
+    
+    # Check Output Directory
+    if MPI.COMM_WORLD.Get_rank() == 0:
+      os.makedirs(FLAGS.outputdir, exist_ok=True)
 
     #------------------------------------------------------------------
     # Single version
@@ -277,6 +289,9 @@ if __name__ == "__main__":
       print("Parallel: Global Mean : ", global_mean, flush=True)
     
       # save data here
+      np.save(FLAGS.outputdir+'/'+FLAGS.outputfname+'_gmean', global_mean)
+      print(" ### FILE SAVED : Global Mean ###  ")
+
     else: 
       # prep recvbuf TODO: let 6 be a argument as number of bands
       #computed_global_mean = np.empty(6,dtype='float64')
@@ -313,8 +328,11 @@ if __name__ == "__main__":
         
     if rank == 0:
       # compute mean
-      #print("global_res_sums", global_res_sums)
       _global_res_sums = np.asarray(global_res_sums)
       global_stdv = np.sqrt(np.sum(_global_res_sums, axis=0)/np.sum(global_ndata))
       print("Parallel: Global Stdv : ", global_stdv, flush=True)
+    
+      # save data here
+      np.save(FLAGS.outputdir+'/'+FLAGS.outputfname+'_gstdv', global_mean)
+      print(" ### FILE SAVED : Global Standard deviation ###  ")
 
