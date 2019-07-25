@@ -91,6 +91,31 @@ def const_clouds_array(patches, clouds_mask, width=128, height=128, thres=0.2):
                         xy_list += [(i,j)]
     return patches_list, xy_list
 
+# new function for into_mod_normed_record
+def translate_const_clouds_array(patch, clouds_mask, width=128, height=128, thres=0.3, coord=(0,0)):
+    """
+    1 patch - 1 cloud-flags/patch.
+    thres: range 0-1. ratio of clouds within the given patch
+    function to return one clouds_patch and clouds-flag based on corrdinate (i,j)
+    
+    OUT:
+      clouds_patch: np.array(128,128,nband)
+      clouds_flag : Boolean{True; valid cloud patch, False; o.w.}  
+    """
+    # coordinates
+    i,j = coord
+
+    # prep flag
+    clouds_flag = False
+
+    # main process
+    if np.any(clouds_mask[i*width:(i+1)*width,j*height:(j+1)*height] == 0):
+        tmp = clouds_mask[i*width:(i+1)*width,j*height:(j+1)*height]
+        nclouds = len(np.argwhere(tmp == 0))
+        if nclouds/(width*height) > thres:
+          # valid patch
+          clouds_flag = True
+          return patch, clouds_flag    
 
 # below, from prg_augment_2 
 
