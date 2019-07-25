@@ -1,4 +1,5 @@
 import os
+import gc
 import sys
 import numpy as np
 import tensorflow as tf
@@ -33,7 +34,7 @@ def load_tfrecord(serialized_data,
  
     # TODO: understand this code
     dataset = (
-    tf.data.Dataset.list_files(serialized_data, shuffle=True)
+    tf.data.Dataset.list_files(serialized_data, shuffle=False)
     .shard(*distribute)
     .apply(
         parallel_interleave(
@@ -53,6 +54,7 @@ def _get_imgs(dataset,ae=None,fields=None, n=500):
     # get data from dataset
     names, coords, imgs = [], [], []
     batch = dataset.make_one_shot_iterator().get_next()
+    gc.collect()
     with tf.Session() as sess:
         while len(imgs) < n:
             names_, coords_, imgs_ = sess.run(batch)
