@@ -19,9 +19,6 @@ from pyhdf.SD import SD, SDC
 import geopandas as gpd
 import matplotlib.pyplot as plt
 
-from dask import dataframe as dd
-from dask.multiprocessing import get
-
 hdf_libdir = '/home/koenig1/scratch-midway2/clouds/src_analysis/lib_hdfs' # change here
 sys.path.insert(1, os.path.join(sys.path[0], hdf_libdir))
 from alignment_lib import gen_mod35_img
@@ -128,18 +125,18 @@ def make_patches(mod02_path, latitude, longitude):
 def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
                         longitudes, cloud_mask, width=128, height=128,
                         thres=0.3):
-    '''NEEDS EDITS
+    '''
     Connects the geolocation data to each patch in an image/mod02 hdf file
 
     Inputs:
-        file(str):
+        file(str): name of MOD02 file to be used only as identifier in CSV row
         output_file(str): csv filename to save results
+        patches: numpy array of arrays representing MOD02 patches
+        fillvalue_list: list of integers for each fill value
         latitudes: numpy array of arrays representing latitudinal data for each
                    pixel in a patch
         longitudes: numpy array of arrays representing longitudinal data for
                     each pixel in a patch
-        file(str): name of MOD02 file to be used only as identifier in CSV row
-        patches: numpy array of arrays representing MOD02 patches
         clouds_mask: numpy array created from MOD35 image
         width(int): number of pixels for width of a siengle patch
         height(int): number of pixels for height of a srngle path
