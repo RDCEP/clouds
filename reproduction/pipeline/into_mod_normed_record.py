@@ -15,13 +15,13 @@ __author__ = "tkurihana@uchicago.edu"
 
 import tensorflow as tf
 import os
-import cv2
-import json
+import sys
 import glob
 import copy
 import numpy as np
 
-from mpi4py import MPI
+from mpi4py   import MPI
+from pathlib  import Path
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from pyhdf.SD import SD, SDC
 
@@ -134,7 +134,7 @@ def gen_sds(filelist=[], ref_var='EV_500_Aggr1km_RefSB', ems_var='EV_1KM_Emissiv
 
 def gen_patches(swaths, stride=64, patch_size=128, 
                  normalization=False, flag_shuffle=False,
-                 global_mean=np.zeros((6)), global_stdv=np.ones((6)) 
+                 global_mean=np.zeros((6)), global_stdv=np.ones((6)),
                  mod35_datadir='./', thres=0.3):
     
     """Normalizes swaths and yields patches of size `shape` every `strides` pixels
@@ -231,13 +231,15 @@ def gen_patches(swaths, stride=64, patch_size=128,
           patch /= global_stdv
         
         if not np.isnan(patch).any():
+          print(patch.shape, clouds_mask_img.shape, thres, (i,j))
           #TODO: Add lines below to compare MOD35
           # translate_const_clouds_array is based on const_clouds_array
           clouds_patch, clouds_flag = translate_const_clouds_array(
-              patch, clouds_mask_img, thres=thres, (i,j)
+              patch, clouds_mask_img, thres=thres, coord=(i,j)
           )
           if clouds_flag:
-            yield fname, (i, j), clouds_patch
+            if not patch is None:
+              yield fname, (i, j), clouds_patch
             
 
 def write_feature(writer, filename, coord, patch):
@@ -266,7 +268,8 @@ def write_patches(patches, out_dir, patches_per_record):
     rank = MPI.COMM_WORLD.Get_rank()
     for i, patch in enumerate(patches):
         if i % patches_per_record == 0:
-            rec = "{}-{}.tfrecord".format(rank, i // patches_per_record)
+            rec = "{}-{}_normed.tfrecord".format(rank, i // patches_per_record)
+            #rec = "{}-{}.tfrecord".format(rank, i // patches_per_record)
             print("Writing to", rec, flush=True)
             f = tf.python_io.TFRecordWriter(os.path.join(out_dir, rec))
 
@@ -307,16 +310,28 @@ def get_args(verbose=False):
     p.add_argument(
         "--global_normalization", 
         type=int,
-        help='If apply normalization by pre-computed mean&stdv for train data, 1. Otherwise(No-norm) 0'
-        defualt=0,
+        help='If apply normalization by pre-computed mean&stdv for train data, 1. Otherwise(No-norm) 0',
+        default=0
     )
     p.add_argument(
         "--stats_datadir", 
         type=str,
-        help='If apply normalization, specify pre-computed stats info(mean&stdv) data directory'
-        defualt='./',
+        help='If apply normalization, specify pre-computed stats info(mean&stdv) data directory',
+        default='./'
     )
-
+    p.add_argument(
+        "--mod35_datadir", 
+        type=str,
+        help='MOD35_L2 data directory for training data',
+        default='./'
+    )
+    p.add_argument(
+        "--thres_cloud_frac", 
+        type=float,
+        help='threshold value range[0-1] for alignment process',
+        default=0.3
+    )
+    
     # parse only one band info by int parser
     #p.add_argument(
     #    "--ems_band",
@@ -367,8 +382,8 @@ if __name__ == "__main__":
     if FLAGS.global_normalization == 1:
       for i in range(size):
         if i % size == rank:
-           global_mean = np.load(FLAGS.stats_datadir+'/*_gmean.npy')
-           global_stdv = np.load(FLAGS.stats_datadir+'/*_gstdv.npy')
+           global_mean = np.load(glob.glob(FLAGS.stats_datadir+'/*_gmean.npy')[0])
+           global_stdv = np.load(glob.glob(FLAGS.stats_datadir+'/*_gstdv.npy')[0])
            normalization = True
     else:
       normalization = False
@@ -384,7 +399,10 @@ if __name__ == "__main__":
                       #ref_bands=["6","7"], ems_bands=["20"]+FLAGS.ems_band)
     patches = gen_patches(swaths, FLAGS.stride, FLAGS.shape, 
                           normalization=normalization, 
-                          global_mean,global_stdv )
+                          global_mean=global_mean,
+                          global_stdv=global_stdv,
+                          mod35_datadir=FLAGS.mod35_datadir, 
+                          thres=FLAGS.thres_cloud_frac )
 
     write_patches(patches, FLAGS.out_dir, FLAGS.patches_per_record)
 
