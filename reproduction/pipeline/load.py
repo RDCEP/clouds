@@ -103,14 +103,20 @@ def load_data(
     read_threads=4,
     shuffle_buffer_size=1000,
     prefetch=1,
-    flips=True,
+    flips=False,
     rotate=False,
     distribute=(1, 0),
     repeat=True,
 ):
+    #repeat=True,
     """Returns a dataset of (filenames, coordinates, patches).
     See `add_pipeline_cli_arguments` for argument descriptions.
     """
+    """DO NOT turn repeat=XX to False. False means iteration ends if all data processed
+    shuffle is also True?
+    """
+    #FIXME: for debug
+    print("distribute (hdv.size(), hvd.rank()) : ", distribute, flush=True)
 
     #TODO add parser for floating point
     def parser(ser):
@@ -135,6 +141,7 @@ def load_data(
             patch = tf.image.random_flip_up_down(tf.image.random_flip_left_right(patch))
         return decoded["filename"], decoded["coordinate"], patch
 
+    #tf.data.Dataset.list_files(data_glob, shuffle=False)
     dataset = (
         tf.data.Dataset.list_files(data_glob, shuffle=True)
         .shard(*distribute)

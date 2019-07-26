@@ -218,7 +218,7 @@ def old_gen_patches(swaths, shape, strides):
                     yield fname, (x, y), patch
 
 def gen_patches(swaths, stride=64, patch_size=128, 
-                 normalization=False, flag_nan=True, flag_shuffle=True):
+                 normalization=False, flag_nan=True, flag_shuffle=False):
     
     """Normalizes swaths and yields patches of size `shape` every `strides` pixels
         IN:  swath;   image data in hdf file
@@ -365,10 +365,16 @@ def get_args(verbose=False):
     )
     p.add_argument(
         "--ems_band",
-        type=str,
-        help="Emissive(Thermal/NearIR) additional band name. i.e. 28 or 29 or 31  ",
-        default='29',
+        nargs='+',
+        help="List of Emissive(Thermal/NearIR) additional band name. i.e. 28, 29 , 31  ",
     )
+    # parse only one band info by int parser
+    #p.add_argument(
+    #    "--ems_band",
+    #    type=str,
+    #    help="Emissive(Thermal/NearIR) additional band name. i.e. 28 or 29 or 31  ",
+    #    default='29',
+    #)
     p.add_argument(
         "--patches_per_record", type=int, help="Only used for pptif", default=500
     )
@@ -411,7 +417,8 @@ if __name__ == "__main__":
     #TODO modify arg to add multiple temp/altitude bands  
     swaths  = gen_sds(fnames, 
                       ref_var='EV_500_Aggr1km_RefSB', ems_var='EV_1KM_Emissive',
-                      ref_bands=["6","7"], ems_bands=["20"]+[FLAGS.ems_band])
+                      ref_bands=["6","7"], ems_bands=FLAGS.ems_band)
+                      #ref_bands=["6","7"], ems_bands=["20"]+FLAGS.ems_band)
     patches = gen_patches(swaths, FLAGS.stride, FLAGS.shape, 
                           normalization=False, flag_nan=True, flag_shuffle=True)
 
