@@ -179,7 +179,7 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
     csvfile.close()
 
 
-def find_corners(results_df):
+def find_corners(results_df, npartitions=8):
     '''
     Turns a dataframe with latitude and longitude columns into a geodataframe
 
@@ -189,14 +189,14 @@ def find_corners(results_df):
 
     Outputs: geodataframe
     '''
-    # x = dd.from_pandas(dataframe, npartitions=n_parts).\
-    #    map_partitions(lambda df: df.apply(lambda row: apply_func(row['latitude'], row['longitude']), axis=1), meta=pd.Series(dtype='str', name='Column X')).\
-    #    compute(get=get)
+    results_ddf = dd.from_pandas(results_df, npartitions=n_parts).\
+       map_partitions(lambda df: df.apply(lambda row: apply_func(row['latitude'], row['longitude']), axis=1), meta=pd.Series(dtype='str', name='Column X')).\
+       compute(get=get)
 
-    results_df['geom'] = results_df.apply(lambda row: apply_func(row['latitude'], row['longitude']), axis=1)
-    results_df['geom'] = results_df['geom'].apply(geometry.Polygon)
+    #results_df['geom'] = results_df.apply(lambda row: apply_func(row['latitude'], row['longitude']), axis=1)
+    #results_df['geom'] = results_df['geom'].apply(geometry.Polygon)
     #results_gdf = gpd.GeoDataFrame(results_df, geometry='geom')
-    return results_df.drop(columns=['latitude', 'longitude'])
+    return results_ddf.drop(columns=['latitude', 'longitude'])
 
 
 def apply_func(x, y):
