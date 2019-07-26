@@ -10,10 +10,14 @@ import sys
 import csv
 import glob
 import argparse
+import copy
 import multiprocessing as mp
 import numpy as np
 import pandas as pd
+from shapely import geometry
 from pyhdf.SD import SD, SDC
+
+
 from dask import dataframe as dd
 from dask.multiprocessing import get
 
@@ -26,12 +30,13 @@ import prg_StatsInvPixel as stats
 MOD02_DIRECTORY = '/home/koenig1/scratch-midway2/MOD02/clustering'
 MOD03_DIRECTORY = '/home/koenig1/scratch-midway2/MOD03/clustering'
 MOD35_DIRECTORY = '/home/koenig1/scratch-midway2/MOD35/clustering'
-INVALIDS_CSV = 'patches_with_invalid_pixels.csv'
-OUTPUT_CSV = 'output_test07172019.csv'
-
+INVALIDS_CSV = 'test.csv'
+OUTPUT_CSV = 'output_test.csv'
+KEYS = ['filename', 'patch_no', 'latitude', 'longitude', 'geometry', 65535, 65534,
+        65533, 65532, 65531, 65530, 65529, 65528, 65527, 65526, 65524]
 
 def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY, 
-                       mod35_dir=MOD35_DIRECTORY, mod03_dir=MOD03_DIRECTORY):
+                        mod35_dir=MOD35_DIRECTORY, mod03_dir=MOD03_DIRECTORY):
     '''
     Combining functions that connects mod02, mod03 (geolocation data) and mod35
     files to create a csv with the patches that have invalid pixels and their
@@ -51,7 +56,6 @@ def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY,
     
     Outputs: None (appends to exisiting csv after connecting all three files)
     '''
-    print(file)
     bname = os.path.basename(file)
     date = bname[10:22]
     mod02 = glob.glob(mod02_dir + '/*/' + file)
@@ -76,8 +80,9 @@ def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY,
         mod35_path = mod35[0]
         hdf_m35 = SD(mod35_path, SDC.READ)
         cloud_mask_img = stats.gen_mod35_img(hdf_m35)
-        patches, latitudes, longitudes = make_patches(mod02_path, latitude, longitude)
-        connect_geolocation(mod02_path, output, patches, latitudes, longitudes, cloud_mask_img)
+        patches, latitudes, longitudes, fillvalue_list = make_patches(mod02_path, latitude, longitude)
+        connect_geolocation(mod02_path, output, patches, fillvalue_list,
+                            latitudes, longitudes, cloud_mask_img)
     else:
         print("No mod35 file downloaded for " + date)
 
@@ -115,12 +120,13 @@ def make_patches(mod02_path, latitude, longitude):
             patches.append(patch_row)
             latitudes.append(lat_row)
             longitudes.append(lon_row)
-    return np.stack(patches), np.stack(latitudes), np.stack(longitudes)
+    return np.stack(patches), np.stack(latitudes), np.stack(longitudes), fillvalue_list
 
 
-def connect_geolocation(file, outputfile, patches, latitudes, longitudes, clouds_mask,
-                        width=128, height=128, thres=0.3):
-    '''
+def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
+                        longitudes, cloud_mask, width=128, height=128,
+                        thres=0.3):
+    '''NEEDS EDITS
     Connects the geolocation data to each patch in an image/mod02 hdf file
 
     Inputs:
@@ -140,29 +146,39 @@ def connect_geolocation(file, outputfile, patches, latitudes, longitudes, clouds
 
     Outputs: Appends to existing csv file
     '''
+    keys = copy.deepcopy(KEYS)
+    codes = [65535, 65534, 65533, 65532, 65531, 65530, 65529, 65528, 65527,
+             65526, 65524]
+    results = {key: [] for key in keys.remove('geometry')}
     with open(outputfile, 'a') as csvfile:
         outputwriter = csv.writer(csvfile, delimiter=',')
         nx, ny = patches.shape[:2]
         patch_counter = 0
+        print('test')
         for i in range(nx):
             for j in range(ny):
                 lat = latitudes[i, j]
                 lon = longitudes[i, j]
                 if not np.isnan(patches[i, j]).any():
-                  if np.any(clouds_mask[i * width:(i + 1) * width,
-                            j * height:(j + 1) * height] == 0):
-                    tmp = clouds_mask[i * width:(i + 1) * width,
-                                      j * height:(j + 1) * height]
-                    nclouds = len(np.argwhere(tmp == 0))
-                    if nclouds / (width * height) > thres:
-                        outputwriter.writerow([file, patch_counter, lat, lon])
-                        patch_counter += 1
-                else:
-                    print('Null Values in ' + file)
+                    tmp = cloud_mask[i*width:(i+1)*width, j*height:(j+1)*height]
+                    if np.any(tmp == 0):
+                        nclouds = len(np.argwhere(tmp ==0))
+                        if nclouds / (width * height) > thres:
+                            results['filename'].append(file)
+                            results['patch_no'].append(patch_counter)
+                            results['latitude'].append(lat)
+                            results['longitude'].append(lon)
+                            for code in codes:
+                                results[code].append(fillvalue_list.count(code))
+                            patch_counter += 1
+        results_df = pd.DataFrame.from_dict(results)
+        ordered_df = find_corners(results_df[keys])
+        print('Writing out for' + file)
+        ordered_df.to_csv(csvfile, header=False, index=False)
     csvfile.close()
 
 
-def make_geodf(dataframe, n_parts):
+def find_corners(results_df):
     '''
     Turns a dataframe with latitude and longitude columns into a geodataframe
 
@@ -176,10 +192,10 @@ def make_geodf(dataframe, n_parts):
     #    map_partitions(lambda df: df.apply(lambda row: apply_func(row['latitude'], row['longitude']), axis=1), meta=pd.Series(dtype='str', name='Column X')).\
     #    compute(get=get)
 
-    results_df['geom'] = dataframe.apply(lambda row: apply_func(row['latitude'], row['longitude']), axis=1)
+    results_df['geom'] = results_df.apply(lambda row: apply_func(row['latitude'], row['longitude']), axis=1)
     results_df['geom'] = results_df['geom'].apply(geometry.Polygon)
-    results_gdf = gpd.GeoDataFrame(results_df, geometry='geom')
-    return results_gdf
+    #results_gdf = gpd.GeoDataFrame(results_df, geometry='geom')
+    return results_df.drop(columns=['latitude', 'longitude'])
 
 
 def apply_func(x, y):
@@ -242,7 +258,8 @@ if __name__ == "__main__":
         # Initializes output csv to be appended later
         with open(args.outputfile, 'w') as csvfile:
             outputwriter = csv.writer(csvfile, delimiter=',')
-            outputwriter.writerow(['filename', 'patch_no', 'latitude', 'longitude'])
+            cols = [x for x in copy.deepcopy(KEYS) if x not in ['latitude', 'longitude']]
+            outputwriter.writerow(cols)
         csvfile.close()
         last_file = None
 

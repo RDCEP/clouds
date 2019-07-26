@@ -12,7 +12,7 @@ from pylab import *
 from matplotlib import patches as mpl_patches
 from matplotlib.colors import Colormap
 from pyhdf.SD import SD, SDC
-from osgeo import gdal
+#from osgeo import gdal
 
 #analytical tools
 from sklearn.cluster import AgglomerativeClustering
@@ -27,17 +27,17 @@ from sklearn.metrics.pairwise import cosine_similarity
 #from multiprocessing import Pool
 
 
-def _get_swath(datadir, filename):
-    swath = gdal.Open(datadir+'/'+filename)
-    data  = swath.ReadAsArray()
-    rot_data = np.rollaxis(data, 0, 3)
-    print(" Shape ", rot_data.shape)
-    return rot_data
+#def _get_swath(datadir, filename):
+#    swath = gdal.Open(datadir+'/'+filename)
+#    data  = swath.ReadAsArray()
+#    rot_data = np.rollaxis(data, 0, 3)
+#    print(" Shape ", rot_data.shape)
+#    return rot_data
 
-def _load_tif_data(mod06_tif_dir, basename, inputfilename):
-    mod06_swath =  gdal.Open(mod06_tif_dir+"/"+basename+inputfilename+'.tif')
-    print('variable : %s' % inputfilename )
-    return  mod06_swath.ReadAsArray()
+#def _load_tif_data(mod06_tif_dir, basename, inputfilename):
+#    mod06_swath =  gdal.Open(mod06_tif_dir+"/"+basename+inputfilename+'.tif')
+#    print('variable : %s' % inputfilename )
+#    return  mod06_swath.ReadAsArray()
 
 def cv2_interpolation(array, xsize=0, ysize=0):
     """
