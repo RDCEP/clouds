@@ -57,6 +57,7 @@ def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY,
     Outputs: None (appends to exisiting csv after connecting all three files)
     '''
     bname = os.path.basename(file)
+    print(file)
     date = bname[10:22]
     mod02 = glob.glob(mod02_dir + '/*/' + file)
     if mod02:
@@ -149,12 +150,12 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
     keys = copy.deepcopy(KEYS)
     codes = [65535, 65534, 65533, 65532, 65531, 65530, 65529, 65528, 65527,
              65526, 65524]
-    results = {key: [] for key in keys.remove('geometry')}
+    keys.remove('geometry')
+    results = {key: [] for key in keys}
     with open(outputfile, 'a') as csvfile:
         outputwriter = csv.writer(csvfile, delimiter=',')
         nx, ny = patches.shape[:2]
         patch_counter = 0
-        print('test')
         for i in range(nx):
             for j in range(ny):
                 lat = latitudes[i, j]
@@ -235,7 +236,7 @@ if __name__ == "__main__":
     p.add_argument('--mod02dir', type=str, default=MOD02_DIRECTORY)
     p.add_argument('--mod35dir', type=str, default=MOD35_DIRECTORY)
     p.add_argument('--mod03dir', type=str, default=MOD03_DIRECTORY)
-    p.add_argument('--processors', type=int, default=5)
+    p.add_argument('--processors', type=int, default=1)
     p.add_argument('--outputfile', type=str, default=OUTPUT_CSV)
     args = p.parse_args()
     print(args.processors)
