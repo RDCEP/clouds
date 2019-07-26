@@ -32,24 +32,18 @@
 
 2. Run cloud_labeling.ipynb
 
-3. After running the notebook (and labeling), you will have the necessary files for clustering and validation. For each date that you labeled patches for, you will have the following:
-  * close_cells_coords_date.npy (patch coordinate data for closed cell patches)
-  * open_cells_coords_date.npy (patch coordinate data for open cell patches)
-  * close_cells_mod02_date.npy (MOD02 data for closed cell patches)
-  * open_cells_mod02_date.npy (MOD02 data for open cell patches)
-  * close_35_date.npy (MOD35 data for closed cell patches)
-  * open_35_date.npy (MOD35 data for open cell patches)
-  * open_dates.txt (date file for all open cell patches)
-  * closed_dates.txt (date file for all close cell patches)
+3. After running the notebook (and labeling), you will have the necessary file for clustering and validation. This file contains a list of labeled patch instances with the necessary information for the clustering model and analysis. 
+  * patches_DDMMYYYY.npy, where DDMMYYYY is the date the patches were labeled
   
 ## How to Vizualize Data
 
 1. Necessary elements:
   * lib_hdfs directory
   * encoder directory (see "load model" section of visualize_patches.ipynb)
-  * The files listed under #3 above 
+  * patches_DDMMYYY.npy
   
 2. Run visualize_patches.ipynb
-  * Edit num_clusters to change the number of clusters
+  * Edit num_clusters to change the number of clusters for agglomerative clustering
+  * Remove ambigious/mislabeled patches from patch list if necessary
   * Save plot images if desired
 
