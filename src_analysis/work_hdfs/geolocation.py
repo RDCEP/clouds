@@ -16,7 +16,8 @@ import numpy as np
 import pandas as pd
 from shapely import geometry
 from pyhdf.SD import SD, SDC
-#import geopandas as gpd
+import geopandas as gpd
+import matplotlib.pyplot as plt
 
 from dask import dataframe as dd
 from dask.multiprocessing import get
@@ -195,7 +196,6 @@ def find_corners(results_df):
 
     results_df['geom'] = results_df.apply(lambda row: apply_func(row['latitude'], row['longitude']), axis=1)
     results_df['geom'] = results_df['geom'].apply(geometry.Polygon)
-    #results_gdf = gpd.GeoDataFrame(results_df, geometry='geom')
     return results_df.drop(columns=['latitude', 'longitude'])
 
 
@@ -228,6 +228,54 @@ def apply_func(x, y):
             else:
                 small_lon = curr_lon
     return [(small_lat, small_lon), (big_lat, small_lon), (small_lat, big_lon), (big_lat, big_lon)]
+
+
+def join_and_plot(coords_df, invals_df):
+    '''
+    Joins the dataframe with the number of invalid pixels per patch with the
+    dataframe that contains geographic info for each patch
+
+    Inputs:
+        coords_df: a pandas dataframe
+        invals_df: a pandas dataframe
+
+    Outputs:
+        merged_gdf: a geopandas dataframe
+    '''
+    merged = pd.merge(coords_df, invals_df, on=['patch_no'])
+    merged_gdf = gpd.GeoDataFrame(merged_df, geometry='geom')
+    merged_gdf['geom'] = merged_gdf['geom'].convex_hull
+    return merged_gdf
+
+
+def create_plot(dataframe, colname, img_name):
+    '''
+    Maps the patches with invalid pixels on a map of the world
+
+    Inputs:
+        dataframe: a geopandas dataframe
+        colname(str): column name to be plotted in color gradient
+
+    Outputs: None (saves plot to current directory as a png)
+    '''
+    f, ax = plt.subplots(1, figsize=(50, 50))
+    df = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+    dataframe.plot(axes=ax, alpha=0.5, column=colname, vmin=min(dataframe.colname),
+                  vmax=max(dataframe.colname), cmap='summer')
+    df.plot(axes=ax, color='white', edgecolor='black')
+
+    # Code for legend adjustment informed by stackoverflow response found here: 
+    # https://stackoverflow.com/questions/54236083/geopandas-reduce-legend-size-and-remove-white-space-below-map
+    ax.set_title('Patches with Invalid Pixels', size=30)
+    ax.grid() 
+    fig = ax.get_figure()
+    cbax = fig.add_axes([0.91, 0.3, 0.03, 0.39])   
+    cbax.set_title('Number of Invalid Pixels', size=20)
+    sm = plt.cm.ScalarMappable(cmap='summer', \
+                    norm=plt.Normalize(vmin=min(dataframe.colname), vmax=max(dataframe.col_name)))
+    sm._A = []
+    fig.colorbar(sm, cax=cbax, format="%d")
+    plt.savefig(img_name)
 
 
 if __name__ == "__main__":
