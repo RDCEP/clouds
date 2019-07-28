@@ -72,7 +72,7 @@ def _decode_cloud_flag(sds_array, fillna=True):
         ncarray[nan_idx] = np.nan
     return ncarray
 
-def const_clouds_array(patches, clouds_mask, width=128, height=128, thres=0.2):
+def const_clouds_array(patches, clouds_mask, width=128, height=128, thres=0.3):
     """
     thres: range 0-1. ratio of clouds within the given patch
     dev_const_clouds_array in analysis_mode021KM/016
@@ -103,19 +103,30 @@ def translate_const_clouds_array(patch, clouds_mask, width=128, height=128, thre
       clouds_flag : Boolean{True; valid cloud patch, False; o.w.}  
     """
     # coordinates
+    # this (i,j) is i in [0,2030,width] & [0,1354,height]
     i,j = coord
 
     # prep flag
     clouds_flag = False
 
     # main process
-    if np.any(clouds_mask[i*width:(i+1)*width,j*height:(j+1)*height] == 0):
-        tmp = clouds_mask[i*width:(i+1)*width,j*height:(j+1)*height]
+    if np.any(clouds_mask[i:i+width,j:j+height] == 0):
+        tmp = clouds_mask[i:i+width,j:j+height]
         nclouds = len(np.argwhere(tmp == 0))
         if nclouds/(width*height) > thres:
           # valid patch
           clouds_flag = True
+          # TODO: if not necessary below 2 lines, erase
+          #if patch is None:
+          #  print("Nonetype")
           return patch, clouds_flag    
+        else:
+          # return patch and false
+          return patch, clouds_flag    
+    else:
+      # return patch and false
+      return patch, clouds_flag    
+       
 
 # below, from prg_augment_2 
 
@@ -247,7 +258,16 @@ def get_filepath(filepath, datadir, prefix=''):
     bname = os.path.basename(filepath) # ex. 2017213.2355
     dateinfo = re.findall('[0-9]{7}.[0-9]{4}' , bname)
     date     = dateinfo[0].rstrip("['").lstrip("']")
-    return glob.glob(datadir+'/'+prefix+date+'*.hdf')[0]
+    filelist = glob.glob(datadir+'/'+prefix+date+'*.hdf')
+    try:
+      if len(filelist) > 0:
+        # in the case file-exist
+        return filelist[0]
+    except:
+      efile = datadir+'/'+prefix+date+'*.hdf'
+      print(" Program will be forcibly terminated", flush=True)
+      raise NameError(" ### File Not Found: No such file or directory "+str(efile)+" ### ")
+    #return glob.glob(datadir+'/'+prefix+date+'*.hdf')[0]
 
 
 def compute_augment(encoder, m2_file, mod35_datadir='./', thres=0.3, height=128, width=128, bands=6): 
