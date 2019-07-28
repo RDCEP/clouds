@@ -122,6 +122,17 @@ def gen_sds(filelist=[], ref_var='EV_500_Aggr1km_RefSB', ems_var='EV_1KM_Emissiv
   for ifile in filelist:
     ref_sds = read_hdf(ifile, varname=ref_var)
     ems_sds = read_hdf(ifile, varname=ems_var)
+    # Abort stopper for HDF-open error    
+    if ref_sds is None:
+      # call mpiabort function
+      sys.excepthook =  mpiabort_excepthook
+      sys.excepthook = sys.__excepthook__  # 2nd call?
+    #FIXME Probably this second if statement is not necessary.
+    elif ems_sds is None:
+      # call mpiabort function
+      sys.excepthook =  mpiabort_excepthook
+      sys.excepthook = sys.__excepthook__  # 2nd call?
+
     ref_array, cref_bands = proc_sds(ref_sds)
     ems_array, cems_bands = proc_sds(ems_sds)
 
@@ -222,6 +233,13 @@ def gen_patches(swaths, stride=64, patch_size=128,
       # Get MOD35 data
       m35_file = get_filepath(fname, mod35_datadir, prefix='MOD35_L2.A')
       hdf_m35 = SD(m35_file, SDC.READ)
+      if hdf_m35 is None:
+        # call mpiabort function
+        sys.excepthook =  mpiabort_excepthook
+        sys.excepthook = sys.__excepthook__  # 2nd call?
+      #if hdf_m35 is None:
+      #  print(" Program Forcibly Terminate: Rank %d" % MPI.COMM_WORLD.Get_rank(), flush=True)
+      #  MPI.COMM_WORLD.Abort()
       clouds_mask_img = gen_mod35_img(hdf_m35)
 
       for i, j in coords:
@@ -231,7 +249,6 @@ def gen_patches(swaths, stride=64, patch_size=128,
           patch /= global_stdv
         
         if not np.isnan(patch).any():
-          print(patch.shape, clouds_mask_img.shape, thres, (i,j))
           #TODO: Add lines below to compare MOD35
           # translate_const_clouds_array is based on const_clouds_array
           clouds_patch, clouds_flag = translate_const_clouds_array(
@@ -276,7 +293,6 @@ def write_patches(patches, out_dir, patches_per_record):
         write_feature(f, *patch)
 
         print("Rank", rank, "wrote", i + 1, "patches", flush=True)
-
 
 def get_args(verbose=False):
     p = ArgumentParser(
@@ -361,6 +377,12 @@ def get_args(verbose=False):
     return FLAGS
 
 
+def mpiabort_excepthook(type, value, traceback):
+    mpi_comm = MPI.COMM_WORLD
+    mpi_comm.Abort()
+    sys.__excepthook__(type, value, traceback)
+
+
 if __name__ == "__main__":
     comm = MPI.COMM_WORLD
     size = comm.Get_size()
@@ -397,6 +419,7 @@ if __name__ == "__main__":
                       ref_var='EV_500_Aggr1km_RefSB', ems_var='EV_1KM_Emissive',
                       ref_bands=["6","7"], ems_bands=FLAGS.ems_band)
                       #ref_bands=["6","7"], ems_bands=["20"]+FLAGS.ems_band)
+    
     patches = gen_patches(swaths, FLAGS.stride, FLAGS.shape, 
                           normalization=normalization, 
                           global_mean=global_mean,

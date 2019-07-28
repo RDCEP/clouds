@@ -44,6 +44,7 @@ from lib_modis02   import load_tfrecord
 from lib_modis02   import _get_imgs
 from lib_modis02   import _get_num_imgs
 
+
 def compute_global_single(mod02_datadir='./', mod35_datadir='./', 
                           thres=0.3, nx=128, ny=128, nbands=6):
   #TODO: add if & lines to read tfrecord files
@@ -152,6 +153,7 @@ def compute_local(m2_filelist=[],
     for ipatch in clouds_patches_list:
       all_list.append(ipatch.reshape(nx*ny, nbands))
     alls = np.concatenate(all_list, axis=0) 
+    #alls = alls.astype(np.float16)
     #alls = np.concatenate(clouds_patches_list, axis=0) 
     #alls  [# of patches][128*128, 6]
 
@@ -167,14 +169,18 @@ def compute_local(m2_filelist=[],
       return sums, ndata
 
     elif compute_type == 'stdv' or compute_type == 'std':
+      #x = alls- global_mean
+      #y = x ** 2
+      #stdv = np.sum(y, axis=0) 
       stdv = np.sum(pow((alls- global_mean),2), axis=0) 
       #stdv = np.sum(np.concatenate(pow((alls- global_mean),2), axis=0), axis=0) 
+      #stdv = stdv.astype(np.float64)
       return stdv, ndata
 
   except:
     raise NameError(" compute_type was not correctly specified ") 
 
-def get_args():
+def get_args(verbose=True):
     p = ArgumentParser(
         formatter_class=ArgumentDefaultsHelpFormatter, description=__doc__
     )
@@ -206,7 +212,18 @@ def get_args():
     )
 
     FLAGS = p.parse_args()
+    # show keyward on screen
+    if verbose:
+        for f in FLAGS.__dict__:
+            print("\t", f, (25 - len(f)) * " ", FLAGS.__dict__[f])
+        print("\n")
     return FLAGS
+
+def mpiabort_excepthook(type, value, traceback):
+    mpi_comm = MPI.COMM_WORLD
+    mpi_comm.Abort()
+    sys.__excepthook__(type, value, traceback)
+
 
 if __name__ == "__main__":
 
@@ -262,49 +279,52 @@ if __name__ == "__main__":
         
 
     #
-    sums, ndata = compute_local(m2_filelist=filelists, 
-                                mod35_datadir=FLAGS.mod35_datadir,
-                                compute_type='mean',
-                                tf_filelists=tf_filelists
-    )
-    print("Rank %d done." % rank, flush=True)
+    #sums, ndata = compute_local(m2_filelist=[], 
+    #                            mod35_datadir=FLAGS.mod35_datadir,
+    #                            compute_type='mean',
+    #                            tf_filelists=tf_filelists
+    #)
+    #print("Rank %d done." % rank, flush=True)
 
-    comm.Barrier() # wait here to syncronize all process
+    #comm.Barrier() # wait here to syncronize all process
     
     # get globalsums
-    global_sums = comm.gather(
-      sums,
-      root=0
-    )
-    global_ndata = comm.gather(
-      ndata,
-      root=0
-    )
+    #global_sums = comm.gather(
+    #  sums,
+    #  root=0
+    #)
+    #global_ndata = comm.gather(
+    #  ndata,
+    #  root=0
+    #)
         
-    global_mean = None
-    if rank == 0:
-      # compute mean
-      _global_mean = np.asarray(global_sums)
-      global_mean = np.sum(_global_mean, axis=0)/np.sum(global_ndata)
-      print("Parallel: Global Mean : ", global_mean, flush=True)
+    #global_mean = None
+    #if rank == 0:
+    #  # compute mean
+    #  _global_mean = np.asarray(global_sums)
+    #  global_mean = np.sum(_global_mean, axis=0)/np.sum(global_ndata)
+    #  print("Parallel: Global Mean : ", global_mean, flush=True)
     
-      # save data here
-      np.save(FLAGS.outputdir+'/'+FLAGS.outputfname+'_gmean', global_mean)
-      print(" ### FILE SAVED : Global Mean ###  ")
+    #  # save data here
+    #  np.save(FLAGS.outputdir+'/'+FLAGS.outputfname+'_gmean', global_mean)
+    #  print(" ### FILE SAVED : Global Mean ###  ")
 
-    else: 
-      # prep recvbuf TODO: let 6 be a argument as number of bands
-      #computed_global_mean = np.empty(6,dtype='float64')
-      global_mean = np.empty(6,dtype='float64')
+    #else: 
+    #  # prep recvbuf TODO: let 6 be a argument as number of bands
+    #  #computed_global_mean = np.empty(6,dtype='float64')
+    #  global_mean = np.empty(6,dtype='float64')
 
     # scatter global mean
     #comm.Scatter(global_mean,computed_global_mean, root=0)
-    comm.Bcast(global_mean, root=0)
-    gc.collect()
+    #comm.Bcast(global_mean, root=0)
+    #gc.collect()
 
     # compute standard deviation
     # global_mean; np.ndarray [ # of bands ]        
-    comm.Barrier()      
+    #comm.Barrier()
+    global_mean = np.asarray([ 9.8614982, 2.40985096, 0.33315312, 2.34202888, 5.29414986, 6.0731074 ])
+    #global_mean = global_mean.astype(np.float16)
+      
     res_sums, ndata = compute_local(m2_filelist=filelists, 
                                     mod35_datadir=FLAGS.mod35_datadir,
                                     compute_type='stdv',
@@ -312,6 +332,10 @@ if __name__ == "__main__":
                                     tf_filelists=tf_filelists
     )
     
+    if res_sums is None:
+      # call mpiabort function
+      sys.excepthook =  mpiabort_excepthook
+      sys.excepthook = sys.__excepthook__  # 2nd call?
     print("Rank %d done." % rank, flush=True)
 
     comm.Barrier() # wait here to syncronize all process
