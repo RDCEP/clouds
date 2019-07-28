@@ -357,6 +357,6 @@ if __name__ == "__main__":
       print("Parallel: Global Stdv : ", global_stdv, flush=True)
     
       # save data here
-      np.save(FLAGS.outputdir+'/'+FLAGS.outputfname+'_gstdv', global_mean)
+      np.save(FLAGS.outputdir+'/'+FLAGS.outputfname+'_gstdv', global_stdv)
       print(" ### FILE SAVED : Global Standard deviation ###  ")
 
