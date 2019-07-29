@@ -3,10 +3,9 @@ Katy Koenig
 
 July 2019
 
-Functions to find latitude and longitude for patches with invalid pixels 
+Functions to find latitude and longitude for patches with invalid pixels
 '''
 import os
-import sys
 import csv
 import glob
 import argparse
@@ -15,25 +14,22 @@ import multiprocessing as mp
 import numpy as np
 import pandas as pd
 from shapely import geometry
-from pyhdf.SD import SD, SDC
 import geopandas as gpd
 import matplotlib.pyplot as plt
-
-hdf_libdir = '/home/koenig1/scratch-midway2/clouds/src_analysis/lib_hdfs' # change here
-sys.path.insert(1, os.path.join(sys.path[0], hdf_libdir))
-from alignment_lib import gen_mod35_img
+import seaborn as sns
+from pyhdf.SD import SD, SDC
 import prg_StatsInvPixel as stats
-
 
 MOD02_DIRECTORY = '/home/koenig1/scratch-midway2/MOD02/clustering'
 MOD03_DIRECTORY = '/home/koenig1/scratch-midway2/MOD03/clustering'
 MOD35_DIRECTORY = '/home/koenig1/scratch-midway2/MOD35/clustering'
 INVALIDS_CSV = 'patches_with_invalid_pixels.csv'
 OUTPUT_CSV = 'output_07262019.csv'
-KEYS = ['filename', 'patch_no', 'latitude', 'longitude',  65535, 65534,
-        65533, 65532, 65531, 65530, 65529, 65528, 65527, 65526, 65524, 'geometry']
+KEYS = ['filename', 'patch_no', 'latitude', 'longitude', 65535, 65534,
+        65533, 65532, 65531, 65530, 65529, 65528, 65527, 65526, 65524,
+        'geometry']
 
-def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY, 
+def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY,
                         mod35_dir=MOD35_DIRECTORY, mod03_dir=MOD03_DIRECTORY):
     '''
     Combining functions that connects mod02, mod03 (geolocation data) and mod35
@@ -51,7 +47,7 @@ def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY,
             dir = '/home/koenig1/scratch-midway2/MOD02/clustering'
             when hdf files located in
             '/home/koenig1/scratch-midway2/MOD02/clustering/clustering_laads_2000_2018_2'
-    
+
     Outputs: None (appends to exisiting csv after connecting all three files)
     '''
     bname = os.path.basename(file)
@@ -79,7 +75,8 @@ def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY,
         mod35_path = mod35[0]
         hdf_m35 = SD(mod35_path, SDC.READ)
         cloud_mask_img = stats.gen_mod35_img(hdf_m35)
-        patches, latitudes, longitudes, fillvalue_list = make_patches(mod02_path, latitude, longitude)
+        patches, latitudes, longitudes, fillvalue_list = \
+                make_patches(mod02_path, latitude, longitude)
         connect_geolocation(mod02_path, output, patches, fillvalue_list,
                             latitudes, longitudes, cloud_mask_img)
     else:
@@ -138,8 +135,8 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
         longitudes: numpy array of arrays representing longitudinal data for
                     each pixel in a patch
         clouds_mask: numpy array created from MOD35 image
-        width(int): number of pixels for width of a siengle patch
-        height(int): number of pixels for height of a srngle path
+        width(int): number of pixels for width of a single patch
+        height(int): number of pixels for height of a single path
         thres(float): number between 0 and 1 representing the percentage
                     required of cloud cover to be considered an analyzable patch
 
@@ -149,28 +146,31 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
     codes = [65535, 65534, 65533, 65532, 65531, 65530, 65529, 65528, 65527,
              65526, 65524]
     keys.remove('geometry')
+    # Initializes dictionary to be written to csv at end of fn
     results = {key: [] for key in keys}
     with open(outputfile, 'a') as csvfile:
-        outputwriter = csv.writer(csvfile, delimiter=',')
         nx, ny = patches.shape[:2]
         patch_counter = 0
         for i in range(nx):
             for j in range(ny):
+                # Indexes for matching lats/lons for each patch
                 lat = latitudes[i, j]
                 lon = longitudes[i, j]
                 if not np.isnan(patches[i, j]).any():
                     tmp = cloud_mask[i*width:(i+1)*width, j*height:(j+1)*height]
                     if np.any(tmp == 0):
-                        nclouds = len(np.argwhere(tmp ==0))
+                        nclouds = len(np.argwhere(tmp == 0))
                         if nclouds / (width * height) > thres:
                             results['filename'].append(file[-44:])
                             results['patch_no'].append(patch_counter)
                             results['latitude'].append(lat)
                             results['longitude'].append(lon)
+                            # Finds number of bands with each error code
                             for code in codes:
                                 results[code].append(fillvalue_list.count(code))
                             patch_counter += 1
         results_df = pd.DataFrame.from_dict(results)
+        # Gets square shape for each patch
         ordered_df = find_corners(results_df[keys])
         print('Writing out for' + file)
         ordered_df.to_csv(csvfile, header=False, index=False)
@@ -187,18 +187,16 @@ def find_corners(results_df):
 
     Outputs: geodataframe
     '''
-    #results_ddf = dd.from_pandas(results_df, npartitions=n_parts).\
-       #map_partitions(lambda df: df.apply(lambda row: apply_func(row['latitude'], row['longitude']), axis=1), meta=pd.Series(dtype='str', name='Column X')).\
-       #compute(scheduler='processes')
-
-    results_df['geom'] = results_df.apply(lambda row: apply_func(row['latitude'], row['longitude']), axis=1)
+    results_df['geom'] = results_df.apply(lambda row: \
+                                          apply_func(row['latitude'],
+                                                     row['longitude']), axis=1)
     results_df['geom'] = results_df['geom'].apply(geometry.Polygon)
     return results_df.drop(columns=['latitude', 'longitude'])
 
 
 def apply_func(x, y):
     '''
-    Finds the four corners points of a rectangular patch
+    Finds the four corners points of a rectangular patch using greedy algorithm
 
     Inputs:
         x: the latitude column for a pandas dataframe observation
@@ -224,10 +222,11 @@ def apply_func(x, y):
                 big_lon = curr_lon
             else:
                 small_lon = curr_lon
-    return [(small_lat, small_lon), (big_lat, small_lon), (small_lat, big_lon), (big_lat, big_lon)]
+    return [(small_lat, small_lon), (big_lat, small_lon), (small_lat, big_lon),
+            (big_lat, big_lon)]
 
 
-def join_and_plot(coords_df, invals_df):
+def join_dataframes(coords_df, invals_df):
     '''
     Joins the dataframe with the number of invalid pixels per patch with the
     dataframe that contains geographic info for each patch
@@ -239,13 +238,13 @@ def join_and_plot(coords_df, invals_df):
     Outputs:
         merged_gdf: a geopandas dataframe
     '''
-    merged = pd.merge(coords_df, invals_df, on=['patch_no'])
+    merged_df = pd.merge(coords_df, invals_df, on=['filname', 'patch_no'])
     merged_gdf = gpd.GeoDataFrame(merged_df, geometry='geom')
     merged_gdf['geom'] = merged_gdf['geom'].convex_hull
     return merged_gdf
 
 
-def create_plot(dataframe, colname, img_name):
+def create_map(dataframe, colname, img_name):
     '''
     Maps the patches with invalid pixels on a map of the world
 
@@ -255,69 +254,81 @@ def create_plot(dataframe, colname, img_name):
 
     Outputs: None (saves plot to current directory as a png)
     '''
-    f, ax = plt.subplots(1, figsize=(50, 50))
+    _, ax = plt.subplots(1, figsize=(50, 50))
     df = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
     dataframe.plot(axes=ax, alpha=0.5, column=colname, vmin=min(dataframe.colname),
-                  vmax=max(dataframe.colname), cmap='summer')
+                   vmax=max(dataframe.colname), cmap='summer')
     df.plot(axes=ax, color='white', edgecolor='black')
 
-    # Code for legend adjustment informed by stackoverflow response found here: 
+    # Code for legend adjustment informed by stackoverflow response found here:
     # https://stackoverflow.com/questions/54236083/geopandas-reduce-legend-size-and-remove-white-space-below-map
     ax.set_title('Patches with Invalid Pixels', size=30)
-    ax.grid() 
+    ax.grid()
     fig = ax.get_figure()
-    cbax = fig.add_axes([0.91, 0.3, 0.03, 0.39])   
+    cbax = fig.add_axes([0.91, 0.3, 0.03, 0.39])
     cbax.set_title('Number of Invalid Pixels', size=20)
-    sm = plt.cm.ScalarMappable(cmap='summer', \
-                    norm=plt.Normalize(vmin=min(dataframe.colname), vmax=max(dataframe.col_name)))
+    sm = plt.cm.ScalarMappable(cmap='summer',
+                               norm=plt.Normalize(vmin=min(dataframe.colname),
+                                                  vmax=max(dataframe.col_name)))
     sm._A = []
     fig.colorbar(sm, cax=cbax, format="%d")
     plt.savefig(img_name)
 
 
+def join_plot_show_distrib(coords_df, invals_df, colname='num_invalids', img_name='inval_pixels_map.png'):
+    '''
+
+    Inputs:
+
+    Outputs:
+    '''
+    joined_gdf = join_dataframes(coords_df, invals_df)
+    create_map(joined_gdf, colname, img_name)
+    joined_gdf[codes].sum()
+
+
 if __name__ == "__main__":
-    p = argparse.ArgumentParser()
-    p.add_argument('--input_file', type=str, default=INVALIDS_CSV)
-    p.add_argument('--mod02dir', type=str, default=MOD02_DIRECTORY)
-    p.add_argument('--mod35dir', type=str, default=MOD35_DIRECTORY)
-    p.add_argument('--mod03dir', type=str, default=MOD03_DIRECTORY)
-    p.add_argument('--processors', type=int, default=7)
-    p.add_argument('--outputfile', type=str, default=OUTPUT_CSV)
-    args = p.parse_args()
-    print(args.processors)
+    P = argparse.ArgumentParser()
+    P.add_argument('--input_file', type=str, default=INVALIDS_CSV)
+    P.add_argument('--mod02dir', type=str, default=MOD02_DIRECTORY)
+    P.add_argument('--mod35dir', type=str, default=MOD35_DIRECTORY)
+    P.add_argument('--mod03dir', type=str, default=MOD03_DIRECTORY)
+    P.add_argument('--processors', type=int, default=7)
+    P.add_argument('--outputfile', type=str, default=OUTPUT_CSV)
+    ARGS = P.parse_args()
+    print(ARGS.processors)
 
     #Initializes pooling process for parallelization
-    pool = mp.Pool(processes=args.processors)
+    POOL = mp.Pool(processes=ARGS.processors)
 
     # If output csv exits, assumes cutoff by RCC so deletes last entry
     # and appends only new dates
-    if os.path.exists(args.outputfile):
+    if os.path.exists(ARGS.outputfile):
         print('Checking for completion')
-        completed = pd.read_csv(args.outputfile)
-        completed = completed[completed['filename'].notnull()]
-        last_file = completed.tail(1)['filename'].tolist()
-        if last_file:
-            last_file = last_file[0][-44:]
-        done = completed[completed['filename'] != last_file]
-        done.to_csv(args.outputfile, index=False)
+        COMPLETED = pd.read_csv(ARGS.outputfile)
+        COMPLETED = COMPLETED[COMPLETED['filename'].notnull()]
+        LAST_FILE = COMPLETED.tail(1)['filename'].tolist()
+        if LAST_FILE:
+            LAST_FILE = LAST_FILE[0][-44:]
+        DONE = COMPLETED[COMPLETED['filename'] != LAST_FILE]
+        DONE.to_csv(ARGS.outputfile, index=False)
     else:
         # Initializes output csv to be appended later
-        with open(args.outputfile, 'w') as csvfile:
-            outputwriter = csv.writer(csvfile, delimiter=',')
-            cols = [x for x in copy.deepcopy(KEYS) if x not in ['latitude', 'longitude']]
-            outputwriter.writerow(cols)
+        with open(ARGS.outputfile, 'w') as csvfile:
+            OUTPUTWRITER = csv.writer(csvfile, delimiter=',')
+            COLS = [x for x in copy.deepcopy(KEYS) if x not in ['latitude', 'longitude']]
+            OUTPUTWRITER.writerow(COLS)
         csvfile.close()
-        last_file = None
+        LAST_FILE = None
 
-    args_lst = []
-    filenames_df = pd.read_csv(args.input_file)
-    files = list(filenames_df['filename'])
-    if last_file:
-        last_idx = files.index(last_file)
-        files = files[last_idx:]
-    for file in files:
-        args_lst.append((file, args.outputfile, args.mod02dir, args.mod35dir, args.mod03dir))
-    print('about to pool')
-    pool.starmap(make_connecting_csv, args_lst)
-    pool.close()
-    pool.join()
+    ARGS_LST = []
+    FILENAMES_DF = pd.read_csv(ARGS.input_file)
+    FILES = list(FILENAMES_DF['filename'])
+    if LAST_FILE:
+        LAST_IDX = FILES.index(LAST_FILE)
+        FILES = FILES[LAST_IDX:]
+    for file in FILES:
+        ARGS_LST.append((file, ARGS.outputfile, ARGS.mod02dir, ARGS.mod35dir, ARGS.mod03dir))
+    POOL.starmap(make_connecting_csv, ARGS_LST)
+    POOL.close()
+    POOL.join()
