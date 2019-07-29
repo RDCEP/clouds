@@ -145,12 +145,14 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
     codes = [65535, 65534, 65533, 65532, 65531, 65530, 65529, 65528, 65527,
              65526, 65524]
     keys.remove('geometry')
+    # Initializes dictionary to be written to csv at end of fn
     results = {key: [] for key in keys}
     with open(outputfile, 'a') as csvfile:
         nx, ny = patches.shape[:2]
         patch_counter = 0
         for i in range(nx):
             for j in range(ny):
+                # Indexes for matching lats/lons for each patch
                 lat = latitudes[i, j]
                 lon = longitudes[i, j]
                 if not np.isnan(patches[i, j]).any():
@@ -162,10 +164,12 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
                             results['patch_no'].append(patch_counter)
                             results['latitude'].append(lat)
                             results['longitude'].append(lon)
+                            # Finds number of bands with each error code
                             for code in codes:
                                 results[code].append(fillvalue_list.count(code))
                             patch_counter += 1
         results_df = pd.DataFrame.from_dict(results)
+        # Gets square shape for each patch
         ordered_df = find_corners(results_df[keys])
         print('Writing out for' + file)
         ordered_df.to_csv(csvfile, header=False, index=False)
@@ -191,7 +195,7 @@ def find_corners(results_df):
 
 def apply_func(x, y):
     '''
-    Finds the four corners points of a rectangular patch
+    Finds the four corners points of a rectangular patch using greedy algorithm
 
     Inputs:
         x: the latitude column for a pandas dataframe observation
