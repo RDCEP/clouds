@@ -16,6 +16,7 @@ import pandas as pd
 from shapely import geometry
 import geopandas as gpd
 import matplotlib.pyplot as plt
+import seaborn as sns
 from pyhdf.SD import SD, SDC
 import prg_StatsInvPixel as stats
 
@@ -225,7 +226,7 @@ def apply_func(x, y):
             (big_lat, big_lon)]
 
 
-def join_and_plot(coords_df, invals_df):
+def join_dataframes(coords_df, invals_df):
     '''
     Joins the dataframe with the number of invalid pixels per patch with the
     dataframe that contains geographic info for each patch
@@ -243,7 +244,7 @@ def join_and_plot(coords_df, invals_df):
     return merged_gdf
 
 
-def create_plot(dataframe, colname, img_name):
+def create_map(dataframe, colname, img_name):
     '''
     Maps the patches with invalid pixels on a map of the world
 
@@ -272,6 +273,18 @@ def create_plot(dataframe, colname, img_name):
     sm._A = []
     fig.colorbar(sm, cax=cbax, format="%d")
     plt.savefig(img_name)
+
+
+def join_plot_show_distrib(coords_df, invals_df, colname='num_invalids', img_name='inval_pixels_map.png'):
+    '''
+
+    Inputs:
+
+    Outputs:
+    '''
+    joined_gdf = join_dataframes(coords_df, invals_df)
+    create_map(joined_gdf, colname, img_name)
+    joined_gdf[codes].sum()
 
 
 if __name__ == "__main__":
