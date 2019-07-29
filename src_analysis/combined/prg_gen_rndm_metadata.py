@@ -85,7 +85,7 @@ def save_filelist(filelist=[], outdir='./', oname='output'):
         outdir(str): directory in which list of files should be downloaded
         oname(str): name for file created
 
-    Outputs: Prints name of 
+    Outputs: Prints name of directory in where file saved
     '''
     with open(outdir+"/"+oname+".txt", 'w') as ofile:
         for iline in filelist:
