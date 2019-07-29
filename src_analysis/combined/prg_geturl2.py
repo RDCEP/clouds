@@ -25,7 +25,6 @@ def get_href_lists2(url, keyward="MOD021KM.A"):
 
     Outputs: list of relevant hrefs
     '''
-    print(keyward)
     r = requests.get(url)
     https = r.text.encode('iso-8859-1')
     bsobj = BeautifulSoup(https, 'html5lib')
@@ -123,8 +122,6 @@ def combining_fn(iline, url, thresval, outputdir, start_time):
     if response.status_code == 200:
         # href_lists
         href_list = get_href_lists2(url, args.keyward)
-        print("here")
-        print(len(href_list))
         for ihref in href_list:
             https = url + os.path.basename(ihref)
             bfsize = bool_fsize2(https, thresval)
