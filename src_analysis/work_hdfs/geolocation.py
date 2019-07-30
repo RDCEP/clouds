@@ -6,6 +6,7 @@ July 2019
 Functions to find latitude and longitude for patches with invalid pixels
 '''
 import os
+import sys
 import csv
 import glob
 import argparse
