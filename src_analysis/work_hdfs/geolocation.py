@@ -18,6 +18,10 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from pyhdf.SD import SD, SDC
+
+hdf_libdir = '/home/koenig1/scratch-midway2/clouds/src_analysis/lib_hdfs' # change here
+sys.path.insert(1, os.path.join(sys.path[0], hdf_libdir))
+from alignment_lib import gen_mod35_img
 import prg_StatsInvPixel as stats
 
 MOD02_DIRECTORY = '/home/koenig1/scratch-midway2/MOD02/clustering'
