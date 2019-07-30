@@ -1,6 +1,9 @@
 # _*_ coding: utf-8_*_
 #
 # library for data alignment with MOD35 Cloud Fraction Data
+# 
+# + Description
+#   07/30/2019: Update patch-wise mean method from prg_sklearn_randomforest.oy
 #
 import os
 import gc
@@ -520,23 +523,26 @@ def gen_mod06_labels(m6_hdf, clouds_xy, nparams=4):
 
   # resolution should be 1km
   cot_sds = m6_hdf.select("Cloud_Optical_Thickness")
+  cer_sds = m6_hdf.select("Cloud_Effective_Radius")
   cwp_sds = m6_hdf.select("Cloud_Water_Path")
-  cpi_sds = m6_hdf.select("Cloud_Phase_Infrared_1km")
   ctp_sds = m6_hdf.select("cloud_top_pressure_1km")
+  cpi_sds = m6_hdf.select("Cloud_Phase_Infrared_1km")
 
   # decode after scaling & offset & nan process
   cot_array = mod06_proc_sds(cot_sds, 'Cloud_Optical_Thickness')
+  cer_array = mod06_proc_sds(cer_sds, 'Cloud_Effective_Radius')
   cwp_array = mod06_proc_sds(cwp_sds, 'Cloud_Water_Path')
-  cpi_array = mod06_proc_sds(cpi_sds, 'Cloud_Phase_Infrared_1km')
   ctp_array = mod06_proc_sds(ctp_sds, 'cloud_top_pressure_1km')
+  cpi_array = mod06_proc_sds(cpi_sds, 'Cloud_Phase_Infrared_1km')
 
   # integrate as one array 
   nx, ny = cot_array.shape
   d_list = [
     cot_array.reshape(nx,ny,1),
+    cer_array.reshape(nx,ny,1),
     cwp_array.reshape(nx,ny,1),
-    cpi_array.reshape(nx,ny,1),
     ctp_array.reshape(nx,ny,1),
+    cpi_array.reshape(nx,ny,1),
   ]
 
   # concatenate
@@ -545,7 +551,7 @@ def gen_mod06_labels(m6_hdf, clouds_xy, nparams=4):
   # patchenaization
   mod06_patches = _gen_patches(mod06_img, normalization=False, flag_nan=True)
   mod06_patches_mean = np.nanmean(mod06_patches, axis=(2,3))
-  prep_phase = copy.deepcopy(mod06_patches[:,:,:,:,2])
+  prep_phase = copy.deepcopy(mod06_patches[:,:,:,:,-1])
   _x, _y = mod06_patches.shape[:2]
   phase_mode = np.zeros((_x,_y))
   for i in range(_x):
@@ -557,26 +563,21 @@ def gen_mod06_labels(m6_hdf, clouds_xy, nparams=4):
   for idx, (x,y) in enumerate(clouds_xy):
     cpi_modes[x,y] = phase_mode[x,y]
   # finally join cpi mode to mod06_patches_mean
-  mod06_patches_mean[:,:,2] = cpi_modes
+  mod06_patches_mean[:,:,-1] = cpi_modes
   
   # Process mod06 patches where align with clouds_xy information
-  mod06_patches_valid = np.zeros((mod06_patches_mean.shape))
-  mod06_patches_valid.astype(float)
-  mod06_patches_valid[:,:] = np.nan
-
-  for i in clouds_xy:
+  #index_list = []
+  mod06_patches_valid = []
+  for idx , i in enumerate(clouds_xy):
     ii,jj = i
-    mod06_patches_valid[ii,jj] = mod06_patches_mean[ii,jj]
+    if not np.isnan(mod06_patches_mean[ii,jj]).any():
+      mod06_patches_valid.append(mod06_patches_mean[ii,jj])
+      #index_list.append(idx)
 
-  xx, yy = mod06_patches_valid.shape[:2]
-  tmp = mod06_patches_valid.reshape(xx*yy,nparams)
-  clist = []
-  for i in tmp:
-    if not np.isnan(i).any(): # <-- here maybe any
-    #if not np.isnan(i).all():
-        clist.append(i)
+
   #Finally get labels == patch-wise mean physics parameters
-  encs_labels = np.asarray(clist)
+  #encs_labels = np.asarray(clist)
+  encs_labels = np.asarray(mod06_patches_valid)
 
   return encs_labels
 
