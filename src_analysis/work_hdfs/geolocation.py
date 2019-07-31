@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from pyhdf.SD import SD, SDC
 
-hdf_libdir = '/home/koenig1/scratch-midway2/clouds/src_analysis/lib_hdfs' # change here
+hdf_libdir = '/Users/katykoeing/Desktop/clouds/src_analysis/lib_hdfs' # change here
 sys.path.insert(1, os.path.join(sys.path[0], hdf_libdir))
 from alignment_lib import gen_mod35_img
 import prg_StatsInvPixel as stats
@@ -231,21 +231,32 @@ def apply_func(x, y):
             (big_lat, big_lon)]
 
 
-def join_dataframes(coords_df, invals_df):
+def apply_cleaning_fn(x):
+    '''
+    '''
+    int_lst = list(map(float, re.findall('[-|0-9|\.]*[0-9]', x)))
+    tups = list(zip(int_lst[::2], int_lst[1::2]))
+    return geometry.Polygon(tups)
+
+
+def join_dataframes(coords_csv, invals_csv):
     '''
     Joins the dataframe with the number of invalid pixels per patch with the
     dataframe that contains geographic info for each patch
 
     Inputs:
-        coords_df: a pandas dataframe
-        invals_df: a pandas dataframe
+        coords_csv: a csv file
+        invals_csv: a csv file
 
     Outputs:
         merged_gdf: a geopandas dataframe
     '''
-    merged_df = pd.merge(coords_df, invals_df, on=['filname', 'patch_no'])
-    merged_gdf = gpd.GeoDataFrame(merged_df, geometry='geom')
-    merged_gdf['geom'] = merged_gdf['geom'].convex_hull
+    invals_csv = pd.read_csv(invals_df)
+    coords_df = pd.read_csv(coords_csv)
+    coords_df['geometry'] = coords_df['geometry'].apply(lambda x: apply_cleaning_fn(x))
+    merged_df = pd.merge(coords_df, invals_df, on=['filename', 'patch_no'])
+    merged_gdf = gpd.GeoDataFrame(merged_df, geometry='geometry')
+    merged_gdf['geometry'] = merged_gdf['geometry'].convex_hull
     return merged_gdf
 
 
@@ -278,6 +289,8 @@ def create_map(dataframe, colname, img_name):
     sm._A = []
     fig.colorbar(sm, cax=cbax, format="%d")
     plt.savefig(img_name)
+
+
 
 
 def join_plot_show_distrib(coords_df, invals_df, colname='num_invalids', img_name='inval_pixels_map.png'):
