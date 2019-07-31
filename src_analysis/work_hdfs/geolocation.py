@@ -11,19 +11,19 @@ import csv
 import glob
 import argparse
 import copy
+import re
 import multiprocessing as mp
 import numpy as np
 import pandas as pd
 from shapely import geometry
 import geopandas as gpd
 import matplotlib.pyplot as plt
-import seaborn as sns
 from pyhdf.SD import SD, SDC
+import prg_StatsInvPixel as stats
 
 hdf_libdir = '/Users/katykoeing/Desktop/clouds/src_analysis/lib_hdfs' # change here
 sys.path.insert(1, os.path.join(sys.path[0], hdf_libdir))
 from alignment_lib import gen_mod35_img
-import prg_StatsInvPixel as stats
 
 MOD02_DIRECTORY = '/home/koenig1/scratch-midway2/MOD02/clustering'
 MOD03_DIRECTORY = '/home/koenig1/scratch-midway2/MOD03/clustering'
@@ -231,18 +231,11 @@ def apply_func(x, y):
             (big_lat, big_lon)]
 
 
-def apply_cleaning_fn(x):
-    '''
-    '''
-    int_lst = list(map(float, re.findall('[-|0-9|\.]*[0-9]', x)))
-    tups = list(zip(int_lst[::2], int_lst[1::2]))
-    return geometry.Polygon(tups)
-
-
 def join_dataframes(coords_csv, invals_csv):
     '''
     Joins the dataframe with the number of invalid pixels per patch with the
-    dataframe that contains geographic info for each patch
+    dataframe that contains geographic info for each patch and converts merged
+    dataframe to mappable/plottable geodataframe
 
     Inputs:
         coords_csv: a csv file
@@ -251,13 +244,60 @@ def join_dataframes(coords_csv, invals_csv):
     Outputs:
         merged_gdf: a geopandas dataframe
     '''
-    invals_csv = pd.read_csv(invals_df)
+    # Read in CSVs and ensure no duplicate rows
+    invals_df = pd.read_csv(invals_csv)
+    invals_df.drop_duplicates(inplace=True)
     coords_df = pd.read_csv(coords_csv)
-    coords_df['geometry'] = coords_df['geometry'].apply(lambda x: apply_cleaning_fn(x))
+    coords_df.drop_duplicates(inplace=True)
+    # Join two dataframes
     merged_df = pd.merge(coords_df, invals_df, on=['filename', 'patch_no'])
+    # Converts geometry column to usable list of lats/lons
+    # (instead of one long string)
+    merged_df['geometry'] = merged_df['geometry'] \
+                            .apply(lambda x: list(map(float,
+                                                      re.findall('[-|0-9|\.]*[0-9]',
+                                                                 x))))
+    # Drops obs with invalid coordinates (e.g. latitude = -999)
+    merged_df = find_invalid_lats_lons(merged_df)
+    # Turns geometry column to list of tuples as (lat, lon) points
+    merged_df['geometry'] = merged_df['geometry'].apply(lambda x: list(zip(x[1::2], x[::2])))
+    # Turns geometry column into polygon shape to plot
+    merged_df['geometry'] = merged_df['geometry'].apply(lambda x: geometry.Polygon(x))
     merged_gdf = gpd.GeoDataFrame(merged_df, geometry='geometry')
+    # Turns 4 corners into boundaries
     merged_gdf['geometry'] = merged_gdf['geometry'].convex_hull
     return merged_gdf
+
+
+def find_invalid_lats_lons(df, col='geometry'):
+    '''
+    Checks latitude & longitude values of a given geometry column to ensure
+    that they are valid values, i.e. latitude values are between -90 and 90
+    and longitude values are between -180 and 180, and removes observations
+    with invalid values
+
+    Inputs:
+        df: a pandas dataframe
+        col(str): name of geometry column
+
+    Outputs:
+        new_df: a pandas dataframe
+    '''
+    d = {'lats': [0, 90], 'lons': [1, 180]}
+    inval_idx = []
+    for key in d:
+        start, max_val = d[key]
+        df[key] = df[col].apply(lambda x: x[start::2])
+        df_name = key + '_df'
+        df_name = pd.DataFrame(df[key].tolist())
+        for column in df_name.columns:
+            issue_idx = df_name[df_name[column] \
+                        .apply(lambda x: abs(x) > max_val)].index.tolist()
+            inval_idx += issue_idx
+        df.drop(columns=[key], inplace=True)
+    inval_set = set(inval_idx)
+    new_df = df[~df.index.isin(inval_set)]
+    return new_df
 
 
 def create_map(dataframe, colname, img_name):
@@ -270,39 +310,26 @@ def create_map(dataframe, colname, img_name):
 
     Outputs: None (saves plot to current directory as a png)
     '''
-    _, ax = plt.subplots(1, figsize=(50, 50))
+    _, ax = plt.subplots(1, figsize=(100, 100))
     df = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
-    dataframe.plot(axes=ax, alpha=0.5, column=colname, vmin=min(dataframe.colname),
-                   vmax=max(dataframe.colname), cmap='summer')
-    df.plot(axes=ax, color='white', edgecolor='black')
+    df.plot(ax=ax, color='white', edgecolor='black')
+    dataframe.plot(ax=ax, alpha=0.1, column=colname, vmin=min(dataframe[colname]),
+                   vmax=max(dataframe[colname]), cmap='summer')
 
     # Code for legend adjustment informed by stackoverflow response found here:
     # https://stackoverflow.com/questions/54236083/geopandas-reduce-legend-size-and-remove-white-space-below-map
-    ax.set_title('Patches with Invalid Pixels', size=30)
+    ax.set_title('Patches with Invalid Pixels', size=20)
     ax.grid()
     fig = ax.get_figure()
     cbax = fig.add_axes([0.91, 0.3, 0.03, 0.39])
-    cbax.set_title('Number of Invalid Pixels', size=20)
+    cbax.set_title('Number of Invalid Pixels', size=5)
     sm = plt.cm.ScalarMappable(cmap='summer',
-                               norm=plt.Normalize(vmin=min(dataframe.colname),
-                                                  vmax=max(dataframe.col_name)))
+                               norm=plt.Normalize(vmin=min(dataframe[colname]),
+                                                  vmax=max(dataframe[colname])))
     sm._A = []
     fig.colorbar(sm, cax=cbax, format="%d")
     plt.savefig(img_name)
 
-
-
-
-def join_plot_show_distrib(coords_df, invals_df, colname='num_invalids', img_name='inval_pixels_map.png'):
-    '''
-
-    Inputs:
-
-    Outputs:
-    '''
-    joined_gdf = join_dataframes(coords_df, invals_df)
-    create_map(joined_gdf, colname, img_name)
-    joined_gdf[codes].sum()
 
 
 if __name__ == "__main__":
