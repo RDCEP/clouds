@@ -124,6 +124,53 @@ def make_patches(mod02_path, latitude, longitude):
     return np.stack(patches), np.stack(latitudes), np.stack(longitudes), fillvalue_list
 
 
+PATCH_DICT = {'MOD021KM.A2006011.1435.061.2017260224818.hdf': 80,
+ 'MOD021KM.A2002280.1900.061.2017182182901.hdf': 0,
+ 'MOD021KM.A2002135.0615.061.2017181144843.hdf': 92,
+ 'MOD021KM.A2006143.0230.061.2017194223145.hdf': 0,
+ 'MOD021KM.A2002149.0455.061.2017181155144.hdf': 18,
+ 'MOD021KM.A2007120.1455.061.2017248153838.hdf': 0,
+ 'MOD021KM.A2017110.2255.061.2017314043402.hdf': 63,
+ 'MOD021KM.A2017303.1525.061.2017304012556.hdf': 33,
+ 'MOD021KM.A2017240.0830.061.2017317014141.hdf': 80,
+ 'MOD021KM.A2011203.1800.061.2017325065655.hdf': 29}
+
+def find_spec_patch(file, patches, clouds_mask, fillvalue_list, width=128, height=128, thres=0.3):
+    '''
+    Inputs:
+        file(str): name of MOD02 file to be used only as identifier in CSV row
+        patches: numpy array of arrays representing MOD02 patches
+        clouds_mask: numpy array created from MOD35 image
+        fillvalue_list: list of integers for each fill value
+        width(int): number of pixels for width of a siengle patch
+        height(int): number of pixels for height of a srngle path
+        thres(float): number between 0 and 1 representing the percentage
+          required of cloud cover to be considered an analyzable patch
+
+    Outputs: None (appends to existing csv)
+    '''
+    nx, ny = patches.shape[:2]
+        patch_counter = 0
+        desired_patch = PATCH_DICT[file]
+        for i in range(nx):
+            for j in range(ny):
+                # Indexes for matching lats/lons for each patch
+                if not np.isnan(patches[i, j]).any():
+                    tmp = cloud_mask[i*width:(i+1)*width, j*height:(j+1)*height]
+                    if np.any(tmp == 0):
+                        nclouds = len(np.argwhere(tmp == 0))
+                        if nclouds / (width * height) > thres:
+                            if patch_counter == desired_patch:
+                                return patches[i, j]
+                            patch_counter += 1
+
+
+def plot_patch():
+    '''
+    '''
+    patch = find_spec_patch(file, patches, clouds_mask, fillvalue_list)
+
+
 def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
                         longitudes, cloud_mask, width=128, height=128,
                         thres=0.3):
