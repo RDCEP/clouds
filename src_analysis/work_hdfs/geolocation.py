@@ -125,28 +125,17 @@ def make_patches(mod02_path, latitude=None, longitude=None):
     return np.stack(patches), np.stack(latitudes), np.stack(longitudes), fillvalue_list
 
 
-PATCH_DICT = {'MOD021KM.A2006011.1435.061.2017260224818.hdf': 80,
-<<<<<<< HEAD
- 'MOD021KM.A2002280.1900.061.2017182182901.hdf': 0,
- 'MOD021KM.A2002135.0615.061.2017181144843.hdf': 92,
- 'MOD021KM.A2006143.0230.061.2017194223145.hdf': 0,
- 'MOD021KM.A2002149.0455.061.2017181155144.hdf': 18,
- 'MOD021KM.A2007120.1455.061.2017248153838.hdf': 0,
- 'MOD021KM.A2017110.2255.061.2017314043402.hdf': 63,
- 'MOD021KM.A2017303.1525.061.2017304012556.hdf': 33,
- 'MOD021KM.A2017240.0830.061.2017317014141.hdf': 80,
- 'MOD021KM.A2011203.1800.061.2017325065655.hdf': 29}
-=======
-              'MOD021KM.A2002280.1900.061.2017182182901.hdf': 0,
-              'MOD021KM.A2002135.0615.061.2017181144843.hdf': 92,
-              'MOD021KM.A2006143.0230.061.2017194223145.hdf': 0,
-              'MOD021KM.A2002149.0455.061.2017181155144.hdf': 18,
-              'MOD021KM.A2007120.1455.061.2017248153838.hdf': 0,
-              'MOD021KM.A2017110.2255.061.2017314043402.hdf': 63,
-              'MOD021KM.A2017303.1525.061.2017304012556.hdf': 33,
-              'MOD021KM.A2017240.0830.061.2017317014141.hdf': 80,
-              'MOD021KM.A2011203.1800.061.2017325065655.hdf': 29}
->>>>>>> e82155e7ebb9a03666b739ac8e976d2fbb41633b
+PATCH_DICT = {'MOD021KM.A2006011.1435.061.2017260224818.hdf': ['MOD35_L2.A2006011.1435.061.2017261011021.hdf', 80],
+              'MOD021KM.A2002280.1900.061.2017182182901.hdf': ['MOD35_L2.A2002280.1900.061.2017253233720.hdf', 0],
+              'MOD021KM.A2002135.0615.061.2017181144843.hdf': ['MOD35_L2.A2002135.0615.061.2017251030517.hdf', 92],
+              'MOD021KM.A2006143.0230.061.2017194223145.hdf': ['MOD35_L2.A2006143.0230.061.2017264231242.hdf', 0],
+              'MOD021KM.A2002149.0455.061.2017181155144.hdf': ['MOD35_L2.A2002149.0455.061.2017251161148.hdf', 18],
+              'MOD021KM.A2007120.1455.061.2017248153838.hdf': ['MOD35_L2.A2007120.1455.061.2017280090632.hdf', 0],
+              'MOD021KM.A2017110.2255.061.2017314043402.hdf': ['MOD35_L2.A2017110.2255.061.2017314070909.hdf', 63],
+              'MOD021KM.A2017303.1525.061.2017304012556.hdf': ['MOD35_L2.A2017303.1525.061.2017304012716.hdf', 33],
+              'MOD021KM.A2017240.0830.061.2017317014141.hdf': ['MOD35_L2.A2017240.0830.061.2017317025921.hdf', 80],
+              'MOD021KM.A2011203.1800.061.2017325065655.hdf': ['MOD35_L2.A2011203.1800.061.2017325083429.hdf', 29]}
+
 
 def find_spec_patch(file, patches, cloud_mask, fillvalue_list, width=128, height=128, thres=0.3):
     '''
@@ -164,7 +153,7 @@ def find_spec_patch(file, patches, cloud_mask, fillvalue_list, width=128, height
     '''
     nx, ny = patches.shape[:2]
     patch_counter = 0
-    desired_patch = PATCH_DICT[file]
+    desired_patch[1] = PATCH_DICT[file]
     for i in range(nx):
         for j in range(ny):
             # Indexes for matching lats/lons for each patch
@@ -178,18 +167,18 @@ def find_spec_patch(file, patches, cloud_mask, fillvalue_list, width=128, height
                         patch_counter += 1
 
 
-def plot_patches(file_lst, file_dir):
+def plot_patches(file_dir, patch_d=PATCH_DICT):
     '''
 
     Inputs:
-        file_lst:
         file_dir(str):
+        patch_d(dict):
 
     Outputs: Saved png files of cloud images
     '''
-    for tup in files_lst:
-        mod02_path = file_dir + tup[0]
-        mod03_path = file_dir + tup[1]
+    for key, val in patch_d.items():
+        mod02_path = file_dir + key
+        mod03_path = file_dir + val[0]
         patches = make_patches(mod02_path)
         hdf_m35 = SD(mod03_path, SDC_READ)
         cloud_mask = stats.gen_mod35_img(hdf_m35)
