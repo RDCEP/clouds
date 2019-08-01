@@ -112,11 +112,11 @@ def make_patches(mod02_path, latitude, longitude):
         for j in range(0, swath.shape[1], stride):
             if i + patch_size <= swath.shape[0] and j + patch_size <= swath.shape[1]:
                 p = swath[i:i + patch_size, j:j + patch_size].astype(float)
-                lat = latitude[i:i + patch_size, j:j + patch_size].astype(float)
-                lon = longitude[i:i + patch_size, j:j + patch_size].astype(float)
+                #lat = latitude[i:i + patch_size, j:j + patch_size].astype(float)
+                #lon = longitude[i:i + patch_size, j:j + patch_size].astype(float)
                 patch_row.append(p)
-                lat_row.append(lat)
-                lon_row.append(lon)
+                #lat_row.append(lat)
+                #lon_row.append(lon)
         if patch_row:
             patches.append(patch_row)
             latitudes.append(lat_row)
@@ -150,19 +150,19 @@ def find_spec_patch(file, patches, clouds_mask, fillvalue_list, width=128, heigh
     Outputs: None (appends to existing csv)
     '''
     nx, ny = patches.shape[:2]
-        patch_counter = 0
-        desired_patch = PATCH_DICT[file]
-        for i in range(nx):
-            for j in range(ny):
-                # Indexes for matching lats/lons for each patch
-                if not np.isnan(patches[i, j]).any():
-                    tmp = cloud_mask[i*width:(i+1)*width, j*height:(j+1)*height]
-                    if np.any(tmp == 0):
-                        nclouds = len(np.argwhere(tmp == 0))
-                        if nclouds / (width * height) > thres:
-                            if patch_counter == desired_patch:
-                                return patches[i, j]
-                            patch_counter += 1
+    patch_counter = 0
+    desired_patch = PATCH_DICT[file]
+    for i in range(nx):
+        for j in range(ny):
+            # Indexes for matching lats/lons for each patch
+            if not np.isnan(patches[i, j]).any():
+                tmp = cloud_mask[i*width:(i+1)*width, j*height:(j+1)*height]
+                if np.any(tmp == 0):
+                    nclouds = len(np.argwhere(tmp == 0))
+                    if nclouds / (width * height) > thres:
+                        if patch_counter == desired_patch:
+                            return patches[i, j]
+                        patch_counter += 1
 
 
 def plot_patch():
