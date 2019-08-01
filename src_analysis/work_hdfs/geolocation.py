@@ -16,12 +16,12 @@ import multiprocessing as mp
 import numpy as np
 import pandas as pd
 from shapely import geometry
-import geopandas as gpd
+#import geopandas as gpd
 import matplotlib.pyplot as plt
 from pyhdf.SD import SD, SDC
 import prg_StatsInvPixel as stats
 
-hdf_libdir = '/Users/katykoeing/Desktop/clouds/src_analysis/lib_hdfs' # change here
+hdf_libdir = '/home/koenig1/clouds/src_analysis/lib_hdfs' # change here
 sys.path.insert(1, os.path.join(sys.path[0], hdf_libdir))
 from alignment_lib import gen_mod35_img
 
@@ -135,7 +135,7 @@ PATCH_DICT = {'MOD021KM.A2006011.1435.061.2017260224818.hdf': 80,
  'MOD021KM.A2017240.0830.061.2017317014141.hdf': 80,
  'MOD021KM.A2011203.1800.061.2017325065655.hdf': 29}
 
-def find_spec_patch(file, patches, clouds_mask, fillvalue_list, width=128, height=128, thres=0.3):
+def find_spec_patch(file, patches, cloud_mask, fillvalue_list, width=128, height=128, thres=0.3):
     '''
     Inputs:
         file(str): name of MOD02 file to be used only as identifier in CSV row
