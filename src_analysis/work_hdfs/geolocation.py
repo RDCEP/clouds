@@ -88,7 +88,7 @@ def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY,
         print("No mod35 file downloaded for " + date)
 
 
-def make_patches(mod02_path, latitude, longitude):
+def make_patches(mod02_path, latitude=None, longitude=None):
     '''
     Converts data for an entire hdf image into appropriate sized patches
 
@@ -112,11 +112,12 @@ def make_patches(mod02_path, latitude, longitude):
         for j in range(0, swath.shape[1], stride):
             if i + patch_size <= swath.shape[0] and j + patch_size <= swath.shape[1]:
                 p = swath[i:i + patch_size, j:j + patch_size].astype(float)
-                #lat = latitude[i:i + patch_size, j:j + patch_size].astype(float)
-                #lon = longitude[i:i + patch_size, j:j + patch_size].astype(float)
+                if latitude:
+                    lat = latitude[i:i + patch_size, j:j + patch_size].astype(float)
+                    lon = longitude[i:i + patch_size, j:j + patch_size].astype(float)
+                    lat_row.append(lat)
+                    lon_row.append(lon)
                 patch_row.append(p)
-                #lat_row.append(lat)
-                #lon_row.append(lon)
         if patch_row:
             patches.append(patch_row)
             latitudes.append(lat_row)
@@ -125,17 +126,17 @@ def make_patches(mod02_path, latitude, longitude):
 
 
 PATCH_DICT = {'MOD021KM.A2006011.1435.061.2017260224818.hdf': 80,
- 'MOD021KM.A2002280.1900.061.2017182182901.hdf': 0,
- 'MOD021KM.A2002135.0615.061.2017181144843.hdf': 92,
- 'MOD021KM.A2006143.0230.061.2017194223145.hdf': 0,
- 'MOD021KM.A2002149.0455.061.2017181155144.hdf': 18,
- 'MOD021KM.A2007120.1455.061.2017248153838.hdf': 0,
- 'MOD021KM.A2017110.2255.061.2017314043402.hdf': 63,
- 'MOD021KM.A2017303.1525.061.2017304012556.hdf': 33,
- 'MOD021KM.A2017240.0830.061.2017317014141.hdf': 80,
- 'MOD021KM.A2011203.1800.061.2017325065655.hdf': 29}
+              'MOD021KM.A2002280.1900.061.2017182182901.hdf': 0,
+              'MOD021KM.A2002135.0615.061.2017181144843.hdf': 92,
+              'MOD021KM.A2006143.0230.061.2017194223145.hdf': 0,
+              'MOD021KM.A2002149.0455.061.2017181155144.hdf': 18,
+              'MOD021KM.A2007120.1455.061.2017248153838.hdf': 0,
+              'MOD021KM.A2017110.2255.061.2017314043402.hdf': 63,
+              'MOD021KM.A2017303.1525.061.2017304012556.hdf': 33,
+              'MOD021KM.A2017240.0830.061.2017317014141.hdf': 80,
+              'MOD021KM.A2011203.1800.061.2017325065655.hdf': 29}
 
-def find_spec_patch(file, patches, clouds_mask, fillvalue_list, width=128, height=128, thres=0.3):
+def find_spec_patch(file, patches, cloud_mask, fillvalue_list, width=128, height=128, thres=0.3):
     '''
     Inputs:
         file(str): name of MOD02 file to be used only as identifier in CSV row
@@ -165,10 +166,25 @@ def find_spec_patch(file, patches, clouds_mask, fillvalue_list, width=128, heigh
                         patch_counter += 1
 
 
-def plot_patch():
+def plot_patches(file_lst, file_dir):
     '''
+
+    Inputs:
+        file_lst:
+        file_dir(str):
+
+    Outputs: Saved png files of cloud images
     '''
-    patch = find_spec_patch(file, patches, clouds_mask, fillvalue_list)
+    for tup in files_lst:
+        mod02_path = file_dir + tup[0]
+        mod03_path = file_dir + tup[1]
+        patches = make_patches(mod02_path)
+        hdf_m35 = SD(mod03_path, SDC_READ)
+        cloud_mask = stats.gen_mod35_img(hdf_m35)
+        patch = find_spec_patch(file, patches, clouds_mask, fillvalue_list)
+        for band in range(patch[2]):
+            plt.imshow(patch[:, :, band], cmap='jet')
+            plt.savefig(tup[0] + '_' + str(band) + '.png')
 
 
 def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
