@@ -173,7 +173,6 @@ def download_from_name(file, keyword, outputdir, start_time):
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument('--input_csv', type=str, default="inval_files.csv")
-    p.add_argument('--keyword', type=str)
     p.add_argument('--outputdir', type=str, default='/home/koenig1/scratch-midway2/MOD03/clustering/invalid_pixels')
     p.add_argument('--processors', type=int, default=mp.cpu_count() - 1)
     args = p.parse_args()
@@ -187,6 +186,7 @@ if __name__ == "__main__":
     files_df = pd.read_csv(input_csv)
     file_lst = files_df['filename'].tolist()
     for file in file_lst:
+        keyword = file[0:5]
         args_lst.append((file, keyword, args.outputdir, start_time))
     pool.starmap_async(download_from_name, args_lst)
     pool.close()
