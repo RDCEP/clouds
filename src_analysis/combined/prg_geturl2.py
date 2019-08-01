@@ -172,9 +172,9 @@ def download_from_name(file, keyword, outputdir, start_time):
 # Code commented out below was used to download correspond to download_from_name function
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
-    p.add_argument('--input_csv', type=str, default="inval_files.csv")
-    p.add_argument('--outputdir', type=str, default='/home/koenig1/scratch-midway2/MOD03/clustering/invalid_pixels')
-    p.add_argument('--processors', type=int, default=mp.cpu_count() - 1)
+    p.add_argument('--input_csv', type=str, default="random.csv")
+    p.add_argument('--outputdir', type=str, default='/home/koenig1/scratch-midway2/randomly_chosen_invals')
+    p.add_argument('--processors', type=int, default=25)
     args = p.parse_args()
     os.makedirs(args.outputdir, exist_ok=True)
     start_time = datetime.datetime.now()
@@ -183,7 +183,7 @@ if __name__ == "__main__":
     pool = mp.Pool(processes=args.processors)
     # Loads data and creates arg tuple for each worker in pool
     args_lst = []
-    files_df = pd.read_csv(input_csv)
+    files_df = pd.read_csv(args.input_csv)
     file_lst = files_df['filename'].tolist()
     for file in file_lst:
         keyword = file[0:5]
