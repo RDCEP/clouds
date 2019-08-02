@@ -183,9 +183,15 @@ def plot_patches(file_dir, patch_d=PATCH_DICT):
         hdf_m35 = SD(mod03_path, SDC_READ)
         cloud_mask = stats.gen_mod35_img(hdf_m35)
         patch = find_spec_patch(file, patches, clouds_mask, fillvalue_list)
-        for band in range(patch[2]):
-            plt.imshow(patch[:, :, band], cmap='jet')
-            plt.savefig(tup[0] + '_' + str(band) + '.png')
+        fig, axs = plt.subplots(6, 1)
+        for ax, interp in zip(axs, range(patch[2])):
+            print(interp)
+            ax.imshow(patch[:, :, interp])
+            ax.set_title(interp.capitalize())
+        plt.savefig(tup[0] + '.png')
+        # for band in range(patch[2]):
+        #     plt.imshow(patch[:, :, band], cmap='jet')
+        #     plt.savefig(tup[0] + '_' + str(band) + '.png')
 
 
 def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
