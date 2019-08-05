@@ -27,7 +27,7 @@ DATE_FILE = ''
 COORDINATES_FILE = ''
 
 # WHERE DO YOU WANT THE FILES TO BE SAVED?
-DESIRED_DIR = None
+DESIRED_DIR = ''
 
 ### Function to make csv of coordinates for patches ####
 ### Feel free to add/delete any coordinates as needed ####
