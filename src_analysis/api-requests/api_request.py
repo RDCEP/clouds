@@ -21,8 +21,9 @@ import laads_data_download as ldd
 EMAIL = 'koenig1@uchicago.edu'
 APP_KEY = '126AA2A4-96BA-11E9-9D2C-D7883D88392C'
 ########################################################
-DATE_FILE = 'dates.txt'
-COORDINATES_FILE = 'coords.csv'
+DATE_FILE = '/home/koenig1/scratch-midway2/clouds/src_analysis/combined/clustering_mod35_list.txt'
+COORDINATES_FILE = 'specific_locations.csv'
+DESIRED_DIR = '/home/koenig1/scratch-midway2/'
 
 ### Function to make csv of coordinates for patches ####
 ### Feel free to add/delete any coordinates as needed ####
@@ -63,8 +64,9 @@ def clear_all_orders(email_address=EMAIL):
     '''
     alive_lst = get_alive_orders(email_address)
     if alive_lst:
-        print('Releasing Orders')
+        print('Releasing Orders:')
         for order in alive_lst:
+            print(order)
             release_order(order, email_address)
 
 
@@ -90,7 +92,7 @@ def get_alive_orders(email_address):
     for o_id in order_ids:
         status = requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/getOrderStatus?orderId=' + str(o_id))
         soup = BeautifulSoup(status.content, 'html5lib')
-        if soup.find('return').text == 'Available':
+        if soup.find('return').text != 'Canceled':
             alive_orders.append(o_id)
         else:
             counter += 1
@@ -160,11 +162,16 @@ def find_files(prods='MOD06_L2--61', dates=DATE_FILE, coords=COORDINATES_FILE, e
                     soup = BeautifulSoup(response.content, 'html5lib')
                     file_ids = []
                     for f_id in soup.find_all('return'):
-                        file_ids.append(f_id.text)
+                        order_txt = f_id.text
+                        # Checks to ensure valid order number
+                        if len(order_txt) == 10:
+                            if order_txt != 'No results':
+                                file_ids.append(order_txt)
                     # Order downloads of files
                     order_params = {'email': email_address, 'doMosaic': 'True', 'fileIds': ','.join(file_ids)}
                     total_params.append(order_params)
-                    destination = 'data/' + str(prods) + '/clustering/' + str(location) + '/' + str(date)
+                    destination = DESIRED_DIR + str(prods) + '/clustering' + str(location)
+                    #destination = 'data/' + str(prods) + '/clustering/' + str(location) + '/' + str(date)
                     destination_lst.append(destination)
     return total_params, destination_lst
 
@@ -215,6 +222,8 @@ def order_files(order_params, order_ids):
         order_soup = BeautifulSoup(order_response.content, 'html5lib')
         order_ids.append(int(order_soup.find('return').text))
     else:
+        print(order_response.text)
+        print(order_params)
         print("Retrying NASA orderFiles API")
         time.sleep(5)
         order_files(order_params, order_ids)
