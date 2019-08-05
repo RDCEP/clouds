@@ -164,6 +164,8 @@ def find_spec_patch(file, patches, cloud_mask, fillvalue_list, width=128, height
                     nclouds = len(np.argwhere(tmp == 0))
                     if nclouds / (width * height) > thres:
                         if patch_counter == desired_patch:
+                            for iband in range(6):
+                                print(np.where(patches[i, j, :, :, iband]>=32767))
                             return patches[i, j]
                         patch_counter += 1
 
@@ -186,7 +188,7 @@ def plot_patches(file_dir, patch_d=PATCH_DICT):
         patch = find_spec_patch(key, patches, cloud_mask, fillvalue_list)
         fig, axs = plt.subplots(6, 1)
         for ax, interp in zip(axs, range(6)):
-            ax.imshow(patch[:, :, interp])
+            ax.imshow(patch[:, :, interp], cmap='viridis')
             ax.set_title(key[10:17] + '_' + str(interp), fontsize=8)
         plt.savefig("clouds-imgs/" + key[10:17] + '.png')
         print("Completed: " + key[10:17])
