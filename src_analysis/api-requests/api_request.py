@@ -168,11 +168,12 @@ def find_files(prods='MOD06_L2--61', dates=DATE_FILE, coords=COORDINATES_FILE, e
                             if order_txt != 'No results':
                                 file_ids.append(order_txt)
                     # Order downloads of files
-                    order_params = {'email': email_address, 'doMosaic': 'True', 'fileIds': ','.join(file_ids)}
-                    total_params.append(order_params)
-                    destination = DESIRED_DIR + str(prods) + '/clustering' + str(location)
-                    #destination = 'data/' + str(prods) + '/clustering/' + str(location) + '/' + str(date)
-                    destination_lst.append(destination)
+                    if file_ids:
+                        order_params = {'email': email_address, 'doMosaic': 'True', 'fileIds': ','.join(file_ids)}
+                        total_params.append(order_params)
+                        destination = DESIRED_DIR + str(prods) + '/clustering' + str(location)
+                        #destination = 'data/' + str(prods) + '/clustering/' + str(location) + '/' + str(date)
+                        destination_lst.append(destination)
     return total_params, destination_lst
 
 
