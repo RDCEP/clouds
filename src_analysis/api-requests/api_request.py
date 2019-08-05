@@ -21,9 +21,13 @@ import laads_data_download as ldd
 EMAIL = 'koenig1@uchicago.edu'
 APP_KEY = '126AA2A4-96BA-11E9-9D2C-D7883D88392C'
 ########################################################
-DATE_FILE = '/home/koenig1/scratch-midway2/clouds/src_analysis/combined/clustering_mod35_list.txt'
-COORDINATES_FILE = 'specific_locations.csv'
-DESIRED_DIR = '/home/koenig1/scratch-midway2/'
+
+### MAKE SURE YOU HAVE THE RIGHT FILENAMES FOR COORDINATES_FILE AND DATE_FILE
+DATE_FILE = ''
+COORDINATES_FILE = ''
+
+# WHERE DO YOU WANT THE FILES TO BE SAVED?
+DESIRED_DIR = ''
 
 ### Function to make csv of coordinates for patches ####
 ### Feel free to add/delete any coordinates as needed ####
