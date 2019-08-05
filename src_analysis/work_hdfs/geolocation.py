@@ -153,7 +153,8 @@ def find_spec_patch(file, patches, cloud_mask, fillvalue_list, width=128, height
     '''
     nx, ny = patches.shape[:2]
     patch_counter = 0
-    desired_patch[1] = PATCH_DICT[file]
+    value = PATCH_DICT[file]
+    desired_patch = value[1]
     for i in range(nx):
         for j in range(ny):
             # Indexes for matching lats/lons for each patch
@@ -179,16 +180,16 @@ def plot_patches(file_dir, patch_d=PATCH_DICT):
     for key, val in patch_d.items():
         mod02_path = file_dir + key
         mod03_path = file_dir + val[0]
-        patches = make_patches(mod02_path)
-        hdf_m35 = SD(mod03_path, SDC_READ)
+        patches, _, _, fillvalue_list = make_patches(mod02_path)
+        hdf_m35 = SD(mod03_path, SDC.READ)
         cloud_mask = stats.gen_mod35_img(hdf_m35)
-        patch = find_spec_patch(file, patches, clouds_mask, fillvalue_list)
+        patch = find_spec_patch(key, patches, cloud_mask, fillvalue_list)
         fig, axs = plt.subplots(6, 1)
-        for ax, interp in zip(axs, range(patch[2])):
-            print(interp)
+        for ax, interp in zip(axs, range(6)):
             ax.imshow(patch[:, :, interp])
-            ax.set_title(interp.capitalize())
-        plt.savefig(tup[0] + '.png')
+            ax.set_title(key[10:17] + '_' + str(interp), fontsize=8)
+        plt.savefig("clouds-imgs/" + key[10:17] + '.png')
+        print("Completed: " + key[10:17])
         # for band in range(patch[2]):
         #     plt.imshow(patch[:, :, band], cmap='jet')
         #     plt.savefig(tup[0] + '_' + str(band) + '.png')
