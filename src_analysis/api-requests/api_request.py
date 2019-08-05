@@ -8,6 +8,7 @@ Functions to request downloads of modis data from NASA API
 import os
 from sys import argv
 import time
+import datetime
 import csv
 import requests
 from bs4 import BeautifulSoup
@@ -38,14 +39,14 @@ def write_csv(outputfile='coords.csv'):
     with open(outputfile, 'w') as csvfile:
         outputwriter = csv.writer(csvfile, delimiter=',')
         outputwriter.writerow(['name', 'north', 'south', 'east', 'west'])
-        #outputwriter.writerow(['open_pacific', 32.5, 12.4, 127.7, -155.4])
-        #outputwriter.writerow(['open_south_sf', -34.3, -49.9, 40.2, 23.5])
-        #outputwriter.writerow(['closed_west_sf', -19.6, -44.9, 14.2, -5.6])
-        #outputwriter.writerow(['open_west_atlantic', 42, 23.6, -48.1, -74.7])
-        #outputwriter.writerow(['closed_east_atlantic', 33.6, 12.4, -15.9, -37.5])
+        outputwriter.writerow(['open_pacific', 32.5, 12.4, 127.7, -155.4])
+        outputwriter.writerow(['open_south_sf', -34.3, -49.9, 40.2, 23.5])
+        outputwriter.writerow(['closed_west_sf', -19.6, -44.9, 14.2, -5.6])
+        outputwriter.writerow(['open_west_atlantic', 42, 23.6, -48.1, -74.7])
+        outputwriter.writerow(['closed_east_atlantic', 33.6, 12.4, -15.9, -37.5])
         outputwriter.writerow(['open_chile', -4, -34.5, -107.6, -137.3])
-        #outputwriter.writerow(['closed_chile', -6.5, -31.8, -72.3, -102.3])
-        #outputwriter.writerow(['closed_california', 32.6, 3.4, -109.6, -135.9])
+        outputwriter.writerow(['closed_chile', -6.5, -31.8, -72.3, -102.3])
+        outputwriter.writerow(['closed_california', 32.6, 3.4, -109.6, -135.9])
     csvfile.close()
 
 
@@ -143,23 +144,28 @@ def find_files(prods='MOD06_L2--61', dates=DATE_FILE, coords=COORDINATES_FILE, e
         search_params['south'] = row[1][2]
         search_params['east'] = row[1][3]
         search_params['west'] = row[1][4]
+        bad_start = datetime.datetime.strptime('08-29-2006', '%m-%d-%Y')
+        bad_end = datetime.datetime.strptime('08-04-2008', '%m-%d-%Y')
         # Iterate through date list of each location
         for date in label_dates[:-1]:
             if date not in bad_dates['date']:
-                search_params['startTime'] = str(date) + ' 00:00:00'
-                search_params['endTime'] = str(date) + ' 23:59:59'
-                # Find relevant files
-                response = requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/searchForFiles?',
-                                        search_params)
-                soup = BeautifulSoup(response.content, 'html5lib')
-                file_ids = []
-                for f_id in soup.find_all('return'):
-                    file_ids.append(f_id.text)
-                # Order downloads of files
-                order_params = {'email': email_address, 'doMosaic': 'True', 'fileIds': ','.join(file_ids)}
-                total_params.append(order_params)
-                destination = 'data/' + str(prods) + '/clustering/' + str(location) + '/' + str(date)
-                destination_lst.append(destination)
+                # Checks to ensure that in bad time period (when issue w/ detector)
+                dt_obj = datetime.datetime.strptime(date, '%Y-%m-%d')
+                if not bad_start < dt_obj < bad_end:
+                    search_params['startTime'] = date + ' 00:00:00'
+                    search_params['endTime'] = date + ' 23:59:59'
+                    # Find relevant files
+                    response = requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/searchForFiles?',
+                                            search_params)
+                    soup = BeautifulSoup(response.content, 'html5lib')
+                    file_ids = []
+                    for f_id in soup.find_all('return'):
+                        file_ids.append(f_id.text)
+                    # Order downloads of files
+                    order_params = {'email': email_address, 'doMosaic': 'True', 'fileIds': ','.join(file_ids)}
+                    total_params.append(order_params)
+                    destination = 'data/' + str(prods) + '/clustering/' + str(location) + '/' + str(date)
+                    destination_lst.append(destination)
     return total_params, destination_lst
 
 
