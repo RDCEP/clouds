@@ -176,8 +176,7 @@ def find_files(prods='MOD06_L2--61', dates=DATE_FILE, coords=COORDINATES_FILE, e
                     if file_ids:
                         order_params = {'email': email_address, 'doMosaic': 'True', 'fileIds': ','.join(file_ids)}
                         total_params.append(order_params)
-                        destination = DESIRED_DIR + str(prods) + '/clustering' + str(location)
-                        #destination = 'data/' + str(prods) + '/clustering/' + str(location) + '/' + str(date)
+                        destination = DESIRED_DIR + str(prods) + '/clustering' + str(location) + '/' + str(date)
                         destination_lst.append(destination)
     return total_params, destination_lst
 
@@ -202,7 +201,7 @@ def batch_order_and_delete(total_params, destination_lst, token=APP_KEY, email_a
             order_files(order_param, order_ids)
         print('Waiting for Availability to Download')
         # NASA takes minutes to prepare files
-        time.sleep(300)
+        time.sleep(500)
         for i in range(len(order_ids)):
             order = order_ids[i]
             destination = dest_chunk[i]
@@ -241,7 +240,7 @@ def download_order(order, destination, token=APP_KEY):
 
     Inputs:
         order(int): order number
-        destination(str): lfolder name to save file
+        destination(str): folder name to save file
         token(str): app key from NASA
 
     Outputs: None (saved images)
