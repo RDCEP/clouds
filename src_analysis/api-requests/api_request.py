@@ -96,11 +96,11 @@ def get_alive_orders(email_address):
     for o_id in order_ids:
         status = requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/getOrderStatus?orderId=' + str(o_id))
         soup = BeautifulSoup(status.content, 'html5lib')
-        if soup.find('return').text != 'Canceled':
+        if soup.find('return').text not in ['Canceled', 'Removed', 'Expired']:
             alive_orders.append(o_id)
         else:
             counter += 1
-            if counter == 150:
+            if counter == 300:
                 return alive_orders
     return alive_orders
 
