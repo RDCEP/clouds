@@ -100,8 +100,9 @@ def get_alive_orders(email_address):
             alive_orders.append(o_id)
         else:
             counter += 1
-            if counter == 10:
+            if counter == 150:
                 return alive_orders
+    return alive_orders
 
 
 def release_order(order, email_address=EMAIL):
