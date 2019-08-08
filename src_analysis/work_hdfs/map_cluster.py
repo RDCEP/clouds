@@ -6,7 +6,6 @@ August 2019
 Functions to Map Clusters
 (specifically cluster 0)
 '''
-
 import os
 import csv
 import glob
@@ -18,6 +17,8 @@ DIR_NPZ = 'output_clouds_feature_2000_2018_validfiles'
 
 def find_related_files(txt_file, input_dir):
     '''
+	Given a txt file of a list of npz files, finds the related npz files as
+	well as the corresponding npy_file
 
     Inputs:
         txt_file(str):
