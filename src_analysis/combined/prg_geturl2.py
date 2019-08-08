@@ -191,8 +191,8 @@ if __name__ == "__main__":
     # Loads data and creates arg tuple for each worker in pool
     args_lst = []
     files_df = pd.read_csv(args.input_csv)
-    file_lst = files_df['filename'].tolist()
-    for file in file_lst:
+    file_set = set(files_df['filename'].tolist())
+    for file in file_set:
         args_lst.append((file, keyword, args.outputdir, start_time))
     pool.starmap_async(download_from_name, args_lst)
     pool.close()
