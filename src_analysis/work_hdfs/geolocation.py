@@ -30,8 +30,7 @@ MOD03_DIRECTORY = '/home/koenig1/scratch-midway2/MOD03/clustering'
 MOD35_DIRECTORY = '/home/koenig1/scratch-midway2/MOD35/clustering'
 INVALIDS_CSV = 'patches_with_invalid_pixels.csv'
 OUTPUT_CSV = 'output_07262019.csv'
-KEYS = ['filename', 'patch_no', 'latitude', 'longitude', 65535, 65534,
-        65533, 65532, 65531, 65530, 65529, 65528, 65527, 65526, 65524,
+KEYS = ['filename', 'patch_no', 'invalid_pixels', 'latitude', 'longitude',
         'geometry']
 
 def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY,
@@ -223,8 +222,6 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
     Outputs: Appends to existing csv file
     '''
     keys = copy.deepcopy(KEYS)
-    codes = [65535, 65534, 65533, 65532, 65531, 65530, 65529, 65528, 65527,
-             65526, 65524]
     keys.remove('geometry')
     # Initializes dictionary to be written to csv at end of fn
     results = {key: [] for key in keys}
@@ -237,17 +234,23 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
                 lat = latitudes[i, j]
                 lon = longitudes[i, j]
                 if not np.isnan(patches[i, j]).any():
-                    tmp = cloud_mask[i*width:(i+1)*width, j*height:(j+1)*height]
+                    tmp = cloud_mask[i * width:(i + 1) * width,
+                                     j * height:(j + 1) * height]
                     if np.any(tmp == 0):
                         nclouds = len(np.argwhere(tmp == 0))
                         if nclouds / (width * height) > thres:
+                            n_inv_pixel = 0
+                            for iband in range(6):
+                                tmp_array = patches[i, j, :, :, iband]
+                                tmp_fillvalue = fillvalue_list[iband]
+                                err_idx = np.where((tmp_array >= sdsmax) & \
+                                          (tmp_array < tmp_fillvalue))
+                                n_inv_pixel += len(err_idx[0])
                             results['filename'].append(file[-44:])
                             results['patch_no'].append(patch_counter)
+                            results['invalid_pixels'].append(n_inv_pixel)
                             results['latitude'].append(lat)
                             results['longitude'].append(lon)
-                            # Finds number of bands with each error code
-                            for code in codes:
-                                results[code].append(fillvalue_list.count(code))
                             patch_counter += 1
         results_df = pd.DataFrame.from_dict(results)
         # Gets square shape for each patch
