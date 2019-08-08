@@ -139,7 +139,7 @@ def combining_fn(iline, url, thresval, outputdir, start_time):
 
 BASE_URL = {'MOD02': 'https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD021KM/',
             'MOD35': 'https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD35_L2/', 
-            'MOD06': 'https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD06_L2/'
+            'MOD06': 'https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD06_L2/',
             'MOD03': 'https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD03/'}
 
 def download_from_name(file, keyword, outputdir, start_time):
