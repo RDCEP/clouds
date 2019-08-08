@@ -163,13 +163,12 @@ def find_spec_patch(file, patches, cloud_mask, fillvalue_list, width=128, height
         for j in range(ny):
             # Indexes for matching lats/lons for each patch
             if not np.isnan(patches[i, j]).any():
-                tmp = cloud_mask[i*width:(i+1)*width, j*height:(j+1)*height]
+                tmp = cloud_mask[i * width:(i + 1) * width,
+                                 j * height:(j + 1) * height]
                 if np.any(tmp == 0):
                     nclouds = len(np.argwhere(tmp == 0))
                     if nclouds / (width * height) > thres:
                         if patch_counter == desired_patch:
-                            for iband in range(6):
-                                print(np.where(patches[i, j, :, :, iband] >= 32767))
                             return patches[i, j]
                         patch_counter += 1
 
