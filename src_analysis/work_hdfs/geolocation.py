@@ -139,17 +139,21 @@ PATCH_DICT = {'MOD021KM.A2006011.1435.061.2017260224818.hdf': ['MOD35_L2.A200601
 
 def find_spec_patch(file, patches, cloud_mask, fillvalue_list, width=128, height=128, thres=0.3):
     '''
+    Finds as specific patch in a cloud image as specified by the patch
+    count in the MOD02 filename    
+
     Inputs:
         file(str): name of MOD02 file to be used only as identifier in CSV row
         patches: numpy array of arrays representing MOD02 patches
         clouds_mask: numpy array created from MOD35 image
         fillvalue_list: list of integers for each fill value
-        width(int): number of pixels for width of a siengle patch
-        height(int): number of pixels for height of a srngle path
+        width(int): number of pixels for width of a single patch
+        height(int): number of pixels for height of a single path
         thres(float): number between 0 and 1 representing the percentage
           required of cloud cover to be considered an analyzable patch
 
-    Outputs: None (appends to existing csv)
+    Outputs: 
+        Specific patch (array of arrays) in an image as described in the inputs
     '''
     nx, ny = patches.shape[:2]
     patch_counter = 0
@@ -165,7 +169,7 @@ def find_spec_patch(file, patches, cloud_mask, fillvalue_list, width=128, height
                     if nclouds / (width * height) > thres:
                         if patch_counter == desired_patch:
                             for iband in range(6):
-                                print(np.where(patches[i, j, :, :, iband]>=32767))
+                                print(np.where(patches[i, j, :, :, iband] >= 32767))
                             return patches[i, j]
                         patch_counter += 1
 
