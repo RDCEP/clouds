@@ -150,7 +150,7 @@ def find_spec_patch(file, patches, cloud_mask, fillvalue_list, width=128, height
         width(int): number of pixels for width of a single patch
         height(int): number of pixels for height of a single path
         thres(float): number between 0 and 1 representing the percentage
-          required of cloud cover to be considered an analyzable patch
+                      required of cloud cover to be considered an analyzable patch
 
     Outputs: 
         Specific patch (array of arrays) in an image as described in the inputs
@@ -175,10 +175,12 @@ def find_spec_patch(file, patches, cloud_mask, fillvalue_list, width=128, height
 
 def plot_patches(file_dir, patch_d=PATCH_DICT):
     '''
+    Saves plot of specific patch
 
     Inputs:
-        file_dir(str):
-        patch_d(dict):
+        file_dir(str): name of directory in which MOD35 files are stored
+        patch_d(dict): dictionary which connects MOD02 filename to MOD35
+                       filename and the patch number to be plotted
 
     Outputs: Saved png files of cloud images
     '''
@@ -282,7 +284,7 @@ def apply_func(x, y):
         Note that both x and y have MANY coordinates
 
     Outputs: a new column of a pandas dataframe with a list of four point
-            coordinates
+             coordinates
     '''
     big_lat = float("-inf")
     small_lat = float("inf")
