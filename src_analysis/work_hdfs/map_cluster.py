@@ -81,6 +81,7 @@ def connect_files(npy_file, npz_files, num_patches, npz_dir=DIR_NPZ):
     for npz_file in npz_files:
         match = re.search(r'2[0-9]*\.[0-9]*(?=\_)', npz_file)
         if match:
+            #should add check to see if .npz file exits 
             npz_array = np.load(glob.glob(npz_dir + '/*' + str(match.group()) + '*.npz')[0])
             ij_list = npz_array['clouds_xy']
             for idx in ij_list:
@@ -117,12 +118,7 @@ def gen_mod03(mod03_path):
     return latitude, longitude
 
 
-# speedier to:
-# gen mod03 images first (need to make set from filenames in dict)
-    # maybe make df then sort by filename?
-# then get specific patch lat/lon
-
-def test(info_df, mod03_dir):
+def add_geolocation(info_df, mod03_dir):
     '''
 
     Inputs:
