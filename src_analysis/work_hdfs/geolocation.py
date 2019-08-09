@@ -187,7 +187,7 @@ def plot_patches(file_dir, patch_d=PATCH_DICT):
         mod02_path = file_dir + key
         mod03_path = file_dir + val[0]
         patches, _, _, fillvalue_list = make_patches(mod02_path)
-        hdf_m35 = SD(mod03_path, SDC.READ)
+        hdf_m35 = SD(mod35_path, SDC.READ)
         cloud_mask = stats.gen_mod35_img(hdf_m35)
         patch = find_spec_patch(key, patches, cloud_mask, fillvalue_list)
         fig, axs = plt.subplots(nrows=6, ncols=1, figsize=(15, 15))
@@ -271,13 +271,14 @@ def find_corners(results_df):
     Outputs: geodataframe
     '''
     results_df['geom'] = results_df.apply(lambda row: \
-                                          apply_func(row['latitude'],
-                                                     row['longitude']), axis=1)
+                                          apply_func_corners(row['latitude'],
+                                                             row['longitude']),
+                                                             axis=1)
     results_df['geom'] = results_df['geom'].apply(geometry.Polygon)
     return results_df.drop(columns=['latitude', 'longitude'])
 
 
-def apply_func(x, y):
+def apply_func_corners(x, y):
     '''
     Finds the four corners points of a rectangular patch using greedy algorithm
 
