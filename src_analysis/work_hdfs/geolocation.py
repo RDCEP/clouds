@@ -260,22 +260,20 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
     csvfile.close()
 
 
-def find_corners(results_df):
+def find_corners(results_df, lat_col='latitude', lon_col='longitude'):
     '''
     Turns a dataframe with latitude and longitude columns into a geodataframe
 
     Inputs:
         dataframe: pandas dataframe with a column that is a list of coordinates
-        n_parts(int): number of partitions of the dataframe to be created
 
     Outputs: geodataframe
     '''
     results_df['geom'] = results_df.apply(lambda row: \
-                                          apply_func_corners(row['latitude'],
-                                                             row['longitude']),
-                                                             axis=1)
+                                          apply_func_corners(row[lat_col],
+                                                             row[lon_col]), axis=1)
     results_df['geom'] = results_df['geom'].apply(geometry.Polygon)
-    return results_df.drop(columns=['latitude', 'longitude'])
+    return results_df.drop(columns=[lat_col, lon_col])
 
 
 def apply_func_corners(x, y):
