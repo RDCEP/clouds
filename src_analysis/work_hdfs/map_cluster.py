@@ -16,7 +16,8 @@ import geolocation
 
 
 PRIORITY_TXT = 'filelist_metadata_train_random-80000_nc-20_m01_b28_29_31_patches_labels_2000-2018_random_aggl.txt'
-DIR_NPZ = 'output_clouds_feature_2000_2018_validfiles'
+DIR_NPZ = '/home/koenig1/scratch-midway2/clusters_20/output_clouds_feature_2000_2018_validfiles'
+INPUT_DIR = '/home/koenig1/scratch-midway2/clusters_20/group0'
 
 def find_related_files(txt_file, input_dir):
     '''
@@ -128,22 +129,27 @@ def add_geolocation(info_df, mod03_dir):
     Outputs:
 
     '''
-    lst_of_files = info_df['filename'].unique()
-    geo_d = {'filename': [], 'latitude': [], 'longitude': []}
+    missing_mod03_files = []
+    lst_of_files = info_df['file'].unique()
+    geo_d = {'file': [], 'lat': [], 'long': []}
     for file in lst_of_files:
-        mod03_path = glob.glob(mod03_dir + '/MOD03*' + file +'*.hdf')
-        latitude, longitude = gen_mod03(mod03_path)
-        geo_d['filename'].append(file)
-        geo_d['lat'].append(latitude)
-        geo_d['long'].append(longitude)
+        found_file = glob.glob(mod03_dir + '/MOD03*' + file +'*.hdf')
+        if found_file:
+            mod03_path = found_file[0]
+            latitude, longitude = gen_mod03(mod03_path)
+            geo_d['file'].append(file)
+            geo_d['lat'].append(latitude)
+            geo_d['long'].append(longitude)
+        else:
+            missing_mod03_files.append(file)
     geo_df = pd.DataFrame(geo_d)
-    merged = pd.merge(info_df, geo_df, how='left', on='filename')
-    merged['lat'], merged['long'] = merged.apply(lambda x:
-                                                 gen_coords(x['lat'],
-                                                            x['long'],
-                                                            x['indices']), axis=1)
-    return geolocation.find_corners(merged, 'lat', 'lon')
-
+    merged = pd.merge(info_df, geo_df, how='left', on='file')
+    #merged['lat'], merged['long'] = merged.apply(lambda x:
+    #                                             gen_coords(x['lat'],
+    #                                                        x['long'],
+    #                                                        x['indices']), axis=1)
+    #return geolocation.find_corners(merged, 'lat', 'lon'), missing_mod03_files
+    return merged, missing_mod03_files
 
 def gen_coords(latitudes, longitudes, indices, patch_size=128):
     '''
