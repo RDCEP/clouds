@@ -30,8 +30,7 @@ MOD03_DIRECTORY = '/home/koenig1/scratch-midway2/MOD03/clustering'
 MOD35_DIRECTORY = '/home/koenig1/scratch-midway2/MOD35/clustering'
 INVALIDS_CSV = 'patches_with_invalid_pixels.csv'
 OUTPUT_CSV = 'output_07262019.csv'
-KEYS = ['filename', 'patch_no', 'latitude', 'longitude', 65535, 65534,
-        65533, 65532, 65531, 65530, 65529, 65528, 65527, 65526, 65524,
+KEYS = ['filename', 'patch_no', 'invalid_pixels', 'latitude', 'longitude',
         'geometry']
 
 def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY,
@@ -139,17 +138,21 @@ PATCH_DICT = {'MOD021KM.A2006011.1435.061.2017260224818.hdf': ['MOD35_L2.A200601
 
 def find_spec_patch(file, patches, cloud_mask, fillvalue_list, width=128, height=128, thres=0.3):
     '''
+    Finds as specific patch in a cloud image as specified by the patch
+    count in the MOD02 filename    
+
     Inputs:
         file(str): name of MOD02 file to be used only as identifier in CSV row
         patches: numpy array of arrays representing MOD02 patches
         clouds_mask: numpy array created from MOD35 image
         fillvalue_list: list of integers for each fill value
-        width(int): number of pixels for width of a siengle patch
-        height(int): number of pixels for height of a srngle path
+        width(int): number of pixels for width of a single patch
+        height(int): number of pixels for height of a single path
         thres(float): number between 0 and 1 representing the percentage
-          required of cloud cover to be considered an analyzable patch
+                      required of cloud cover to be considered an analyzable patch
 
-    Outputs: None (appends to existing csv)
+    Outputs: 
+        Specific patch (array of arrays) in an image as described in the inputs
     '''
     nx, ny = patches.shape[:2]
     patch_counter = 0
@@ -159,23 +162,24 @@ def find_spec_patch(file, patches, cloud_mask, fillvalue_list, width=128, height
         for j in range(ny):
             # Indexes for matching lats/lons for each patch
             if not np.isnan(patches[i, j]).any():
-                tmp = cloud_mask[i*width:(i+1)*width, j*height:(j+1)*height]
+                tmp = cloud_mask[i * width:(i + 1) * width,
+                                 j * height:(j + 1) * height]
                 if np.any(tmp == 0):
                     nclouds = len(np.argwhere(tmp == 0))
                     if nclouds / (width * height) > thres:
                         if patch_counter == desired_patch:
-                            for iband in range(6):
-                                print(np.where(patches[i, j, :, :, iband]>=32767))
                             return patches[i, j]
                         patch_counter += 1
 
 
 def plot_patches(file_dir, patch_d=PATCH_DICT):
     '''
+    Saves plot of specific patch
 
     Inputs:
-        file_dir(str):
-        patch_d(dict):
+        file_dir(str): name of directory in which MOD35 files are stored
+        patch_d(dict): dictionary which connects MOD02 filename to MOD35
+                       filename and the patch number to be plotted
 
     Outputs: Saved png files of cloud images
     '''
@@ -183,7 +187,7 @@ def plot_patches(file_dir, patch_d=PATCH_DICT):
         mod02_path = file_dir + key
         mod03_path = file_dir + val[0]
         patches, _, _, fillvalue_list = make_patches(mod02_path)
-        hdf_m35 = SD(mod03_path, SDC.READ)
+        hdf_m35 = SD(mod35_path, SDC.READ)
         cloud_mask = stats.gen_mod35_img(hdf_m35)
         patch = find_spec_patch(key, patches, cloud_mask, fillvalue_list)
         fig, axs = plt.subplots(nrows=6, ncols=1, figsize=(15, 15))
@@ -218,8 +222,6 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
     Outputs: Appends to existing csv file
     '''
     keys = copy.deepcopy(KEYS)
-    codes = [65535, 65534, 65533, 65532, 65531, 65530, 65529, 65528, 65527,
-             65526, 65524]
     keys.remove('geometry')
     # Initializes dictionary to be written to csv at end of fn
     results = {key: [] for key in keys}
@@ -232,17 +234,23 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
                 lat = latitudes[i, j]
                 lon = longitudes[i, j]
                 if not np.isnan(patches[i, j]).any():
-                    tmp = cloud_mask[i*width:(i+1)*width, j*height:(j+1)*height]
+                    tmp = cloud_mask[i * width:(i + 1) * width,
+                                     j * height:(j + 1) * height]
                     if np.any(tmp == 0):
                         nclouds = len(np.argwhere(tmp == 0))
                         if nclouds / (width * height) > thres:
+                            n_inv_pixel = 0
+                            for iband in range(6):
+                                tmp_array = patches[i, j, :, :, iband]
+                                tmp_fillvalue = fillvalue_list[iband]
+                                err_idx = np.where((tmp_array >= sdsmax) & \
+                                          (tmp_array < tmp_fillvalue))
+                                n_inv_pixel += len(err_idx[0])
                             results['filename'].append(file[-44:])
                             results['patch_no'].append(patch_counter)
+                            results['invalid_pixels'].append(n_inv_pixel)
                             results['latitude'].append(lat)
                             results['longitude'].append(lon)
-                            # Finds number of bands with each error code
-                            for code in codes:
-                                results[code].append(fillvalue_list.count(code))
                             patch_counter += 1
         results_df = pd.DataFrame.from_dict(results)
         # Gets square shape for each patch
@@ -252,24 +260,23 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
     csvfile.close()
 
 
-def find_corners(results_df):
+def find_corners(results_df, lat_col='latitude', lon_col='longitude'):
     '''
     Turns a dataframe with latitude and longitude columns into a geodataframe
 
     Inputs:
         dataframe: pandas dataframe with a column that is a list of coordinates
-        n_parts(int): number of partitions of the dataframe to be created
 
     Outputs: geodataframe
     '''
     results_df['geom'] = results_df.apply(lambda row: \
-                                          apply_func(row['latitude'],
-                                                     row['longitude']), axis=1)
+                                          apply_func_corners(row[lat_col],
+                                                             row[lon_col]), axis=1)
     results_df['geom'] = results_df['geom'].apply(geometry.Polygon)
-    return results_df.drop(columns=['latitude', 'longitude'])
+    return results_df.drop(columns=[lat_col, lon_col])
 
 
-def apply_func(x, y):
+def apply_func_corners(x, y):
     '''
     Finds the four corners points of a rectangular patch using greedy algorithm
 
@@ -279,7 +286,7 @@ def apply_func(x, y):
         Note that both x and y have MANY coordinates
 
     Outputs: a new column of a pandas dataframe with a list of four point
-            coordinates
+             coordinates
     '''
     big_lat = float("-inf")
     small_lat = float("inf")

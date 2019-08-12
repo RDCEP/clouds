@@ -139,23 +139,31 @@ def combining_fn(iline, url, thresval, outputdir, start_time):
 
 BASE_URL = {'MOD02': 'https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD021KM/',
             'MOD35': 'https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD35_L2/', 
-            'MOD06': 'https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD06_L2/'
+            'MOD06': 'https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD06_L2/',
             'MOD03': 'https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD03/'}
 
 def download_from_name(file, keyword, outputdir, start_time):
     '''
+    Downloads files based on the desired date/time of the hdf file.
+    This is used for downloaded a corresponding file, e.g. you have the MOD02
+    file downloaded (and it's name) and want the corresponding MOD35 file.
 
     Inputs:
-        file(str):
-        keyword(str):
-        outputdir(str):
+        file(str): name of desired file with only year, date and time info
+            e.g. '2011169.0420'
+        keyword(str): name of desired product
+            (see keys of BASE_URL dictionary above for options)
+        outputdir(str): name of directory in which to store files
 
     Outputs: saved HDF files
     '''
+    diff = 12 - len(file)
+    file = file + '0' * diff
     base_url = BASE_URL[keyword]
-    year = file[10:14]
-    date = file[14:17]
-    time = file[18:22]
+    year = file[0:4]
+    print(file)
+    date = file[4:7]
+    time = file[8:12]
     url = base_url + year + '/' + date + '/'
     response = requests.get(url)
     if response.status_code == 200:
@@ -173,9 +181,10 @@ def download_from_name(file, keyword, outputdir, start_time):
 # Code commented out below was used to download correspond to download_from_name function
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
-    p.add_argument('--input_csv', type=str, default="random.csv")
-    p.add_argument('--outputdir', type=str, default='/home/koenig1/scratch-midway2/randomly_chosen_invals')
-    p.add_argument('--processors', type=int, default=25)
+    p.add_argument('--input_csv', type=str, default="needed_MOD03.csv")
+    p.add_argument('--keyword', type=str, default='MOD03')
+    p.add_argument('--outputdir', type=str, default='/home/koenig1/scratch-midway2/clusters_20')
+    p.add_argument('--processors', type=int, default=20)
     args = p.parse_args()
     os.makedirs(args.outputdir, exist_ok=True)
     start_time = datetime.datetime.now()
@@ -185,10 +194,10 @@ if __name__ == "__main__":
     # Loads data and creates arg tuple for each worker in pool
     args_lst = []
     files_df = pd.read_csv(args.input_csv)
-    file_lst = files_df['filename'].tolist()
-    for file in file_lst:
-        keyword = file[0:5]
-        args_lst.append((file, keyword, args.outputdir, start_time))
+    file_set = set(files_df['filename'].tolist())
+    print(len(file_set))
+    for file in file_set:
+        args_lst.append((str(file), args.keyword, args.outputdir, start_time))
     pool.starmap_async(download_from_name, args_lst)
     pool.close()
     pool.join()
