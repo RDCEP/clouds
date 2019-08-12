@@ -168,7 +168,7 @@ def download_from_name(file, keyword, outputdir, start_time):
     response = requests.get(url)
     if response.status_code == 200:
         # Gets specific href for only 1 time (not all images on a page)
-        href_list = get_href_lists2(url, time)
+        href_list = get_href_lists2(url, '.' + time)
         for ihref in href_list:
             https = url + os.path.basename(ihref)
             response = requests.get(https)
@@ -181,7 +181,7 @@ def download_from_name(file, keyword, outputdir, start_time):
 # Code commented out below was used to download correspond to download_from_name function
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
-    p.add_argument('--input_csv', type=str, default="needed_MOD03.csv")
+    p.add_argument('--input_csv', type=str, default="/scratch/midway2/koenig1/clouds/src_analysis/work_hdfs/missing_mod03.csv")
     p.add_argument('--keyword', type=str, default='MOD03')
     p.add_argument('--outputdir', type=str, default='/home/koenig1/scratch-midway2/clusters_20')
     p.add_argument('--processors', type=int, default=20)
@@ -193,7 +193,7 @@ if __name__ == "__main__":
     pool = mp.Pool(processes=args.processors)
     # Loads data and creates arg tuple for each worker in pool
     args_lst = []
-    files_df = pd.read_csv(args.input_csv)
+    files_df = pd.read_csv(args.input_csv, dtype='str')
     file_set = set(files_df['filename'].tolist())
     print(len(file_set))
     for file in file_set:
