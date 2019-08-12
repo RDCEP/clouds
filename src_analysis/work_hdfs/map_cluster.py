@@ -21,8 +21,8 @@ INPUT_DIR = '/home/koenig1/scratch-midway2/clusters_20/group0'
 
 def find_related_files(txt_file, input_dir):
     '''
-	Given a txt file of a list of npz files, finds the related npz files as
-	well as the corresponding npy_file
+    Given a txt file of a list of npz files, finds the related npz files as
+    well as the corresponding npy_file
 
     Inputs:
         txt_file(str):
@@ -119,7 +119,7 @@ def gen_mod03(mod03_path):
     return latitude, longitude
 
 
-def add_geolocation(info_df, mod03_dir):
+def add_mod03_data(info_df, mod03_dir):
     '''
 
     Inputs:
@@ -144,12 +144,18 @@ def add_geolocation(info_df, mod03_dir):
             missing_mod03_files.append(file)
     geo_df = pd.DataFrame(geo_d)
     merged = pd.merge(info_df, geo_df, how='left', on='file')
-    #merged['lat'], merged['long'] = merged.apply(lambda x:
-    #                                             gen_coords(x['lat'],
-    #                                                        x['long'],
-    #                                                        x['indices']), axis=1)
-    #return geolocation.find_corners(merged, 'lat', 'lon'), missing_mod03_files
     return merged, missing_mod03_files
+
+
+def get_specific_geo(merged):
+    '''
+    '''
+    merged['lat'], merged['long'] = merged.apply(lambda x:
+                                                gen_coords(x['lat'],
+                                                           x['long'],
+                                                           x['indices']), axis=1)
+    return geolocation.find_corners(merged, 'lat', 'lon'), missing_mod03_files
+
 
 def gen_coords(latitudes, longitudes, indices, patch_size=128):
     '''
