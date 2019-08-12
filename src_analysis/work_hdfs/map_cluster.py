@@ -12,13 +12,16 @@ import re
 import ast
 import numpy as np
 import pandas as pd
+import geopandas as gpd
 from pyhdf.SD import SD, SDC
 import geolocation
-
+import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
 
 PRIORITY_TXT = 'filelist_metadata_train_random-80000_nc-20_m01_b28_29_31_patches_labels_2000-2018_random_aggl.txt'
 DIR_NPZ = '/home/koenig1/scratch-midway2/clusters_20/output_clouds_feature_2000_2018_validfiles'
 INPUT_DIR = '/home/koenig1/scratch-midway2/clusters_20/group0'
+
 
 def find_related_files(txt_file, input_dir):
     '''
@@ -26,39 +29,17 @@ def find_related_files(txt_file, input_dir):
     well as the corresponding npy_file
 
     Inputs:
-        txt_file(str):
-        input_dir(str):
+        txt_file(str): txt file representing one iteration of clustering
+        input_dir(str): directory in which npz files are saved
 
     Outputs:
-        npy_file(str):
-        npz_files(list):
+        npy_file(str): name of numpy file for cluster iteration
+        npz_files(list): list of npz files related to the npy file
 
     '''
     npy_file = glob.glob(input_dir + '/*' +  txt_file[37:53] + '*.npy')[0]
     npz_files = open(input_dir + '/' + txt_file, 'r').read().split('.npz')[:-1]
     return npy_file, npz_files
-
-
-def find_related_np(input_dir, cluster_size=80000):
-    '''
-
-    Inputs:
-        input_dir(str):
-        cluster_size(int):
-
-    Outputs:
-
-    '''
-    corresponding_files = {}
-    relevant_files = []
-    for file in os.listdir(input_dir):
-        if 'txt' and str(cluster_size) in file:
-            relevant_files.append(file)
-    for txt_file in relevant_files:
-        npy_file, npz_files = find_related_files(txt_fle, input_dir)
-
-        corresponding_files[txt_file] = npz_files
-    return corresponding_files
 
 
 def connect_files(npy_file, npz_files, num_patches, npz_dir=DIR_NPZ):
@@ -106,11 +87,11 @@ def gen_mod03(mod03_path):
     longitude arrays
 
     Inputs:
-        mod03_path(str):
+        mod03_path(str): path and filename of mod03 hdf file
 
     Outputs:
-        latitude(np array):
-        longitude(np array):
+        latitude: numpy array of arrays with the latitudes of each pixel
+        longitude: numpy array of arrays with the longitudes of each pixel
     '''
     mod03_hdf = SD(mod03_path, SDC.READ)
     lat = mod03_hdf.select('Latitude')
@@ -120,15 +101,20 @@ def gen_mod03(mod03_path):
     return latitude, longitude
 
 
-def add_mod03_data(info_df, mod03_dir):
+def get_geo_df(info_df, mod03_dir):
     '''
 
+
     Inputs:
-        info_df(pandas df):
-        mod03_dir(str):
+        info_df: pandas dataframe with each row representing a path with its
+                 data/time location (file col), indices and cluster number
+        mod03_dir(str): folder in which mod03 files are saved
 
     Outputs:
-
+        geo_df: pandas dataframe with the lat/lon information for each file
+                in info_df
+        missing_mod03_files: list of files from the file col in info_df for
+                             which the MOD03 file has not yet been downloaded
     '''
     missing_mod03_files = []
     lst_of_files = info_df['file'].unique()
@@ -144,36 +130,144 @@ def add_mod03_data(info_df, mod03_dir):
         else:
             missing_mod03_files.append(file)
     geo_df = pd.DataFrame(geo_d)
-    #merged = pd.merge(info_df, geo_df, how='left', on='file')
     return geo_df, missing_mod03_files
 
 
 def get_specific_geo(merged):
     '''
+    Locates the patch-specific latitudinal and longitudinal data and finds
+    the four corners of each patch
+
+    Inputs:
+        merged: a pandas dataframe
+
+    Outputs:
+        a pandas dataframe with a 'geom' column as the column for representing
+        patch location
     '''
     merged['lat'] = merged.apply(lambda x: gen_coords(x['lat'], x['indices']), axis=1)
     merged['long'] = merged.apply(lambda x: gen_coords(x['long'], x['indices']), axis=1)
-    #return geolocation.find_corners(merged, 'lat', 'long')
-    return merged
+    return geolocation.find_corners(merged, 'lat', 'long')
 
-def gen_coords(latitudes, indices, patch_size=128):
+
+def gen_coords(geo_col, indices, patch_size=128):
     '''
+    Locates the patch-specific location details
+    (either lat or long depending on input column)
 
     Inputs:
-        latitudes():
-        longitudes():
-        indices(tuple):
-        stride(int):
-        patch_size(int):
+        geo_col(str): column with array of arrays
+        indices(tuple): (x, y) of related patch
+        patch_size(int): number of pixels in a patch
 
     Outputs:
-        patch_lat(np array):
-        patch_lon(np array):
+        patch_geo_info: np array with patch-specific info
     '''
     i, j = ast.literal_eval(indices)
     start_i = i * patch_size
     end_i = (i + 1) * patch_size
     start_j = j * patch_size
     end_j = (j + 1) * patch_size
-    patch_lat = latitudes[start_i:end_i, start_j:end_j].astype(float)
-    return patch_lat
+    patch_geo_info = geo_col[start_i:end_i, start_j:end_j].astype(float)
+    return patch_geo_info
+
+
+def combining_and_parallelize(txt_file, input_dir, npz_dir, mod03_dir,
+                              num_patches, output_csv):
+    '''
+    Combines above functions into one easily callable function, which files all
+    related files for a given txt file representing one iteration of clustering
+    and saves collected info into a csv for future use (specifically mapping below)
+
+    Inputs:
+        txt_file(str):
+        input_dir(str):
+        npz_dir(str):
+        mod03_dir(str):
+        num_patches(int):
+        output_csv(str):
+
+    Outputs: A saved csv
+    '''
+    npy_file, npz_files = find_related_files(txt_file, input_dir)
+    info_dict = connect_files(npy_file, npz_files, num_patches, npz_dir=DIR_NPZ)
+    geo_df, missing_mod03_files = get_geo_df(info_df, mod03_dir)
+    if not missing_mod03_files:
+        merged = pd.merge(info_df, geo_df, how='left', on='file')
+        # ADD PARALLELIZATION HERE OR WILL PROBABLY EXIT FROM OVERWORK
+        merged = get_specific_geo(merged)
+        merged.to_csv(output_csv, index=None)
+    else:
+        print('Missing mod03 files')
+        print('Saving missing as csv named missing_mod03.csv')
+        missing = pd.DataFrame(missing_mod03_files, dtype='str')
+        missing.to_csv('missing_mod03.csv', header=None, index=False)
+
+
+def find_related_np(input_dir, cluster_size=80000):
+    '''
+
+    Inputs:
+        input_dir(str):
+        cluster_size(int):
+
+    Outputs:
+
+    '''
+    corresponding_files = {}
+    relevant_files = []
+    for file in os.listdir(input_dir):
+        if 'txt' and str(cluster_size) in file:
+            relevant_files.append(file)
+    for txt_file in relevant_files:
+        npy_file, npz_files = find_related_files(txt_fle, input_dir)
+
+        corresponding_files[txt_file] = npz_files
+    return corresponding_files
+
+
+
+# Color list from https://sashat.me/2017/01/11/list-of-20-simple-distinct-colors/
+COLOR_LST = ['#E6194B', '#3CB44B', '#FFE119', '#4363D8', '#F58231', '#911EB4',
+             '#42D4F4', '#F032E6', '#BFEF45', '#FABEBE', '#469990', '#E6BEFF',
+             '#9A6324', '#FFFAC8', '#AAFFC3', '#808000', '#FFD8B1', '#000075',
+             '#A9A9A9', '#800000']
+
+
+def map_clusters(df, cluster_col, img_name):
+    '''
+    Maps clusters on a world mapped
+
+    Inputs:
+        df: a pandas dataframe
+        cluster_col(str): column name
+        img_name(str): name (and format) for saved image
+
+    Outputs: None (saved image)
+    '''
+    _, ax = plt.subplots(figsize=(100, 100))
+    world_df = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+    world_df.plot(ax=ax, color='white', edgecolor='black')
+    handle_lst = []
+    for cluster in sorted(df[cluster_col].unique()):
+        df[df[cluster_col] == cluster].plot(color=COLOR_LST[cluster], alpha=0.35, ax=ax)
+        handle = mpatches.Patch(color=COLOR_LST[cluster], label=cluster)
+        handle_lst.append(handle)
+    plt.legend(handles=handle_lst, bbox_to_anchor=(1.05, 1))
+    plt.savefig(img_name)
+
+
+def clean_and_plot(csvname, img_name, cluster_col='cluster_no'):
+    '''
+
+    Inputs:
+        csvname(str):
+        img_name(str):
+        cluster_col(str):
+
+    Outputs: a geopandas dataframe and a saved map
+    '''
+    df = pd.read_csv(csvname)
+    gdf = geo.clean_geom_col(df, 'geom')
+    map_clusters(gdf, cluster_col, img_name)
+    return gdf

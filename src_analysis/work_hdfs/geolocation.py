@@ -262,12 +262,13 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
 
 def find_corners(results_df, lat_col='latitude', lon_col='longitude'):
     '''
-    Turns a dataframe with latitude and longitude columns into a geodataframe
+    Converts latitude and longitude columns into more usable geom column with
+    lat/long data of the four corners of each patch
 
     Inputs:
         dataframe: pandas dataframe with a column that is a list of coordinates
 
-    Outputs: geodataframe
+    Outputs: a pandas dataframe with a 'geom' column
     '''
     results_df['geom'] = results_df.apply(lambda row: \
                                           apply_func_corners(row[lat_col],
