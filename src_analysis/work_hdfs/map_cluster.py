@@ -9,6 +9,7 @@ Functions to Map Clusters
 import os
 import glob
 import re
+import ast
 import numpy as np
 import pandas as pd
 from pyhdf.SD import SD, SDC
@@ -151,10 +152,10 @@ def get_specific_geo(merged):
     '''
     '''
     merged['lat'], merged['long'] = merged.apply(lambda x:
-                                                gen_coords(x['lat'],
-                                                           x['long'],
-                                                           x['indices']), axis=1)
-    return geolocation.find_corners(merged, 'lat', 'lon'), missing_mod03_files
+                                                 gen_coords(x['lat'],
+                                                            x['long'],
+                                                            x['indices']), axis=1)
+    return geolocation.find_corners(merged, 'lat', 'lon')
 
 
 def gen_coords(latitudes, longitudes, indices, patch_size=128):
@@ -171,7 +172,7 @@ def gen_coords(latitudes, longitudes, indices, patch_size=128):
         patch_lat(np array):
         patch_lon(np array):
     '''
-    i, j = indices
+    i, j = ast.literal_eval(indices)
     start_i = i * patch_size
     end_i = (i + 1) * patch_size
     start_j = j * patch_size
