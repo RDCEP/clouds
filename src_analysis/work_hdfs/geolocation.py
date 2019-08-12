@@ -16,14 +16,14 @@ import multiprocessing as mp
 import numpy as np
 import pandas as pd
 from shapely import geometry
-#import geopandas as gpd
+import geopandas as gpd
 import matplotlib.pyplot as plt
 from pyhdf.SD import SD, SDC
-import prg_StatsInvPixel as stats
+#import prg_StatsInvPixel as stats
 
-hdf_libdir = '/home/koenig1/clouds/src_analysis/lib_hdfs' # change here
+hdf_libdir = '/Users/katykoeing/Desktop/clouds/src_analysis/lib_hdfs' # change here
 sys.path.insert(1, os.path.join(sys.path[0], hdf_libdir))
-from alignment_lib import gen_mod35_img
+#from alignment_lib import gen_mod35_img
 
 MOD02_DIRECTORY = '/home/koenig1/scratch-midway2/MOD02/clustering'
 MOD03_DIRECTORY = '/home/koenig1/scratch-midway2/MOD03/clustering'
@@ -272,7 +272,6 @@ def find_corners(results_df, lat_col='latitude', lon_col='longitude'):
     results_df['geom'] = results_df.apply(lambda row: \
                                           apply_func_corners(row[lat_col],
                                                              row[lon_col]), axis=1)
-    results_df['geom'] = results_df['geom'].apply(geometry.Polygon)
     return results_df.drop(columns=[lat_col, lon_col])
 
 
@@ -328,22 +327,34 @@ def join_dataframes(coords_csv, invals_csv):
     coords_df.drop_duplicates(inplace=True)
     # Join two dataframes
     merged_df = pd.merge(coords_df, invals_df, on=['filename', 'patch_no'])
-    # Converts geometry column to usable list of lats/lons
-    # (instead of one long string)
-    merged_df['geometry'] = merged_df['geometry'] \
-                            .apply(lambda x: list(map(float,
-                                                      re.findall('[-|0-9|\.]*[0-9]',
+    merged_gdf = clean_geom_col(merged_df, 'geometry')
+    return merged_gdf
+
+
+def clean_geom_col(df, colname):
+    '''
+    Converts geometry column to usable list of lats/lons
+    (instead of one long string)
+
+    Inputs:
+        df: a panda dataframe
+        colname(str): name of column with geometry information
+
+    Outputs: a geopandas dataframe
+    '''
+    df[colname] = df[colname].apply(lambda x: list(map(float,
+                                                       re.findall('[-|0-9|\.]*[0-9]',
                                                                  x))))
     # Drops obs with invalid coordinates (e.g. latitude = -999)
-    merged_df = find_invalid_lats_lons(merged_df)
+    df = find_invalid_lats_lons(df, colname)
     # Turns geometry column to list of tuples as (lat, lon) points
-    merged_df['geometry'] = merged_df['geometry'].apply(lambda x: list(zip(x[1::2], x[::2])))
+    df[colname] = df[colname].apply(lambda x: list(zip(x[1::2], x[::2])))
     # Turns geometry column into polygon shape to plot
-    merged_df['geometry'] = merged_df['geometry'].apply(lambda x: geometry.Polygon(x))
-    merged_gdf = gpd.GeoDataFrame(merged_df, geometry='geometry')
+    df[colname] = df[colname].apply(lambda x: geometry.Polygon(x))
+    gdf = gpd.GeoDataFrame(df, geometry=colname)
     # Turns 4 corners into boundaries
-    merged_gdf['geometry'] = merged_gdf['geometry'].convex_hull
-    return merged_gdf
+    gdf[colname] = gdf[colname].convex_hull
+    return gdf
 
 
 def find_invalid_lats_lons(df, col='geometry'):
