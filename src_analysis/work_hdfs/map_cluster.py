@@ -151,14 +151,12 @@ def add_mod03_data(info_df, mod03_dir):
 def get_specific_geo(merged):
     '''
     '''
-    merged['lat'], merged['long'] = merged.apply(lambda x:
-                                                 gen_coords(x['lat'],
-                                                            x['long'],
-                                                            x['indices']), axis=1)
-    return geolocation.find_corners(merged, 'lat', 'lon')
+    merged['lat'] = merged.apply(lambda x: gen_coords(x['lat'], x['indices']), axis=1)
+    merged['long'] = merged.apply(lambda x: gen_coords(x['long'], x['indices']), axis=1)
+    #return geolocation.find_corners(merged, 'lat', 'long')
+    return merged
 
-
-def gen_coords(latitudes, longitudes, indices, patch_size=128):
+def gen_coords(latitudes, indices, patch_size=128):
     '''
 
     Inputs:
@@ -178,5 +176,4 @@ def gen_coords(latitudes, longitudes, indices, patch_size=128):
     start_j = j * patch_size
     end_j = (j + 1) * patch_size
     patch_lat = latitudes[start_i:end_i, start_j:end_j].astype(float)
-    patch_lon = longitudes[start_i:end_i, start_j:end_j].astype(float)
-    return patch_lat, patch_lon
+    return patch_lat
