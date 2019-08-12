@@ -144,8 +144,8 @@ def add_mod03_data(info_df, mod03_dir):
         else:
             missing_mod03_files.append(file)
     geo_df = pd.DataFrame(geo_d)
-    merged = pd.merge(info_df, geo_df, how='left', on='file')
-    return merged, missing_mod03_files
+    #merged = pd.merge(info_df, geo_df, how='left', on='file')
+    return geo_df, missing_mod03_files
 
 
 def get_specific_geo(merged):
