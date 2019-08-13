@@ -179,8 +179,8 @@ def check_invalid_clouds2(output_file, file, patches, clouds_mask,
         patches: numpy array of arrays representing MOD02 patches
         clouds_mask: numpy array created from MOD35 image
         fillvalue_list: list of integers for each fill value
-        width(int): number of pixels for width of a siengle patch
-        height(int): number of pixels for height of a srngle path
+        width(int): number of pixels for width of a single patch
+        height(int): number of pixels for height of a single path
         thres(float): number between 0 and 1 representing the percentage
           required of cloud cover to be considered an analyzable patch
         sdsmax(int): represents valid range of data [0, 32767] as given on pg. 32 of
