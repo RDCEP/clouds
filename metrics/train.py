@@ -3,6 +3,7 @@ import matplotlib
 matplotlib.use('Agg')
 
 import os
+import json
 import time
 import argparse
 import numpy as np
@@ -21,6 +22,11 @@ def get_args():
   )
   p.add_argument(
     '--figdir',
+    type=str,
+    default='./'
+  )
+  p.add_argument(
+    '--output_modeldir',
     type=str,
     default='./'
   )
@@ -48,6 +54,11 @@ def get_args():
     '--c_lambda',
     type=float,
     default=1.0
+  )
+  p.add_argument(
+    '--save_every',
+    type=int,
+    default=10
   )
   args = p.parse_args()
   for f in args.__dict__:
@@ -158,6 +169,7 @@ if __name__ == "__main__":
   # make dirs
   os.makedirs(FLAGS.logdir, exist_ok=True)
   os.makedirs(FLAGS.figdir, exist_ok=True)
+  os.makedirs(FLAGS.output_modeldir, exist_ok=True)
 
   # ad-hoc params
   num_test_images = 10
@@ -178,6 +190,14 @@ if __name__ == "__main__":
                    encoder,
                    batch_size=FLAGS.batch_size, dangle=FLAGS.dangle, c_lambda=FLAGS.c_lambda)
   train_ops = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss)
+
+  # set-up save models
+  save_models = {"encoder": encoder, "decoder": decoder}
+
+  # save model definition
+  for m in save_models:
+    with open(os.path.join(FLAGS.output_modeldir, m+'.json'), 'w') as f:
+      f.write(save_models[m].to_json())
 
   #====================================================================
   # Training
@@ -209,6 +229,15 @@ if __name__ == "__main__":
         # save for checkio
         train_loss_list.append(train_loss)
     
+        # save model at every N steps
+        if epoch % FLAGS.save_every == 0:
+          for m in save_models:
+            save_models[m].save_weights(
+              os.path.join(
+                FLAGS.output_modeldir, "{}-{}.h5".format(m, epoch)
+              )
+            )
+
     encoded=encoder(
         mnist.test.images[:num_test_images].reshape(-1,28,28,1)
     )
@@ -218,12 +247,17 @@ if __name__ == "__main__":
     for i in range(num_test_images):
         a[0][i].imshow(np.reshape(mnist.test.images[i],(28,28)), cmap='jet')
         a[1][i].imshow(np.reshape(results[i],(28,28)), cmap='jet')
+        # set axis turn off
+        a[0][i].set_xticklabels([])
+        a[0][i].set_yticklabels([])
+        a[1][i].set_xticklabels([])
+        a[1][i].set_yticklabels([])
     plt.savefig(FLAGS.figdir+'/'+figname+'.png')
     
     # save loss result
     with open(os.path.join(FLAGS.logdir, ofilename), 'w') as f:
       for ie in train_loss_list:
-        f.write(ie+'\n')
+        f.write(str(ie)+'\n')
 
   # FINISH
   etime = (time.time() -stime)/60.0 # minutes
