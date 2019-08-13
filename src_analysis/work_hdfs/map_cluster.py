@@ -14,6 +14,8 @@ import numpy as np
 import pandas as pd
 import geopandas as gpd
 from pyhdf.SD import SD, SDC
+from dask import dataframe as dd
+from multiprocessing import cpu_count
 import geolocation
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
@@ -30,7 +32,7 @@ def find_related_files(txt_file, input_dir):
 
     Inputs:
         txt_file(str): txt file representing one iteration of clustering
-        input_dir(str): directory in which npz files are saved
+        input_dir(str): directory in which npy files are saved
 
     Outputs:
         npy_file(str): name of numpy file for cluster iteration
@@ -103,7 +105,8 @@ def gen_mod03(mod03_path):
 
 def get_geo_df(info_df, mod03_dir):
     '''
-
+    Creates a dataframe of the geographic information (from MOD03 hdf files)
+    to match the files in info_df
 
     Inputs:
         info_df: pandas dataframe with each row representing a path with its
@@ -173,19 +176,19 @@ def gen_coords(geo_col, indices, patch_size=128):
 
 
 def combining_and_parallelize(txt_file, input_dir, npz_dir, mod03_dir,
-                              num_patches, output_csv):
+                              num_patches, output_csv, ncores=cpu_count()-1):
     '''
     Combines above functions into one easily callable function, which files all
     related files for a given txt file representing one iteration of clustering
     and saves collected info into a csv for future use (specifically mapping below)
 
     Inputs:
-        txt_file(str):
-        input_dir(str):
-        npz_dir(str):
-        mod03_dir(str):
-        num_patches(int):
-        output_csv(str):
+        txt_file(str): txt file representing one iteration of clustering
+        input_dir(str): directory in which npy files are saved
+        npz_dir(str): directory in which npz files are saved
+        mod03_dir(str): directory in which MOD03 hdf files are saved
+        num_patches(int): number of patches in a cluster
+        output_csv(str): name for output csv
 
     Outputs: A saved csv
     '''
@@ -194,18 +197,23 @@ def combining_and_parallelize(txt_file, input_dir, npz_dir, mod03_dir,
     geo_df, missing_mod03_files = get_geo_df(info_df, mod03_dir)
     if not missing_mod03_files:
         merged = pd.merge(info_df, geo_df, how='left', on='file')
-        # ADD PARALLELIZATION HERE OR WILL PROBABLY EXIT FROM OVERWORK
-        merged = get_specific_geo(merged)
-        merged.to_csv(output_csv, index=None)
-    else:
-        print('Missing mod03 files')
-        print('Saving missing as csv named missing_mod03.csv')
-        missing = pd.DataFrame(missing_mod03_files, dtype='str')
-        missing.to_csv('missing_mod03.csv', header=None, index=False)
+        merged_ddf = dd.from_pandas(merged, npartitions=nCores). \
+                                    apply(get_specific_geo,
+                                          meta=pd.DataFrame).compute()
+
+    #     merged = get_specific_geo(merged)
+    #     merged.to_csv(output_csv, index=None)
+    # else:
+    #     print('Missing mod03 files')
+    #     print('Saving missing as csv named missing_mod03.csv')
+    #     missing = pd.DataFrame(missing_mod03_files, dtype='str')
+    #     missing.to_csv('missing_mod03.csv', header=None, index=False)
+    return merged_ddf
 
 
 def find_related_np(input_dir, cluster_size=80000):
     '''
+    TO BE EDITED: for looping over all given txt files
 
     Inputs:
         input_dir(str):
@@ -257,17 +265,19 @@ def map_clusters(df, cluster_col, img_name):
     plt.savefig(img_name)
 
 
-def clean_and_plot(csvname, img_name, cluster_col='cluster_no'):
+def clean_and_plot(csv_name, img_name, cluster_col='cluster_no'):
     '''
+    Reads in csv, cleans geometry column to be usable for plotting and maps
+    clusters on a global map.
 
     Inputs:
-        csvname(str):
-        img_name(str):
-        cluster_col(str):
+        csv_name(str): name of csv with information to be plotted
+        img_name(str): name of image to be saved
+        cluster_col(str): col in csv associated with cluster number
 
     Outputs: a geopandas dataframe and a saved map
     '''
-    df = pd.read_csv(csvname)
+    df = pd.read_csv(csv_name)
     gdf = geo.clean_geom_col(df, 'geom')
     map_clusters(gdf, cluster_col, img_name)
     return gdf
