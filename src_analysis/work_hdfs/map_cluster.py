@@ -14,8 +14,7 @@ import numpy as np
 import pandas as pd
 import geopandas as gpd
 from pyhdf.SD import SD, SDC
-from dask import dataframe as dd
-from multiprocessing import cpu_count
+import multiprocessing as mp
 import geolocation
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
@@ -175,8 +174,8 @@ def gen_coords(geo_col, indices, patch_size=128):
     return patch_geo_info
 
 
-def combining_and_parallelize(txt_file, input_dir, npz_dir, mod03_dir,
-                              num_patches, output_csv, ncores=cpu_count()-1):
+def combine_geo(txt_file, input_dir, npz_dir, mod03_dir,
+                              num_patches, output_csv, nparts=4):
     '''
     Combines above functions into one easily callable function, which files all
     related files for a given txt file representing one iteration of clustering
@@ -192,23 +191,27 @@ def combining_and_parallelize(txt_file, input_dir, npz_dir, mod03_dir,
 
     Outputs: A saved csv
     '''
+    all_dfs = []
     npy_file, npz_files = find_related_files(txt_file, input_dir)
     info_dict = connect_files(npy_file, npz_files, num_patches, npz_dir=DIR_NPZ)
     geo_df, missing_mod03_files = get_geo_df(info_df, mod03_dir)
     if not missing_mod03_files:
         merged = pd.merge(info_df, geo_df, how='left', on='file')
-        merged_ddf = dd.from_pandas(merged, npartitions=nCores). \
-                                    apply(get_specific_geo,
-                                          meta=pd.DataFrame).compute()
+        num_rows = merged.shape[0] / nparts
+        for i in range(nparts):
+            df_name = 'df_' + str(i)
+            df_name = merged.iloc[int(i * num_rows):int((i + 1) * num_rows)]
+            df_name = get_specific_geo(df_name)
+            all_dfs.append(df_name)
+        total_df = pd.concat(all_dfs)
 
-    #     merged = get_specific_geo(merged)
-    #     merged.to_csv(output_csv, index=None)
+    #     total_df.to_csv(output_csv, index=None)
     # else:
     #     print('Missing mod03 files')
     #     print('Saving missing as csv named missing_mod03.csv')
     #     missing = pd.DataFrame(missing_mod03_files, dtype='str')
     #     missing.to_csv('missing_mod03.csv', header=None, index=False)
-    return merged_ddf
+    return total_df
 
 
 def find_related_np(input_dir, cluster_size=80000):
