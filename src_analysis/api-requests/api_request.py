@@ -176,7 +176,7 @@ def find_files(prods='MOD06_L2--61', dates=DATE_FILE, coords=COORDINATES_FILE, e
                     if file_ids:
                         order_params = {'email': email_address, 'doMosaic': 'True', 'fileIds': ','.join(file_ids)}
                         total_params.append(order_params)
-                        destination = DESIRED_DIR + str(prods) + '/clustering' + str(location) + '/' + str(date)
+                        destination = DESIRED_DIR + str(prods) + '/clustering/' + str(location) + '/' + str(date)
                         destination_lst.append(destination)
     return total_params, destination_lst
 
