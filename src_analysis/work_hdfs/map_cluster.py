@@ -12,7 +12,7 @@ import re
 import ast
 import numpy as np
 import pandas as pd
-#import geopandas as gpd
+import geopandas as gpd
 from pyhdf.SD import SD, SDC
 import multiprocessing as mp
 import geolocation
@@ -56,8 +56,8 @@ def connect_files(npy_file, npz_files, num_patches, npz_dir=DIR_NPZ):
         npz_dir(str): directory in which the npz files are stored
 
     Outputs: a pandas df of the filename (as only the year/date/time info)
-             of each patch, index of patch in an image, and the cluster number in which
-             the patch was placed
+             of each patch, index of patch in an image, and the cluster number
+             in which the patch was assigned
     '''
     info_dict = {'file': [], 'indices': [], 'cluster_num': []}
     npy_array = np.load(npy_file)
@@ -66,7 +66,8 @@ def connect_files(npy_file, npz_files, num_patches, npz_dir=DIR_NPZ):
         match = re.search(r'2[0-9]*\.[0-9]*(?=\_)', npz_file)
         if match:
             #should add check to see if .npz file exits 
-            npz_array = np.load(glob.glob(npz_dir + '/*' + str(match.group()) + '*.npz')[0])
+            npz_array = np.load(glob.glob(npz_dir + '/*' + \
+                                str(match.group()) + '*.npz')[0])
             ij_list = npz_array['clouds_xy']
             for idx in ij_list:
                 i, j = idx
@@ -147,8 +148,10 @@ def get_specific_geo(merged):
         a pandas dataframe with a 'geom' column as the column for representing
         patch location
     '''
-    merged['lat'] = merged.apply(lambda x: gen_coords(x['lat'], x['indices']), axis=1)
-    merged['long'] = merged.apply(lambda x: gen_coords(x['long'], x['indices']), axis=1)
+    merged['lat'] = merged.apply(lambda x: gen_coords(x['lat'], x['indices']),
+                                           axis=1)
+    merged['long'] = merged.apply(lambda x: gen_coords(x['long'], x['indices']),
+                                            axis=1)
     return geolocation.find_corners(merged, 'lat', 'long')
 
 
@@ -177,9 +180,10 @@ def gen_coords(geo_col, indices, patch_size=128):
 def combine_geo(txt_file, input_dir, npz_dir, mod03_dir,
                               num_patches, output_csv, nparts=4):
     '''
-    Combines above functions into one easily callable function, which files all
+    Combines above functions into one easily callable function, which finds all
     related files for a given txt file representing one iteration of clustering
-    and saves collected info into a csv for future use (specifically mapping below)
+    and saves collected info into a csv for future use
+    (specifically mapping below)
 
     Inputs:
         txt_file(str): txt file representing one iteration of clustering
@@ -204,41 +208,40 @@ def combine_geo(txt_file, input_dir, npz_dir, mod03_dir,
             df_name = get_specific_geo(df_name)
             all_dfs.append(df_name)
         total_df = pd.concat(all_dfs)
+        total_df.to_csv(output_csv, index=None)
+        print('Completed csv written for ' + txt_file)
+    else:
+        print('Missing mod03 files for' + txt_file)
+        missing_name = 'missing_mod03_' + output_csv + '.csv'
+        print('Saving missing as ' + missing_name)
+        missing = pd.DataFrame(missing_mod03_files, dtype='str')
+        missing.to_csv(missing_name, header=None, index=False)
 
-    #     total_df.to_csv(output_csv, index=None)
-    # else:
-    #     print('Missing mod03 files')
-    #     print('Saving missing as csv named missing_mod03.csv')
-    #     missing = pd.DataFrame(missing_mod03_files, dtype='str')
-    #     missing.to_csv('missing_mod03.csv', header=None, index=False)
-    return total_df
 
-
-def find_related_np(input_dir, cluster_size=80000):
+def find_info_all_npy(input_dir, npz_dir, mod03_dir, num_patches, nparts=4):
     '''
-    TO BE EDITED: for looping over all given txt files
+    Loops through directory to find relevant txt files which then finds all
+    related files for a given txt file representing one iteration of clustering
+    and saves collected info into a csv for future use for each txt file
 
     Inputs:
-        input_dir(str):
-        cluster_size(int):
+        input_dir(str): directory in which npy files are saved
+        npz_dir(str): directory in which npz files are saved
+        mod03_dir(str): directory in which MOD03 hdf files are saved
+        num_patches(int): number of patches in a cluster
+        nparts(int): number of partitions in which to divide a df for a given
+                     npy file (must be done or RCC will disconnect)
 
-    Outputs:
-
+    Outputs: None (saves csv files of info for each relevant npy file)
     '''
-    corresponding_files = {}
-    relevant_files = []
     for file in os.listdir(input_dir):
-        if 'txt' and str(cluster_size) in file:
-            relevant_files.append(file)
-    for txt_file in relevant_files:
-        npy_file, npz_files = find_related_files(txt_fle, input_dir)
-
-        corresponding_files[txt_file] = npz_files
-    return corresponding_files
+        if 'txt' and str(num_patches) in file:
+            output_csv = file[31:-4] + '.csv'
+            combine_geo(file, input_dir, npz_dir, mod03_dir, num_patches, 
+                        output_csv, nparts)
 
 
-
-# Color list from https://sashat.me/2017/01/11/list-of-20-simple-distinct-colors/
+#Color list from https://sashat.me/2017/01/11/list-of-20-simple-distinct-colors/
 COLOR_LST = ['#E6194B', '#3CB44B', '#FFE119', '#4363D8', '#F58231', '#911EB4',
              '#42D4F4', '#F032E6', '#BFEF45', '#FABEBE', '#469990', '#E6BEFF',
              '#9A6324', '#FFFAC8', '#AAFFC3', '#808000', '#FFD8B1', '#000075',
@@ -261,7 +264,8 @@ def map_clusters(df, cluster_col, img_name):
     world_df.plot(ax=ax, color='white', edgecolor='black')
     handle_lst = []
     for cluster in sorted(df[cluster_col].unique()):
-        df[df[cluster_col] == cluster].plot(color=COLOR_LST[cluster], alpha=0.35, ax=ax)
+        df[df[cluster_col] == cluster].plot(color=COLOR_LST[cluster],
+                                            alpha=0.35, ax=ax)
         handle = mpatches.Patch(color=COLOR_LST[cluster], label=cluster)
         handle_lst.append(handle)
     plt.legend(handles=handle_lst, bbox_to_anchor=(1.05, 1))
