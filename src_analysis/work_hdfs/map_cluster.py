@@ -12,7 +12,7 @@ import re
 import ast
 import numpy as np
 import pandas as pd
-import geopandas as gpd
+#import geopandas as gpd
 from pyhdf.SD import SD, SDC
 import multiprocessing as mp
 import geolocation
@@ -165,7 +165,7 @@ def gen_coords(geo_col, indices, patch_size=128):
     Outputs:
         patch_geo_info: np array with patch-specific info
     '''
-    i, j = ast.literal_eval(indices)
+    i, j = indices
     start_i = i * patch_size
     end_i = (i + 1) * patch_size
     start_j = j * patch_size
@@ -193,14 +193,14 @@ def combine_geo(txt_file, input_dir, npz_dir, mod03_dir,
     '''
     all_dfs = []
     npy_file, npz_files = find_related_files(txt_file, input_dir)
-    info_dict = connect_files(npy_file, npz_files, num_patches, npz_dir=DIR_NPZ)
+    info_df = connect_files(npy_file, npz_files, num_patches, npz_dir=DIR_NPZ)
     geo_df, missing_mod03_files = get_geo_df(info_df, mod03_dir)
     if not missing_mod03_files:
         merged = pd.merge(info_df, geo_df, how='left', on='file')
         num_rows = merged.shape[0] / nparts
         for i in range(nparts):
             df_name = 'df_' + str(i)
-            df_name = merged.iloc[int(i * num_rows):int((i + 1) * num_rows)]
+            df_name  = merged.iloc[int(i * num_rows):int((i + 1) * num_rows)]
             df_name = get_specific_geo(df_name)
             all_dfs.append(df_name)
         total_df = pd.concat(all_dfs)
