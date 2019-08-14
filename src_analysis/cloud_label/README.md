@@ -7,7 +7,8 @@
 	* Jupyter Notebook file to label and output patch data from a given date range
 2. visualize_patches.ipynb
 	* Jupyter Notebook file to cluster labeled patch data, create visualizations, and remove poorly labeled patches
-
+3. 80k_with_31_patches_clustered.ipynb
+	* Jupyter Notebook file to cluster labeled patch data with the exisiting 80k patches
 ### Necessary Modules:
 
 * matplotlib
@@ -46,4 +47,10 @@
   * Edit num_clusters to change the number of clusters for agglomerative clustering
   * Remove ambigious/mislabeled patches from patch list if necessary
   * Save plot images if desired
+  
+## How to Vizualize Data Within the Existing 80k Patch Dataset
 
+1. Necessary elements:
+  * npy file containing the labels from clustering ALL data together (use the bash script located here)
+  
+2. Run 80k_with_31_patches_clustered.ipynb
