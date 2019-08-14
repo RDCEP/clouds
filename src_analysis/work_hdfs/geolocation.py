@@ -16,12 +16,12 @@ import multiprocessing as mp
 from functools import partial
 import numpy as np
 import pandas as pd
-import geopandas as gpd
+#import geopandas as gpd
 import matplotlib.pyplot as plt
 import pyproj
 import shapely.ops as ops
 from shapely import geometry
-#import find_invalids as fi
+import find_invalids as fi
 #import prg_StatsInvPixel as stats
 
 
@@ -280,17 +280,17 @@ def find_corners(results_df, lat_col='latitude', lon_col='longitude'):
                                           apply_func_corners(row[lat_col],
                                                              row[lon_col]),
                                           axis=1)
-    results_df.drop(columns=[lat_col, lon_col])
+    #results_df.drop(columns=[lat_col, lon_col])
     two_vals = results_df[results_df['geom'].apply(lambda x: len(x)==2)]. \
                                              index.to_list()
     normal_df = results_df[~results_df.index.isin(two_vals)]
     issue_df = results_df[results_df.index.isin(two_vals)]
     new_df = pd.DataFrame(issue_df.columns)
-    counter = 0
     for idx in two_vals:
-        reg_cols = issued_df[issue_df.columns != 'geom'].iloc[idx]
-        new_df.loc[len(new_df)] = [reg_cols, str(isuse_df['geom'].iloc(idx)[counter])]
-        counter += 1
+        reg_cols = issue_df[issue_df.columns.difference(['geom'])].loc[idx]
+        print(new_df)
+        new_df.loc[len(new_df)] = [reg_cols, str(issue_df['geom'].loc(idx)[0])]
+        new_df.loc[len(new_df)] = [reg_cols, str(issue_df['geom'].loc(idx)[1])]
     return pd.concat(normal_df, new_df)
 
 
