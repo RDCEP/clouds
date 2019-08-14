@@ -154,7 +154,7 @@ def find_files(prods='MOD06_L2--61', dates=DATE_FILE, coords=COORDINATES_FILE, e
         bad_start = datetime.datetime.strptime('08-29-2006', '%m-%d-%Y')
         bad_end = datetime.datetime.strptime('08-04-2008', '%m-%d-%Y')
         # Iterate through date list of each location
-        for date in label_dates[:-1]:
+        for date in set(label_dates[:-1]):
             if date not in bad_dates['date']:
                 # Checks to ensure that in bad time period (when issue w/ detector)
                 dt_obj = datetime.datetime.strptime(date, '%Y-%m-%d')
