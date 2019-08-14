@@ -20,9 +20,9 @@ import map_cluster as mc
 
 hdf_libdir = '/home/koenig1/scratch-midway2/clouds/src_analysis/lib_hdfs' # change here
 sys.path.insert(1, os.path.join(sys.path[0], hdf_libdir))
-from alignment_lib import _gen_patches
-from alignment_lib import gen_mod35_img
-import prg_StatsInvPixel as stats
+#from analysis_lib import _gen_patches
+#from alignment_lib import gen_mod35_img
+#import prg_StatsInvPixel as stats
 
 DATES_FILE = 'clustering_invalid_filelists.txt'
 MOD02_DIRECTORY = '/home/koenig1/scratch-midway2/MOD02/clustering'
@@ -115,11 +115,10 @@ def get_info_for_location(mod02_dir, mod35_dir, mod03_dir):
     for mod02_file in mod02_files:
         mod02_patches, fillvalue_list = gen_mod02(mod02_file)
         mod02_file[0][50:]
-
     latitude, longitude = mc.gen_mod03(mod03_path)
 
 
-def gen_mod02(mod02_file, file):
+def gen_mod02(mod02_file, file, latitude=None, longitude=None):
     '''
     Generates the mod02 patches and the fill value list for a MOD02 hdf file
 
@@ -138,11 +137,11 @@ def gen_mod02(mod02_file, file):
     elif len(mod02_file) == 1:
         mod02_file = mod02_file[0]
     fillvalue_list, mod02_img = stats.gen_mod02_img(mod02_file)
-    mod02_patches = _gen_patches(mod02_img, normalization=False)
-    return mod02_patches, fillvalue_list
+    mod02_patches = geo.make_patches(mod02_img, latitude, longitude)
+    return mod02_patches, fillvalue_list, latitudes, longitudes
 
 
-def gen_mod35(mod35_file, date):
+def gen_mod35(mod35_file, date=None):
     '''
     Generate image of cloud masks if MOD35 hdf file available
 
