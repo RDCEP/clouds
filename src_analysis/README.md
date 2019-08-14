@@ -27,7 +27,8 @@
      else:
          pass
     ``` 
-
+- cloud_label 
+  directory containing notebooks used to label MODIS data, cluster, and create visualizations
 - load_hdfs  
 - metadata
 - tools
