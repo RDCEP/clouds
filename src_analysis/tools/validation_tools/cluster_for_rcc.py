@@ -132,7 +132,11 @@ data = np.concatenate(array, axis=0) # Shape of data [#patches, #bottleneck-laye
 
 ##add in ruby's data
 ruby_data = np.load('my_features.npy')
-both_data = np.concatenate((ruby_data, data))
+
+#normalize 
+norm_r = (ruby_data - np.mean(ruby_data)) / np.std(ruby_data)
+
+both_data = np.concatenate((norm_r, data))
 data = both_data
 
 print("   Data Shape, with ruby's patches [#patches, #Dim.]  :",  data.shape)
