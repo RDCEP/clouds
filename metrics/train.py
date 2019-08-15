@@ -81,7 +81,7 @@ def model_fn(shape=(28,28,1)) :
     x = BatchNormalization()(x)
     
     # layer 2
-    x = Conv2D(filters=8, kernel_size=3, padding='same')(x)
+    x = Conv2D(filters=10, kernel_size=3, padding='same')(x)
     x = ReLU()(x)
     #x = LeakyReLU()(x)
     x = MaxPooling2D((2, 2), padding='same')(x)
@@ -103,7 +103,7 @@ def model_fn(shape=(28,28,1)) :
     #x = BatchNormalization()(x)
     
     # layer 5
-    x = Conv2DTranspose(filters=8, kernel_size=3,strides=(2,2), padding='same')(x)
+    x = Conv2DTranspose(filters=10, kernel_size=3,strides=(2,2), padding='same')(x)
     x = LeakyReLU()(x)
     x = BatchNormalization()(x)
              
@@ -209,7 +209,8 @@ if __name__ == "__main__":
   train_loss_list = []
   
   # outputnames
-  bname1 = 'nepoch-'+str(FLAGS.num_epoch)+'_lr-'+str(FLAGS.lr)
+  #bname1 = 'nepoch-'+str(FLAGS.num_epoch)+'_lr-'+str(FLAGS.lr)
+  bname1 = 'new_nepoch-'+str(FLAGS.num_epoch)+'_lr-'+str(FLAGS.lr)
   bname2 = '_nbatch-'+str(FLAGS.batch_size)+'_lambda'+str(FLAGS.c_lambda)+'_dangle'+str(FLAGS.dangle)
   figname   = 'fig_'+bname1+bname2
   ofilename = 'loss_'+bname1+bname2+'.txt'
