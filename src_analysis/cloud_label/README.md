@@ -41,7 +41,7 @@
 1. Necessary elements:
   * lib_hdfs directory
   * encoder directory (see "load model" section of visualize_patches.ipynb)
-  * patches_DDMMYYY.npy
+  * patches_DDMMYYY.npy (class patch data can be found in "RUBY" google drive folder, too big for github)
   
 2. Run visualize_patches.ipynb
   * Edit num_clusters to change the number of clusters for agglomerative clustering
