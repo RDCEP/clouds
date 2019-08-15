@@ -10,7 +10,7 @@
 #SBATCH --mem-per-cpu=58000       # 1024 = 1GB Max 58000 ~ 80-90K patches
 #SBATCH --time=03:00:00           # wall time. MUST set!
 
-# + comments for ruby
+#
 #   1. Interactive Job
 #   If you use interactive job, you will type the above SBATCH options
 #   to initiate interactive mode e.g. sinteractive --account=pi-foster ... --time=03:00:00
@@ -25,8 +25,6 @@
 #     rcchelp usage -byjob --> how much each job consumed SUs
 #
 
-
-
 # Fill out following settings
 ##### setting I
 scale_patch_size=80  # unit[K-patches] ==>  1,000 patches
@@ -40,14 +38,13 @@ echo $ngroup
 ##### settnig II
 bands="28_29_31"
 homedir="/project2/foster/clouds/analysis"
-inputdir= "/project2/foster/clouds/analysis/output_clouds_feature_2000_2018_validfiles"
+inputdir= "/project2/foster/clouds/analysis/output_clouds_feature_2000_2018_normed"
 outputdir="home/ruby/scratch-midway2/output_mix_clustering"
-model_name='m01_b'${bands}
+model_name='m2_02_normed'
 
-# + comments for ruby
+#  THINGS TO CHANGE BELOW:
 #
-#  Points that you should change are 
-#    1. homedir (actually not necessary. Just for avoiding duplication of same path)
+#    1. homedir (not actually necessary, but helps to avoiding duplication of same path)
 #       e.g. /project2/foster/clouds/analysis
 #
 #    2. inputdir (MUST)
@@ -58,7 +55,6 @@ model_name='m01_b'${bands}
 #    3. outputdir (MUST)
 #       e.g. /home/ruby/scratch-midway2/output_mix_clustering
 #
-
 
 python cluster_for_rcc.py \
        --scale_patch_size=${scale_patch_size}  \

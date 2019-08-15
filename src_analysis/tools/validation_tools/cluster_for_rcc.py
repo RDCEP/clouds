@@ -132,7 +132,11 @@ data = np.concatenate(array, axis=0) # Shape of data [#patches, #bottleneck-laye
 
 ##add in ruby's data
 ruby_data = np.load('my_features.npy')
-both_data = np.concatenate((ruby_data, data))
+
+#normalize 
+norm_r = (ruby_data - np.mean(ruby_data)) / np.std(ruby_data)
+
+both_data = np.concatenate((norm_r, data))
 data = both_data
 
 print("   Data Shape, with ruby's patches [#patches, #Dim.]  :",  data.shape)
@@ -156,20 +160,3 @@ np.save(outputdir+'/aggl_p-'+str(int(scaler))+'_nc-'+str(clusters)+'_'+str(mname
 
 etime = (time.time() -stime)  # second
 print("   Execution time until train [sec]  : %f" % etime, flush=True)
-
-
-### Test
-#test = data[:int(scaler*1000*0.5)]
-#patches_labels = method.fit_predict(test)
-#print(" NORMAL END : model training ")
-#print("   # Patches Labels :", patches_labels.shape)
-
-### Save
-# Ofile Name --> p-$patch nc-$ncluster_ $model-name $oname
-#
-#np.save(outputdir+'/aggl_p-'+str(int(scaler))+'_nc-'+str(clusters)+'_'+str(mname)+'_test_patches_labels_'+str(oname), 
-#        patches_labels)
-
-#etime = (time.time() -stime)  # second
-#print("   Execution time until train+test [sec]  : %f" % etime, flush=True)
-
