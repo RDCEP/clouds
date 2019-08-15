@@ -25,8 +25,6 @@
 #     rcchelp usage -byjob --> how much each job consumed SUs
 #
 
-
-
 # Fill out following settings
 ##### setting I
 scale_patch_size=80  # unit[K-patches] ==>  1,000 patches
@@ -40,9 +38,9 @@ echo $ngroup
 ##### settnig II
 bands="28_29_31"
 homedir="/project2/foster/clouds/analysis"
-inputdir= "/project2/foster/clouds/analysis/output_clouds_feature_2000_2018_validfiles"
+inputdir= "/project2/foster/clouds/analysis/output_clouds_feature_2000_2018_normed"
 outputdir="home/ruby/scratch-midway2/output_mix_clustering"
-model_name='m01_b'${bands}
+model_name='m2_02'${bands}
 
 #  THINGS TO CHANGE BELOW:
 #
