@@ -82,7 +82,7 @@ random.shuffle(filelist)
 
 print(" Random seed: %d " % _seed, flush=True)
 
-
+#run 80k patch data through model
 ### Gen data
 array = []
 stime = time.time()  # initial time  
@@ -115,7 +115,7 @@ for ifile in filelist:
 # open filenamelist to save   
 nn = npatches + _npatches
 os.makedirs(outputdir, exist_ok=True)
-
+#print(nn[0].shape)
 ### Save file
 
 # output filename train
@@ -131,7 +131,7 @@ with open(outputdir+"/"+ofname+".txt", 'w') as ofile:
 data = np.concatenate(array, axis=0) # Shape of data [#patches, #bottleneck-layer]
 
 ##add in ruby's data
-ruby_data = np.load('ruby_features.npy')
+ruby_data = np.load('my_features.npy')
 both_data = np.concatenate((ruby_data, data))
 data = both_data
 
