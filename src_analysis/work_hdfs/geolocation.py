@@ -280,18 +280,20 @@ def find_corners(results_df, lat_col='latitude', lon_col='longitude'):
                                           apply_func_corners(row[lat_col],
                                                              row[lon_col]),
                                           axis=1)
-    #results_df.drop(columns=[lat_col, lon_col])
+    results_df.drop(columns=[lat_col, lon_col])
     two_vals = results_df[results_df['geom'].apply(lambda x: len(x)==2)]. \
                                              index.to_list()
     normal_df = results_df[~results_df.index.isin(two_vals)]
     issue_df = results_df[results_df.index.isin(two_vals)]
-    new_df = pd.DataFrame(issue_df.columns)
+    new_df = pd.DataFrame(columns=issue_df.columns)
     for idx in two_vals:
         reg_cols = issue_df[issue_df.columns.difference(['geom'])].loc[idx]
-        print(new_df)
-        new_df.loc[len(new_df)] = [reg_cols, str(issue_df['geom'].loc(idx)[0])]
-        new_df.loc[len(new_df)] = [reg_cols, str(issue_df['geom'].loc(idx)[1])]
-    return pd.concat(normal_df, new_df)
+        new_row = reg_cols.to_dict()
+        new_row['geom'] = issue_df['geom'].loc[idx][0]
+        new_df.loc[len(new_df)] = new_row
+        new_row['geom'] = issue_df['geom'].loc[idx][1]
+        new_df.loc[len(new_df)] = new_row
+    return pd.concat([normal_df, new_df])
 
 
 def apply_func_corners(lats, lons):
