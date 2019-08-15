@@ -4,7 +4,6 @@ Katy Koenig
 August 2019
 
 Functions to Map Clusters
-(specifically cluster 0)
 '''
 import os
 import glob
@@ -12,15 +11,15 @@ import re
 import numpy as np
 import pandas as pd
 import geopandas as gpd
-from pyhdf.SD import SD, SDC
-import multiprocessing as mp
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
-#import geolocation
-#import find_invalids as fi
+import geolocation as geo
+import find_invalids as fi
 
-PRIORITY_TXT = 'filelist_metadata_train_random-80000_nc-20_m01_b28_29_31_patches_labels_2000-2018_random_aggl.txt'
-DIR_NPZ = '/home/koenig1/scratch-midway2/clusters_20/output_clouds_feature_2000_2018_validfiles'
+PRIORITY_TXT = 'filelist_metadata_train_random-80000_nc-20_m01_b28_29_31_' + \
+                'patches_labels_2000-2018_random_aggl.txt'
+DIR_NPZ = '/home/koenig1/scratch-midway2/clusters_20/output_clouds_feature_' + \
+          '2000_2018_validfiles'
 INPUT_DIR = '/home/koenig1/scratch-midway2/clusters_20/group0'
 
 
@@ -65,19 +64,20 @@ def connect_files(npy_file, npz_files, num_patches, npz_dir=DIR_NPZ):
     for npz_file in npz_files:
         match = re.search(r'2[0-9]*\.[0-9]*(?=\_)', npz_file)
         if match:
-            #should add check to see if .npz file exits 
+            #should add check to see if .npz file exits
             npz_array = np.load(glob.glob(npz_dir + '/*' + \
                                 str(match.group()) + '*.npz')[0])
             ij_list = npz_array['clouds_xy']
             for idx in ij_list:
-                i, j = idx
-                cluster_no = npy_array[patch_counter]
-                patch_counter += 1
-                info_dict['file'].append(match.group())
-                info_dict['indices'].append((i, j))
-                info_dict['cluster_num'].append(cluster_no)
-                if patch_counter == num_patches:
-                    return pd.DataFrame(info_dict)
+                while patch_counter < num_patches:
+                    i, j = idx
+                    cluster_no = npy_array[patch_counter]
+                    patch_counter += 1
+                    info_dict['file'].append(match.group())
+                    info_dict['indices'].append((i, j))
+                    info_dict['cluster_num'].append(cluster_no)
+                #if patch_counter == num_patches:
+                return pd.DataFrame(info_dict)
         else:
             print('File name does not include correctly formatted ' + \
                   'year/date/time for npz file ' + npz_file)
@@ -130,10 +130,10 @@ def get_specific_geo(merged):
         patch location
     '''
     merged['lat'] = merged.apply(lambda x: gen_coords(x['lat'], x['indices']),
-                                           axis=1)
+                                 axis=1)
     merged['long'] = merged.apply(lambda x: gen_coords(x['long'], x['indices']),
-                                            axis=1)
-    return geolocation.find_corners(merged, 'lat', 'long')
+                                  axis=1)
+    return geo.find_corners(merged, 'lat', 'long')
 
 
 def gen_coords(geo_col, indices, patch_size=128):
@@ -158,8 +158,8 @@ def gen_coords(geo_col, indices, patch_size=128):
     return patch_geo_info
 
 
-def combine_geo(txt_file, input_dir, npz_dir, mod03_dir,
-                              num_patches, output_csv, nparts=4):
+def combine_geo(txt_file, input_dir, mod03_dir, num_patches,
+                output_csv, npz_dir=DIR_NPZ, nparts=4):
     '''
     Combines above functions into one easily callable function, which finds all
     related files for a given txt file representing one iteration of clustering
@@ -178,14 +178,14 @@ def combine_geo(txt_file, input_dir, npz_dir, mod03_dir,
     '''
     all_dfs = []
     npy_file, npz_files = find_related_files(txt_file, input_dir)
-    info_df = connect_files(npy_file, npz_files, num_patches, npz_dir=DIR_NPZ)
+    info_df = connect_files(npy_file, npz_files, num_patches, npz_dir)
     geo_df, missing_mod03_files = get_geo_df(info_df, mod03_dir)
     if not missing_mod03_files:
         merged = pd.merge(info_df, geo_df, how='left', on='file')
         num_rows = merged.shape[0] / nparts
         for i in range(nparts):
             df_name = 'df_' + str(i)
-            df_name  = merged.iloc[int(i * num_rows):int((i + 1) * num_rows)]
+            df_name = merged.iloc[int(i * num_rows):int((i + 1) * num_rows)]
             df_name = get_specific_geo(df_name)
             all_dfs.append(df_name)
         total_df = pd.concat(all_dfs)
@@ -218,8 +218,8 @@ def find_info_all_npy(input_dir, npz_dir, mod03_dir, num_patches, nparts=4):
     for file in os.listdir(input_dir):
         if 'txt' and str(num_patches) in file:
             output_csv = file[31:-4] + '.csv'
-            combine_geo(file, input_dir, npz_dir, mod03_dir, num_patches, 
-                        output_csv, nparts)
+            combine_geo(file, input_dir, mod03_dir, num_patches,
+                        output_csv, npz_dir, nparts)
 
 
 #Color list from https://sashat.me/2017/01/11/list-of-20-simple-distinct-colors/
@@ -229,19 +229,17 @@ COLOR_LST = ['#E6194B', '#3CB44B', '#FFE119', '#4363D8', '#F58231', '#911EB4',
              '#A9A9A9', '#800000']
 
 
-def map_clusters(df, cluster_col, img_name=None):
+def map_clusters(df, cluster_col, png_name):
     '''
     Maps clusters on a world mapped (for four by five maps)
 
     Inputs:
         df: a pandas dataframe
         cluster_col(str): column name
-        img_name(str): name (and format) for saved image
+        png_name(str): name (and format) for saved image
 
     Outputs: None (saved image)
     '''
-    #for cluster in sorted(df[cluster_col].unique()):
-    #handle_lst = []
     _, axs = plt.subplots(nrows=4, ncols=5, figsize=(75, 75))
     counter = 0
     for row in axs:
@@ -249,24 +247,29 @@ def map_clusters(df, cluster_col, img_name=None):
             world_df = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
             world_df.plot(ax=col, color='white', edgecolor='black')
             df[df[cluster_col] == counter].plot(color=COLOR_LST[counter],
-                                            alpha=0.35, ax=col)
+                                                alpha=0.5, ax=col)
             counter += 1
-            img_name = 'map_cluster0_group' + str(counter) + '.png'
+            img_name = 'map_cluster0_group' + str(counter)
             col.set_title(img_name)
     plt.tight_layout()
-    plt.savefig(img_name)
+    plt.savefig(png_name)
 
 
 def map_by_date(df, unique_col_name, cluster_col, png_name):
     '''
+    Maps subplots of dataframe, with each subplot being a unique value in
+    the unique_col_name column (usually date). In each plot, the colors relate
+    to the cluster_col (cluster number). The colors are each cluster number are
+    invariant across each plot (e.g. if cluster 1 is red in the first plot, it
+    is also red in the second plot).
 
     Inputs:
         df: a pandas df
-        unique_col_name(str):
-        cluster_col(str):
-        png_name(str):
+        unique_col_name(str): column for each subplot (usually date)
+        cluster_col(str): column with cluster numbers
+        png_name(str): name of image to be saved
 
-    Outputs
+    Outputs None (saves a png image)
     '''
     unique_col = df[unique_col_name].unique()
     _, axs = plt.subplots(nrows=12, ncols=6, figsize=(75, 75))
@@ -280,13 +283,16 @@ def map_by_date(df, unique_col_name, cluster_col, png_name):
                 small_df = df[df[unique_col_name] == val]
                 handle_lst = []
                 for cluster in sorted(small_df[cluster_col].unique()):
-                    small_df[small_df[cluster_col] == cluster].plot(color=COLOR_LST[cluster], alpha=0.2, ax=col)
-                    handle = mpatches.Patch(color=COLOR_LST[cluster], label=cluster)
+                    small_df[small_df[cluster_col] == cluster]. \
+                             plot(color=COLOR_LST[cluster], alpha=0.6, ax=col)
+                    handle = mpatches.Patch(color=COLOR_LST[cluster],
+                                            label=cluster)
                     handle_lst.append(handle)
-                plt.legend(handles=handle_lst, bbox_to_anchor=(1.05, 1))
                 counter += 1
                 img_name = 'map_cluster0_group' + str(val) + '.png'
                 col.set_title(img_name)
+    plt.legend(handles=handle_lst, loc='upper center', ncol=2,
+               prop={'size': 20})
     plt.tight_layout()
     plt.savefig(png_name)
 
@@ -303,7 +309,7 @@ def clean_and_plot(csv_name, img_name, cluster_col='cluster_no'):
 
     Outputs: a geopandas dataframe and a saved map
     '''
-    df = pd.read_csv(csv_name)
+    df = pd.read_csv(csv_name, dtype={'file': 'str'})
     gdf = geo.clean_geom_col(df, 'geom')
     map_clusters(gdf, cluster_col, img_name)
     return gdf
