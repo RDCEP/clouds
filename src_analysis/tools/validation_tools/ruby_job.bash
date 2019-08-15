@@ -40,7 +40,7 @@ bands="28_29_31"
 homedir="/project2/foster/clouds/analysis"
 inputdir= "/project2/foster/clouds/analysis/output_clouds_feature_2000_2018_normed"
 outputdir="home/ruby/scratch-midway2/output_mix_clustering"
-model_name='m2_02'${bands}
+model_name='m2_02_normed'
 
 #  THINGS TO CHANGE BELOW:
 #
