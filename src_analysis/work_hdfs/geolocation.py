@@ -16,7 +16,7 @@ import multiprocessing as mp
 from functools import partial
 import numpy as np
 import pandas as pd
-#import geopandas as gpd
+import geopandas as gpd
 import matplotlib.pyplot as plt
 import pyproj
 import shapely.ops as ops
@@ -293,7 +293,9 @@ def find_corners(results_df, lat_col='latitude', lon_col='longitude'):
         new_df.loc[len(new_df)] = new_row
         new_row['geom'] = issue_df['geom'].loc[idx][1]
         new_df.loc[len(new_df)] = new_row
-    return pd.concat([normal_df, new_df])
+    total_df = pd.concat([normal_df, new_df])
+    total_df['geom'] = total_df['geom'].apply(geometry.Polygon)
+    return total_df
 
 
 def apply_func_corners(lats, lons):
@@ -324,7 +326,7 @@ def apply_func_corners(lats, lons):
                 big_lon = curr_lon
             else:
                 small_lon = curr_lon
-    if big_lon - small_lat > 100:
+    if big_lon - small_lon > 100:
         left_side = [(small_lat, -180.0), (big_lat, -180),
                      (small_lat, small_lon), (big_lat, small_lon)]
         right_side = [(small_lat, big_lon), (big_lat, big_lon),
@@ -372,14 +374,13 @@ def clean_geom_col(df, colname):
     Outputs: a geopandas dataframe
     '''
     df[colname] = df[colname].apply(lambda x: \
-                                    list(map(float,
-                                             re.findall(r'[-|0-9|\.]*[0-9]', x))))
+                                     list(map(float,
+                                              re.findall(r'[-|0-9|\.]*[0-9]', x))))
     # Drops obs with invalid coordinates (e.g. latitude = -999)
     df = find_invalid_lats_lons(df, colname)
     # Turns geometry column to list of tuples as (lat, lon) points
     df[colname] = df[colname].apply(lambda x: list(zip(x[1::2], x[::2])))
     # Turns geometry column into polygon shape to plot
-    # df[colname] = df[colname].apply(lambda x: geometry.Polygon(x))
     df[colname] = df[colname].apply(geometry.Polygon)
     gdf = gpd.GeoDataFrame(df, geometry=colname)
     # Turns 4 corners into boundaries
