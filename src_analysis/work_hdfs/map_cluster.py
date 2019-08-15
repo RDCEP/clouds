@@ -180,8 +180,11 @@ def combine_geo(txt_file, input_dir, mod03_dir, num_patches,
     npy_file, npz_files = find_related_files(txt_file, input_dir)
     info_df = connect_files(npy_file, npz_files, num_patches, npz_dir)
     geo_df, missing_mod03_files = get_geo_df(info_df, mod03_dir)
+    # Check if any MOD03 files are needed to have completed clustering iteration
     if not missing_mod03_files:
         merged = pd.merge(info_df, geo_df, how='left', on='file')
+        # Breaks into parts b/c RCC will boot you off if you try to process the 
+        # df of 80k obs in one go
         num_rows = merged.shape[0] / nparts
         for i in range(nparts):
             df_name = 'df_' + str(i)
@@ -242,12 +245,18 @@ def map_clusters(df, cluster_col, png_name):
     '''
     _, axs = plt.subplots(nrows=4, ncols=5, figsize=(75, 75))
     counter = 0
+    # Iterates through axs to get x by y number of plots in one image 
+    # (instead of 1 long row or col)
     for row in axs:
         for col in row:
+            # Gets simple world map as base for plotting
             world_df = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
             world_df.plot(ax=col, color='white', edgecolor='black')
+            # Filters df to correct cluster num. for plotting
+            # Plots w/ corresponding color slice from list above fn
             df[df[cluster_col] == counter].plot(color=COLOR_LST[counter],
                                                 alpha=0.5, ax=col)
+            # Increases counter to up cluster num.
             counter += 1
             img_name = 'map_cluster0_group' + str(counter)
             col.set_title(img_name)
@@ -274,14 +283,20 @@ def map_by_date(df, unique_col_name, cluster_col, png_name):
     unique_col = df[unique_col_name].unique()
     _, axs = plt.subplots(nrows=12, ncols=6, figsize=(75, 75))
     counter = 0
+    # Iterates through axs to get x by y number of plots in one image 
+    # (instead of 1 long row or col)
     for row in axs:
         for col in row:
             if counter < (len(unique_col) - 1):
+                # Gets simple world map as base for plotting
                 world_df = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
                 world_df.plot(ax=col, color='white', edgecolor='black')
                 val = unique_col[counter]
+                # Filters for appropriate date
                 small_df = df[df[unique_col_name] == val]
                 handle_lst = []
+                # Essentially this is a bunch of plots
+                # (one for each cluster num.) on top of one another 
                 for cluster in sorted(small_df[cluster_col].unique()):
                     small_df[small_df[cluster_col] == cluster]. \
                              plot(color=COLOR_LST[cluster], alpha=0.6, ax=col)
@@ -289,8 +304,10 @@ def map_by_date(df, unique_col_name, cluster_col, png_name):
                                             label=cluster)
                     handle_lst.append(handle)
                 counter += 1
+                # Sets name for individual image
                 img_name = 'map_cluster0_group' + str(val) + '.png'
                 col.set_title(img_name)
+    # Sets one legend for all the plots
     plt.legend(handles=handle_lst, loc='upper center', ncol=2,
                prop={'size': 20})
     plt.tight_layout()
