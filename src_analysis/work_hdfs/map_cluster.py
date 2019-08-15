@@ -9,15 +9,15 @@ Functions to Map Clusters
 import os
 import glob
 import re
-import ast
 import numpy as np
 import pandas as pd
 import geopandas as gpd
 from pyhdf.SD import SD, SDC
 import multiprocessing as mp
-import geolocation
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
+#import geolocation
+#import find_invalids as fi
 
 PRIORITY_TXT = 'filelist_metadata_train_random-80000_nc-20_m01_b28_29_31_patches_labels_2000-2018_random_aggl.txt'
 DIR_NPZ = '/home/koenig1/scratch-midway2/clusters_20/output_clouds_feature_2000_2018_validfiles'
@@ -81,26 +81,7 @@ def connect_files(npy_file, npz_files, num_patches, npz_dir=DIR_NPZ):
         else:
             print('File name does not include correctly formatted ' + \
                   'year/date/time for npz file ' + npz_file)
-
-
-def gen_mod03(mod03_path):
-    '''
-    Reads in MOD03 hdf file and converts data to relevant latitude and
-    longitude arrays
-
-    Inputs:
-        mod03_path(str): path and filename of mod03 hdf file
-
-    Outputs:
-        latitude: numpy array of arrays with the latitudes of each pixel
-        longitude: numpy array of arrays with the longitudes of each pixel
-    '''
-    mod03_hdf = SD(mod03_path, SDC.READ)
-    lat = mod03_hdf.select('Latitude')
-    latitude = lat[:, :]
-    lon = mod03_hdf.select('Longitude')
-    longitude = lon[:, :]
-    return latitude, longitude
+            return None
 
 
 def get_geo_df(info_df, mod03_dir):
@@ -126,7 +107,7 @@ def get_geo_df(info_df, mod03_dir):
         found_file = glob.glob(mod03_dir + '/MOD03*' + file +'*.hdf')
         if found_file:
             mod03_path = found_file[0]
-            latitude, longitude = gen_mod03(mod03_path)
+            latitude, longitude = fi.gen_mod03(mod03_path, file)
             geo_d['file'].append(file)
             geo_d['lat'].append(latitude)
             geo_d['long'].append(longitude)
@@ -248,9 +229,9 @@ COLOR_LST = ['#E6194B', '#3CB44B', '#FFE119', '#4363D8', '#F58231', '#911EB4',
              '#A9A9A9', '#800000']
 
 
-def map_clusters(df, cluster_col, img_name):
+def map_clusters(df, cluster_col, img_name=None):
     '''
-    Maps clusters on a world mapped
+    Maps clusters on a world mapped (for four by five maps)
 
     Inputs:
         df: a pandas dataframe
@@ -259,17 +240,55 @@ def map_clusters(df, cluster_col, img_name):
 
     Outputs: None (saved image)
     '''
-    _, ax = plt.subplots(figsize=(100, 100))
-    world_df = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
-    world_df.plot(ax=ax, color='white', edgecolor='black')
-    handle_lst = []
-    for cluster in sorted(df[cluster_col].unique()):
-        df[df[cluster_col] == cluster].plot(color=COLOR_LST[cluster],
-                                            alpha=0.35, ax=ax)
-        handle = mpatches.Patch(color=COLOR_LST[cluster], label=cluster)
-        handle_lst.append(handle)
-    plt.legend(handles=handle_lst, bbox_to_anchor=(1.05, 1))
+    #for cluster in sorted(df[cluster_col].unique()):
+    #handle_lst = []
+    _, axs = plt.subplots(nrows=4, ncols=5, figsize=(75, 75))
+    counter = 0
+    for row in axs:
+        for col in row:
+            world_df = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+            world_df.plot(ax=col, color='white', edgecolor='black')
+            df[df[cluster_col] == counter].plot(color=COLOR_LST[counter],
+                                            alpha=0.35, ax=col)
+            counter += 1
+            img_name = 'map_cluster0_group' + str(counter) + '.png'
+            col.set_title(img_name)
+    plt.tight_layout()
     plt.savefig(img_name)
+
+
+def map_by_date(df, unique_col_name, cluster_col, png_name):
+    '''
+
+    Inputs:
+        df: a pandas df
+        unique_col_name(str):
+        cluster_col(str):
+        png_name(str):
+
+    Outputs
+    '''
+    unique_col = df[unique_col_name].unique()
+    _, axs = plt.subplots(nrows=12, ncols=6, figsize=(75, 75))
+    counter = 0
+    for row in axs:
+        for col in row:
+            if counter < (len(unique_col) - 1):
+                world_df = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+                world_df.plot(ax=col, color='white', edgecolor='black')
+                val = unique_col[counter]
+                small_df = df[df[unique_col_name] == val]
+                handle_lst = []
+                for cluster in sorted(small_df[cluster_col].unique()):
+                    small_df[small_df[cluster_col] == cluster].plot(color=COLOR_LST[cluster], alpha=0.2, ax=col)
+                    handle = mpatches.Patch(color=COLOR_LST[cluster], label=cluster)
+                    handle_lst.append(handle)
+                plt.legend(handles=handle_lst, bbox_to_anchor=(1.05, 1))
+                counter += 1
+                img_name = 'map_cluster0_group' + str(val) + '.png'
+                col.set_title(img_name)
+    plt.tight_layout()
+    plt.savefig(png_name)
 
 
 def clean_and_plot(csv_name, img_name, cluster_col='cluster_no'):

@@ -13,15 +13,19 @@ import argparse
 import copy
 import re
 import multiprocessing as mp
+from functools import partial
 import numpy as np
 import pandas as pd
-from shapely import geometry
-import geopandas as gpd
+#import geopandas as gpd
 import matplotlib.pyplot as plt
-from pyhdf.SD import SD, SDC
+import pyproj
+import shapely.ops as ops
+from shapely import geometry
+import find_invalids as fi
 #import prg_StatsInvPixel as stats
 
-hdf_libdir = '/Users/katykoeing/Desktop/clouds/src_analysis/lib_hdfs' # change here
+
+hdf_libdir = '/Users/katykoeing/Desktop/clouds/src_analysis/lib_hdfs' #change here
 sys.path.insert(1, os.path.join(sys.path[0], hdf_libdir))
 #from alignment_lib import gen_mod35_img
 
@@ -32,6 +36,7 @@ INVALIDS_CSV = 'patches_with_invalid_pixels.csv'
 OUTPUT_CSV = 'output_07262019.csv'
 KEYS = ['filename', 'patch_no', 'invalid_pixels', 'latitude', 'longitude',
         'geometry']
+
 
 def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY,
                         mod35_dir=MOD35_DIRECTORY, mod03_dir=MOD03_DIRECTORY):
@@ -57,34 +62,21 @@ def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY,
     bname = os.path.basename(file)
     print(file)
     date = bname[10:22]
-    mod02 = glob.glob(mod02_dir + '/*/' + file)
-    if mod02:
-        mod02_path = mod02[0]
-    else:
-        print("No mod02 file downloaded for " + date)
-    # Finds corresponding MOD)3
-    mod03 = glob.glob(mod03_dir + '/*/*' + date + '*.hdf')
-    if mod03:
-        mod03_path = mod03[0]
-        mod03_hdf = SD(mod03_path, SDC.READ)
-        lat = mod03_hdf.select('Latitude')
-        latitude = lat[:, :]
-        lon = mod03_hdf.select('Longitude')
-        longitude = lon[:, :]
-    else:
-        print("No MOD03 file downloaded for " + date)
+    # Finds corresponding MOD03
+    mod03_glob = glob.glob(mod03_dir + '/*/*' + date + '*.hdf')
+    latitude, longitude = fi.gen_mod03(mod03_glob, date)
+    # Makes mod02 patches
+    mod02_glob = glob.glob(mod02_dir + '/*/' + file)
+    patches, fillvalue_list, latitudes, longitudes = fi.gen_mod02(mod02_glob,
+                                                                  file,
+                                                                  latitude,
+                                                                  longitude)
     # Finds corresponding MOD35
-    mod35 = glob.glob(mod35_dir + '/*/*' + date + '*.hdf')
-    if mod35:
-        mod35_path = mod35[0]
-        hdf_m35 = SD(mod35_path, SDC.READ)
-        cloud_mask_img = stats.gen_mod35_img(hdf_m35)
-        patches, latitudes, longitudes, fillvalue_list = \
-                make_patches(mod02_path, latitude, longitude)
-        connect_geolocation(mod02_path, output, patches, fillvalue_list,
+    mod35_glob = glob.glob(mod35_dir + '/*/*' + date + '*.hdf')
+    cloud_mask_img = fi.gen_mod35(mod35_glob, date)
+    if cloud_mask_img and latitude and mod02_glob:
+        connect_geolocation(mod02_glob[0], output, patches, fillvalue_list,
                             latitudes, longitudes, cloud_mask_img)
-    else:
-        print("No mod35 file downloaded for " + date)
 
 
 def make_patches(mod02_path, latitude=None, longitude=None):
@@ -110,56 +102,70 @@ def make_patches(mod02_path, latitude=None, longitude=None):
         lon_row = []
         for j in range(0, swath.shape[1], stride):
             if i + patch_size <= swath.shape[0] and j + patch_size <= swath.shape[1]:
-                p = swath[i:i + patch_size, j:j + patch_size].astype(float)
+                patch = swath[i:i + patch_size, j:j + patch_size].astype(float)
                 if latitude:
-                    lat = latitude[i:i + patch_size, j:j + patch_size].astype(float)
-                    lon = longitude[i:i + patch_size, j:j + patch_size].astype(float)
+                    lat = latitude[i:i + patch_size,
+                                   j:j + patch_size].astype(float)
+                    lon = longitude[i:i + patch_size,
+                                    j:j + patch_size].astype(float)
                     lat_row.append(lat)
                     lon_row.append(lon)
-                patch_row.append(p)
+                patch_row.append(patch)
         if patch_row:
             patches.append(patch_row)
             latitudes.append(lat_row)
             longitudes.append(lon_row)
-    return np.stack(patches), np.stack(latitudes), np.stack(longitudes), fillvalue_list
+    return np.stack(patches), fillvalue_list, np.stack(latitudes), \
+           np.stack(longitudes)           
 
 
-PATCH_DICT = {'MOD021KM.A2006011.1435.061.2017260224818.hdf': ['MOD35_L2.A2006011.1435.061.2017261011021.hdf', 80],
-              'MOD021KM.A2002280.1900.061.2017182182901.hdf': ['MOD35_L2.A2002280.1900.061.2017253233720.hdf', 0],
-              'MOD021KM.A2002135.0615.061.2017181144843.hdf': ['MOD35_L2.A2002135.0615.061.2017251030517.hdf', 92],
-              'MOD021KM.A2006143.0230.061.2017194223145.hdf': ['MOD35_L2.A2006143.0230.061.2017264231242.hdf', 0],
-              'MOD021KM.A2002149.0455.061.2017181155144.hdf': ['MOD35_L2.A2002149.0455.061.2017251161148.hdf', 18],
-              'MOD021KM.A2007120.1455.061.2017248153838.hdf': ['MOD35_L2.A2007120.1455.061.2017280090632.hdf', 0],
-              'MOD021KM.A2017110.2255.061.2017314043402.hdf': ['MOD35_L2.A2017110.2255.061.2017314070909.hdf', 63],
-              'MOD021KM.A2017303.1525.061.2017304012556.hdf': ['MOD35_L2.A2017303.1525.061.2017304012716.hdf', 33],
-              'MOD021KM.A2017240.0830.061.2017317014141.hdf': ['MOD35_L2.A2017240.0830.061.2017317025921.hdf', 80],
-              'MOD021KM.A2011203.1800.061.2017325065655.hdf': ['MOD35_L2.A2011203.1800.061.2017325083429.hdf', 29]}
+PATCH_DICT = {'MOD021KM.A2006011.1435.061.2017260224818.hdf':
+              ['MOD35_L2.A2006011.1435.061.2017261011021.hdf', 80],
+              'MOD021KM.A2002280.1900.061.2017182182901.hdf':
+              ['MOD35_L2.A2002280.1900.061.2017253233720.hdf', 0],
+              'MOD021KM.A2002135.0615.061.2017181144843.hdf':
+              ['MOD35_L2.A2002135.0615.061.2017251030517.hdf', 92],
+              'MOD021KM.A2006143.0230.061.2017194223145.hdf':
+              ['MOD35_L2.A2006143.0230.061.2017264231242.hdf', 0],
+              'MOD021KM.A2002149.0455.061.2017181155144.hdf':
+              ['MOD35_L2.A2002149.0455.061.2017251161148.hdf', 18],
+              'MOD021KM.A2007120.1455.061.2017248153838.hdf':
+              ['MOD35_L2.A2007120.1455.061.2017280090632.hdf', 0],
+              'MOD021KM.A2017110.2255.061.2017314043402.hdf':
+              ['MOD35_L2.A2017110.2255.061.2017314070909.hdf', 63],
+              'MOD021KM.A2017303.1525.061.2017304012556.hdf':
+              ['MOD35_L2.A2017303.1525.061.2017304012716.hdf', 33],
+              'MOD021KM.A2017240.0830.061.2017317014141.hdf':
+              ['MOD35_L2.A2017240.0830.061.2017317025921.hdf', 80],
+              'MOD021KM.A2011203.1800.061.2017325065655.hdf':
+              ['MOD35_L2.A2011203.1800.061.2017325083429.hdf', 29]}
 
 
-def find_spec_patch(file, patches, cloud_mask, fillvalue_list, width=128, height=128, thres=0.3):
+def find_spec_patch(file, patches, cloud_mask, width=128,
+                    height=128, thres=0.3):
     '''
     Finds as specific patch in a cloud image as specified by the patch
-    count in the MOD02 filename    
+    count in the MOD02 filename
 
     Inputs:
         file(str): name of MOD02 file to be used only as identifier in CSV row
         patches: numpy array of arrays representing MOD02 patches
         clouds_mask: numpy array created from MOD35 image
-        fillvalue_list: list of integers for each fill value
         width(int): number of pixels for width of a single patch
         height(int): number of pixels for height of a single path
         thres(float): number between 0 and 1 representing the percentage
-                      required of cloud cover to be considered an analyzable patch
+                      required of cloud cover to be considered an analyzable
+                      patch
 
-    Outputs: 
+    Outputs:
         Specific patch (array of arrays) in an image as described in the inputs
     '''
-    nx, ny = patches.shape[:2]
+    x_pixels, y_pixels = patches.shape[:2]
     patch_counter = 0
     value = PATCH_DICT[file]
     desired_patch = value[1]
-    for i in range(nx):
-        for j in range(ny):
+    for i in range(x_pixels):
+        for j in range(y_pixels):
             # Indexes for matching lats/lons for each patch
             if not np.isnan(patches[i, j]).any():
                 tmp = cloud_mask[i * width:(i + 1) * width,
@@ -170,6 +176,7 @@ def find_spec_patch(file, patches, cloud_mask, fillvalue_list, width=128, height
                         if patch_counter == desired_patch:
                             return patches[i, j]
                         patch_counter += 1
+            return None
 
 
 def plot_patches(file_dir, patch_d=PATCH_DICT):
@@ -185,12 +192,11 @@ def plot_patches(file_dir, patch_d=PATCH_DICT):
     '''
     for key, val in patch_d.items():
         mod02_path = file_dir + key
-        mod03_path = file_dir + val[0]
-        patches, _, _, fillvalue_list = make_patches(mod02_path)
-        hdf_m35 = SD(mod35_path, SDC.READ)
-        cloud_mask = stats.gen_mod35_img(hdf_m35)
-        patch = find_spec_patch(key, patches, cloud_mask, fillvalue_list)
-        fig, axs = plt.subplots(nrows=6, ncols=1, figsize=(15, 15))
+        mod35_path = file_dir + val[0]
+        patches, _, _, _ = make_patches(mod02_path)
+        cloud_mask = fi.gen_mod35(mod35_path)
+        patch = find_spec_patch(key, patches, cloud_mask)
+        _, axs = plt.subplots(nrows=6, ncols=1, figsize=(15, 15))
         for ax, interp in zip(axs, range(6)):
             ax.imshow(patch[:, :, interp], cmap='inferno')
             ax.set_title(key[10:17] + '_' + str(interp), fontsize=8)
@@ -200,7 +206,7 @@ def plot_patches(file_dir, patch_d=PATCH_DICT):
 
 def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
                         longitudes, cloud_mask, width=128, height=128,
-                        thres=0.3):
+                        thres=0.3, sdsmax=32767):
     '''
     Connects the geolocation data to each patch in an image/mod02 hdf file
 
@@ -226,10 +232,10 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
     # Initializes dictionary to be written to csv at end of fn
     results = {key: [] for key in keys}
     with open(outputfile, 'a') as csvfile:
-        nx, ny = patches.shape[:2]
+        x_pixels, y_pixels = patches.shape[:2]
         patch_counter = 0
-        for i in range(nx):
-            for j in range(ny):
+        for i in range(x_pixels):
+            for j in range(y_pixels):
                 # Indexes for matching lats/lons for each patch
                 lat = latitudes[i, j]
                 lon = longitudes[i, j]
@@ -246,7 +252,7 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
                                 err_idx = np.where((tmp_array >= sdsmax) & \
                                           (tmp_array < tmp_fillvalue))
                                 n_inv_pixel += len(err_idx[0])
-                            results['filename'].append(file[-44:])
+                            results['filename'].append(file)
                             results['patch_no'].append(patch_counter)
                             results['invalid_pixels'].append(n_inv_pixel)
                             results['latitude'].append(lat)
@@ -272,11 +278,23 @@ def find_corners(results_df, lat_col='latitude', lon_col='longitude'):
     '''
     results_df['geom'] = results_df.apply(lambda row: \
                                           apply_func_corners(row[lat_col],
-                                                             row[lon_col]), axis=1)
-    return results_df.drop(columns=[lat_col, lon_col])
+                                                             row[lon_col]),
+                                          axis=1)
+    #results_df.drop(columns=[lat_col, lon_col])
+    two_vals = results_df[results_df['geom'].apply(lambda x: len(x)==2)]. \
+                                             index.to_list()
+    normal_df = results_df[~results_df.index.isin(two_vals)]
+    issue_df = results_df[results_df.index.isin(two_vals)]
+    new_df = pd.DataFrame(issue_df.columns)
+    for idx in two_vals:
+        reg_cols = issue_df[issue_df.columns.difference(['geom'])].loc[idx]
+        print(new_df)
+        new_df.loc[len(new_df)] = [reg_cols, str(issue_df['geom'].loc(idx)[0])]
+        new_df.loc[len(new_df)] = [reg_cols, str(issue_df['geom'].loc(idx)[1])]
+    return pd.concat(normal_df, new_df)
 
 
-def apply_func_corners(x, y):
+def apply_func_corners(lats, lons):
     '''
     Finds the four corners points of a rectangular patch using greedy algorithm
 
@@ -292,10 +310,10 @@ def apply_func_corners(x, y):
     small_lat = float("inf")
     big_lon = float("-inf")
     small_lon = float("inf")
-    for i in range(len(x[0])):
-        for j in range(len(y[1])):
-            curr_lat = x[i, j]
-            curr_lon = y[i, j]
+    for i in range(len(lats[0])):
+        for j in range(len(lons[1])):
+            curr_lat = lats[i, j]
+            curr_lon = lons[i, j]
             if curr_lat >= big_lat:
                 big_lat = curr_lat
             else:
@@ -304,8 +322,16 @@ def apply_func_corners(x, y):
                 big_lon = curr_lon
             else:
                 small_lon = curr_lon
-    return [(small_lat, small_lon), (big_lat, small_lon), (small_lat, big_lon),
-            (big_lat, big_lon)]
+    if big_lon - small_lat > 100:
+        left_side = [(small_lat, -180.0), (big_lat, -180),
+                     (small_lat, small_lon), (big_lat, small_lon)]
+        right_side = [(small_lat, big_lon), (big_lat, big_lon),
+                      (small_lat, 180), (big_lat, 180)]
+        coords = (left_side, right_side)
+    else:
+        coords = [(small_lat, small_lon), (big_lat, small_lon),
+              (small_lat, big_lon), (big_lat, big_lon)]
+    return coords
 
 
 def join_dataframes(coords_csv, invals_csv):
@@ -343,15 +369,16 @@ def clean_geom_col(df, colname):
 
     Outputs: a geopandas dataframe
     '''
-    df[colname] = df[colname].apply(lambda x: list(map(float,
-                                                       re.findall('[-|0-9|\.]*[0-9]',
-                                                                 x))))
+    df[colname] = df[colname].apply(lambda x: \
+                                    list(map(float,
+                                             re.findall(r'[-|0-9|\.]*[0-9]', x))))
     # Drops obs with invalid coordinates (e.g. latitude = -999)
     df = find_invalid_lats_lons(df, colname)
     # Turns geometry column to list of tuples as (lat, lon) points
     df[colname] = df[colname].apply(lambda x: list(zip(x[1::2], x[::2])))
     # Turns geometry column into polygon shape to plot
-    df[colname] = df[colname].apply(lambda x: geometry.Polygon(x))
+    # df[colname] = df[colname].apply(lambda x: geometry.Polygon(x))
+    df[colname] = df[colname].apply(geometry.Polygon)
     gdf = gpd.GeoDataFrame(df, geometry=colname)
     # Turns 4 corners into boundaries
     gdf[colname] = gdf[colname].convex_hull
@@ -372,10 +399,10 @@ def find_invalid_lats_lons(df, col='geometry'):
     Outputs:
         new_df: a pandas dataframe
     '''
-    d = {'lats': [0, 90], 'lons': [1, 180]}
+    valid_d = {'lats': [0, 90], 'lons': [1, 180]}
     inval_idx = []
-    for key in d:
-        start, max_val = d[key]
+    for key in valid_d:
+        start, max_val = valid_d[key]
         df[key] = df[col].apply(lambda x: x[start::2])
         df_name = key + '_df'
         df_name = pd.DataFrame(df[key].tolist())
@@ -396,6 +423,7 @@ def create_map(dataframe, colname, img_name):
     Inputs:
         dataframe: a geopandas dataframe
         colname(str): column name to be plotted in color gradient
+        img_name(str):
 
     Outputs: None (saves plot to current directory as a png)
     '''
@@ -412,13 +440,34 @@ def create_map(dataframe, colname, img_name):
     fig = ax.get_figure()
     cbax = fig.add_axes([0.91, 0.3, 0.03, 0.39])
     cbax.set_title('Number of Invalid Pixels', size=5)
-    sm = plt.cm.ScalarMappable(cmap='summer',
-                               norm=plt.Normalize(vmin=min(dataframe[colname]),
-                                                  vmax=max(dataframe[colname])))
-    sm._A = []
-    fig.colorbar(sm, cax=cbax, format="%d")
+    leg = plt.cm.ScalarMappable(cmap='summer',
+                                norm=plt.Normalize(vmin=min(dataframe[colname]),
+                                                   vmax=max(dataframe[colname])))
+    leg._A = []
+    fig.colorbar(leg, cax=cbax, format="%d")
     plt.savefig(img_name)
 
+
+def find_area(poly_obj):
+    '''
+    Finds area of polygon shape
+
+    Derived from post here:
+    https://gis.stackexchange.com/questions/127607/area-in-km-from-polygon-of-coordinates
+
+    Inputs:
+        poly_obj: a polygon (from Shapely lib) object
+
+    Outputs:
+        area in square kilometers of the patch
+    '''
+    geom_area = ops.transform(
+        partial(
+            pyproj.transform,
+            pyproj.Proj(init='EPSG:4326'),
+            pyproj.Proj(proj='aea', lat1=poly_obj.bounds[1],
+                        lat2=poly_obj.bounds[3])), poly_obj)
+    return geom_area.area / 1000000
 
 
 if __name__ == "__main__":
