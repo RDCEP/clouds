@@ -13,7 +13,9 @@
 	* Result of running 31 "model" patches through normed autoencoder (m2_02_normed)
 5. output_files
 	* Directory containing the output files of running the bash script
-		* `aggl_p-80_nc-20_m2_02_normed_train_patches_labels_2000-2018_random_aggl.npy` contains label data to then be 			used to analyze clusters, you can use the validation notebook [`80k_with_31_patches_clustered.ipynb`](https://github.com/RDCEP/clouds/blob/mod021KM/src_analysis/cloud_label/80k_with_31_patches_clustered.ipynb)
+		* `aggl_p-80_nc-20_m2_02_normed_train_patches_labels_2000-2018_random_aggl.npy` contains label data to then be 			used to analyze clusters
+		* `80_nc-20_m2_02_normed_train_patches_labels_2000-2018_random_aggl.npy` contains the output of running TSNE 			on the patches for use in creating a TSNE visualization
+		*You can also use [`80k_with_31_patches_clustered.ipynb`](https://github.com/RDCEP/clouds/blob/mod021KM/src_analysis/cloud_label/80k_with_31_patches_clustered.ipynb) to make these visualizations
 ### Necessary Modules:
 
 * os
