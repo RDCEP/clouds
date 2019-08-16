@@ -7,11 +7,11 @@ Functions to Map Clusters
 '''
 import os
 import glob
+import ast
+import multiprocessing as mp
 import re
 import numpy as np
 import pandas as pd
-from dask import dataframe as ddf
-from dask.multiprocessing import get
 import geopandas as gpd
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
@@ -150,7 +150,10 @@ def gen_coords(geo_col, indices, patch_size=128):
     Outputs:
         patch_geo_info: np array with patch-specific info
     '''
-    i, j = indices
+    if len(indices) == 2:
+        i, j = indices
+    else:
+        i, j = ast.literal_eval(indices)
     start_i = i * patch_size
     end_i = (i + 1) * patch_size
     start_j = j * patch_size
@@ -160,7 +163,7 @@ def gen_coords(geo_col, indices, patch_size=128):
 
 
 def combine_geo(txt_file, input_dir, mod03_dir, num_patches,
-                output_csv, npz_dir=DIR_NPZ, nparts=8):
+                output_csv, npz_dir=DIR_NPZ, nparts=4):
     '''
     Combines above functions into one easily callable function, which finds all
     related files for a given txt file representing one iteration of clustering
@@ -184,37 +187,28 @@ def combine_geo(txt_file, input_dir, mod03_dir, num_patches,
     # Check if any MOD03 files are needed to have completed clustering iteration
     if not missing_mod03_files:
         merged = pd.merge(info_df, geo_df, how='left', on='file')
-        # Dask parallelization
-        merged_ddf = ddf.from_pandas(merged, npartitions=nparts)
-        merged_ddf = merged_ddf.map_partitions(lambda df: df.apply(lambda x: gen_coords(x['lat'], x['indices']),
-                                 axis=1)).compute(scheduler='processes')
-        merged_ddf = merged_ddf.map_partitions(lambda df: df.apply(lambda x: gen_coords(x['long'], x['indices']),
-                                 axis=1)).compute(scheduler='processes')
-
-        merged_ddf = merged_ddf.map_partitions(lambda df: df.apply(lambda row: \
-                                          apply_func_corners(row[lat_col],
-                                                             row[lon_col]),
-                                          axis=1)).compute(scheduler='processes')
-        total_df = geo.find_corners(merged_ddf)
-
         # Breaks into parts b/c RCC will boot you off if you try to process the 
         # df of 80k obs in one go
+        data_split = np.array_split(merged, nparts)
+        pool = mp.Pool(nparts)
+        total_df = pd.concat(pool.map(get_specific_geo, data_split))
+        pool.close()
+        pool.join()
         # num_rows = merged.shape[0] / nparts
         # for i in range(nparts):
         #     df_name = 'df_' + str(i)
         #     df_name = merged.iloc[int(i * num_rows):int((i + 1) * num_rows)]
         #     df_name = get_specific_geo(df_name)
         #     all_dfs.append(df_name)
-    #     total_df = pd.concat(all_dfs)
-    #     total_df.to_csv(output_csv, index=None)
-    #     print(f'Completed csv written for {txt_file}')
-    # else:
-    #     print(f'Missing mod03 files for {txt_file}')
-    #     missing_name = f'missing_mod03_{output_csv}.csv'
-    #     print(f'Saving missing as {missing_name}')
-    #     missing = pd.DataFrame(missing_mod03_files, dtype='str')
-    #     missing.to_csv(missing_name, header=None, index=False)
-    return total_df
+        # total_df = pd.concat(all_dfs)
+        total_df.to_csv(output_csv, index=None)
+        print(f'Completed csv written for {txt_file}')
+    else:
+        print(f'Missing mod03 files for {txt_file}')
+        missing_name = f'missing_mod03_{output_csv}.csv'
+        print(f'Saving missing as {missing_name}')
+        missing = pd.DataFrame(missing_mod03_files, dtype='str')
+        missing.to_csv(missing_name, header=None, index=False)
 
 
 def find_info_all_npy(input_dir, npz_dir, mod03_dir, num_patches, nparts=4):
