@@ -185,8 +185,18 @@ def combine_geo(txt_file, input_dir, mod03_dir, num_patches,
     if not missing_mod03_files:
         merged = pd.merge(info_df, geo_df, how='left', on='file')
         # Dask parallelization
-        merged_ddf = ddf.from_pandas(merged, npartitions=nparts). \
-                         map_partitions(lambda df: get_specific_geo(df)).compute()
+        merged_ddf = ddf.from_pandas(merged, npartitions=nparts)
+        merged_ddf = merged_ddf.map_partitions(lambda df: df.apply(lambda x: gen_coords(x['lat'], x['indices']),
+                                 axis=1)).compute(scheduler='processes')
+        merged_ddf = merged_ddf.map_partitions(lambda df: df.apply(lambda x: gen_coords(x['long'], x['indices']),
+                                 axis=1)).compute(scheduler='processes')
+
+        merged_ddf = merged_ddf.map_partitions(lambda df: df.apply(lambda row: \
+                                          apply_func_corners(row[lat_col],
+                                                             row[lon_col]),
+                                          axis=1)).compute(scheduler='processes')
+        total_df = geo.find_corners(merged_ddf)
+
         # Breaks into parts b/c RCC will boot you off if you try to process the 
         # df of 80k obs in one go
         # num_rows = merged.shape[0] / nparts
@@ -195,15 +205,16 @@ def combine_geo(txt_file, input_dir, mod03_dir, num_patches,
         #     df_name = merged.iloc[int(i * num_rows):int((i + 1) * num_rows)]
         #     df_name = get_specific_geo(df_name)
         #     all_dfs.append(df_name)
-        total_df = pd.concat(all_dfs)
-        total_df.to_csv(output_csv, index=None)
-        print(f'Completed csv written for {txt_file}')
-    else:
-        print(f'Missing mod03 files for {txt_file}')
-        missing_name = f'missing_mod03_{output_csv}.csv'
-        print(f'Saving missing as {missing_name}')
-        missing = pd.DataFrame(missing_mod03_files, dtype='str')
-        missing.to_csv(missing_name, header=None, index=False)
+    #     total_df = pd.concat(all_dfs)
+    #     total_df.to_csv(output_csv, index=None)
+    #     print(f'Completed csv written for {txt_file}')
+    # else:
+    #     print(f'Missing mod03 files for {txt_file}')
+    #     missing_name = f'missing_mod03_{output_csv}.csv'
+    #     print(f'Saving missing as {missing_name}')
+    #     missing = pd.DataFrame(missing_mod03_files, dtype='str')
+    #     missing.to_csv(missing_name, header=None, index=False)
+    return total_df
 
 
 def find_info_all_npy(input_dir, npz_dir, mod03_dir, num_patches, nparts=4):

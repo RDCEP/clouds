@@ -276,10 +276,10 @@ def find_corners(results_df, lat_col='latitude', lon_col='longitude'):
 
     Outputs: a pandas dataframe with a 'geom' column
     '''
-    results_df['geom'] = results_df.apply(lambda row: \
-                                          apply_func_corners(row[lat_col],
-                                                             row[lon_col]),
-                                          axis=1)
+    # results_df['geom'] = results_df.apply(lambda row: \
+    #                                       apply_func_corners(row[lat_col],
+    #                                                          row[lon_col]),
+    #                                       axis=1)
     results_df.drop(columns=[lat_col, lon_col])
     two_vals = results_df[results_df['geom'].apply(lambda x: len(x)==2)]. \
                                              index.to_list()
