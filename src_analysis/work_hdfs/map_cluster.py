@@ -10,6 +10,8 @@ import glob
 import re
 import numpy as np
 import pandas as pd
+from dask import dataframe as ddf
+from dask.multiprocessing import get
 import geopandas as gpd
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
@@ -65,8 +67,7 @@ def connect_files(npy_file, npz_files, num_patches, npz_dir=DIR_NPZ):
         match = re.search(r'2[0-9]*\.[0-9]*(?=\_)', npz_file)
         if match:
             #should add check to see if .npz file exits
-            npz_array = np.load(glob.glob(npz_dir + '/*' + \
-                                str(match.group()) + '*.npz')[0])
+            npz_array = np.load(glob.glob(f'{npz_dir}/*{str(match.group())}*.npz')[0])
             ij_list = npz_array['clouds_xy']
             for idx in ij_list:
                 while patch_counter < num_patches:
@@ -80,7 +81,7 @@ def connect_files(npy_file, npz_files, num_patches, npz_dir=DIR_NPZ):
                 return pd.DataFrame(info_dict)
         else:
             print('File name does not include correctly formatted ' + \
-                  'year/date/time for npz file ' + npz_file)
+                  f'year/date/time for npz file {npz_file}')
             return None
 
 
@@ -104,7 +105,7 @@ def get_geo_df(info_df, mod03_dir):
     lst_of_files = info_df['file'].unique()
     geo_d = {'file': [], 'lat': [], 'long': []}
     for file in lst_of_files:
-        found_file = glob.glob(mod03_dir + '/MOD03*' + file +'*.hdf')
+        found_file = glob.glob(f'{mod03_dir}/MOD03*{file}*.hdf')
         if found_file:
             mod03_path = found_file[0]
             latitude, longitude = fi.gen_mod03(mod03_path, file)
@@ -159,7 +160,7 @@ def gen_coords(geo_col, indices, patch_size=128):
 
 
 def combine_geo(txt_file, input_dir, mod03_dir, num_patches,
-                output_csv, npz_dir=DIR_NPZ, nparts=4):
+                output_csv, npz_dir=DIR_NPZ, nparts=8):
     '''
     Combines above functions into one easily callable function, which finds all
     related files for a given txt file representing one iteration of clustering
@@ -183,21 +184,24 @@ def combine_geo(txt_file, input_dir, mod03_dir, num_patches,
     # Check if any MOD03 files are needed to have completed clustering iteration
     if not missing_mod03_files:
         merged = pd.merge(info_df, geo_df, how='left', on='file')
+        # Dask parallelization
+        merged_ddf = ddf.from_pandas(merged, npartitions=nparts). \
+                         map_partitions(lambda df: get_specific_geo(df)).compute()
         # Breaks into parts b/c RCC will boot you off if you try to process the 
         # df of 80k obs in one go
-        num_rows = merged.shape[0] / nparts
-        for i in range(nparts):
-            df_name = 'df_' + str(i)
-            df_name = merged.iloc[int(i * num_rows):int((i + 1) * num_rows)]
-            df_name = get_specific_geo(df_name)
-            all_dfs.append(df_name)
+        # num_rows = merged.shape[0] / nparts
+        # for i in range(nparts):
+        #     df_name = 'df_' + str(i)
+        #     df_name = merged.iloc[int(i * num_rows):int((i + 1) * num_rows)]
+        #     df_name = get_specific_geo(df_name)
+        #     all_dfs.append(df_name)
         total_df = pd.concat(all_dfs)
         total_df.to_csv(output_csv, index=None)
-        print('Completed csv written for ' + txt_file)
+        print(f'Completed csv written for {txt_file}')
     else:
-        print('Missing mod03 files for' + txt_file)
-        missing_name = 'missing_mod03_' + output_csv + '.csv'
-        print('Saving missing as ' + missing_name)
+        print(f'Missing mod03 files for {txt_file}')
+        missing_name = f'missing_mod03_{output_csv}.csv'
+        print(f'Saving missing as {missing_name}')
         missing = pd.DataFrame(missing_mod03_files, dtype='str')
         missing.to_csv(missing_name, header=None, index=False)
 
@@ -258,7 +262,7 @@ def map_clusters(df, cluster_col, png_name):
                                                 alpha=0.5, ax=col)
             # Increases counter to up cluster num.
             counter += 1
-            img_name = 'map_cluster0_group' + str(counter)
+            img_name = f'map_cluster0_group {str(counter)}'
             col.set_title(img_name)
     plt.tight_layout()
     plt.savefig(png_name)
@@ -305,7 +309,7 @@ def map_by_date(df, unique_col_name, cluster_col, png_name):
                     handle_lst.append(handle)
                 counter += 1
                 # Sets name for individual image
-                img_name = 'map_cluster0_group' + str(val) + '.png'
+                img_name = f'map_cluster0_group{str(val)}.png'
                 col.set_title(img_name)
     # Sets one legend for all the plots
     plt.legend(handles=handle_lst, loc='upper center', ncol=2,
