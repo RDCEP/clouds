@@ -8,11 +8,12 @@ Functions to Map Clusters
 import os
 import glob
 import ast
+import datetime
 import multiprocessing as mp
 import re
 import numpy as np
 import pandas as pd
-import geopandas as gpd
+#import geopandas as gpd
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import geolocation as geo
@@ -134,7 +135,8 @@ def get_specific_geo(merged):
                                  axis=1)
     merged['long'] = merged.apply(lambda x: gen_coords(x['long'], x['indices']),
                                   axis=1)
-    return geo.find_corners(merged, 'lat', 'long')
+    print(f'in specfic geo, before finding corners, time: {datetime.datetime.now()}')
+    return geo.find_corners(merged)
 
 
 def gen_coords(geo_col, indices, patch_size=128):
@@ -163,7 +165,7 @@ def gen_coords(geo_col, indices, patch_size=128):
 
 
 def combine_geo(txt_file, input_dir, mod03_dir, num_patches,
-                output_csv, npz_dir=DIR_NPZ, nparts=4):
+                output_csv, npz_dir=DIR_NPZ, nparts=7):
     '''
     Combines above functions into one easily callable function, which finds all
     related files for a given txt file representing one iteration of clustering
@@ -180,29 +182,38 @@ def combine_geo(txt_file, input_dir, mod03_dir, num_patches,
 
     Outputs: A saved csv
     '''
+    print(f'start: {datetime.datetime.now()}')
     all_dfs = []
     npy_file, npz_files = find_related_files(txt_file, input_dir)
     info_df = connect_files(npy_file, npz_files, num_patches, npz_dir)
     geo_df, missing_mod03_files = get_geo_df(info_df, mod03_dir)
+    print(f'has geo_df, bout to merge at {datetime.datetime.now()}')
     # Check if any MOD03 files are needed to have completed clustering iteration
     if not missing_mod03_files:
         merged = pd.merge(info_df, geo_df, how='left', on='file')
         # Breaks into parts b/c RCC will boot you off if you try to process the 
         # df of 80k obs in one go
-        data_split = np.array_split(merged, nparts)
-        pool = mp.Pool(nparts)
-        total_df = pd.concat(pool.map(get_specific_geo, data_split))
-        pool.close()
-        pool.join()
-        # num_rows = merged.shape[0] / nparts
-        # for i in range(nparts):
-        #     df_name = 'df_' + str(i)
-        #     df_name = merged.iloc[int(i * num_rows):int((i + 1) * num_rows)]
-        #     df_name = get_specific_geo(df_name)
-        #     all_dfs.append(df_name)
-        # total_df = pd.concat(all_dfs)
+        #total_df = get_specific_geo(merged)
+        #data_split = np.array_split(merged, nparts)
+        #pool = mp.Pool(nparts)
+        #total_df = pd.concat(pool.map(get_specific_geo, data_split))
+        #pool.close()
+        #pool.join()
+        num_rows = merged.shape[0] / 4
+        for i in range(4):
+            df_name = 'df_' + str(i)
+            df_name = merged.iloc[int(i * num_rows):int((i + 1) * num_rows)]
+            data_split = np.array_split(df_name, nparts)
+            pool = mp.Pool(nparts)
+            processed_df = pd.concat(pool.map(get_specific_geo, data_split))
+            pool.close()
+            pool.join()
+            #df_name = get_specific_geo(df_name)
+            all_dfs.append(processed_df)
+        print(f"About to concat at {datetime.datetime.now()}")
+        total_df = pd.concat(all_dfs)
         total_df.to_csv(output_csv, index=None)
-        print(f'Completed csv written for {txt_file}')
+        print(f'Completed csv written for {txt_file} {datetime.datetime.now()}')
     else:
         print(f'Missing mod03 files for {txt_file}')
         missing_name = f'missing_mod03_{output_csv}.csv'
@@ -229,7 +240,7 @@ def find_info_all_npy(input_dir, npz_dir, mod03_dir, num_patches, nparts=4):
     '''
     for file in os.listdir(input_dir):
         if 'txt' and str(num_patches) in file:
-            output_csv = file[31:-4] + '.csv'
+            output_csv = '{file[31:-4]}.csv'
             combine_geo(file, input_dir, mod03_dir, num_patches,
                         output_csv, npz_dir, nparts)
 
