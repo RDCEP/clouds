@@ -109,6 +109,8 @@ def get_invalid_info2(file, mod02_dir=MOD02_DIRECTORY,
 
 def get_info_for_location(mod02_dir, mod35_dir, mod03_dir, outputfile, nparts):
     '''
+    Creates csv with invalid pixel information and location for files of
+    specific locations
 
     Inputs:
         mod02_dir(str): directory in which MOD02 hdf files are saved
