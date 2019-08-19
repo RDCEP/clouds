@@ -16,7 +16,7 @@ import multiprocessing as mp
 from functools import partial
 import numpy as np
 import pandas as pd
-#import geopandas as gpd
+import geopandas as gpd
 import matplotlib.pyplot as plt
 import pyproj
 import shapely.ops as ops
@@ -25,15 +25,16 @@ import find_invalids as fi
 import prg_StatsInvPixel as stats
 
 
-hdf_libdir = '/Users/katykoeing/Desktop/clouds/src_analysis/lib_hdfs' #change here
-sys.path.insert(1, os.path.join(sys.path[0], hdf_libdir))
+HDF_LIBDIR = '/Users/katykoeing/Desktop/clouds/src_analysis/lib_hdfs' #change here
+sys.path.insert(1, os.path.join(sys.path[0], HDF_LIBDIR))
 #from alignment_lib import gen_mod35_img
 
-MOD02_DIRECTORY = '/home/koenig1/scratch-midway2/MOD02/clustering'
-MOD03_DIRECTORY = '/home/koenig1/scratch-midway2/MOD03/clustering'
-MOD35_DIRECTORY = '/home/koenig1/scratch-midway2/MOD35/clustering'
-INVALIDS_CSV = 'patches_with_invalid_pixels.csv'
-OUTPUT_CSV = 'output_07262019.csv'
+# Put in your corresponding directories below
+MOD02_DIRECTORY = ''
+MOD03_DIRECTORY = ''
+MOD35_DIRECTORY = ''
+INVALIDS_CSV = ''
+OUTPUT_CSV = ''
 KEYS = ['filename', 'patch_no', 'invalid_pixels', 'latitude', 'longitude',
         'geometry']
 
@@ -115,7 +116,7 @@ def make_patches(mod02_path, latitude=None, longitude=None):
             latitudes.append(lat_row)
             longitudes.append(lon_row)
     return np.stack(patches), fillvalue_list, np.stack(latitudes), \
-           np.stack(longitudes)           
+           np.stack(longitudes)
 
 
 PATCH_DICT = {'MOD021KM.A2006011.1435.061.2017260224818.hdf':
@@ -288,7 +289,7 @@ def find_corners(results_df, lat_col='latitude', lon_col='longitude'):
                                                              row[lon_col]),
                                           axis=1)
     results_df.drop(columns=[lat_col, lon_col])
-    two_vals = results_df[results_df['geom'].apply(lambda x: len(x)==2)]. \
+    two_vals = results_df[results_df['geom'].apply(lambda x: len(x) == 2)]. \
                                              index.to_list()
     normal_df = results_df[~results_df.index.isin(two_vals)]
     issue_df = results_df[results_df.index.isin(two_vals)]
@@ -340,7 +341,7 @@ def apply_func_corners(lats, lons):
         coords = (left_side, right_side)
     else:
         coords = [(small_lat, small_lon), (big_lat, small_lon),
-              (small_lat, big_lon), (big_lat, big_lon)]
+                  (small_lat, big_lon), (big_lat, big_lon)]
     return coords
 
 

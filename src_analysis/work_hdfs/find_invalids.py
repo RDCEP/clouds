@@ -21,6 +21,13 @@ HDF_LIBDIR = '/home/koenig1/scratch-midway2/clouds/src_analysis/lib_hdfs' # chan
 sys.path.insert(1, os.path.join(sys.path[0], HDF_LIBDIR))
 #from analysis_lib import _gen_patches
 
+# Put in your corresponding file/directories below
+DATES_FILE = 'clustering_invalid_filelists.txt'
+MOD02_DIRECTORY = ''
+MOD35_DIRECTORY = ''
+OUTPUT_CSV = ''
+MAIN_DIR = ''
+
 
 def get_invalid_info(dates_file=DATES_FILE, mod02_dir=MOD02_DIRECTORY,
                      mod35_dir=MOD35_DIRECTORY, output_file=OUTPUT_CSV):
