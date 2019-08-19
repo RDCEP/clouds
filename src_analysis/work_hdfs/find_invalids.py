@@ -22,13 +22,6 @@ sys.path.insert(1, os.path.join(sys.path[0], HDF_LIBDIR))
 #from analysis_lib import _gen_patches
 
 
-DATES_FILE = 'clustering_invalid_filelists.txt'
-MOD02_DIRECTORY = '/home/koenig1/scratch-midway2/MOD02/clustering'
-MOD35_DIRECTORY = '/home/koenig1/scratch-midway2/MOD35/clustering'
-OUTPUT_CSV = 'output07102019.csv'
-MAIN_DIR = '/home/koenig1/clouds/src_analysis/combined/test'
-
-
 def get_invalid_info(dates_file=DATES_FILE, mod02_dir=MOD02_DIRECTORY,
                      mod35_dir=MOD35_DIRECTORY, output_file=OUTPUT_CSV):
     '''
@@ -173,7 +166,6 @@ def gen_mod35(mod35_file, date=None):
     Outputs: cloud mask image (numpy array created from MOD35 image)
              or None if hdf file not available
     '''
-
     if not mod35_file:
         print(f"No mod35 file downloaded for {date}")
         return None
