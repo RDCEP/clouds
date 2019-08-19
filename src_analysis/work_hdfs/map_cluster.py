@@ -39,8 +39,8 @@ def find_related_files(txt_file, input_dir):
         npz_files(list): list of npz files related to the npy file
 
     '''
-    npy_file = glob.glob(input_dir + '/*' +  txt_file[37:53] + '*.npy')[0]
-    npz_files = open(input_dir + '/' + txt_file, 'r').read().split('.npz')[:-1]
+    npy_file = glob.glob(f'{input_dir}/*{txt_file[37:53]}*.npy')[0]
+    npz_files = open(f'{input_dir }/{txt_file}', 'r').read().split('.npz')[:-1]
     return npy_file, npz_files
 
 
@@ -190,7 +190,7 @@ def combine_geo(txt_file, input_dir, mod03_dir, num_patches,
         # Have to break up dataframe or else will get kicked off RCC
         num_rows = merged.shape[0] / 4
         for i in range(4):
-            df_name = 'df_' + str(i)
+            df_name = f'df_{str(i)}'
             df_name = merged.iloc[int(i * num_rows):int((i + 1) * num_rows)]
             # Parallelizing each df
             data_split = np.array_split(df_name, nparts)
@@ -227,7 +227,7 @@ def find_info_all_npy(input_dir, npz_dir, mod03_dir, num_patches, nparts=4):
     '''
     for file in os.listdir(input_dir):
         if 'txt' and str(num_patches) in file:
-            output_csv = '{file[31:-4]}.csv'
+            output_csv = f'{file[31:-4]}.csv'
             combine_geo(file, input_dir, mod03_dir, num_patches,
                         output_csv, npz_dir, nparts)
 

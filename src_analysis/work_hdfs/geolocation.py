@@ -63,20 +63,19 @@ def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY,
     print(file)
     date = bname[10:22]
     # Finds corresponding MOD03
-    mod03_glob = glob.glob(mod03_dir + '/*/*' + date + '*.hdf')
+    mod03_glob = glob.glob(f'{mod03_dir}/*/*{date}*.hdf')
     latitude, longitude = fi.gen_mod03(mod03_glob, date)
     # Makes mod02 patches
-    mod02_glob = glob.glob(mod02_dir + '/*/' + file)
+    mod02_glob = glob.glob(f'{mod02_dir}/*/{file}')
     patches, fillvalue_list, latitudes, longitudes = fi.gen_mod02(mod02_glob,
                                                                   file,
                                                                   latitude,
                                                                   longitude)
     # Finds corresponding MOD35
-    mod35_glob = glob.glob(mod35_dir + '/*/*' + date + '*.hdf')
+    mod35_glob = glob.glob(f'{mod35_dir}/*/*{date}*.hdf')
     cloud_mask_img = fi.gen_mod35(mod35_glob, date)
-    if cloud_mask_img and latitude and mod02_glob:
-        connect_geolocation(mod02_glob[0], output, patches, fillvalue_list,
-                            latitudes, longitudes, cloud_mask_img)
+    connect_geolocation(mod02_glob[0], output, patches, fillvalue_list,
+                        latitudes, longitudes, cloud_mask_img)
 
 
 def make_patches(mod02_path, latitude=None, longitude=None):
@@ -200,12 +199,12 @@ def plot_patches(file_dir, patch_d=PATCH_DICT):
         for ax, interp in zip(axs, range(6)):
             ax.imshow(patch[:, :, interp], cmap='inferno')
             ax.set_title(key[10:17] + '_' + str(interp), fontsize=8)
-        plt.savefig("clouds-imgs/" + key[10:17] + '.png')
-        print("Completed: " + key[10:17])
+        plt.savefig(f'clouds-imgs/{key[10:17]}.png')
+        print(f"Completed: {key[10:17]}")
 
 
 def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
-                        longitudes, cloud_mask, width=128, height=128,
+                        longitudes, cloud_mask, nparts=1, width=128, height=128,
                         thres=0.3, sdsmax=32767):
     '''
     Connects the geolocation data to each patch in an image/mod02 hdf file
@@ -259,8 +258,16 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
                             results['longitude'].append(lon)
                             patch_counter += 1
         results_df = pd.DataFrame.from_dict(results)
+
+        data_split = np.array_split(results_df[keys], nparts)
+        pool = mp.Pool(nparts)
+        ordered_df = pd.concat(pool.map(find_corners, data_split))
+        pool.close()
+        pool.join()
+
+        # two lines below worked by not parallelized
         # Gets square shape for each patch
-        ordered_df = find_corners(results_df[keys])
+        #ordered_df = find_corners(results_df[keys])
         print('Writing out for' + file)
         ordered_df.to_csv(csvfile, header=False, index=False)
     csvfile.close()
@@ -294,8 +301,7 @@ def find_corners(results_df, lat_col='latitude', lon_col='longitude'):
         new_row['geom'] = issue_df['geom'].loc[idx][1]
         new_df.loc[len(new_df)] = new_row
     total_df = pd.concat([normal_df, new_df])
-    total_df['geom'] = total_df['geom'].apply(geometry.Polygon)
-    return total_df
+    return total_df.drop(columns=[lat_col, lon_col])
 
 
 def apply_func_corners(lats, lons):
@@ -502,11 +508,11 @@ if __name__ == "__main__":
         # Initializes output csv to be appended later
         with open(ARGS.outputfile, 'w') as csvfile:
             OUTPUTWRITER = csv.writer(csvfile, delimiter=',')
-            COLS = [x for x in copy.deepcopy(KEYS) if x not in ['latitude', 'longitude']]
+            COLS = [x for x in copy.deepcopy(KEYS) if x not in ['latitude',
+                                                                'longitude']]
             OUTPUTWRITER.writerow(COLS)
         csvfile.close()
         LAST_FILE = None
-
     ARGS_LST = []
     FILENAMES_DF = pd.read_csv(ARGS.input_file)
     FILES = list(FILENAMES_DF['filename'])
@@ -514,7 +520,8 @@ if __name__ == "__main__":
         LAST_IDX = FILES.index(LAST_FILE)
         FILES = FILES[LAST_IDX:]
     for file in FILES:
-        ARGS_LST.append((file, ARGS.outputfile, ARGS.mod02dir, ARGS.mod35dir, ARGS.mod03dir))
+        ARGS_LST.append((file, ARGS.outputfile, ARGS.mod02dir, ARGS.mod35dir,
+                         ARGS.mod03dir))
     POOL.starmap(make_connecting_csv, ARGS_LST)
     POOL.close()
     POOL.join()

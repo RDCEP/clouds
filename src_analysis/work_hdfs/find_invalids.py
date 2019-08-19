@@ -13,9 +13,8 @@ import csv
 import glob
 import multiprocessing as mp
 import pandas as pd
-from pyhdf.SD import SD, SDC
-import geolocation
-import map_cluster as mc
+#from pyhdf.SD import SD, SDC
+import geolocation as geo
 
 
 hdf_libdir = '/home/koenig1/scratch-midway2/clouds/src_analysis/lib_hdfs' # change here
@@ -61,11 +60,11 @@ def get_invalid_info(dates_file=DATES_FILE, mod02_dir=MOD02_DIRECTORY,
     desired_files = dates[0].replace('hdf', 'hdf ').split()
     for file in desired_files:
         # Finds actual MOD02 files
-        mod02_path = glob.glob(mod02_dir + '/*/' + file)[0]
+        mod02_path = glob.glob(f'{mod02_dir}/*/{file}')[0]
         bname = os.path.basename(file)
         date = bname[10:22]
         # Finds corresponding MOD35
-        mod35_path = glob.glob(mod35_dir + '/*/*' + date + '*.hdf')[0]
+        mod35_path = glob.glob(f'{mod35_dir}/*/*{date}*.hdf')[0]
         fillvalue_list, mod02_img = stats.gen_mod02_img(mod02_path)
         hdf_m35 = SD(mod35_path, SDC.READ)
         clouds_mask_img = stats.gen_mod35_img(hdf_m35)
@@ -88,19 +87,19 @@ def get_invalid_info2(file, mod02_dir=MOD02_DIRECTORY,
 
     Inputs:
         file(str): name of mod02 hdf file
-        mod02_dir(str):
-        mod35_dir(str):
-        output_file(str):
+        mod02_dir(str): directory in which MOD02 hdf file is saved
+        mod35_dir(str): directory in whichg MOD35 hdf file is saved
+        output_file(str): desired output csv file name
 
     Outputs:
         None (writes csv)
     '''
     # Finds actual MOD02 file
-    mod02_glob = glob.glob(mod02_dir + '/*/*/' + file)
+    mod02_glob = glob.glob(f'{mod02_dir}/*/*/{file}')
     mod02_patches, fillvalue_list = gen_mod02(mod02_glob, file)
     # Finds corresponding MOD35
     date = os.path.basename(file)[10:22]
-    mod35_glob = glob.glob(mod35_dir + '/*/*' + date + '*.hdf')
+    mod35_glob = glob.glob(f'{mod35_dir}/*/*{date}*.hdf')
     clouds_mask_img = gen_mod35(mod35_glob)
     if clouds_mask_img and mod02_patches:
         # Checks validity of pixels for each file and writes csv
@@ -108,14 +107,34 @@ def get_invalid_info2(file, mod02_dir=MOD02_DIRECTORY,
                                     clouds_mask_img, fillvalue_list, thres=0.3)
 
 
-def get_info_for_location(mod02_dir, mod35_dir, mod03_dir):
+def get_info_for_location(mod02_dir, mod35_dir, mod03_dir, outputfile, nparts):
     '''
+
+    Inputs:
+        mod02_dir(str): directory in which MOD02 hdf files are saved
+        mod35_dir(str): directory in which MOD35 hdf files are saved
+        mod03_dir(str): directory in which MOD03 hdf files are saved
+        outputfile(str): desired name of output csv
+        nparts(int): number of partitions/cores to be used for parallelization
+
+    Outputs: None (creates and saves a csv file)
     '''
-    mod02_files = glob.glob(mod02_dir + '/*/*/*/*.hdf')
+    with open(outputfile, 'w') as csvfile:
+        outputwriter = csv.writer(csvfile, delimiter=',')
+        outputwriter.writerow(['filename', 'patch_no', 'invalid_pixels',
+                               'geometry'])
+
+    mod02_files = glob.glob(f'{mod02_dir}/*/*/*/*.hdf')
     for mod02_file in mod02_files:
-        mod02_patches, fillvalue_list = gen_mod02(mod02_file)
-        mod02_file[0][50:]
-    latitude, longitude = mc.gen_mod03(mod03_path)
+        file_base = mod02_file[0][-34:-22]
+        mod35_path = glob.glob(f'{mod35_dir}/*/*/*/*{file_base}*.hdf')
+        clouds_mask_img = gen_mod35(mod35_path, file_base)
+        mod03_path = glob.glob(f'{mod03_dir}/*/*/*/*{file_base}*.hdf')
+        latitude, longitude = gen_mod03(mod03_path)
+        patches, fill_values, lats, longs = gen_mod02(mod02_file, latitude,
+                                                         longitude)
+        geo.connect_location(file_base, outputfile, patches, fill_values, lats,
+                             longs, cloud_mask, nparts)
 
 
 def gen_mod02(mod02_file, file, latitude=None, longitude=None):
@@ -155,7 +174,7 @@ def gen_mod35(mod35_file, date=None):
     '''
 
     if not mod35_file:
-        print("No mod35 file downloaded for " + date)
+        print(f"No mod35 file downloaded for {date}")
         return None
     elif len(mod35_file) == 1:
         mod35_file = mod35_file[0]
@@ -179,7 +198,7 @@ def gen_mod03(mod03_file, date):
         longitude: numpy array of arrays with the longitudes of each pixel
     '''
     if not mod03_file:
-        print("No mod03 file downloaded for " + date)
+        print(f"No mod03 file downloaded for {date}")
         return None
     elif len(mod03_file) == 1:
         mod03_file = mod03[0]
