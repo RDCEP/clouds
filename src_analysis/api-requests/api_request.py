@@ -159,8 +159,8 @@ def find_files(prods='MOD06_L2--61', dates=DATE_FILE, coords=COORDINATES_FILE, e
                 # Checks to ensure that in bad time period (when issue w/ detector)
                 dt_obj = datetime.datetime.strptime(date, '%Y-%m-%d')
                 if not bad_start < dt_obj < bad_end:
-                    search_params['startTime'] = date + ' 00:00:00'
-                    search_params['endTime'] = date + ' 23:59:59'
+                    search_params['startTime'] = f'{date} 00:00:00'
+                    search_params['endTime'] = f'{date} 23:59:59'
                     # Find relevant files
                     response = requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/searchForFiles?',
                                             search_params)
@@ -176,7 +176,7 @@ def find_files(prods='MOD06_L2--61', dates=DATE_FILE, coords=COORDINATES_FILE, e
                     if file_ids:
                         order_params = {'email': email_address, 'doMosaic': 'True', 'fileIds': ','.join(file_ids)}
                         total_params.append(order_params)
-                        destination = DESIRED_DIR + str(prods) + '/clustering/' + str(location) + '/' + str(date)
+                        destination = f'{DESIRED_DIR}{str(prods)}/clustering/{str(location)}/{str(date)}'
                         destination_lst.append(destination)
     return total_params, destination_lst
 
@@ -246,12 +246,12 @@ def download_order(order, destination, token=APP_KEY):
     Outputs: None (saved images)
     '''
     try:
-        source = 'https://ladsweb.modaps.eosdis.nasa.gov/archive/orders/' + str(order) + '/'
+        source = f'https://ladsweb.modaps.eosdis.nasa.gov/archive/orders/{str(order)}/'
         if not os.path.exists(destination):
             os.makedirs(destination)
         ldd.sync(source, destination, token)
     except:
-        time.sleep(3)
+        time.sleep(5)
         print('trying again to download')
         download_order(order, destination, token)
 
