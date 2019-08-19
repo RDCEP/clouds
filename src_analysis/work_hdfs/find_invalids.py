@@ -13,9 +13,10 @@ import csv
 import glob
 import multiprocessing as mp
 import pandas as pd
+import numpy as np
 from pyhdf.SD import SD, SDC
 import geolocation as geo
-import prg_StatsInvPixel as stats
+#import prg_StatsInvPixel as stats
 
 HDF_LIBDIR = '/home/koenig1/scratch-midway2/clouds/src_analysis/lib_hdfs' # change here
 sys.path.insert(1, os.path.join(sys.path[0], HDF_LIBDIR))
@@ -99,7 +100,8 @@ def get_invalid_info2(filename, mod02_dir=MOD02_DIRECTORY,
     date = os.path.basename(filename)[10:22]
     mod35_glob = glob.glob(f'{mod35_dir}/*/*{date}*.hdf')
     clouds_mask_img = gen_mod35(mod35_glob)
-    if clouds_mask_img and mod02_patches:
+    if isinstance(clouds_mask_img, np.ndarray) and isinstance(mod02_patches,
+                                                              np.ndarray):
         # Checks validity of pixels for each file and writes csv
         stats.check_invalid_clouds2(output_file, filename, mod02_patches,
                                     clouds_mask_img, fillvalue_list, thres=0.3)
@@ -138,6 +140,32 @@ def get_info_for_location(mod02_dir, mod35_dir, mod03_dir, outputfile, nparts):
         geo.connect_geolocation(f'{file_base}_{location_date}', outputfile,
                                 patches, fill_values, lats, longs,
                                 cloud_mask_img, nparts)
+
+
+def get_stats_spec_locs(spec_loc_csv):
+    '''
+    Generates statistics regarding invalid pixels for specific locations,
+    specifically to check if areas that have a high absolute invalid
+    pixel count also have a high relative invalid pixel, i.e. do areas with
+    a lot of invalid pixels also have a lot of patches?
+
+    Inputs:
+        spec_loc_csv(str): csv with invalid pixel info for specific locations
+
+    Outputs:
+        spec_loc_df: a pandas dataframe with each row as an individual patch
+        by_loc: a pandas dataframe that is grouped by location
+    '''
+    types_d = {'filename': 'str', 'patch_no': 'int', 'invalid_pixels': 'int',
+               'geometry': 'str'}
+    spec_loc_df = pd.read_csv(spec_loc_csv, dtype=types_d)
+    spec_loc_df['location'] = spec_loc_df['filename'].apply(lambda x: x[13:-11])
+    by_loc = spec_loc_df.groupby('location'). \
+                         agg({'patch_no': 'count', 'inval_pixels': 'sum'}). \
+                         rename('patch_no': 'patch_count').reset_index()
+    by_loc['pct_inval'] = by_loc['inval_pixels'] / by_loc['patch_count'] * 100
+    return spec_loc_df, by_loc
+
 
 
 def gen_mod02(mod02_file, filename, latitude=None, longitude=None):
