@@ -13,7 +13,7 @@ import csv
 import glob
 import multiprocessing as mp
 import pandas as pd
-#from pyhdf.SD import SD, SDC
+from pyhdf.SD import SD, SDC
 import geolocation as geo
 
 
@@ -21,7 +21,7 @@ hdf_libdir = '/home/koenig1/scratch-midway2/clouds/src_analysis/lib_hdfs' # chan
 sys.path.insert(1, os.path.join(sys.path[0], hdf_libdir))
 #from analysis_lib import _gen_patches
 #from alignment_lib import gen_mod35_img
-#import prg_StatsInvPixel as stats
+import prg_StatsInvPixel as stats
 
 DATES_FILE = 'clustering_invalid_filelists.txt'
 MOD02_DIRECTORY = '/home/koenig1/scratch-midway2/MOD02/clustering'
@@ -128,11 +128,14 @@ def get_info_for_location(mod02_dir, mod35_dir, mod03_dir, outputfile, nparts):
 
     mod02_files = glob.glob(f'{mod02_dir}/*/*/*/*.hdf')
     for mod02_file in mod02_files:
-        file_base = mod02_file[0][-34:-22]
-        mod35_path = glob.glob(f'{mod35_dir}/*/*/*/*{file_base}*.hdf')
+        print(mod02_file)
+        file_base = mod02_file[-34:-22]
+        location_date = mod02_file[50:70]
+        print(file_base, location_date)
+        mod35_path = glob.glob(f'{mod35_dir}/*/{location_date}/*{file_base}*.hdf')
         clouds_mask_img = gen_mod35(mod35_path, file_base)
-        mod03_path = glob.glob(f'{mod03_dir}/*/*/*/*{file_base}*.hdf')
-        latitude, longitude = gen_mod03(mod03_path)
+        mod03_path = glob.glob(f'{mod03_dir}/*/{location_date}/*{file_base}*.hdf')
+        latitude, longitude = gen_mod03(mod03_path, file_base)
         patches, fill_values, lats, longs = gen_mod02(mod02_file, latitude,
                                                          longitude)
         geo.connect_location(file_base, outputfile, patches, fill_values, lats,
@@ -203,7 +206,7 @@ def gen_mod03(mod03_file, date):
         print(f"No mod03 file downloaded for {date}")
         return None
     elif len(mod03_file) == 1:
-        mod03_file = mod03[0]
+        mod03_file = mod03_file[0]
     mod03_hdf = SD(mod03_file, SDC.READ)
     lat = mod03_hdf.select('Latitude')
     latitude = lat[:, :]

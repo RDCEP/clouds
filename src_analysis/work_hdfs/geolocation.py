@@ -16,13 +16,13 @@ import multiprocessing as mp
 from functools import partial
 import numpy as np
 import pandas as pd
-import geopandas as gpd
+#import geopandas as gpd
 import matplotlib.pyplot as plt
 import pyproj
 import shapely.ops as ops
 from shapely import geometry
 import find_invalids as fi
-#import prg_StatsInvPixel as stats
+import prg_StatsInvPixel as stats
 
 
 hdf_libdir = '/Users/katykoeing/Desktop/clouds/src_analysis/lib_hdfs' #change here
