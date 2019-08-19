@@ -102,7 +102,7 @@ def make_patches(mod02_path, latitude=None, longitude=None):
         for j in range(0, swath.shape[1], stride):
             if i + patch_size <= swath.shape[0] and j + patch_size <= swath.shape[1]:
                 patch = swath[i:i + patch_size, j:j + patch_size].astype(float)
-                if latitude:
+                if isinstance(latitude, np.ndarray):
                     lat = latitude[i:i + patch_size,
                                    j:j + patch_size].astype(float)
                     lon = longitude[i:i + patch_size,
@@ -268,7 +268,7 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
         # two lines below worked by not parallelized
         # Gets square shape for each patch
         #ordered_df = find_corners(results_df[keys])
-        print('Writing out for' + file)
+        print(f'Writing out for {file}')
         ordered_df.to_csv(csvfile, header=False, index=False)
     csvfile.close()
 

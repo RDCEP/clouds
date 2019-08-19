@@ -131,15 +131,14 @@ def get_info_for_location(mod02_dir, mod35_dir, mod03_dir, outputfile, nparts):
         print(mod02_file)
         file_base = mod02_file[-34:-22]
         location_date = mod02_file[50:70]
-        print(file_base, location_date)
         mod35_path = glob.glob(f'{mod35_dir}/*/{location_date}/*{file_base}*.hdf')
-        clouds_mask_img = gen_mod35(mod35_path, file_base)
+        cloud_mask_img = gen_mod35(mod35_path, file_base)
         mod03_path = glob.glob(f'{mod03_dir}/*/{location_date}/*{file_base}*.hdf')
         latitude, longitude = gen_mod03(mod03_path, file_base)
-        patches, fill_values, lats, longs = gen_mod02(mod02_file, latitude,
+        patches, fill_values, lats, longs = gen_mod02(mod02_file, file_base, latitude,
                                                          longitude)
-        geo.connect_location(file_base, outputfile, patches, fill_values, lats,
-                             longs, cloud_mask, nparts)
+        geo.connect_geolocation(f'{file_base}_{location_date}', outputfile, patches, fill_values, lats,
+                                longs, cloud_mask_img, nparts)
 
 
 def gen_mod02(mod02_file, file, latitude=None, longitude=None):
@@ -160,9 +159,7 @@ def gen_mod02(mod02_file, file, latitude=None, longitude=None):
         return None
     elif len(mod02_file) == 1:
         mod02_file = mod02_file[0]
-    fillvalue_list, mod02_img = stats.gen_mod02_img(mod02_file)
-    mod02_patches = geo.make_patches(mod02_img, latitude, longitude)
-    return mod02_patches, fillvalue_list, latitudes, longitudes
+    return geo.make_patches(mod02_file, latitude, longitude)
 
 
 def gen_mod35(mod35_file, date=None):
