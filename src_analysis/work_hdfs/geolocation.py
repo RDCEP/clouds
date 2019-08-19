@@ -22,7 +22,7 @@ import pyproj
 import shapely.ops as ops
 from shapely import geometry
 import find_invalids as fi
-import prg_StatsInvPixel as stats
+#import prg_StatsInvPixel as stats
 
 
 HDF_LIBDIR = '/Users/katykoeing/Desktop/clouds/src_analysis/lib_hdfs' #change here
@@ -259,16 +259,12 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
                             results['longitude'].append(lon)
                             patch_counter += 1
         results_df = pd.DataFrame.from_dict(results)
-
+        # Parallelizes finding 4 corners
         data_split = np.array_split(results_df[keys], nparts)
         pool = mp.Pool(nparts)
         ordered_df = pd.concat(pool.map(find_corners, data_split))
         pool.close()
         pool.join()
-
-        # two lines below worked by not parallelized
-        # Gets square shape for each patch
-        #ordered_df = find_corners(results_df[keys])
         print(f'Writing out for {file}')
         ordered_df.to_csv(csvfile, header=False, index=False)
     csvfile.close()
@@ -294,6 +290,8 @@ def find_corners(results_df, lat_col='latitude', lon_col='longitude'):
     normal_df = results_df[~results_df.index.isin(two_vals)]
     issue_df = results_df[results_df.index.isin(two_vals)]
     new_df = pd.DataFrame(columns=issue_df.columns)
+    # Creates two rows if patch needs to be broken up due to change from - to + 
+    # longitude (or vice versa)
     for idx in two_vals:
         reg_cols = issue_df[issue_df.columns.difference(['geom'])].loc[idx]
         new_row = reg_cols.to_dict()
@@ -333,6 +331,9 @@ def apply_func_corners(lats, lons):
                 big_lon = curr_lon
             else:
                 small_lon = curr_lon
+    # Below checks to unsure that due to +/- longs, patch does not cover whole
+    # width but instead is broken into 2 patches, one at the left and one at
+    # the right side of the map
     if big_lon - small_lon > 100:
         left_side = [(small_lat, -180.0), (big_lat, -180),
                      (small_lat, small_lon), (big_lat, small_lon)]
@@ -414,7 +415,7 @@ def find_invalid_lats_lons(df, col='geometry'):
     for key in valid_d:
         start, max_val = valid_d[key]
         df[key] = df[col].apply(lambda x: x[start::2])
-        df_name = key + '_df'
+        df_name = f'{key}_df'
         df_name = pd.DataFrame(df[key].tolist())
         for column in df_name.columns:
             issue_idx = df_name[df_name[column] \
@@ -471,12 +472,11 @@ def find_area(poly_obj):
     Outputs:
         area in square kilometers of the patch
     '''
-    geom_area = ops.transform(
-        partial(
-            pyproj.transform,
-            pyproj.Proj(init='EPSG:4326'),
-            pyproj.Proj(proj='aea', lat1=poly_obj.bounds[1],
-                        lat2=poly_obj.bounds[3])), poly_obj)
+    geom_area = ops.transform(partial(pyproj.transform,
+                                      pyproj.Proj(init='EPSG:4326'),
+                                      pyproj.Proj(proj='aea',
+                                      lat1=poly_obj.bounds[1],
+                                      lat2=poly_obj.bounds[3])), poly_obj)
     return geom_area.area / 1000000
 
 
