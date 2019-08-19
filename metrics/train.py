@@ -60,6 +60,12 @@ def get_args():
     type=int,
     default=10
   )
+  p.add_argument(
+    '--rotation',
+    action="store_true", 
+    help='if user attachs this option, training images will be rondamly rotated',
+    default=False
+  )
   args = p.parse_args()
   for f in args.__dict__:
     print("\t", f, (25 - len(f)) * " ", args.__dict__[f])
@@ -117,6 +123,39 @@ def model_fn(shape=(28,28,1)) :
              
     return encoder, decoder
 
+def rotate_fn(images):
+    """
+    Apply random rotation to data and parse to dataset module
+    images: before parse to encoder
+
+    * copy function from classifier.py
+    """
+    # float point 32
+    images = images.astype(np.float32)
+
+    # random rotation
+    random_angles = tf.random.uniform(
+        shape = (tf.shape(images)[0], ), 
+        minval = 0,
+        maxval = 359,
+        dtype=tf.float32,
+        seed = 0
+    )
+    rotated_tensor_images = tf.contrib.image.transform(
+      images,
+      tf.contrib.image.angles_to_projective_transforms(
+        random_angles, tf.cast(tf.shape(images)[1], tf.float32), 
+            tf.cast(tf.shape(images)[2], tf.float32)
+        )
+    )
+    
+    # convert from tensor to numpy
+    sess = tf.Session()
+    with sess.as_default():
+      rotated_images = rotated_tensor_images.eval()
+    return rotated_images
+
+
 def loss_dev_fn(output_layer, 
                 input_layer, 
                 encoded_imgs,
@@ -152,11 +191,14 @@ def loss_dev_fn(output_layer,
     
     return reconst + tf.multiply(tf.constant(c_lambda ,dtype=tf.float32), hidden)
 
-def input_fn(data, batch_size=32):
+def input_fn(data, batch_size=32, rotation=False):
     data1 = data.reshape(-1,28,28,1)
+    if rotation:
+      data1 = rotate_fn(data1)
+      print(" Apply rondam rotation to training images for AE ")
     dataset = tf.data.Dataset.from_tensor_slices((data1))
-    #dataset = dataset.shuffle(1000).repeat().batch(batch_size)
-    dataset = dataset.repeat().batch(batch_size)
+    dataset = dataset.shuffle(1000).repeat().batch(batch_size)
+    #dataset = dataset.repeat().batch(batch_size)
     return dataset
 
 
@@ -178,7 +220,8 @@ if __name__ == "__main__":
   encoder, decoder = model_fn()
 
   # get dataset and one-shot-iterator
-  dataset = input_fn(mnist.train.images, batch_size=FLAGS.batch_size)
+  dataset = input_fn(mnist.train.images, batch_size=FLAGS.batch_size, rotation=FLAGS.rotation)
+  #dataset = input_fn(mnist.train.images, batch_size=FLAGS.batch_size)
   img= dataset.make_one_shot_iterator().get_next()
 
   # get layer output
