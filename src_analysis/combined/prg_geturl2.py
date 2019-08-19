@@ -50,7 +50,7 @@ def bool_fsize2(url, thresval=1):
     '''
     coef = 1/1000/1000
     r = requests.get(url)
-    fsize = len(r.content)*coef
+    fsize = len(r.content) * coef
     return fsize >= thresval
 
 
@@ -91,9 +91,9 @@ def delta_day(year='0000', month='00', day='00'):
     delta = datetime.date(_year, _month, _day) - datetime.date(_year, 1, 1)
     dday = delta.days+1
     if dday < 10:
-        delta_day = "00"+str(dday)
+        delta_day = "00" + str(dday)
     elif 100 > dday >= 10:
-        delta_day = "0"+str(dday)
+        delta_day = "0" + str(dday)
     elif 1000 > dday >= 100:
         delta_day = str(dday)
     return delta_day
@@ -115,7 +115,7 @@ def combining_fn(iline, url, thresval, outputdir, start_time):
     date = iline.split('\n')[0]
     year = date[:4]
     days = delta_day(year=date[:4], month=date[5:7], day=date[8:])
-    url = args.url+'/'+year+'/'+days+'/'
+    url = f'{args.url}/{year}/{days}/'
     # Check if valid url
     response = requests.get(url)
     if response.status_code == 200:
@@ -164,7 +164,7 @@ def download_from_name(file, keyword, outputdir, start_time):
     print(file)
     date = file[4:7]
     time = file[8:12]
-    url = base_url + year + '/' + date + '/'
+    url = f'{base_url}{year}/{date}/'
     response = requests.get(url)
     if response.status_code == 200:
         # Gets specific href for only 1 time (not all images on a page)
