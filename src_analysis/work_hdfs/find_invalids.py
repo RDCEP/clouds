@@ -23,7 +23,7 @@ sys.path.insert(1, os.path.join(sys.path[0], HDF_LIBDIR))
 #from analysis_lib import _gen_patches
 
 # Put in your corresponding file/directories below
-DATES_FILE = 'clustering_invalid_filelists.txt'
+INPUT_FILE = 'clustering_invalid_filelists.txt'
 MOD02_DIRECTORY = ''
 MOD35_DIRECTORY = ''
 OUTPUT_CSV = ''
@@ -135,11 +135,17 @@ def get_info_for_location(mod02_dir, mod35_dir, mod03_dir, outputfile, nparts):
         cloud_mask_img = gen_mod35(mod35_path, file_base)
         mod03_path = glob.glob(f'{mod03_dir}/*/{location_date}/*{file_base}*.hdf')
         latitude, longitude = gen_mod03(mod03_path, file_base)
-        patches, fill_values, lats, longs = gen_mod02(mod02_file, file_base,
-                                                      latitude, longitude)
-        geo.connect_geolocation(f'{file_base}_{location_date}', outputfile,
-                                patches, fill_values, lats, longs,
-                                cloud_mask_img, nparts)
+        try:
+            patches, fill_values, lats, longs = gen_mod02(mod02_file, file_base,
+                                                          latitude, longitude)
+            if isinstance(lats, np.ndarray) and isinstance(cloud_mask_img,
+                                                           np.ndarray):
+                geo.connect_geolocation(f'{file_base}_{location_date}',
+                                        outputfile, patches, fill_values, lats,
+                                        longs, cloud_mask_img, nparts)
+        except:
+            print(f'Missing Files - Unable to write info for {mod02_file}')
+            pass
 
 
 def get_stats_spec_locs(spec_loc_csv):
@@ -206,9 +212,13 @@ def gen_mod35(mod35_file, date=None):
         return None
     if len(mod35_file) == 1:
         mod35_file = mod35_file[0]
-    hdf_m35 = SD(mod35_file, SDC.READ)
-    clouds_mask_img = stats.gen_mod35_img(hdf_m35)
-    return clouds_mask_img
+    try:
+        hdf_m35 = SD(mod35_file, SDC.READ)
+        clouds_mask_img = stats.gen_mod35_img(hdf_m35)
+        return clouds_mask_img
+    except:
+        print(f'Issue with downloaded MOD35 file {mod35_file}')
+        pass
 
 
 def gen_mod03(mod03_file, date):
@@ -230,17 +240,21 @@ def gen_mod03(mod03_file, date):
         return None
     if len(mod03_file) == 1:
         mod03_file = mod03_file[0]
-    mod03_hdf = SD(mod03_file, SDC.READ)
-    lat = mod03_hdf.select('Latitude')
-    latitude = lat[:, :]
-    lon = mod03_hdf.select('Longitude')
-    longitude = lon[:, :]
-    return latitude, longitude
+    try:
+        mod03_hdf = SD(mod03_file, SDC.READ)
+        lat = mod03_hdf.select('Latitude')
+        latitude = lat[:, :]
+        lon = mod03_hdf.select('Longitude')
+        longitude = lon[:, :]
+        return latitude, longitude
+    except:
+        print(f'Issue with downloaded MOD03 file {mod03_file}')
+        pass
 
 
 if __name__ == "__main__":
     P = argparse.ArgumentParser()
-    P.add_argument('--dates_file', type=str, default=DATES_FILE)
+    P.add_argument('--input_file', type=str, default=INPUT)
     P.add_argument('--processors', type=int, default=5)
     P.add_argument('--outputfile', type=str, default=OUTPUT_CSV)
     ARGS = P.parse_args()
@@ -264,14 +278,18 @@ if __name__ == "__main__":
             OUTPUTWRITER.writerow(['filename', 'patch_no', 'inval_pixels'])
         csvfile.close()
         LAST_FILE = None
+    if 'txt' in ARGS.input:
     # Finds name of desired MOD02 hdf files to be analyzed
-    with open(ARGS.dates_file, "r") as file:
-        DATES = file.readlines()
-    DESIRED_FILES = DATES[0].replace('hdf', 'hdf ').split()
-    if LAST_FILE:
-        LAST_IDX = DESIRED_FILES.index(LAST_FILE)
-        DESIRED_FILES = DESIRED_FILES[LAST_IDX:]
+        with open(ARGS.input, "r") as file:
+            DATES = file.readlines()
+        DESIRED_FILES = DATES[0].replace('hdf', 'hdf ').split()
+        if LAST_FILE:
+            LAST_IDX = DESIRED_FILES.index(LAST_FILE)
+            DESIRED_FILES = DESIRED_FILES[LAST_IDX:]
+    else:
+        DESIRED_FILES = os.listdir(ARGS.input)
+    pritn(DESIRED_FILES)
 
-    POOL.map(get_invalid_info2, DESIRED_FILES)
-    POOL.close()
-    POOL.join()
+    # POOL.map(get_invalid_info2, DESIRED_FILES)
+    # POOL.close()
+    # POOL.join()
