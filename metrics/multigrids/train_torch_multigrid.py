@@ -385,6 +385,69 @@ class MGResSeries(nn.Module):
     def forward(self, x):
         return self.mgresseries(x)
 
+class PyramidDataset(torch.utils.data.Dataset):
+    def __init__(self, inputData, targetData, layerReses=(32, None, None, None, None), transform=None):
+        super(PyramidDataset, self).__init__()
+        
+        print("\nPreparing the data...")
+        
+        self.targets = targetData.targets
+        self.transform = transform
+        self.pool = nn.MaxPool2d(2, 2)
+        self.layerReses = layerReses
+        if torch.cuda.is_available():
+          self.data = [resolution.cuda() for resolution in self.makePyramid(inputData.data)]
+        else:
+          self.data = [resolution.cpu() for resolution in self.makePyramid(inputData.data)]
+
+    def makePyramid(self, x):
+        ogres = x.shape[-2]
+        pyramid = []
+        #x = x.astype('uint8')
+        images = []
+        for i, elt in enumerate(x):
+            images.append(self.transform(x[i]))
+        if torch.cuda.is_available():
+          x = torch.stack(images).cuda()
+        else:
+          x = torch.stack(images).cpu()
+
+        for res in self.layerReses:
+            if not(isinstance(res, int)):
+                pyramid.append(torch.from_numpy(np.array([])))
+                continue
+            degree = ogres / res
+            sheet = self.subsample(x, degree)
+            pyramid.append(sheet)
+            
+        return pyramid
+
+    def subsample(self, x, degree=2):
+        if not (degree % 2 == 0) and not (degree == 1):
+            print("Please choose a power of 2 for the pyramidal resolution changes.")
+            exit(0)
+        k = 1
+        while k < degree:
+            k = k * 2
+            x = self.pool(x)
+        return x
+
+    def __len__(self):
+        return len(self.targets)
+
+    def __getitem__(self, idx):
+        unprocessedTarget = self.targets[idx]
+        unprocessedSheets = []
+        for resolution in self.data:
+            if resolution.size()[0] > 0:
+                unprocessedSheets.append(resolution[idx])
+            else:
+                unprocessedSheets.append(resolution)
+
+
+        sample = (unprocessedSheets, unprocessedTarget)
+
+        return sample
 
 class MGAutoencoder(nn.Module):
 
