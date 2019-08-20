@@ -49,7 +49,7 @@ This code is optimized to download non-location specific data through two differ
 		 2. You have a list of dates to download. <br />
 		 	If you have a txt file of the dates for which you wish to download data (example: [clustering_mod35_list.txt](https://github.com/RDCEP/clouds/blob/mod021KM/src_analysis/combined/clustering_mod35_list.txt)), you need only modify the `datedata` argument in the bash script with the path to the txt file as a string.
 	2. [download_spec_datetimes.bash](https://github.com/RDCEP/clouds/blob/mod021KM/src_analysis/combined/download_spec_datetimes.bash)
-		* Check to ensure the input_csv has the correct csv. An example of a correct input is [datetime_example.csv](https://github.com/RDCEP/clouds/blob/mod021KM/src_analysis/combined/datetime_example.csv).
+		* Check to ensure the `input_csv` argument has the correct csv. An example of a correct input is [datetime_example.csv](https://github.com/RDCEP/clouds/blob/mod021KM/src_analysis/combined/datetime_example.csv).
 
 	 Note that for both options you **must** check (and probably edit) the following arguments:
 	 1. outputdir
