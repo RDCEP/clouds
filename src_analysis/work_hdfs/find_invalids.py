@@ -16,11 +16,11 @@ import pandas as pd
 import numpy as np
 from pyhdf.SD import SD, SDC
 import geolocation as geo
-#import prg_StatsInvPixel as stats
+import prg_StatsInvPixel as stats
 
 HDF_LIBDIR = '/home/koenig1/scratch-midway2/clouds/src_analysis/lib_hdfs' # change here
 sys.path.insert(1, os.path.join(sys.path[0], HDF_LIBDIR))
-#from analysis_lib import _gen_patches
+from analysis_lib import _gen_patches
 
 # Put in your corresponding file/directories below
 INPUT_FILE = 'clustering_invalid_filelists.txt'
@@ -30,7 +30,7 @@ OUTPUT_CSV = ''
 MAIN_DIR = ''
 
 
-def get_invalid_info(dates_file=DATES_FILE, mod02_dir=MOD02_DIRECTORY,
+def get_invalid_info(dates_file=INPUT_FILE, mod02_dir=MOD02_DIRECTORY,
                      mod35_dir=MOD35_DIRECTORY, output_file=OUTPUT_CSV):
     '''
     Searches for desired files and writes csv with each row being a MOD02
@@ -168,7 +168,7 @@ def get_stats_spec_locs(spec_loc_csv):
     spec_loc_df['location'] = spec_loc_df['filename'].apply(lambda x: x[13:-11])
     by_loc = spec_loc_df.groupby('location'). \
                          agg({'patch_no': 'count', 'inval_pixels': 'sum'}). \
-                         rename('patch_no': 'patch_count').reset_index()
+                         rename(columns={'patch_no': 'patch_count'}).reset_index()
     by_loc['pct_inval'] = by_loc['inval_pixels'] / by_loc['patch_count'] * 100
     return spec_loc_df, by_loc
 
@@ -235,6 +235,7 @@ def gen_mod03(mod03_file, date):
         latitude: numpy array of arrays with the latitudes of each pixel
         longitude: numpy array of arrays with the longitudes of each pixel
     '''
+    print(mod03_file)
     if not mod03_file:
         print(f"No mod03 file downloaded for {date}")
         return None

@@ -16,13 +16,13 @@ import multiprocessing as mp
 from functools import partial
 import numpy as np
 import pandas as pd
-import geopandas as gpd
+#import geopandas as gpd
 import matplotlib.pyplot as plt
 import pyproj
 import shapely.ops as ops
 from shapely import geometry
 import find_invalids as fi
-#import prg_StatsInvPixel as stats
+import prg_StatsInvPixel as stats
 
 
 HDF_LIBDIR = '/Users/katykoeing/Desktop/clouds/src_analysis/lib_hdfs' #change here
@@ -30,11 +30,11 @@ sys.path.insert(1, os.path.join(sys.path[0], HDF_LIBDIR))
 #from alignment_lib import gen_mod35_img
 
 # Put in your corresponding directories below
-MOD02_DIRECTORY = ''
-MOD03_DIRECTORY = ''
-MOD35_DIRECTORY = ''
-INVALIDS_CSV = ''
-OUTPUT_CSV = ''
+MOD02_DIRECTORY = '/home/koenig1/scratch-midway2/big_invalids/mod02invalids'
+MOD03_DIRECTORY = '/home/koenig1/scratch-midway2/big_invalids/mod03invalids'
+MOD35_DIRECTORY = '/home/koenig1/scratch-midway2/big_invalids/mod35invalids'
+INVALIDS_CSV = '/home/koenig1/clouds/src_analysis/combined/mod02_files_big_patches.csv'
+OUTPUT_CSV = 'corrected_invalids.csv'
 KEYS = ['filename', 'patch_no', 'invalid_pixels', 'latitude', 'longitude',
         'geometry']
 
@@ -64,16 +64,17 @@ def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY,
     print(file)
     date = bname[10:22]
     # Finds corresponding MOD03
-    mod03_glob = glob.glob(f'{mod03_dir}/*/*{date}*.hdf')
+    mod03_glob = glob.glob(f'{mod03_dir}/*{date}*.hdf')
     latitude, longitude = fi.gen_mod03(mod03_glob, date)
     # Makes mod02 patches
-    mod02_glob = glob.glob(f'{mod02_dir}/*/{file}')
+    mod02_glob = glob.glob(f'{mod02_dir}/*{file}')
     patches, fillvalue_list, latitudes, longitudes = fi.gen_mod02(mod02_glob,
                                                                   file,
                                                                   latitude,
                                                                   longitude)
     # Finds corresponding MOD35
-    mod35_glob = glob.glob(f'{mod35_dir}/*/*{date}*.hdf')
+    mod35_glob = glob.glob(f'{mod35_dir}/*{date}*.hdf')
+    print(mod35_glob)
     cloud_mask_img = fi.gen_mod35(mod35_glob, date)
     connect_geolocation(mod02_glob[0], output, patches, fillvalue_list,
                         latitudes, longitudes, cloud_mask_img)
@@ -259,12 +260,13 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
                             results['longitude'].append(lon)
                             patch_counter += 1
         results_df = pd.DataFrame.from_dict(results)
+        ordered_df = find_corners(results_df[keys])
         # Parallelizes finding 4 corners
-        data_split = np.array_split(results_df[keys], nparts)
-        pool = mp.Pool(nparts)
-        ordered_df = pd.concat(pool.map(find_corners, data_split))
-        pool.close()
-        pool.join()
+        #data_split = np.array_split(results_df[keys], nparts)
+        #pool = mp.Pool(nparts)
+        #ordered_df = pd.concat(pool.map(find_corners, data_split))
+        #pool.close()
+        #pool.join()
         print(f'Writing out for {file}')
         ordered_df.to_csv(csvfile, header=False, index=False)
     csvfile.close()
@@ -515,12 +517,12 @@ if __name__ == "__main__":
         csvfile.close()
         LAST_FILE = None
     ARGS_LST = []
-    FILENAMES_DF = pd.read_csv(ARGS.input_file)
+    FILENAMES_DF = pd.read_csv(ARGS.input_file, dtype='str')
     FILES = list(FILENAMES_DF['filename'])
     if LAST_FILE:
         LAST_IDX = FILES.index(LAST_FILE)
         FILES = FILES[LAST_IDX:]
-    for file in FILES:
+    for file in FILES[:5]:
         ARGS_LST.append((file, ARGS.outputfile, ARGS.mod02dir, ARGS.mod35dir,
                          ARGS.mod03dir))
     POOL.starmap(make_connecting_csv, ARGS_LST)
