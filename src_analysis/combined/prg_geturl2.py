@@ -183,7 +183,7 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument('--input_csv', type=str, default="/scratch/midway2/koenig1/clouds/src_analysis/work_hdfs/missing_mod03.csv")
     p.add_argument('--keyword', type=str, default='MOD03')
-    p.add_argument('--outputdir', type=str, default='/home/koenig1/scratch-midway2/clusters_20')
+    p.add_argument('--outputdir', type=str, default='/home/koenig1/scratch-midway2/big_invalids')
     p.add_argument('--processors', type=int, default=20)
     args = p.parse_args()
     os.makedirs(args.outputdir, exist_ok=True)

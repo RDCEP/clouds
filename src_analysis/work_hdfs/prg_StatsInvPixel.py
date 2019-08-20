@@ -10,8 +10,8 @@ import numpy as np
 from pyhdf.SD import SD, SDC
 
 # my libraries
-hdf_libdir = '/Users/katykoeing/Desktop/clouds/src_analysis/lib_hdfs' # change here
-sys.path.insert(1,os.path.join(sys.path[0],hdf_libdir))
+hdf_libdir = '/home/koenig1/clouds/src_analysis/lib_hdfs' # change here
+sys.path.insert(1,os.path.join(sys.path[0], hdf_libdir))
 from alignment_lib import _gen_patches
 from alignment_lib import gen_mod35_img 
 
