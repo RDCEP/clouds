@@ -61,7 +61,6 @@ def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY,
     Outputs: None (appends to exisiting csv after connecting all three files)
     '''
     bname = os.path.basename(file)
-    print(file)
     date = bname[10:22]
     # Finds corresponding MOD03
     mod03_glob = glob.glob(f'{mod03_dir}/*{date}*.hdf')
@@ -74,7 +73,6 @@ def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY,
                                                                   longitude)
     # Finds corresponding MOD35
     mod35_glob = glob.glob(f'{mod35_dir}/*{date}*.hdf')
-    print(mod35_glob)
     cloud_mask_img = fi.gen_mod35(mod35_glob, date)
     connect_geolocation(mod02_glob[0], output, patches, fillvalue_list,
                         latitudes, longitudes, cloud_mask_img)
@@ -89,7 +87,8 @@ def make_patches(mod02_path, latitude=None, longitude=None):
         latitude: numpy array of arrays with the latitudes of each pixel
         longitude: numpy array of arrays with the longitudes of each pixel
 
-    Outputs: numpy arrays of patches, latitudes and longitudes in matching formats
+    Outputs: numpy arrays of patches, latitudes and longitudes in matching
+             formats
     '''
     stride = 128
     patch_size = 128
@@ -206,8 +205,8 @@ def plot_patches(file_dir, patch_d=PATCH_DICT):
 
 
 def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
-                        longitudes, cloud_mask, nparts=1, width=128, height=128,
-                        thres=0.3, sdsmax=32767):
+                        longitudes, cloud_mask, nparts=None, width=128,
+                        height=128, thres=0.3, sdsmax=32767):
     '''
     Connects the geolocation data to each patch in an image/mod02 hdf file
 
@@ -260,13 +259,15 @@ def connect_geolocation(file, outputfile, patches, fillvalue_list, latitudes,
                             results['longitude'].append(lon)
                             patch_counter += 1
         results_df = pd.DataFrame.from_dict(results)
-        ordered_df = find_corners(results_df[keys])
-        # Parallelizes finding 4 corners
-        #data_split = np.array_split(results_df[keys], nparts)
-        #pool = mp.Pool(nparts)
-        #ordered_df = pd.concat(pool.map(find_corners, data_split))
-        #pool.close()
-        #pool.join()
+        if nparts:
+            # Parallelizes finding 4 corners
+            data_split = np.array_split(results_df[keys], nparts)
+            pool = mp.Pool(nparts)
+            ordered_df = pd.concat(pool.map(find_corners, data_split))
+            pool.close()
+            pool.join()
+        else:
+            ordered_df = find_corners(results_df[keys])
         print(f'Writing out for {file}')
         ordered_df.to_csv(csvfile, header=False, index=False)
     csvfile.close()
