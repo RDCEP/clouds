@@ -87,14 +87,16 @@ def get_alive_orders(email_address):
     order_ids = []
     alive_orders = []
     params = {'email': email_address}
-    orders = requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/getAllOrders?',
-                          params)
+    orders = requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/' + \
+                          'services/MODAPSservices/getAllOrders?', params)
     soup = BeautifulSoup(orders.content, 'html5lib')
     counter = 0
     for o_id in soup.find_all('return'):
         order_ids.append(o_id.text)
     for o_id in order_ids:
-        status = requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/getOrderStatus?orderId=' + str(o_id))
+        status = requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/' + \
+                              'axis2/services/MODAPSservices/getOrderStatus?' + \
+                              f'orderId={str(o_id)}')
         soup = BeautifulSoup(status.content, 'html5lib')
         if soup.find('return').text not in ['Canceled', 'Removed', 'Expired']:
             alive_orders.append(o_id)
@@ -116,12 +118,15 @@ def release_order(order, email_address=EMAIL):
     Outputs: None
     '''
     params = {'orderId': order, 'email': email_address}
-    requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/releaseOrder?', params)
+    requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/' + \
+                 'MODAPSservices/releaseOrder?', params)
 
 
-### To actually download images: you need only call combining_fn() located at bottom of file
+### To actually order & download images: 
+### Call combining_fn() located at bottom of file
 
-def find_files(prods='MOD06_L2--61', dates=DATE_FILE, coords=COORDINATES_FILE, email_address=EMAIL):
+def find_files(prods='MOD06_L2--61', dates=DATE_FILE, coords=COORDINATES_FILE,
+               email_address=EMAIL, mosaic=False):
     '''
     Calls NASA LWS API to order downloads of specified files
 
@@ -162,7 +167,9 @@ def find_files(prods='MOD06_L2--61', dates=DATE_FILE, coords=COORDINATES_FILE, e
                     search_params['startTime'] = f'{date} 00:00:00'
                     search_params['endTime'] = f'{date} 23:59:59'
                     # Find relevant files
-                    response = requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/searchForFiles?',
+                    response = requests.get('https://modwebsrv.modaps.' + \
+                                            'eosdis.nasa.gov/axis2/services' + \
+                                            '/MODAPSservices/searchForFiles?',
                                             search_params)
                     soup = BeautifulSoup(response.content, 'html5lib')
                     file_ids = []
@@ -174,7 +181,9 @@ def find_files(prods='MOD06_L2--61', dates=DATE_FILE, coords=COORDINATES_FILE, e
                                 file_ids.append(order_txt)
                     # Order downloads of files
                     if file_ids:
-                        order_params = {'email': email_address, 'doMosaic': 'True', 'fileIds': ','.join(file_ids)}
+                        order_params = {'email': email_address,
+                                        'doMosaic': mosaic,
+                                        'fileIds': ','.join(file_ids)}
                         total_params.append(order_params)
                         destination = f'{DESIRED_DIR}{str(prods)}/clustering/{str(location)}/{str(date)}'
                         destination_lst.append(destination)
@@ -221,7 +230,8 @@ def order_files(order_params, order_ids):
 
     Outputs: None (modified order_ids list in place)
     '''
-    order_response = requests.get('https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/orderFiles?',
+    order_response = requests.get('https://modwebsrv.modaps.eosdis.nasa.' + \
+                                  'gov/axis2/services/MODAPSservices/orderFiles?',
                                   order_params)
     if order_response.status_code == 200:
         order_soup = BeautifulSoup(order_response.content, 'html5lib')
@@ -257,7 +267,7 @@ def download_order(order, destination, token=APP_KEY):
 
 
 def combining_fn(email_address=EMAIL, token=APP_KEY, dates=DATE_FILE,
-                 coords=COORDINATES_FILE, products='MOD06_L2'):
+                 coords=COORDINATES_FILE, products='MOD06_L2', mosaic=False):
     '''
     Combining function to search, order, download and release all files in batches
 
@@ -271,14 +281,18 @@ def combining_fn(email_address=EMAIL, token=APP_KEY, dates=DATE_FILE,
     # First, releases all orders to make space for new orders
     clear_all_orders(email_address)
     # Generates list of order parameters
-    order_params, destination_lst = find_files(products, dates, coords, email_address)
+    order_params, destination_lst = find_files(products, dates, coords,
+                                               email_address, mosaic)
     # Orders, downloads and releases files
-    order_ids = batch_order_and_delete(order_params, destination_lst, token, email_address)
+    order_ids = batch_order_and_delete(order_params, destination_lst, token,
+                                       email_address)
     return set(order_ids)
 
 if __name__ == '__main__':
     email = argv[1]
     app_key = argv[2]
     prods = argv[3]
-    order_ids = combining_fn(email_address=email, token=app_key, products=prods)
+    additional = argv[4]
+    order_ids = combining_fn(email_address=email, token=app_key,
+                             products=prods, mosaic=additional)
     print(order_ids)

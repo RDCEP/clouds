@@ -34,12 +34,13 @@ Note: you must already have a registered email address through NASA's LAADS DAAC
 1. Ensure you have the desired coordinates in coords.csv and desired dates in label1.txt. Edit files accordingly if desired.
 2. Run the following in the command line:
 
-`python3 api_request.py 'YOUREMAILADDRESS' 'YOURAPPKEY' 'DESIREDPRODUCTS'`
+`python3 api_request.py 'YOUREMAILADDRESS' 'YOURAPPKEY' 'DESIREDPRODUCTS' MOSAIC`
 
 Notes:
 	* 'YOUREMAILADDRESS' should be a string with the email address the user has registered with NASA.
 	* 'YOURAPPKEY' should be a string with the app key the user has received from NASA.
 	* 'DESIREDPRODUCTS' should be a string of the desired NASA products you wish to download, i.e. 'MOD35_L2'. If you would like to download multiple products please list them according to the following example: 'MOD35_L2,MYD021KM'
+	* 'MOSAIC' represents if files should have "mosaic" in post-processing. This is a boolean (i.e. must be "True" or "False"). 
 
 ### Through Python3
 1. Edit the api_request.py file to include user's NASA-registered email address and app key. This is located that the top of the file and noted by a comment for clarity.
