@@ -13,6 +13,7 @@
 #   0.0 08/10/2019 David Lorell    Code original functions for the model
 #   0.1 08/19/2019 Takuya Kurihana Re-build MGAE from David's from Tak.py by pytorch
 #   0.2 08/20/2019 Takuya Kurihana Add PyramidDataset class and channel_last option
+#   0.3 08/21/2019 Takuya Kurihana Change dataset from cifar10 to cifar100
 #
 import os
 import json
@@ -609,15 +610,15 @@ if __name__ == "__main__":
   # train dataset
   #   TODO: add num_workers 
   # get original dataset 
-  train_dataset = datasets.CIFAR10(
-      root="../multigrids/cifar_data",
+  train_dataset = datasets.CIFAR100(
+      root="../multigrids/cifar100_data",
       train=True,
       download=False
   )
   # convert original dataset to pyramid dataset with transforms
   # TODO: add normalization
   #
-  CIFAR10dataset = PyramidDataset(train_dataset,train_dataset, 
+  CIFAR100dataset = PyramidDataset(train_dataset,train_dataset, 
                  layerReses=(32, 16, 8, 4, 2), 
                  transform=transforms.Compose([
                    transforms.ToPILImage(),
@@ -628,7 +629,7 @@ if __name__ == "__main__":
   ) 
 
   train_loader = torch.utils.data.DataLoader(
-    CIFAR10dataset,
+    CIFAR100dataset,
     batch_size=FLAGS.batch_size,
     shuffle=True,
     pin_memory=pin_memory
@@ -670,21 +671,34 @@ if __name__ == "__main__":
     for i, (inputs, labels) in enumerate(train_loader):
       # forward pass:
       #output = model(inputs)
-      encoded_img = model.encoder(inputs)
-      decoded_img = model.decoder(encoded_img)
-      for idx, (idecoded_img, iencoded_img) in enumerate(zip(decoded_img, encoded_img) ):
-        print("layer {}".format(idx))
-        print('encoder', iencoded_img.cpu().detach().numpy().shape, flush=True)
-        print('decoder', idecoded_img.cpu().detach().numpy().shape, flush=True)
+      encoded_imgs = model.encoder(inputs)
+      decoded_imgs = model.decoder(encoded_imgs)
+      if verbose:
+        for idx, (idecoded_img, iencoded_img) in enumerate(zip(decoded_imgs, encoded_imgs) ):
+          print("\n channels {}".format(idx))
+          print('   encoder', iencoded_img.cpu().detach().numpy().shape, flush=True)
+          print('   decoder', idecoded_img.cpu().detach().numpy().shape, flush=True)
       
       #compute loss 
+
+      ### TODO: erase lines for debug
       #input_imgs = torch.cat([i.cuda() for i in inputs])
       #input_imgs = [i.cuda() for i in inputs][0] # get data corresponding to output?
       #print('input shape', input_imgs.cpu().detach().numpy().shape, flush=True)
       #print('output size', output.cpu().detach().numpy().size, flush=True)
       #print('output shape', output.cpu().detach().numpy().shape, flush=True)
-      loss = criterion(decoded_img, inputs)
-      stop
+
+      # take loss
+      """ Orthodox Binary Cross Entropy loss
+            comupute first channel of both input and output of model
+          
+          Tensor
+          inputs: list of 5 channels of Tensor. Take first channel [batch, channel, width, height]
+          output: list of 5 channels of Tensor. Take first channel otherwise others are [batch,0]
+      """
+      input_img   = inputs[0].cuda()
+      decoded_img = decoded_imgs[0].cuda()
+      loss = criterion(input_img, decoded_img)
       running_loss += loss
 
       # zero gradients, perform a backward pass, and update weights
