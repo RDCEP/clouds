@@ -50,5 +50,5 @@ Note: you must already have a registered email address through NASA's LAADS DAAC
 2. Run `bash example.bash` in command line.
 
 ### Notes:
-	* Any available past orders for the user's account will be released when bash called to free space for new orders and will have to be reorder if needed in the future.
-	* All orders placed with this call will be released upon termination of downloading processes. If process is interrupted, files ordered but not yet downloaded will not be released. If you wish to release all files then, please call clear_all_orders() in api_requests.py.
+ * Any available past orders for the user's account will be released when bash called to free space for new orders and will have to be reorder if needed in the future.
+ * All orders placed with this call will be released upon termination of downloading processes. If process is interrupted, files ordered but not yet downloaded will not be released. If you wish to release all files then, please call clear_all_orders() in api_requests.py.
