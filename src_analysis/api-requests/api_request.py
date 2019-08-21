@@ -9,6 +9,7 @@ import os
 from sys import argv
 import time
 import datetime
+import argparse
 import csv
 import requests
 from bs4 import BeautifulSoup
@@ -23,11 +24,11 @@ APP_KEY = '126AA2A4-96BA-11E9-9D2C-D7883D88392C'
 ########################################################
 
 ### MAKE SURE YOU HAVE THE RIGHT FILENAMES FOR COORDINATES_FILE AND DATE_FILE
-DATE_FILE = ''
-COORDINATES_FILE = ''
+DATE_FILE = 'onedate.txt'
+COORDINATES_FILE = 'one_loc.csv'
 
 # WHERE DO YOU WANT THE FILES TO BE SAVED?
-DESIRED_DIR = ''
+DESIRED_DIR = f'{os.getcwd()}'
 
 ### Function to make csv of coordinates for patches ####
 ### Feel free to add/delete any coordinates as needed ####
@@ -57,7 +58,7 @@ def write_csv(outputfile='coords.csv'):
 
 ### Functions to clear/release previous orders #####
 
-def clear_all_orders(email_address=EMAIL):
+def clear_all_orders(email_address):
     '''
     Releases all orders for given account on NASA website
 
@@ -107,9 +108,10 @@ def get_alive_orders(email_address):
     return alive_orders
 
 
-def release_order(order, email_address=EMAIL):
+def release_order(order, email_address):
     '''
-    Releases data order; Note that it may take minutes for NASA webpage to be updated
+    Releases data order
+    Note that it may take minutes for NASA webpage to be updated
 
     Inputs:
         order(int): id number of order
@@ -125,8 +127,7 @@ def release_order(order, email_address=EMAIL):
 ### To actually order & download images: 
 ### Call combining_fn() located at bottom of file
 
-def find_files(prods='MOD06_L2--61', dates=DATE_FILE, coords=COORDINATES_FILE,
-               email_address=EMAIL, mosaic=False):
+def find_files(prods, dates, coords, email_address, output_dir, mosaic=False):
     '''
     Calls NASA LWS API to order downloads of specified files
 
@@ -185,18 +186,22 @@ def find_files(prods='MOD06_L2--61', dates=DATE_FILE, coords=COORDINATES_FILE,
                                         'doMosaic': mosaic,
                                         'fileIds': ','.join(file_ids)}
                         total_params.append(order_params)
-                        destination = f'{DESIRED_DIR}{str(prods)}/clustering/{str(location)}/{str(date)}'
+                        destination = f'{output_dir}{str(prods)}/clustering/{str(location)}/{str(date)}'
                         destination_lst.append(destination)
     return total_params, destination_lst
 
 
-def batch_order_and_delete(total_params, destination_lst, token=APP_KEY, email_address=EMAIL):
+def batch_order_and_delete(total_params, destination_lst, token=APP_KEY,
+                           email_address=EMAIL, nparts=7):
     '''
     Orders and downloads batches for files due to the NASA request limit
 
     Inputs:
         total_params: list of dictionaries of parameters to be passed
         destination_lst: list of strings of foldernames
+        token(str): app key given received from NASA
+        email_address(str): email address registered with NASA
+        nparts(int): number of processes to be created in parallelization
 
     Outputs: list of order ids that were ordered, downloaded and released
     '''
@@ -207,10 +212,11 @@ def batch_order_and_delete(total_params, destination_lst, token=APP_KEY, email_a
         dest_chunk = destination_lst[i:i+max_size]
         print('Requesting Orders')
         for order_param in chunk:
-            order_files(order_param, order_ids)
+            order_ids += order_files(order_param)
         print('Waiting for Availability to Download')
         # NASA takes minutes to prepare files
         time.sleep(500)
+        args_lst = []
         for i in range(len(order_ids)):
             order = order_ids[i]
             destination = dest_chunk[i]
@@ -219,22 +225,23 @@ def batch_order_and_delete(total_params, destination_lst, token=APP_KEY, email_a
     return order_ids
 
 
-def order_files(order_params, order_ids):
+def order_files(order_params):
     '''
     Places orders via NASA API to for downloading data and updates order_ids
         list to reflect new orders
 
     Inputs:
         order_params: dictionary of parameters to pass to build url
-        order_ids: list of integers
 
     Outputs: None (modified order_ids list in place)
     '''
+    order_ids = []
     order_response = requests.get('https://modwebsrv.modaps.eosdis.nasa.' + \
                                   'gov/axis2/services/MODAPSservices/orderFiles?',
                                   order_params)
     if order_response.status_code == 200:
         order_soup = BeautifulSoup(order_response.content, 'html5lib')
+        print(order_soup.find('return').text)
         order_ids.append(int(order_soup.find('return').text))
     else:
         print(order_response.text)
@@ -242,6 +249,7 @@ def order_files(order_params, order_ids):
         print("Retrying NASA orderFiles API")
         time.sleep(5)
         order_files(order_params, order_ids)
+    return order_ids
 
 
 def download_order(order, destination, token=APP_KEY):
@@ -267,7 +275,8 @@ def download_order(order, destination, token=APP_KEY):
 
 
 def combining_fn(email_address=EMAIL, token=APP_KEY, dates=DATE_FILE,
-                 coords=COORDINATES_FILE, products='MOD06_L2', mosaic=False):
+                 coords=COORDINATES_FILE, products='MOD06_L2',
+                 output_dir=DESIRED_DIR, mosaic=False):
     '''
     Combining function to search, order, download and release all files in batches
 
@@ -282,17 +291,24 @@ def combining_fn(email_address=EMAIL, token=APP_KEY, dates=DATE_FILE,
     clear_all_orders(email_address)
     # Generates list of order parameters
     order_params, destination_lst = find_files(products, dates, coords,
-                                               email_address, mosaic)
+                                               email_address, output_dir,
+                                               mosaic)
     # Orders, downloads and releases files
     order_ids = batch_order_and_delete(order_params, destination_lst, token,
                                        email_address)
-    return set(order_ids)
+    return order_ids
+
 
 if __name__ == '__main__':
-    email = argv[1]
-    app_key = argv[2]
-    prods = argv[3]
-    additional = argv[4]
-    order_ids = combining_fn(email_address=email, token=app_key,
-                             products=prods, mosaic=additional)
+    P = argparse.ArgumentParser()
+    P.add_argument('--email', type=str, default=EMAIL)
+    P.add_argument('--app_key', type=str, default=APP_KEY)
+    P.add_argument('--products', type=str, default='MOD35_L2')
+    P.add_argument('--date_file', type=str, default=DATE_FILE)
+    P.add_argument('--coords_file', type=str, default=COORDINATES_FILE)
+    P.add_argument('--desired_dir', type=str, default=os.getcwd())
+    P.add_argument('--addl_info', type=bool, default=False)
+    ARGS = P.parse_args()
+    order_ids = combining_fn(ARGS.email, ARGS.app_key, ARGS.date_file,
+                             ARGS.coords_file, ARGS.products, ARGS.addl_info)
     print(order_ids)
