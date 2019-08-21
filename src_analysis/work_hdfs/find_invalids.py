@@ -107,7 +107,7 @@ def get_invalid_info2(filename, mod02_dir=MOD02_DIRECTORY,
                                     clouds_mask_img, fillvalue_list, thres=0.3)
 
 
-def get_info_for_location(input_csv, mod02_dir='/home/koenig1/scratch-midway2/MOD021KM', mod35_dir='/home/koenig1/scratch-midway2/MOD35_L2', mod03_dir='/home/koenig1/scratch-midway2/MOD03', outputfile='florida_test2.csv', nparts=4):
+def get_info_for_location(mod02_dir, mod35_dir, mod03_dir, outputfile, nparts=4):
     '''
     Creates csv with invalid pixel information and location for files of
     specific locations
@@ -126,14 +126,11 @@ def get_info_for_location(input_csv, mod02_dir='/home/koenig1/scratch-midway2/MO
         outputwriter.writerow(['filename', 'patch_no', 'invalid_pixels',
                                'geometry'])
     out_csv.close()
-    mod02_df = pd.read_csv(input_csv, dtype='str')
-    mod02_files = set(mod02_df['filename'].tolist())
-    #mod02_files = glob.glob(f'{mod02_dir}/*/uruguay/*/*.hdf')
+    mod02_files = glob.glob(f'{mod02_dir}/*/*/*/*.hdf')
     for mod02_file in mod02_files:
         file_base = mod02_file[-34:-22]
         location_date = mod02_file[-63:-45]
         mod35_path = glob.glob(f'{mod35_dir}/*/{location_date}/*{file_base}*.hdf')
-        print(location_date)
         cloud_mask_img = gen_mod35(mod35_path, file_base)
         mod03_path = glob.glob(f'{mod03_dir}/*/{location_date}/*{file_base}*.hdf')
         latitude, longitude = gen_mod03(mod03_path, file_base)
@@ -169,11 +166,10 @@ def get_stats_spec_locs(spec_loc_csv):
     spec_loc_df = pd.read_csv(spec_loc_csv, dtype=types_d)
     spec_loc_df['location'] = spec_loc_df['filename'].apply(lambda x: x[13:-11])
     by_loc = spec_loc_df.groupby('location'). \
-                         agg({'patch_no': 'count', 'inval_pixels': 'sum'}). \
+                         agg({'patch_no': 'count', 'invalid_pixels': 'sum'}). \
                          rename(columns={'patch_no': 'patch_count'}).reset_index()
-    by_loc['pct_inval'] = by_loc['inval_pixels'] / by_loc['patch_count'] * 100
+    by_loc['invals_per_patch'] = by_loc['invalid_pixels'] / by_loc['patch_count']
     return spec_loc_df, by_loc
-
 
 
 def gen_mod02(mod02_file, filename, latitude=None, longitude=None):
@@ -290,8 +286,7 @@ if __name__ == "__main__":
             DESIRED_FILES = DESIRED_FILES[LAST_IDX:]
     else:
         DESIRED_FILES = os.listdir(ARGS.input)
-    print(DESIRED_FILES)
 
-    # POOL.map(get_invalid_info2, DESIRED_FILES)
-    # POOL.close()
-    # POOL.join()
+     POOL.map(get_invalid_info2, DESIRED_FILES)
+     POOL.close()
+     POOL.join()
