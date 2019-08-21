@@ -3,7 +3,7 @@
 
 ## Getting Started
 
-This file contains the following:
+This repo contains the following:
 
 1. api_request.py
 	* python file containing functions for ordering and releasing hdf files through NASA api as well as wrapper function to order, download and release hdf files.
