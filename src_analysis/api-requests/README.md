@@ -40,7 +40,7 @@ Note: you must already have a registered email address through NASA's LAADS DAAC
 		* This is the product or list of products that you are requested. Examples in include 'MOD35_L2' or 'MOD35_L2,MYD021KM'. A full list of available products can be found [here](https://modwebsrv.modaps.eosdis.nasa.gov/axis2/services/MODAPSservices/listProducts?).
 	4. date_file([example](https://github.com/RDCEP/clouds/blob/mod021KM/src_analysis/api-requests/dates.txt))
 		* txt file with desired dates to be downloaded.
-	5. coords_file([exmaple](https://github.com/RDCEP/clouds/blob/mod021KM/src_analysis/api-requests/coords.csv))
+	5. coords_file([example](https://github.com/RDCEP/clouds/blob/mod021KM/src_analysis/api-requests/coords.csv))
 	 	* csv file with the desired coordinates data. This can be created using the write_csv() function in the api_request.py.
 	6. desired_dir
 		* This is the base directory in which you would like your files saved. The program with create directories in this directory corresponding to locations and dates as well.
