@@ -12,6 +12,8 @@
 #   + Version
 #   0.0 08/10/2019 David Lorell    Code original functions for the model
 #   0.1 08/19/2019 Takuya Kurihana Re-build MGAE from David's from Tak.py by pytorch
+#   0.2 08/20/2019 Takuya Kurihana Add PyramidDataset class and channel_last option
+#   0.3 08/21/2019 Takuya Kurihana Change dataset from cifar10 to cifar100
 #
 import os
 import json
@@ -386,7 +388,7 @@ class MGResSeries(nn.Module):
         return self.mgresseries(x)
 
 class PyramidDataset(torch.utils.data.Dataset):
-    def __init__(self, inputData, targetData, layerReses=(32, None, None, None, None), transform=None):
+    def __init__(self, inputData, targetData, layerReses=(32, None, None, None, None), transform=None, channel_last=True):
         super(PyramidDataset, self).__init__()
         
         print("\nPreparing the data...")
@@ -395,12 +397,17 @@ class PyramidDataset(torch.utils.data.Dataset):
         self.transform = transform
         self.pool = nn.MaxPool2d(2, 2)
         self.layerReses = layerReses
+        self.channel_last = channel_last
         if torch.cuda.is_available():
           self.data = [resolution.cuda() for resolution in self.makePyramid(inputData.data)]
         else:
           self.data = [resolution.cpu() for resolution in self.makePyramid(inputData.data)]
 
     def makePyramid(self, x):
+        # add t.kurihana
+        if self.channel_last:
+          x = np.rollaxis(x,-1,1)          
+
         ogres = x.shape[-2]
         pyramid = []
         #x = x.astype('uint8')
@@ -448,6 +455,7 @@ class PyramidDataset(torch.utils.data.Dataset):
         sample = (unprocessedSheets, unprocessedTarget)
 
         return sample
+
 
 class MGAutoencoder(nn.Module):
 
@@ -589,43 +597,58 @@ if __name__ == "__main__":
   # set directory
   os.makedirs(FLAGS.savedir, exist_ok=True)
 
-  # set dataset
-  # train dataset
-  # TODO: add num_workers 
-  train_loader = torch.utils.data.DataLoader(
-    datasets.MNIST(
-      root=FLAGS.datadir,
-      train=True,
-      download=False,
-      transform=transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize((0.5,), (0.5,))
-      ])    
-    ),
-    batch_size=FLAGS.batch_size,
-    shuffle=True,
-    pin_memory=True
-  )
-  # test dataset
-  test_loader = torch.utils.data.DataLoader(
-    datasets.MNIST(
-      root=FLAGS.datadir,
-      train=False,
-      transform=transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize((0.5,), (0.5,))
-      ])    
-    ),
-    batch_size=FLAGS.batch_size,
-    shuffle=True,
-    pin_memory=True
-  )
-
   # check device(CPU or GPU) 
+  pin_memory=False
   if torch.cuda.is_available():
     device = 'cuda'
   else:
     device = 'cpu'
+    #TODO
+    #pin_memory=True
+
+  # set dataset
+  # train dataset
+  #   TODO: add num_workers 
+  # get original dataset 
+  train_dataset = datasets.CIFAR100(
+      root="../multigrids/cifar100_data",
+      train=True,
+      download=False
+  )
+  # convert original dataset to pyramid dataset with transforms
+  # TODO: add normalization
+  #
+  CIFAR100dataset = PyramidDataset(train_dataset,train_dataset, 
+                 layerReses=(32, 16, 8, 4, 2), 
+                 transform=transforms.Compose([
+                   transforms.ToPILImage(),
+                   transforms.Resize((32,32)),
+                   transforms.ToTensor()
+                 ]),
+                 channel_last=True
+  ) 
+
+  train_loader = torch.utils.data.DataLoader(
+    CIFAR100dataset,
+    batch_size=FLAGS.batch_size,
+    shuffle=True,
+    pin_memory=pin_memory
+  )
+  #TODO add test dataset for inference 
+  # test dataset
+  #test_loader = torch.utils.data.DataLoader(
+  #  datasets.MNIST(
+  #    root=FLAGS.datadir,
+  #    train=False,
+  #    transform=transforms.Compose([
+  #      transforms.ToTensor(),
+  #      transforms.Normalize((0.5,), (0.5,))
+  #    ])    
+  #  ),
+  #  batch_size=FLAGS.batch_size,
+  #  shuffle=True,
+  #  pin_memory=True
+  #)
 
   # load model
   model = MGAutoencoder(FLAGS.units)  
@@ -634,7 +657,8 @@ if __name__ == "__main__":
   # set optimizer and loss
   # TODO: add params for Adam
   optimizer = torch.optim.Adam(model.parameters(),lr=FLAGS.lr) 
-  criterion = nn.CrossEntropyLoss()
+  # BCELoss = Binary Cross Entropy Loss
+  criterion = nn.BCELoss().cuda() if torch.cuda.is_available() else nn.BCELoss()
   # TODO add custom loss here
 
   #==========================================================
@@ -646,10 +670,35 @@ if __name__ == "__main__":
     running_loss = 0.0
     for i, (inputs, labels) in enumerate(train_loader):
       # forward pass:
-      encoded_layer = model(inputs)
+      #output = model(inputs)
+      encoded_imgs = model.encoder(inputs)
+      decoded_imgs = model.decoder(encoded_imgs)
+      if verbose:
+        for idx, (idecoded_img, iencoded_img) in enumerate(zip(decoded_imgs, encoded_imgs) ):
+          print("\n channels {}".format(idx))
+          print('   encoder', iencoded_img.cpu().detach().numpy().shape, flush=True)
+          print('   decoder', idecoded_img.cpu().detach().numpy().shape, flush=True)
       
       #compute loss 
-      loss = criterion(encoded_layer, labels)
+
+      ### TODO: erase lines for debug
+      #input_imgs = torch.cat([i.cuda() for i in inputs])
+      #input_imgs = [i.cuda() for i in inputs][0] # get data corresponding to output?
+      #print('input shape', input_imgs.cpu().detach().numpy().shape, flush=True)
+      #print('output size', output.cpu().detach().numpy().size, flush=True)
+      #print('output shape', output.cpu().detach().numpy().shape, flush=True)
+
+      # take loss
+      """ Orthodox Binary Cross Entropy loss
+            comupute first channel of both input and output of model
+          
+          Tensor
+          inputs: list of 5 channels of Tensor. Take first channel [batch, channel, width, height]
+          output: list of 5 channels of Tensor. Take first channel otherwise others are [batch,0]
+      """
+      input_img   = inputs[0].cuda()
+      decoded_img = decoded_imgs[0].cuda()
+      loss = criterion(input_img, decoded_img)
       running_loss += loss
 
       # zero gradients, perform a backward pass, and update weights
