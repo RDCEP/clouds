@@ -14,10 +14,14 @@
 #   0.1 08/19/2019 Takuya Kurihana Re-build MGAE from David's from Tak.py by pytorch
 #   0.2 08/20/2019 Takuya Kurihana Add PyramidDataset class and channel_last option
 #   0.3 08/21/2019 Takuya Kurihana Change dataset from cifar10 to cifar100
+#   0.4 08/22/2019 Takuya Kurihana 1epoch ~18min on K80 1GPU. 
+#                                  Original version is train_torch_multigrid_original.py
+#   0.5 08/22/2019 Takuya Kurihana Add new unit to integrate pyramid-like bottleneck layer                           
 #
 import os
 import json
 import time
+import logging
 import argparse
 import numpy as np
 import torch
@@ -512,10 +516,12 @@ class MGAutoencoder(nn.Module):
                 MGResSeries((c4, c3, c2, c1, c0), 3, sheetResolutions=sheetResolutions, units=units),
                 MGResUnit((c4, c3, c2, c1, c0), (0, c3, c2, c1, c0), kernel_size, padding, sheetResolutions=sheetResolutions),
                 MGResUnit((0, c3, c2, c1, c0), (0, 0, c2, c1, c0), kernel_size, padding, sheetResolutions=sheetResolutions),
-                MGResUnit((0, 0, c2, c1, c0), (0, 0, 0, c1, c0), kernel_size, padding, sheetResolutions=sheetResolutions, noOutputRes=True)
+                MGResUnit((0, 0, c2, c1, c0), (0, 0, 0, c1, c0), kernel_size, padding, sheetResolutions=sheetResolutions),
+                MGResUnit((0, 0,  0, c1, c0), (0, 0, 0,  0, c0), kernel_size, padding, sheetResolutions=sheetResolutions, noOutputRes=True),
             )
             self.decoder = nn.Sequential(
-                MGResUnit((0, 0, 0, c1, c0), (0, 0, c2, c1, c0), kernel_size, padding, sheetResolutions=sheetResolutions, noInputRes=True, backwards=True),
+                MGResUnit((0, 0, 0,  0, c0), (0, 0,  0, c1, c0), kernel_size, padding, sheetResolutions=sheetResolutions, noInputRes=True, backwards=True),
+                MGResUnit((0, 0, 0, c1, c0), (0, 0, c2, c1, c0), kernel_size, padding, sheetResolutions=sheetResolutions, backwards=True),
                 MGResUnit((0, 0, c2, c1, c0), (0, c3, c2, c1, c0), kernel_size, padding, sheetResolutions=sheetResolutions, backwards=True),
                 MGResUnit((0, c3, c2, c1, c0), (c4, c3, c2, c1, c0), kernel_size, padding,sheetResolutions=sheetResolutions, backwards=True),
                 MGResSeries((c4, c3, c2, c1, c0), 3, sheetResolutions=sheetResolutions, units=units),
@@ -584,6 +590,12 @@ def get_args():
     default=-1,
     help=' set negative number to use residual connection'
   )
+  p.add_argument(
+    '--verbose',
+    action="store_true", 
+    help="Attach this option if user wants to debug with print statement to check Tensor shapes",
+    default=False
+  )
   args = p.parse_args()
   for f in args.__dict__:
     print("\t", f, (25 - len(f)) * " ", args.__dict__[f])
@@ -593,6 +605,10 @@ def get_args():
 if __name__ == "__main__":
   # set params
   FLAGS = get_args()
+
+  # set logging level *default "info"
+  # TODO add logging level to argument? 
+  logging.basicConfig(level=logging.INFO) # set basic logging level as "info"
 
   # set directory
   os.makedirs(FLAGS.savedir, exist_ok=True)
@@ -657,8 +673,9 @@ if __name__ == "__main__":
   # set optimizer and loss
   # TODO: add params for Adam
   optimizer = torch.optim.Adam(model.parameters(),lr=FLAGS.lr) 
-  # BCELoss = Binary Cross Entropy Loss
-  criterion = nn.BCELoss().cuda() if torch.cuda.is_available() else nn.BCELoss()
+  ## BCELoss = Binary Cross Entropy Loss
+  #criterion = nn.BCELoss().cuda() if torch.cuda.is_available() else nn.BCELoss()
+  criterion = nn.MSELoss(reduce=True, reduction='mean').cuda() if torch.cuda.is_available() else nn.MSELoss(reduce=True, reduction='mean')
   # TODO add custom loss here
 
   #==========================================================
@@ -673,14 +690,16 @@ if __name__ == "__main__":
       #output = model(inputs)
       encoded_imgs = model.encoder(inputs)
       decoded_imgs = model.decoder(encoded_imgs)
-      if verbose:
-        for idx, (idecoded_img, iencoded_img) in enumerate(zip(decoded_imgs, encoded_imgs) ):
-          print("\n channels {}".format(idx))
-          print('   encoder', iencoded_img.cpu().detach().numpy().shape, flush=True)
-          print('   decoder', idecoded_img.cpu().detach().numpy().shape, flush=True)
-      
-      #compute loss 
-
+      if FLAGS.verbose:
+        if epoch == 0:
+          for idx, (idecoded_img, iencoded_img) in enumerate(zip(decoded_imgs, encoded_imgs) ):
+            print("\n channels {}".format(idx))
+            print('   encoder', iencoded_img.cpu().detach().numpy().shape, flush=True)
+            print('   decoder', idecoded_img.cpu().detach().numpy().shape, flush=True)
+            # FIXME: needs better idea to see shape of input
+            if idx == 4:
+              break
+     
       ### TODO: erase lines for debug
       #input_imgs = torch.cat([i.cuda() for i in inputs])
       #input_imgs = [i.cuda() for i in inputs][0] # get data corresponding to output?
@@ -689,7 +708,7 @@ if __name__ == "__main__":
       #print('output shape', output.cpu().detach().numpy().shape, flush=True)
 
       # take loss
-      """ Orthodox Binary Cross Entropy loss
+      """ L2 loss
             comupute first channel of both input and output of model
           
           Tensor
@@ -713,12 +732,25 @@ if __name__ == "__main__":
     if epoch % FLAGS.save_every == 0:
       # save model
       # TODO: change the oname 
-      oname = 'mgrencoder_'+str(FLGAS.num_epoch)+'.pth'
+      oname = 'mgrencoder_'+str(FLAGS.num_epoch)+'.pth'
       torch.save(
           model.state_dict(), 
           os.path.join(FLAGS.savedir, oname)
       )
   
+    # profiler
+    x_rnd_list = []
+    for iwidth in [32, 16, 8, 4, 2]:
+      x_rnd_list.append(
+        torch.randn((1, 3, iwidth, iwidth), requires_grad=True).cuda()
+      )
+
+    with torch.autograd.profiler.profile(use_cuda=True) as prof:
+      encs_prof = model.encoder(x_rnd_list)
+      decs_prof = model.decoder(encs_prof)
+    logging.info("{}  \n Profile Status {}".format((72*"-"),(72*"-")))
+    logging.info(prof)
+
   # FINISH
   etime = (time.time() -stime)/60.0 # minutes
   print("### NORMAL END ###")
