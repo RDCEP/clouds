@@ -16,73 +16,23 @@ import pandas as pd
 import numpy as np
 from pyhdf.SD import SD, SDC
 import geolocation as geo
-import prg_StatsInvPixel as stats
+#import prg_StatsInvPixel as stats
 
 HDF_LIBDIR = '/home/koenig1/scratch-midway2/clouds/src_analysis/lib_hdfs' # change here
 sys.path.insert(1, os.path.join(sys.path[0], HDF_LIBDIR))
-from analysis_lib import _gen_patches
+#from analysis_lib import _gen_patches
 
 # Put in your corresponding file/directories below
 INPUT_FILE = 'clustering_invalid_filelists.txt'
 MOD02_DIRECTORY = ''
 MOD35_DIRECTORY = ''
 OUTPUT_CSV = ''
-MAIN_DIR = ''
 
 
-def get_invalid_info(dates_file=INPUT_FILE, mod02_dir=MOD02_DIRECTORY,
-                     mod35_dir=MOD35_DIRECTORY, output_file=OUTPUT_CSV):
+def get_invalid_info(filename, mod02_dir, mod35_dir, output_file):
     '''
     Searches for desired files and writes csv with each row being a MOD02
     filename, patch number and number of invalid pixels in the patch
-
-    Inputs:
-        dates_file(str): txt file with list of desired MOD02
-        mod02_dir(str): path where MOD021KM files are located
-        mod35_dir(str): path where MOD35_L2 files are located
-        Note for both mod02_dir & mod35_dir:
-            dir = '/home/koenig1/scratch-midway2/MOD02/clustering'
-            when hdf files located in
-            '/home/koenig1/scratch-midway2/MOD02/clustering/clustering_laads_2000_2018_2'
-        output_file(str): name of desired output csv
-
-    Outputs:
-        None (writes csv)
-    '''
-    # Initializes output csv to be appended later
-    with open(output_file, 'w') as output_csv:
-        outputwriter = csv.writer(output_csv, delimiter=',')
-        outputwriter.writerow(['filename', 'patch_no', 'inval_pixels'])
-    output_csv.close()
-    # Finds name of desired MOD02 hdf files to be analyzed
-    with open(dates_file, "r") as desired_dates:
-        dates = desired_dates.readlines()
-    desired = dates[0].replace('hdf', 'hdf ').split()
-    for mod02_file in desired:
-        # Finds actual MOD02 files
-        mod02_path = glob.glob(f'{mod02_dir}/*/{mod02_file}')[0]
-        bname = os.path.basename(mod02_file)
-        date = bname[10:22]
-        # Finds corresponding MOD35
-        mod35_path = glob.glob(f'{mod35_dir}/*/*{date}*.hdf')[0]
-        fillvalue_list, mod02_img = stats.gen_mod02_img(mod02_path)
-        clouds_mask_img = stats.gen_mod35_img(SD(mod35_path, SDC.READ))
-        mod02_patches = _gen_patches(mod02_img, normalization=False)
-        # Checks validity of pixels for each file and writes csv
-        stats.check_invalid_clouds2(output_file, mod02_file, mod02_patches,
-                                    clouds_mask_img, fillvalue_list, thres=0.3)
-
-
-def get_invalid_info2(filename, mod02_dir=MOD02_DIRECTORY,
-                      mod35_dir=MOD35_DIRECTORY, output_file=OUTPUT_CSV):
-    '''
-    Searches for desired files and writes csv with each row being a MOD02
-    filename, patch number and number of invalid pixels in the patch
-
-    Note the difference between this function and the one above:
-    get_invalid_info() is designed to run in ipython3 while
-    get_invalid_info2() is optimized to run on the command line
-    using the multiprocessing library for task parallelization
 
     Inputs:
         file(str): name of mod02 hdf file
@@ -107,7 +57,8 @@ def get_invalid_info2(filename, mod02_dir=MOD02_DIRECTORY,
                                     clouds_mask_img, fillvalue_list, thres=0.3)
 
 
-def get_info_for_location(mod02_dir, mod35_dir, mod03_dir, outputfile, nparts=4):
+def get_info_for_location(mod02_dir, mod35_dir, mod03_dir, outputfile,
+                          nparts=4):
     '''
     Creates csv with invalid pixel information and location for files of
     specific locations
@@ -252,41 +203,51 @@ def gen_mod03(mod03_file, date):
 
 if __name__ == "__main__":
     P = argparse.ArgumentParser()
-    P.add_argument('--input_file', type=str, default=INPUT)
-    P.add_argument('--processors', type=int, default=5)
-    P.add_argument('--outputfile', type=str, default=OUTPUT_CSV)
+    P.add_argument('--process', type='str', default='')
+    P.add_argument('--input', type='str', default=INPUT)
+    P.add_argument('--mod02_dir', type='str', default='')
+    P.add_argument('--mod35_dir', type='str', default='')
+    P.add_argument('--mod03_dir', type='str', default='')
+    P.add_argument('--outputfile', type='str', default='')
+    P.add_argument('--processors', type='str', default='')
     ARGS = P.parse_args()
-    print(f"Num. Processors: {ARGS.processors}")
     #Initializes pooling process for parallelization
-    POOL = mp.Pool(processes=ARGS.processors)
-    # If output csv exits, assumes cutoff by RCC so deletes last entry
-    # and appends only new dates
-    if os.path.exists(ARGS.outputfile):
-        print('Checking for completion')
-        COMPLETED = pd.read_csv(ARGS.outputfile)
-        COMPLETED = COMPLETED[COMPLETED['filename'].notnull()]
-        LAST_FILE = COMPLETED.tail(1)['filename'].tolist()[0]
-        DONE = COMPLETED[COMPLETED['filename'] != LAST_FILE]
-        print('Writing updated csv w/ only COMPLETED MOD02 files')
-        DONE.to_csv(ARGS.outputfile, index=False)
-    else:
-        # Initializes output csv to be appended later
-        with open(ARGS.outputfile, 'w') as csvfile:
-            OUTPUTWRITER = csv.writer(csvfile, delimiter=',')
-            OUTPUTWRITER.writerow(['filename', 'patch_no', 'inval_pixels'])
-        csvfile.close()
-        LAST_FILE = None
-    if 'txt' in ARGS.input:
-    # Finds name of desired MOD02 hdf files to be analyzed
-        with open(ARGS.input, "r") as file:
-            DATES = file.readlines()
-        DESIRED_FILES = DATES[0].replace('hdf', 'hdf ').split()
-        if LAST_FILE:
-            LAST_IDX = DESIRED_FILES.index(LAST_FILE)
-            DESIRED_FILES = DESIRED_FILES[LAST_IDX:]
-    else:
-        DESIRED_FILES = os.listdir(ARGS.input)
+    if ARGS.process == 'get_invalid_info':
+        POOL = mp.Pool(processes=ARGS.processors)
+        args_lst = []
+        # If output csv exits, assumes cutoff by RCC so deletes last entry
+        # and appends only new dates
+        if os.path.exists(ARGS.outputfile):
+            print('Checking for completion')
+            COMPLETED = pd.read_csv(ARGS.outputfile)
+            COMPLETED = COMPLETED[COMPLETED['filename'].notnull()]
+            LAST_FILE = COMPLETED.tail(1)['filename'].tolist()[0]
+            DONE = COMPLETED[COMPLETED['filename'] != LAST_FILE]
+            print('Writing updated csv w/ only COMPLETED MOD02 files')
+            DONE.to_csv(ARGS.outputfile, index=False)
+        else:
+            # Initializes output csv to be appended later
+            with open(ARGS.outputfile, 'w') as csvfile:
+                OUTPUTWRITER = csv.writer(csvfile, delimiter=',')
+                OUTPUTWRITER.writerow(['filename', 'patch_no', 'inval_pixels'])
+            csvfile.close()
+            LAST_FILE = None
+        if 'txt' in ARGS.input:
+        # Finds name of desired MOD02 hdf files to be analyzed
+            with open(ARGS.input, "r") as file:
+                DATES = file.readlines()
+            DESIRED_FILES = DATES[0].replace('hdf', 'hdf ').split()
+            if LAST_FILE:
+                LAST_IDX = DESIRED_FILES.index(LAST_FILE)
+                DESIRED_FILES = DESIRED_FILES[LAST_IDX:]
+        else:
+            DESIRED_FILES = os.listdir(ARGS.input)
+        for file in DESIRED_FILES:
+            args_lst.append((file, ARGS.mod02_dir, ARGS.mod35_dir, ARGS.output_file))
+        POOL.starmap_async(get_invalid_info, args_lst)
+        POOL.close()
+        POOL.join()
 
-     POOL.map(get_invalid_info2, DESIRED_FILES)
-     POOL.close()
-     POOL.join()
+    if ARGS.process == 'get_info_for_location':
+        get_info_for_location(ARGS.mod02_dir, ARGS.mod35_dir, ARGS.mod03_dir,
+                              ARGS.outputfile, ARGS.processors)
