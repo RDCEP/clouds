@@ -15,7 +15,7 @@ import pandas as pd
 import geopandas as gpd
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
-import geolocation as geo
+#import geolocation as geo
 import find_invalids as fi
 
 PRIORITY_TXT = 'filelist_metadata_train_random-80000_nc-20_m01_b28_29_31_' + \
@@ -239,12 +239,44 @@ COLOR_LST = ['#E6194B', '#3CB44B', '#FFE119', '#4363D8', '#F58231', '#911EB4',
              '#A9A9A9', '#800000']
 
 
+def map_all(df, col, png_name):
+    '''
+    Maps all patches in a given dataframe onto one map and saves image.
+
+    Note: if more than 20 distinct values (length of COLOR_LST above) in
+          your chosen column, colors will be repeated
+
+    Inputs:
+        df: a geopandas dataframe
+        col: column with discrete variables to differentiate by color
+        png_name: desired name of saved image
+
+    Outputs: None (saves image)
+    '''
+    _, axs = plt.subplots(figsize=(75, 75))
+    counter = 0
+    handle_lst = []
+    world_df = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+    world_df.plot(ax=axs, color='white', edgecolor='black')
+    for distinct in df[col].unique():
+        if distinct != 'greenland':
+            df[df[col] == distinct].plot(color=COLOR_LST[counter], ax=axs,
+                                         alpha=0.3)
+            handle = mpatches.Patch(color=COLOR_LST[counter],
+                                    label=distinct)
+            handle_lst.append(handle)
+            counter = (counter + 1) % len(COLOR_LST)
+    plt.legend(handles=handle_lst, loc='upper center',
+               prop={'size': 20})
+    plt.savefig(png_name)
+
+
 def map_clusters(df, cluster_col, png_name):
     '''
     Maps clusters on a world mapped (for four by five maps)
 
     Inputs:
-        df: a pandas dataframe
+        df: a geoandas dataframe
         cluster_col(str): column name
         png_name(str): name (and format) for saved image
 
@@ -280,7 +312,7 @@ def map_by_date(df, unique_col_name, cluster_col, png_name):
     is also red in the second plot).
 
     Inputs:
-        df: a pandas df
+        df: a geopandas df
         unique_col_name(str): column for each subplot (usually date)
         cluster_col(str): column with cluster numbers
         png_name(str): name of image to be saved
