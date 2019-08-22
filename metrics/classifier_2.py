@@ -1,6 +1,7 @@
 import os
 import json
 import time
+import math
 import argparse
 import numpy as np
 import tensorflow as tf
@@ -112,8 +113,8 @@ def rotate_fn(images):
     # random rotation
     random_angles = tf.random.uniform(
         shape = (tf.shape(images)[0], ), 
-        minval = 1,
-        maxval = 359,
+        minval = 0*math.pi/180,
+        maxval = 359*math.pi/180,
         dtype=tf.float32,
         seed = 0
     )
