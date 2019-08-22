@@ -24,9 +24,10 @@ sys.path.insert(1, os.path.join(sys.path[0], HDF_LIBDIR))
 
 # Put in your corresponding file/directories below
 INPUT_FILE = 'clustering_invalid_filelists.txt'
-MOD02_DIRECTORY = ''
-MOD35_DIRECTORY = ''
-OUTPUT_CSV = ''
+MOD02_DIRECTORY = '/home/koenig1/scratch-midway2/MOD021KM'
+MOD03_DIRECTORY = '/home/koenig1/scratch-midway2/MOD03'
+MOD35_DIRECTORY = '/home/koenig1/scratch-midway2/MOD35_L2'
+OUTPUT_CSV = 'output.csv'
 
 
 def get_invalid_info(filename, mod02_dir, mod35_dir, output_file):
@@ -69,6 +70,11 @@ def get_info_for_location(mod02_dir, mod35_dir, mod03_dir, outputfile,
         mod03_dir(str): directory in which MOD03 hdf files are saved
         outputfile(str): desired name of output csv
         nparts(int): number of partitions/cores to be used for parallelization
+
+    Note that this function assumes a that path for any MOD file is stored
+    using the following format:
+    mod02/clustering/location/date/MODfile.hdf
+    (This is how api_requests.py saves files)
 
     Outputs: None (creates and saves a csv file)
     '''
@@ -203,13 +209,13 @@ def gen_mod03(mod03_file, date):
 
 if __name__ == "__main__":
     P = argparse.ArgumentParser()
-    P.add_argument('--process', type='str', default='')
+    P.add_argument('--process', type='str', default=None)
     P.add_argument('--input', type='str', default=INPUT)
-    P.add_argument('--mod02_dir', type='str', default='')
-    P.add_argument('--mod35_dir', type='str', default='')
-    P.add_argument('--mod03_dir', type='str', default='')
+    P.add_argument('--mod02_dir', type='str', default=MOD02_DIRECTORY)
+    P.add_argument('--mod35_dir', type='str', default=MOD35_DIRECTORY)
+    P.add_argument('--mod03_dir', type='str', default=MOD03_DIRECTORY)
     P.add_argument('--outputfile', type='str', default='')
-    P.add_argument('--processors', type='str', default='')
+    P.add_argument('--processors', type='str', default=4)
     ARGS = P.parse_args()
     #Initializes pooling process for parallelization
     if ARGS.process == 'get_invalid_info':
@@ -243,7 +249,8 @@ if __name__ == "__main__":
         else:
             DESIRED_FILES = os.listdir(ARGS.input)
         for file in DESIRED_FILES:
-            args_lst.append((file, ARGS.mod02_dir, ARGS.mod35_dir, ARGS.output_file))
+            args_lst.append((file, ARGS.mod02_dir, ARGS.mod35_dir,
+                             ARGS.output_file))
         POOL.starmap_async(get_invalid_info, args_lst)
         POOL.close()
         POOL.join()
