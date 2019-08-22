@@ -224,7 +224,8 @@ if __name__ == "__main__":
                                .strftime('%Y-%m-%d'))
             for iline in datedata:
                 args_lst.append((iline, base_url, args.thresval, args.outputdir,
-                                 start_time))       
+                                 start_time))
+        pool.starmap_async(combining_fn, args_lst)    
     # second option: download specific dates/times
     if args.download_process == 'download_from_name':
         files_df = pd.read_csv(args.input_csv, dtype='str')
@@ -233,6 +234,7 @@ if __name__ == "__main__":
         for file in file_set:
             args_lst.append((str(file), args.keyword, args.outputdir,
                              start_time))
-    pool.starmap_async(args.download_process, args_lst)
+    if args.download_process == 'download_from_name':
+        pool.starmap_async(download_from_name, args_lst)
     pool.close()
     pool.join()
