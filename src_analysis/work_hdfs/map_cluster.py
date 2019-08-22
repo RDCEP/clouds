@@ -9,13 +9,14 @@ import os
 import glob
 import ast
 import multiprocessing as mp
+import argparse
 import re
 import numpy as np
 import pandas as pd
 import geopandas as gpd
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
-#import geolocation as geo
+import geolocation as geo
 import find_invalids as fi
 
 PRIORITY_TXT = 'filelist_metadata_train_random-80000_nc-20_m01_b28_29_31_' + \
@@ -23,6 +24,7 @@ PRIORITY_TXT = 'filelist_metadata_train_random-80000_nc-20_m01_b28_29_31_' + \
 DIR_NPZ = '/home/koenig1/scratch-midway2/clusters_20/output_clouds_feature_' + \
           '2000_2018_validfiles'
 INPUT_DIR = '/home/koenig1/scratch-midway2/clusters_20/group0'
+MOD03_DIR = '/home/koenig1/scratch-midway2/clusters_20'
 
 
 def find_related_files(txt_file, input_dir):
@@ -162,8 +164,8 @@ def gen_coords(geo_col, indices, patch_size=128):
     return patch_geo_info
 
 
-def combine_geo(txt_file, input_dir, mod03_dir, num_patches,
-                output_csv, npz_dir=DIR_NPZ, nparts=7):
+def combine_geo(txt_file=PRIORITY_TXT, input_dir=INPUT_DIR, mod03_dir=MOD03_DIR, num_patches=80000,
+                output_csv='output.csv', npz_dir=DIR_NPZ, nparts=7):
     '''
     Combines above functions into one easily callable function, which finds all
     related files for a given txt file representing one iteration of clustering
@@ -209,7 +211,7 @@ def combine_geo(txt_file, input_dir, mod03_dir, num_patches,
         missing.to_csv(missing_name, header=None, index=False)
 
 
-def find_info_all_npy(input_dir, npz_dir, mod03_dir, num_patches, nparts=4):
+def find_info_all_npy(input_dir, npz_dir, mod03_dir, num_patches, nparts):
     '''
     Loops through directory to find relevant txt files which then finds all
     related files for a given txt file representing one iteration of clustering
@@ -239,9 +241,43 @@ COLOR_LST = ['#E6194B', '#3CB44B', '#FFE119', '#4363D8', '#F58231', '#911EB4',
              '#A9A9A9', '#800000']
 
 
-def map_all(df, col, png_name):
+def create_map_continuous(dataframe, colname, img_name):
     '''
-    Maps all patches in a given dataframe onto one map and saves image.
+    Maps all patches in a given dataframe onto one map with a continuous
+    colormap to a specified column. Image is then saved.
+
+    Inputs:
+        dataframe: a geopandas dataframe
+        colname(str): column name to be plotted in color gradient
+        img_name(str): name of image to be saved
+
+    Outputs: None (saves plot to current directory as a png)
+    '''
+    _, ax = plt.subplots(1, figsize=(100, 100))
+    df = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+    df.plot(ax=ax, color='white', edgecolor='black')
+    dataframe.plot(ax=ax, alpha=0.1, column=colname, vmin=min(dataframe[colname]),
+                   vmax=max(dataframe[colname]), cmap='summer')
+
+    # Code for legend adjustment informed by stackoverflow response found here:
+    # https://stackoverflow.com/questions/54236083/geopandas-reduce-legend-size-and-remove-white-space-below-map
+    ax.set_title(f'Patches with {colname}', size=20)
+    ax.grid()
+    fig = ax.get_figure()
+    cbax = fig.add_axes([0.91, 0.3, 0.03, 0.39])
+    cbax.set_title(f'Number of {colname}', size=5)
+    leg = plt.cm.ScalarMappable(cmap='summer',
+                                norm=plt.Normalize(vmin=min(dataframe[colname]),
+                                                   vmax=max(dataframe[colname])))
+    leg._A = []
+    fig.colorbar(leg, cax=cbax, format="%d")
+    plt.savefig(img_name)
+
+
+def map_all_discrete(df, col, png_name):
+    '''
+    Maps all patches in a given dataframe onto one map with different colors
+    representing a unique value in a discrete column of the df and saves image.
 
     Note: if more than 20 distinct values (length of COLOR_LST above) in
           your chosen column, colors will be repeated
@@ -369,3 +405,36 @@ def clean_and_plot(csv_name, img_name, cluster_col='cluster_no'):
     gdf = geo.clean_geom_col(df, 'geom')
     map_clusters(gdf, cluster_col, img_name)
     return gdf
+
+
+def go(txt_file, input_dir, mnod03_dir, num_patches, output_csv, npz_dir,
+       nparts, map):
+    '''
+    Main driving function that connects above functions
+
+    Inputs:
+
+    Outputs:
+    '''
+    mapping_dict ={'map_clusters': [], 'map_by_date': [], 'map_all': []}
+    combine_geo(txt_file, input_dir, mod03_dir, num_patches,
+                output_csv, npz_dir, nparts)
+    info_df = pd.read_csv(output_csv, dtype={'file': 'str'})
+    info_gdf = geo.clean_geom_col(df, 'geom')
+    map_clusters(df, cluster_col, png_name)
+    map_by_date(df, unique_col_name, cluster_col, png_name)
+    map_all(df, col, png_name)
+
+
+if __name__ == "__main__":
+    P = argparse.ArgumentParser()
+    P.add_argument('--txt_file', type=str, default=PRIORITY_TXT)
+    P.add_argument('--input_dir', type=str, default=INPUT_DIR)
+    P.add_argument('--mod03_dir', type=str, default=MOD03_DIR)
+    P.add_argument('--num_patches', type=int, default=80000)
+    P.add_argument('--output_csv', type=str, default='output.csv')
+    P.add_argument('--npz_dir', type=str, default=DIR_NPZ)
+    P.add_argument('--nparts', type=int, default=4)
+    P.add_argument('--map_type', type=tuple, default=None)
+    ARGS = P.parse_args()
+    go(ARGS)
