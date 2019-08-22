@@ -5,6 +5,7 @@ matplotlib.use('Agg')
 import os
 import json
 import time
+import math
 import argparse
 import numpy as np
 import tensorflow as tf
@@ -136,8 +137,8 @@ def rotate_fn(images):
     # random rotation
     random_angles = tf.random.uniform(
         shape = (tf.shape(images)[0], ), 
-        minval = 0,
-        maxval = 359,
+        minval = 0*math.pi/180,
+        maxval = 359*math.pi/180,
         dtype=tf.float32,
         seed = 0
     )
@@ -164,6 +165,9 @@ def loss_dev_fn(output_layer,
                ):
     
     def rotate_opetation(imgs, angle=1):
+        """angle: Radian.
+            angle = degree * math.pi/180
+        """
         rimgs = tf.contrib.image.rotate(
                 imgs,
                 tf.constant(angle ,dtype=tf.float32),
@@ -176,10 +180,10 @@ def loss_dev_fn(output_layer,
     loss_reconst = [] # first term
     loss_hidden  = [] # seconds term
     
-    angle_list = [i for i in range(1,360,dangle)]
+    angle_list = [i*math.pi/180 for i in range(1,360,dangle)]
     for angle in angle_list:
-        rimgs = rotate_opetation(output_layer) # R_theta(x_hat)
-        rencoded_imgs = rotate_opetation(rotate_opetation(input_layer)) # Z(R(x))
+        rimgs = rotate_opetation(output_layer,angle=angle) # R_theta(x_hat)
+        rencoded_imgs = rotate_opetation(rotate_opetation(input_layer, angle=angle)) # Z(R(x))
         
         # loss
         loss_reconst.append(tf.reduce_mean(tf.square(input_layer - rimgs)) )
