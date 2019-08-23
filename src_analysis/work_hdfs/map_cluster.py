@@ -46,7 +46,7 @@ def find_related_files(txt_file, input_dir):
     return npy_file, npz_files
 
 
-def connect_files(npy_file, npz_files, num_patches, npz_dir=DIR_NPZ):
+def connect_files(npy_file, npz_files, num_patches, npz_dir):
     '''
     Locates npz files that are related to an npy file and connects the files
     to create a dictionary with the information from one clustering interation
@@ -163,8 +163,8 @@ def gen_coords(geo_col, indices, patch_size=128):
     return patch_geo_info
 
 
-def combine_geo(txt_file=PRIORITY_TXT, input_dir=INPUT_DIR, mod03_dir=MOD03_DIR, num_patches=80000,
-                output_csv='output.csv', npz_dir=DIR_NPZ, nparts=7):
+def combine_geo(txt_file, input_dir, mod03_dir, num_patches, output_csv,
+                npz_dir, nparts):
     '''
     Combines above functions into one easily callable function, which finds all
     related files for a given txt file representing one iteration of clustering
@@ -240,7 +240,7 @@ COLOR_LST = ['#E6194B', '#3CB44B', '#FFE119', '#4363D8', '#F58231', '#911EB4',
              '#A9A9A9', '#800000']
 
 
-def create_map_continuous(dataframe, colname, img_name):
+def map_all_continuous(dataframe, colname, img_name):
     '''
     Maps all patches in a given dataframe onto one map with a continuous
     colormap to a specified column. Image is then saved.
@@ -407,22 +407,37 @@ def clean_and_plot(csv_name, img_name, cluster_col='cluster_no'):
 
 
 def go(txt_file, input_dir, mnod03_dir, num_patches, output_csv, npz_dir,
-       nparts, map):
+       nparts, mapping):
     '''
     Main driving function that connects above functions
 
     Inputs:
+        txt_file(str): txt file with list of npz files included in clustering
+            iteration
+        input_dir(str): directory in which txt file is saved
+        mod03_dir(str): directory in which mod03 files are saved
+        num_patches(int): number of patches for clustering iteration
+        output_csv(str): name of desired output csv
+        npz_dir(str): directory in which npz files are saved
+        nparts(int): number of partitions to use for parallelization
+        mapping(list): list of desired maps
 
     Outputs:
+        info_gdf: a geopandas dataframe with info for one clustering iteration
+        (saves a csv file with info regarding each patch in a cluster)
     '''
-    mapping_dict ={'map_clusters': [], 'map_by_date': [], 'map_all': []}
     combine_geo(txt_file, input_dir, mod03_dir, num_patches,
                 output_csv, npz_dir, nparts)
     info_df = pd.read_csv(output_csv, dtype={'file': 'str'})
+    info_df['date'] = info_df['file'].apply(lambda x: x[:7])
     info_gdf = geo.clean_geom_col(df, 'geom')
-    map_clusters(df, cluster_col, png_name)
-    map_by_date(df, unique_col_name, cluster_col, png_name)
-    map_all(df, col, png_name)
+    for map_type in mapping:
+        png_name = f"{output[:-4]}_{map_type}.png"
+        if map_type == 'map_clusters':
+            map_clusters(info_gdf, 'cluster_num', png_name)
+        if map_type == 'map_by_date':
+            map_by_date(info_gdf, 'date', 'cluster_num', png_name)
+    return info_gdf
 
 
 if __name__ == "__main__":
@@ -433,7 +448,7 @@ if __name__ == "__main__":
     P.add_argument('--num_patches', type=int, default=80000)
     P.add_argument('--output_csv', type=str, default='output.csv')
     P.add_argument('--npz_dir', type=str, default=DIR_NPZ)
-    P.add_argument('--nparts', type=int, default=4)
-    P.add_argument('--map_type', type=tuple, default=None)
+    P.add_argument('--nparts', type=int, default=7)
+    P.add_argument('--map_info', type=list, default=None)
     ARGS = P.parse_args()
     go(ARGS)
