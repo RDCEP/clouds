@@ -44,7 +44,7 @@ def make_connecting_csv(file, output=OUTPUT_CSV, mod02_dir=MOD02_DIRECTORY,
     '''
     Combining functions that connects mod02, mod03 (geolocation data) and mod35
     files to create a csv with the patches that have invalid pixels and their
-    corresponding latitude and longitude coordinates
+    corresponding geometry/coordinates
 
     Inputs:
         file(str): name of mod02 hdf file

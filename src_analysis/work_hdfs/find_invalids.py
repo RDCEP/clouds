@@ -3,7 +3,7 @@ Katy Koenig
 
 July/August 2019
 
-Functions to check for invalid hdf files and get stats regarding invalids
+Functions to check hdf files and get stats regarding invalids pixels
 '''
 
 import os
@@ -16,11 +16,11 @@ import pandas as pd
 import numpy as np
 from pyhdf.SD import SD, SDC
 import geolocation as geo
-#import prg_StatsInvPixel as stats
+import prg_StatsInvPixel as stats
 
 HDF_LIBDIR = '/home/koenig1/scratch-midway2/clouds/src_analysis/lib_hdfs' # change here
 sys.path.insert(1, os.path.join(sys.path[0], HDF_LIBDIR))
-#from analysis_lib import _gen_patches
+from analysis_lib import _gen_patches
 
 # Put in your corresponding file/directories below
 INPUT_FILE = 'clustering_invalid_filelists.txt'
