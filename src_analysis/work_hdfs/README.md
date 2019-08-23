@@ -116,17 +116,15 @@ The code in this file analyzes cluster iterations (e.g. 80,000 patches clustered
 
 1. Edit & run [map_clusters.bash](https://github.com/RDCEP/clouds/blob/mod021KM/src_analysis/work_hdfs/map_clusters.bash)
  * This bash script creates and saves the following:
-
    1. A csv with each row being a patch. The columns in the csv are 'file', 'indices', 'cluster_num', 'geom'.
    2. Two images of this csv data:
-     * An image with a map for each date in the dataframe where the colors relate to the cluster_col (cluster number). The colors are each cluster number are invariant across each plot.
-     * An image with a map for each cluster in the dataset.
+      * An image with a map for each date in the dataframe where the colors relate to the cluster_col (cluster number). The colors are each cluster number are invariant across each plot.
+      * An image with a map for each cluster in the dataset.
 
  * Please note that MOD03 hdf files that correlate MOD02/MOD35 hdf files used in the clustering process must already be downloaded. I would recommend using [download_spec_datetimes.bash](https://github.com/RDCEP/clouds/blob/mod021KM/src_analysis/combined/download_spec_datetimes.bash) to download only the specific date/time MOD03 files needed.
 
 2. Additional Functions
- 1. map_all_discrete
- 	* This function creates and saves one map in which each unique value of the column specified is a different color.
-
- 2. map_all_continuous
- 	* This function creates and saves one map in which the color represents the continuous values of the specified column.
+	1. map_all_discrete
+ 		* This function creates and saves one map in which each unique value of the column specified is a different color.
+ 	2. map_all_continuous
+ 		* This function creates and saves one map in which the color represents the continuous values of the specified column.
