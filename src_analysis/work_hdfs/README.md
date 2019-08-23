@@ -114,7 +114,7 @@ The code in this file analyzes cluster iterations (e.g. 80,000 patches clustered
 
 ## How to Use
 
-1. Edit & run [map_clusters.bash](https://github.com/RDCEP/clouds/blob/mod021KM/src_analysis/work_hdfs/map_clusters.bash)
+1. Edit & run [map_clusters.bash](https://github.com/RDCEP/clouds/blob/mod021KM/src_analysis/work_hdfs/map_clusters.bash).
 	* This bash script creates and saves the following:
 		1. A csv with each row being a patch. The columns in the csv are 'file', 'indices', 'cluster_num', 'geom'. Example located [here](https://github.com/RDCEP/clouds/blob/mod021KM/src_analysis/work_hdfs/cluster0_v2.zip)
 		2. Two images of this csv data:
