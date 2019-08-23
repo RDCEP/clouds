@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 from tensorflow.python.keras.layers import *
 from tensorflow.python.keras.models import Model, Sequential
 from tensorflow.examples.tutorials.mnist import input_data
+from tensorflow.profiler import ProfileOptionBuilder, Profiler
 
 def get_args():
   p = argparse.ArgumentParser()
@@ -81,7 +82,8 @@ def model_fn(shape=(28,28,1)) :
     x = inp = Input(shape=shape, name='encoding_input')
     
     # layer 1
-    x = Conv2D(filters=16, kernel_size=3, padding='same')(x)
+    x = Conv2D(filters=16, kernel_size=3, padding='same',
+              kernel_initializer='he_normal')(x)
     x = ReLU()(x)
     #x = LeakyReLU()(x)
     x = MaxPooling2D((2, 2), padding='same')(x)
@@ -164,7 +166,7 @@ def loss_dev_fn(output_layer,
                 batch_size=32, dangle=2, c_lambda=1
                ):
     
-    def rotate_opetation(imgs, angle=1):
+    def rotate_operation(imgs, angle=1):
         """angle: Radian.
             angle = degree * math.pi/180
         """
@@ -180,10 +182,11 @@ def loss_dev_fn(output_layer,
     loss_reconst = [] # first term
     loss_hidden  = [] # seconds term
     
+    # angle list has Radian-based angle from 1 t0 360 degrees
     angle_list = [i*math.pi/180 for i in range(1,360,dangle)]
     for angle in angle_list:
-        rimgs = rotate_opetation(output_layer,angle=angle) # R_theta(x_hat)
-        rencoded_imgs = rotate_opetation(rotate_opetation(input_layer, angle=angle)) # Z(R(x))
+        rimgs = rotate_operation(output_layer,angle=angle) # R_theta(x_hat)
+        rencoded_imgs = rotate_operation(encoded_imgs,angle=angle) # Z(R(x))
         
         # loss
         loss_reconst.append(tf.reduce_mean(tf.square(input_layer - rimgs)) )
@@ -262,16 +265,25 @@ if __name__ == "__main__":
   figname   = 'fig_'+bname1+bname2
   ofilename = 'loss_'+bname1+bname2+'.txt'
 
+  # Trace and Profiling options
+  run_opts = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+  run_metadata = tf.RunMetadata()
+
   # start!
   stime = time.time()
   with tf.Session() as sess:
-    sess.run(init)
+    # initial run
+    sess.run(init, options=run_opts, run_metadata=run_metadata)
+    # set profiler
+    #profiler = Profiler(sess.graph)
+
+    # enter training loop
     for epoch in range(FLAGS.num_epoch):
         num_batches=mnist.train.num_examples//FLAGS.batch_size
         for iteration in range(num_batches):
-            X_batch,y_batch=mnist.train.next_batch(FLAGS.batch_size)
-            sess.run(train_ops)
+            sess.run(train_ops,options=run_opts, run_metadata=run_metadata)
         
+        X_batch,y_batch=mnist.train.next_batch(FLAGS.batch_size)
         train_loss=loss.eval(feed_dict={X:X_batch.reshape(-1,28,28,1)})
         print("epoch {} loss {}".format(epoch,train_loss), flush=True)   
         # save for checkio
@@ -286,6 +298,27 @@ if __name__ == "__main__":
               )
             )
 
+          #============================================================
+          #   Profiler
+          #============================================================
+          #profiler.add_step(int(epoch), run_meta=run_metadata)
+          # profiling items 
+          #profiler.profile_graph(
+          #    options=(
+          #        ProfileOptionBuilder(ProfileOptionBuilder.time_and_memory())
+          #        .with_step(epoch)
+          #        .build()
+          #    )
+          #)
+          #profiler.advise(
+          #    {
+          #        "ExpensiveOperationChecker": {},
+          #        "AcceleratorUtilizationChecker": {},
+          #        "OperationChecker": {},
+          #    }
+          #)
+
+    # Inference
     encoded=encoder(
         mnist.test.images[:num_test_images].reshape(-1,28,28,1)
     )
