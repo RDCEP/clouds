@@ -16,7 +16,7 @@ import multiprocessing as mp
 from functools import partial
 import numpy as np
 import pandas as pd
-#import geopandas as gpd
+import geopandas as gpd
 import matplotlib.pyplot as plt
 import pyproj
 import shapely.ops as ops
@@ -27,14 +27,14 @@ import prg_StatsInvPixel as stats
 
 HDF_LIBDIR = '/Users/katykoeing/Desktop/clouds/src_analysis/lib_hdfs' #change here
 sys.path.insert(1, os.path.join(sys.path[0], HDF_LIBDIR))
-#from alignment_lib import gen_mod35_img
+from alignment_lib import gen_mod35_img
 
 # Put in your corresponding directories below
 MOD02_DIRECTORY = '/home/koenig1/scratch-midway2/big_invalids/mod02invalids'
 MOD03_DIRECTORY = '/home/koenig1/scratch-midway2/big_invalids/mod03invalids'
 MOD35_DIRECTORY = '/home/koenig1/scratch-midway2/big_invalids/mod35invalids'
 INVALIDS_CSV = '/home/koenig1/clouds/src_analysis/combined/mod02_files_big_patches.csv'
-OUTPUT_CSV = 'corrected_invalids.csv'
+OUTPUT_CSV = 'invalids_output.csv'
 KEYS = ['filename', 'patch_no', 'invalid_pixels', 'latitude', 'longitude',
         'geometry']
 
@@ -429,37 +429,6 @@ def find_invalid_lats_lons(df, col='geometry'):
     new_df = df[~df.index.isin(inval_set)]
     return new_df
 
-
-def create_map(dataframe, colname, img_name):
-    '''
-    Maps the patches with invalid pixels on a map of the world
-
-    Inputs:
-        dataframe: a geopandas dataframe
-        colname(str): column name to be plotted in color gradient
-        img_name(str):
-
-    Outputs: None (saves plot to current directory as a png)
-    '''
-    _, ax = plt.subplots(1, figsize=(100, 100))
-    df = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
-    df.plot(ax=ax, color='white', edgecolor='black')
-    dataframe.plot(ax=ax, alpha=0.1, column=colname, vmin=min(dataframe[colname]),
-                   vmax=max(dataframe[colname]), cmap='summer')
-
-    # Code for legend adjustment informed by stackoverflow response found here:
-    # https://stackoverflow.com/questions/54236083/geopandas-reduce-legend-size-and-remove-white-space-below-map
-    ax.set_title('Patches with Invalid Pixels', size=20)
-    ax.grid()
-    fig = ax.get_figure()
-    cbax = fig.add_axes([0.91, 0.3, 0.03, 0.39])
-    cbax.set_title('Number of Invalid Pixels', size=5)
-    leg = plt.cm.ScalarMappable(cmap='summer',
-                                norm=plt.Normalize(vmin=min(dataframe[colname]),
-                                                   vmax=max(dataframe[colname])))
-    leg._A = []
-    fig.colorbar(leg, cax=cbax, format="%d")
-    plt.savefig(img_name)
 
 
 def find_area(poly_obj):

@@ -13,7 +13,7 @@ import argparse
 import re
 import numpy as np
 import pandas as pd
-#import geopandas as gpd
+import geopandas as gpd
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import geolocation as geo
@@ -431,7 +431,7 @@ def go(txt_file, input_dir, mod03_dir, num_patches, output_csv, npz_dir,
     info_df = pd.read_csv(output_csv, dtype={'file': 'str'})
     info_df['date'] = info_df['file'].apply(lambda x: x[:7])
     info_gdf = geo.clean_geom_col(info_df, 'geom')
-    mapping = ast.literal_eval(mapping)
+    mapping = mapping.split(',')
     for map_type in mapping:
         png_name = f"{output[:-4]}_{map_type}.png"
         if map_type == 'map_clusters':
