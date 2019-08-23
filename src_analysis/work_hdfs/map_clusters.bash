@@ -7,4 +7,4 @@ python3 map_cluster.py --txt_file='filelist_metadata_train_random-80000_nc-20_m0
     --output_csv='output.csv' \
     --npz_dir='/home/koenig1/scratch-midway2/clusters_20/output_clouds_feature_2000_2018_validfiles' \
     --nparts=7 \
-	--map_info=['map_clusters','map_by_date'] \
+	--map_info='[map_clusters, map_by_date]' \

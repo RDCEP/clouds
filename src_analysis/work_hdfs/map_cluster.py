@@ -13,7 +13,7 @@ import argparse
 import re
 import numpy as np
 import pandas as pd
-import geopandas as gpd
+#import geopandas as gpd
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import geolocation as geo
@@ -406,7 +406,7 @@ def clean_and_plot(csv_name, img_name, cluster_col='cluster_no'):
     return gdf
 
 
-def go(txt_file, input_dir, mnod03_dir, num_patches, output_csv, npz_dir,
+def go(txt_file, input_dir, mod03_dir, num_patches, output_csv, npz_dir,
        nparts, mapping):
     '''
     Main driving function that connects above functions
@@ -430,7 +430,8 @@ def go(txt_file, input_dir, mnod03_dir, num_patches, output_csv, npz_dir,
                 output_csv, npz_dir, nparts)
     info_df = pd.read_csv(output_csv, dtype={'file': 'str'})
     info_df['date'] = info_df['file'].apply(lambda x: x[:7])
-    info_gdf = geo.clean_geom_col(df, 'geom')
+    info_gdf = geo.clean_geom_col(info_df, 'geom')
+    mapping = ast.literal_eval(mapping)
     for map_type in mapping:
         png_name = f"{output[:-4]}_{map_type}.png"
         if map_type == 'map_clusters':
@@ -449,6 +450,7 @@ if __name__ == "__main__":
     P.add_argument('--output_csv', type=str, default='output.csv')
     P.add_argument('--npz_dir', type=str, default=DIR_NPZ)
     P.add_argument('--nparts', type=int, default=7)
-    P.add_argument('--map_info', type=list, default=None)
+    P.add_argument('--map_info', type=str, default=None)
     ARGS = P.parse_args()
-    go(ARGS)
+    go(ARGS.txt_file, ARGS.input_dir, ARGS.mod03_dir, ARGS.num_patches,
+       ARGS.output_csv, ARGS.npz_dir, ARGS.nparts, ARGS.map_info)
