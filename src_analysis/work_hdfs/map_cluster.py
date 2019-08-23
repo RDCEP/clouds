@@ -79,7 +79,6 @@ def connect_files(npy_file, npz_files, num_patches, npz_dir=DIR_NPZ):
                     info_dict['file'].append(match.group())
                     info_dict['indices'].append((i, j))
                     info_dict['cluster_num'].append(cluster_no)
-                #if patch_counter == num_patches:
                 return pd.DataFrame(info_dict)
         else:
             print('File name does not include correctly formatted ' + \
@@ -136,7 +135,7 @@ def get_specific_geo(merged):
                                  axis=1)
     merged['long'] = merged.apply(lambda x: gen_coords(x['long'], x['indices']),
                                   axis=1)
-    return geo.find_corners(merged)
+    return geo.find_corners(merged, 'lat', 'long')
 
 
 def gen_coords(geo_col, indices, patch_size=128):
