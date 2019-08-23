@@ -47,11 +47,11 @@
 
 # find_invalids.py
 
+### Katy Koenig
+
 The code in this file is used to check hdf files for invalid pixels.
 
 Please note that relevant mod02 and mod03 files should be downloaded prior to running in this py file.
-
-### Katy Koenig
 
 ## Getting Started
 
@@ -66,12 +66,12 @@ Please note that relevant mod02 and mod03 files should be downloaded prior to ru
 Edit and run the revelant bash scripts below.
 
 1. [fi_get_invalid_info.bash](https://github.com/RDCEP/clouds/blob/mod021KM/src_analysis/work_hdfs/fi_get_invalid_info.bash)
- * This bash script is used for hdf files that are downloaded via the combined repo, i.e. files are of the entire global and not location specific.
- * This bash script creates a csv with each row as a patch. Columns in the csv are 'filename', 'patch_no', 'inval_pixels', where 'filename' refers to the MOD02 filename.
+  * This bash script is used for hdf files that are downloaded via the combined repo, i.e. files are of the entire global and not location specific.
+  * This bash script creates a csv with each row as a patch. Columns in the csv are 'filename', 'patch_no', 'inval_pixels', where 'filename' refers to the MOD02 filename.
 
 2. [fi_get_info_for_location.bash](https://github.com/RDCEP/clouds/blob/mod021KM/src_analysis/work_hdfs/fi_get_info_for_location.bash)
- * This bash script is used for hdf files that are downloaded via the api-requests, i.e. the files are of a specific location.
- * This bash script creates a csv with each row as a patch. Columns in the csv are 'filename', 'patch_no', 'invalid_pixels', 'geometry', where 'filename' refers to the location and date of file.
+  * This bash script is used for hdf files that are downloaded via the api-requests, i.e. the files are of a specific location.
+  * This bash script creates a csv with each row as a patch. Columns in the csv are 'filename', 'patch_no', 'invalid_pixels', 'geometry', where 'filename' refers to the location and date of file.
 
 
 # geolocation.py
@@ -119,8 +119,8 @@ The code in this file analyzes cluster iterations (e.g. 80,000 patches clustered
 
    1. A csv with each row being a patch. The columns in the csv are 'file', 'indices', 'cluster_num', 'geom'.
    2. Two images of this csv data:
-    * An image with a map for each date in the dataframe where the colors relate to the cluster_col (cluster number). The colors are each cluster number are invariant across each plot.
-    * An image with a map for each cluster in the dataset.
+     * An image with a map for each date in the dataframe where the colors relate to the cluster_col (cluster number). The colors are each cluster number are invariant across each plot.
+     * An image with a map for each cluster in the dataset.
 
  * Please note that MOD03 hdf files that correlate MOD02/MOD35 hdf files used in the clustering process must already be downloaded. I would recommend using [download_spec_datetimes.bash](https://github.com/RDCEP/clouds/blob/mod021KM/src_analysis/combined/download_spec_datetimes.bash) to download only the specific date/time MOD03 files needed.
 
