@@ -275,7 +275,7 @@ if __name__ == "__main__":
     # initial run
     sess.run(init, options=run_opts, run_metadata=run_metadata)
     # set profiler
-    profiler = Profiler(sess.graph)
+    #profiler = Profiler(sess.graph)
 
     # enter training loop
     for epoch in range(FLAGS.num_epoch):
@@ -301,23 +301,22 @@ if __name__ == "__main__":
           #============================================================
           #   Profiler
           #============================================================
-          profiler.add_step(run_metadata)
+          #profiler.add_step(int(epoch), run_meta=run_metadata)
           # profiling items 
-          profiler.profile_graph(
-              options=(
-                  ProfileOptionBuilder(ProfileOptionBuilder.time_and_memory())
-                  .with_step(gs)
-                  .with_timeline_output(timeline_json)
-                  .build()
-              )
-          )
-          profiler.advise(
-              {
-                  "ExpensiveOperationChecker": {},
-                  "AcceleratorUtilizationChecker": {},
-                  "OperationChecker": {},
-              }
-          )
+          #profiler.profile_graph(
+          #    options=(
+          #        ProfileOptionBuilder(ProfileOptionBuilder.time_and_memory())
+          #        .with_step(epoch)
+          #        .build()
+          #    )
+          #)
+          #profiler.advise(
+          #    {
+          #        "ExpensiveOperationChecker": {},
+          #        "AcceleratorUtilizationChecker": {},
+          #        "OperationChecker": {},
+          #    }
+          #)
 
     # Inference
     encoded=encoder(
