@@ -7,6 +7,7 @@ import json
 import time
 import math
 import argparse
+import itertools
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
@@ -44,6 +45,12 @@ def get_args():
   )
   p.add_argument(
     '--batch_size',
+    type=int,
+    default=32,
+    help='number of pictures in minibatch'
+  )
+  p.add_argument(
+    '--copy_size',
     type=int,
     default=32
   )
@@ -126,15 +133,16 @@ def model_fn(shape=(28,28,1)) :
              
     return encoder, decoder
 
-def rotate_fn(images):
+def rotate_fn(images, seed=0, return_np=True):
     """
     Apply random rotation to data and parse to dataset module
     images: before parse to encoder
 
     * copy function from classifier.py
     """
-    # float point 32
-    images = images.astype(np.float32)
+    # float point 32 if numpy array
+    if isinstance(images, np.ndarray):
+      images = images.astype(np.float32)
 
     # random rotation
     random_angles = tf.random.uniform(
@@ -142,7 +150,7 @@ def rotate_fn(images):
         minval = 0*math.pi/180,
         maxval = 359*math.pi/180,
         dtype=tf.float32,
-        seed = 0
+        seed = seed
     )
     rotated_tensor_images = tf.contrib.image.transform(
       images,
@@ -152,14 +160,71 @@ def rotate_fn(images):
         )
     )
     
-    # convert from tensor to numpy
-    sess = tf.Session()
-    with sess.as_default():
-      rotated_images = rotated_tensor_images.eval()
-    return rotated_images
+    if return_np:
+      # convert from tensor to numpy
+      sess = tf.Session()
+      with sess.as_default():
+        rotated_images = rotated_tensor_images.eval()
+      return rotated_images
+    else:
+      return rotated_tensor_images
 
 
-def loss_dev_fn(output_layer, 
+def loss_rotate_fn(imgs, 
+                   encoder,
+                   batch_size=32,
+                   copy_size=4,
+                   c_lambda=1
+                   ):
+    shape = (-1,28,28,1)
+    loss_rotate_list = []
+    for idx in range(int(batch_size/copy_size)):
+      _imgs = imgs[copy_size*idx:copy_size*(idx+1)]
+      _loss_rotate_list = []
+      for (i,j) in itertools.combinations([i for i in range(copy_size)],2):
+        loss_rotate_list.append(
+          tf.reduce_mean(
+              tf.square( encoder(tf.reshape(_imgs[i],shape)) - encoder(tf.reshape(_imgs[j],shape)) )
+          ) 
+        )
+      loss_rotate_list.append(tf.reduce_max(loss_rotate_list))
+    #TODO think this operation again
+    # tf.reduce mean?
+    loss_rotate = tf.reduce_mean(tf.stack(loss_rotate_list))
+    return tf.multiply(tf.constant(c_lambda ,dtype=tf.float32), loss_rotate)
+
+def loss_reconst_fn(imgs, 
+                    encoder,
+                    decoder,
+                    dangle=2
+                    ):
+
+    def rotate_operation(imgs, angle=1):
+        """angle: Radian.
+            angle = degree * math.pi/180
+        """
+        rimgs = tf.contrib.image.rotate(
+                imgs,
+                tf.constant(angle ,dtype=tf.float32),
+                interpolation='NEAREST',
+                name=None
+        )
+        return rimgs
+
+    loss_reconst_list = []
+    angle_list = [i*math.pi/180 for i in range(1,360,dangle)]
+    encoded_imgs = encoder(imgs)
+    for angle in angle_list:
+      rimgs = rotate_operation(decoder(encoded_imgs),angle=angle) # R_theta(x_hat)
+      loss_reconst_list.append(tf.reduce_mean(tf.square(imgs - rimgs)))
+    loss_reconst = tf.reduce_min(tf.stack(loss_reconst_list))
+
+    return loss_reconst
+
+
+#TODO erase old loss function
+# Preserve old loss function for coding reference
+def old_loss_dev_fn(output_layer, 
                 input_layer, 
                 encoded_imgs,
                 encoder,
@@ -194,20 +259,51 @@ def loss_dev_fn(output_layer,
     
     # Get min-max
     reconst = tf.reduce_min(tf.stack(loss_reconst))
-    hidden  = tf.reduce_max(tf.stack(loss_reconst))
+    hidden  = tf.reduce_max(tf.stack(loss_hidden))
     
     return reconst + tf.multiply(tf.constant(c_lambda ,dtype=tf.float32), hidden)
 
-def input_fn(data, batch_size=32, rotation=False):
+def input_fn(data, batch_size=32, rotation=False, copy_size=4):
+    # check batch/copy ratio
+    try:
+      if batch_size % copy_size == 0:
+        print("\n Number of actual original images == {} ".format(int(batch_size/copy_size)))
+    except:
+      raise ValueError("\n Division of batch size and copy size is not Integer \n")
+
     data1 = data.reshape(-1,28,28,1)
     if rotation:
       data1 = rotate_fn(data1)
       print(" Apply rondam rotation to training images for AE ")
     dataset = tf.data.Dataset.from_tensor_slices((data1))
-    dataset = dataset.shuffle(1000).repeat().batch(batch_size)
+    dataset = dataset.shuffle(1000).repeat().batch(int(batch_size/copy_size))
     #dataset = dataset.repeat().batch(batch_size)
     return dataset
 
+def make_copy_rotate(oimgs, copy_size=4):
+  """
+    INPUT:
+      oimgs: original images in minibatch
+    OUTPUT:
+      crimgs: minibatch with original and these copy + rotations
+  """
+  # tensor to numpy
+  sess = tf.Session()
+  with sess.as_default():
+    oimgs_np = oimgs.eval()
+
+  img_list = []
+  for img in oimgs_np:
+    tmp_img_list = []
+    tmp_img_list = [ img.copy().reshape(1,28,28,1) for i in range(copy_size)]
+    _cimgs = np.concatenate(tmp_img_list, axis=0)
+    _crimgs = rotate_fn(_cimgs, seed=np.random.randint(0,999), return_np=False)
+    img_list.append(_crimgs)
+
+  #crimgs = np.concatenate(img_list, axis=0)
+  crimgs = tf.concat(img_list, axis=0)
+  return crimgs
+    
 
 if __name__ == "__main__":
   # set data
@@ -226,20 +322,41 @@ if __name__ == "__main__":
   # get model
   encoder, decoder = model_fn()
 
+  #with tf.device('cpu:0'):
+  #  """Operate within CPU
+  #  """
   # get dataset and one-shot-iterator
-  dataset = input_fn(mnist.train.images, batch_size=FLAGS.batch_size, rotation=FLAGS.rotation)
-  #dataset = input_fn(mnist.train.images, batch_size=FLAGS.batch_size)
-  img= dataset.make_one_shot_iterator().get_next()
+  dataset = input_fn(mnist.train.images, 
+                     batch_size=FLAGS.batch_size, 
+                     rotation=FLAGS.rotation,
+                     copy_size=FLAGS.copy_size
+  )
+  img_beforeCopyRotate = dataset.make_one_shot_iterator().get_next()
 
-  # get layer output
-  encoder_img = encoder(img)
-  decoder_img = decoder(encoder_img)
+  # convert imgs to imgs with copy of rotations
+  img = make_copy_rotate(img_beforeCopyRotate,copy_size=FLAGS.copy_size)
 
   # compute loss and train_ops
-  loss = loss_dev_fn(decoder_img, img, encoder_img,
-                   encoder,
-                   batch_size=FLAGS.batch_size, dangle=FLAGS.dangle, c_lambda=FLAGS.c_lambda)
-  train_ops = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss)
+  loss_reconst = loss_reconst_fn(img, encoder, decoder, dangle=FLAGS.dangle)
+  loss_rotate = loss_rotate_fn(img, encoder,
+                               batch_size=FLAGS.batch_size,
+                               copy_size=FLAGS.copy_size,
+                               c_lambda=FLAGS.c_lambda
+  )
+ 
+  ## + Before major implementation change
+  # get layer output
+  #encoder_img = encoder(img)
+  #decoder_img = decoder(encoder_img)
+
+  #loss = loss_dev_fn(decoder_img, img, encoder_img,
+  #                 encoder,
+  #                 batch_size=FLAGS.batch_size, dangle=FLAGS.dangle, c_lambda=FLAGS.c_lambda)
+
+  # Apply optimization
+  train_ops_reconst = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss_reconst)
+  train_ops_rotate = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss_rotate)
+  train_ops = tf.group(train_ops_reconst, train_ops_rotate)
 
   # set-up save models
   save_models = {"encoder": encoder, "decoder": decoder}
@@ -279,15 +396,18 @@ if __name__ == "__main__":
 
     # enter training loop
     for epoch in range(FLAGS.num_epoch):
-        num_batches=mnist.train.num_examples//FLAGS.batch_size
+        #num_batches=mnist.train.num_examples//FLAGS.batch_size
+        num_batches=int(mnist.train.num_examples/FLAGS.copy_size)//FLAGS.batch_size
         for iteration in range(num_batches):
             sess.run(train_ops,options=run_opts, run_metadata=run_metadata)
         
         X_batch,y_batch=mnist.train.next_batch(FLAGS.batch_size)
-        train_loss=loss.eval(feed_dict={X:X_batch.reshape(-1,28,28,1)})
-        print("epoch {} loss {}".format(epoch,train_loss), flush=True)   
-        # save for checkio
-        train_loss_list.append(train_loss)
+        train_loss_reconst= loss_reconst.eval(feed_dict={X:X_batch.reshape(-1,28,28,1)})
+        train_loss_rotate = loss_rotate.eval(feed_dict={X:X_batch.reshape(-1,28,28,1)})
+        print("epoch {}  loss reconst {}  loss rotate {}".format(
+          epoch, train_loss_reconst, train_loss_rotate), flush=True
+        )   
+        train_loss_list.append(str(train_loss_reconst)+','+str(train_loss_rotate))
     
         # save model at every N steps
         if epoch % FLAGS.save_every == 0:
