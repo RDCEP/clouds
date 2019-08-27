@@ -154,7 +154,7 @@ def rotate_fn(images, seed=0, return_np=True):
     random_angles = tf.random.uniform(
         shape = (tf.shape(images)[0], ), 
         minval = 0*math.pi/180,
-        maxval = 359*math.pi/180,
+        maxval = 359.999*math.pi/180,
         dtype=tf.float32,
         seed = seed
     )
@@ -312,9 +312,15 @@ if __name__ == "__main__":
  
 
   # Apply optimization
-  train_ops_reconst = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss_reconst)
-  train_ops_rotate = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss_rotate)
-  train_ops = tf.group(train_ops_reconst, train_ops_rotate)
+  # Method 2: Apply Adam concurrently
+  #  This method is more appropriate?! BUT accuracy was so bad
+  loss = loss_reconst + loss_rotate
+  train_ops  = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss)
+
+  # Method 1: Apply Adam individually
+  #train_ops_reconst = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss_reconst)
+  #train_ops_rotate = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss_rotate)
+  #train_ops = tf.group(train_ops_reconst, train_ops_rotate)
 
   # set-up save models
   save_models = {"encoder": encoder, "decoder": decoder}
@@ -349,6 +355,7 @@ if __name__ == "__main__":
   with tf.Session() as sess:
     # initial run
     sess.run(init, options=run_opts, run_metadata=run_metadata)
+
     # set profiler
     #profiler = Profiler(sess.graph)
 
