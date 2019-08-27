@@ -45,6 +45,16 @@ def get_args():
     default=0.001
   )
   p.add_argument(
+    '--lr_reconst',
+    type=float,
+    default=0.001
+  )
+  p.add_argument(
+    '--lr_rotate',
+    type=float,
+    default=0.001
+  )
+  p.add_argument(
     '--num_epoch',
     type=int,
     default=5
@@ -310,17 +320,23 @@ if __name__ == "__main__":
                                c_lambda=FLAGS.c_lambda
   )
  
+  # observe loss values with tensorboard
+  with tf.name_scope("summary"):
+    tf.summary.scalar("reconst loss", loss_reconst)
+    tf.summary.scalar("rotate loss", loss_rotate)
+    tf_summary_op = tf.summary.merge_all()
 
   # Apply optimization
   # Method 2: Apply Adam concurrently
-  #  This method is more appropriate?! BUT accuracy was so bad
-  loss = loss_reconst + loss_rotate
-  train_ops  = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss)
+  #  This method's accuracy was so bad. 
+  #  why?!
+  #loss = loss_reconst + loss_rotate
+  #train_ops  = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss)
 
   # Method 1: Apply Adam individually
-  #train_ops_reconst = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss_reconst)
-  #train_ops_rotate = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss_rotate)
-  #train_ops = tf.group(train_ops_reconst, train_ops_rotate)
+  train_ops_reconst = tf.train.AdamOptimizer(FLAGS.lr_reconst).minimize(loss_reconst)
+  train_ops_rotate = tf.train.AdamOptimizer(FLAGS.lr_rotate).minimize(loss_rotate)
+  train_ops = tf.group(train_ops_reconst, train_ops_rotate)
 
   # set-up save models
   save_models = {"encoder": encoder, "decoder": decoder}
@@ -359,12 +375,27 @@ if __name__ == "__main__":
     # set profiler
     #profiler = Profiler(sess.graph)
 
+    # tf board
+    summary = sess.run(tf_summary_op, options=run_opts, run_metadata=run_metadata)
+    summary_writer = tf.summary.FileWriter(
+         os.path.join(FLAGS.output_modeldir, 'logs'), 
+         graph=sess.graph
+    ) 
+
     # enter training loop
     for epoch in range(FLAGS.num_epoch):
         #num_batches=mnist.train.num_examples//FLAGS.batch_size
         num_batches=int(mnist.train.num_examples/FLAGS.copy_size)//FLAGS.batch_size
         for iteration in range(num_batches):
             sess.run(train_ops,options=run_opts, run_metadata=run_metadata)
+
+            # set for debug
+            X_batch,y_batch=mnist.train.next_batch(FLAGS.batch_size)
+            train_loss_reconst= loss_reconst.eval(feed_dict={X:X_batch.reshape(-1,28,28,1)})
+            train_loss_rotate = loss_rotate.eval(feed_dict={X:X_batch.reshape(-1,28,28,1)})
+            print("iteration {}  loss reconst {}  loss rotate {}".format(
+              iteration, train_loss_reconst, train_loss_rotate), flush=True
+            )   
         
         X_batch,y_batch=mnist.train.next_batch(FLAGS.batch_size)
         train_loss_reconst= loss_reconst.eval(feed_dict={X:X_batch.reshape(-1,28,28,1)})
@@ -386,6 +417,7 @@ if __name__ == "__main__":
           #============================================================
           #   Profiler
           #============================================================
+          #   Profiler
           fetched_timeline = timeline.Timeline(run_metadata.step_stats)
           chrome_trace = fetched_timeline.generate_chrome_trace_format()
           with open(FLAGS.output_modeldir+'/timelines/time%d.json' % epoch, 'w') as f:
