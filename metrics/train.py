@@ -228,47 +228,6 @@ def loss_reconst_fn(imgs,
     return loss_reconst
 
 
-#TODO erase old loss function
-# Preserve old loss function for coding reference
-def old_loss_dev_fn(output_layer, 
-                input_layer, 
-                encoded_imgs,
-                encoder,
-                batch_size=32, dangle=2, c_lambda=1
-               ):
-    
-    def rotate_operation(imgs, angle=1):
-        """angle: Radian.
-            angle = degree * math.pi/180
-        """
-        rimgs = tf.contrib.image.rotate(
-                imgs,
-                tf.constant(angle ,dtype=tf.float32),
-                interpolation='NEAREST',
-                name=None
-        )
-        return rimgs
-    
-    # loss lists
-    loss_reconst = [] # first term
-    loss_hidden  = [] # seconds term
-    
-    # angle list has Radian-based angle from 1 t0 360 degrees
-    angle_list = [i*math.pi/180 for i in range(1,360,dangle)]
-    for angle in angle_list:
-        rimgs = rotate_operation(output_layer,angle=angle) # R_theta(x_hat)
-        rencoded_imgs = rotate_operation(encoded_imgs,angle=angle) # Z(R(x))
-        
-        # loss
-        loss_reconst.append(tf.reduce_mean(tf.square(input_layer - rimgs)) )
-        loss_hidden.append(tf.reduce_mean(tf.square(encoded_imgs - rencoded_imgs)))
-    
-    # Get min-max
-    reconst = tf.reduce_min(tf.stack(loss_reconst))
-    hidden  = tf.reduce_max(tf.stack(loss_hidden))
-    
-    return reconst + tf.multiply(tf.constant(c_lambda ,dtype=tf.float32), hidden)
-
 def input_fn(data, batch_size=32, rotation=False, copy_size=4):
     # check batch/copy ratio
     try:
@@ -351,14 +310,6 @@ if __name__ == "__main__":
                                c_lambda=FLAGS.c_lambda
   )
  
-  ## + Before major implementation change
-  # get layer output
-  #encoder_img = encoder(img)
-  #decoder_img = decoder(encoder_img)
-
-  #loss = loss_dev_fn(decoder_img, img, encoder_img,
-  #                 encoder,
-  #                 batch_size=FLAGS.batch_size, dangle=FLAGS.dangle, c_lambda=FLAGS.c_lambda)
 
   # Apply optimization
   train_ops_reconst = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss_reconst)
