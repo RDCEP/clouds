@@ -13,6 +13,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 from tensorflow.python.keras.layers import *
 from tensorflow.python.keras.models import Model, Sequential
+from tensorflow.python.client import timeline
 from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.profiler import ProfileOptionBuilder, Profiler
 
@@ -32,6 +33,11 @@ def get_args():
     '--output_modeldir',
     type=str,
     default='./'
+  )
+  p.add_argument(
+    '--expname',
+    type=str,
+    default='new'
   )
   p.add_argument(
     '--lr',
@@ -315,6 +321,7 @@ if __name__ == "__main__":
   os.makedirs(FLAGS.logdir, exist_ok=True)
   os.makedirs(FLAGS.figdir, exist_ok=True)
   os.makedirs(FLAGS.output_modeldir, exist_ok=True)
+  os.makedirs(FLAGS.output_modeldir+'/timelines', exist_ok=True)
 
   # ad-hoc params
   num_test_images = 10
@@ -377,10 +384,10 @@ if __name__ == "__main__":
   
   # outputnames
   #bname1 = 'nepoch-'+str(FLAGS.num_epoch)+'_lr-'+str(FLAGS.lr)
-  bname1 = 'new_nepoch-'+str(FLAGS.num_epoch)+'_lr-'+str(FLAGS.lr)
+  bname1 = '_nepoch-'+str(FLAGS.num_epoch)+'_lr-'+str(FLAGS.lr)
   bname2 = '_nbatch-'+str(FLAGS.batch_size)+'_lambda'+str(FLAGS.c_lambda)+'_dangle'+str(FLAGS.dangle)
-  figname   = 'fig_'+bname1+bname2
-  ofilename = 'loss_'+bname1+bname2+'.txt'
+  figname   = 'fig_'+FLAGS.expname+bname1+bname2
+  ofilename = 'loss_'+FLAGS.expname+bname1+bname2+'.txt'
 
   # Trace and Profiling options
   run_opts = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
@@ -421,6 +428,12 @@ if __name__ == "__main__":
           #============================================================
           #   Profiler
           #============================================================
+          fetched_timeline = timeline.Timeline(run_metadata.step_stats)
+          chrome_trace = fetched_timeline.generate_chrome_trace_format()
+          with open(FLAGS.output_modeldir+'/timelines/time%d.json' % epoch, 'w') as f:
+            f.write(chrome_trace)
+
+          #+ Comment off for lots of logging 
           #profiler.add_step(int(epoch), run_meta=run_metadata)
           # profiling items 
           #profiler.profile_graph(
