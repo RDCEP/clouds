@@ -330,13 +330,13 @@ if __name__ == "__main__":
   # Method 2: Apply Adam concurrently
   #  This method's accuracy was so bad. 
   #  why?!
-  #loss = loss_reconst + loss_rotate
-  #train_ops  = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss)
+  loss_all = tf.math.add(loss_reconst, loss_rotate)
+  train_ops  = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss_all)
 
   # Method 1: Apply Adam individually
-  train_ops_reconst = tf.train.AdamOptimizer(FLAGS.lr_reconst).minimize(loss_reconst)
-  train_ops_rotate = tf.train.AdamOptimizer(FLAGS.lr_rotate).minimize(loss_rotate)
-  train_ops = tf.group(train_ops_reconst, train_ops_rotate)
+  #train_ops_reconst = tf.train.AdamOptimizer(FLAGS.lr_reconst).minimize(loss_reconst)
+  #train_ops_rotate = tf.train.AdamOptimizer(FLAGS.lr_rotate).minimize(loss_rotate)
+  #train_ops = tf.group(train_ops_reconst, train_ops_rotate)
 
   # set-up save models
   save_models = {"encoder": encoder, "decoder": decoder}
