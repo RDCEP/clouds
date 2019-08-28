@@ -281,6 +281,9 @@ def make_copy_rotate(oimgs, copy_size=4):
     
 
 if __name__ == "__main__":
+  # time for data preparation
+  prep_stime = time.time()
+
   # set data
   mnist = input_data.read_data_sets(os.path.abspath("./MNIST_data/"), one_hot=True)
 
@@ -365,6 +368,11 @@ if __name__ == "__main__":
   # Trace and Profiling options
   run_opts = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
   run_metadata = tf.RunMetadata()
+
+  # End for prep-processing during main code
+  prep_etime = (time.time() -prep_stime)/60.0 # minutes
+  print("\n### Entering Training Loop ###\n")
+  print("   Data Pre-Processing time [minutes]  : %f" % prep_etime, flush=True)
 
   # start!
   stime = time.time()
