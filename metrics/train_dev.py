@@ -365,13 +365,6 @@ if __name__ == "__main__":
   )
   gc.collect()
  
-  # observe loss values with tensorboard
-  with tf.name_scope("summary"):
-    summary_writer = tf.summary.FileWriter(os.path.join(FLAGS.output_modeldir, 'logs')) 
-    tf.summary.scalar("reconst loss", loss_reconst)
-    tf.summary.scalar("rotate loss", loss_rotate)
-    merged = tf.summary.merge_all()
-
   # Apply optimization
   # Method 2: Apply Adam concurrently
   #  This method's accuracy was so bad. 
@@ -383,6 +376,14 @@ if __name__ == "__main__":
   #train_ops_reconst = tf.train.AdamOptimizer(FLAGS.lr_reconst).minimize(loss_reconst)
   #train_ops_rotate = tf.train.AdamOptimizer(FLAGS.lr_rotate).minimize(loss_rotate)
   #train_ops = tf.group(train_ops_reconst, train_ops_rotate)
+
+  # observe loss values with tensorboard
+  with tf.name_scope("summary"):
+    summary_writer = tf.summary.FileWriter(os.path.join(FLAGS.output_modeldir, 'logs')) 
+    tf.summary.scalar("reconst loss", loss_reconst)
+    tf.summary.scalar("rotate loss", loss_rotate)
+    tf.summary.scalar("total loss", loss_all)
+    merged = tf.summary.merge_all()
 
   # set-up save models
   save_models = {"encoder": encoder, "decoder": decoder}
@@ -443,7 +444,7 @@ if __name__ == "__main__":
 
             # save scaler summary at every 10 steps
             if iteration % 10 == 0:
-              summary_writer.add_summary(summary, _)
+              summary_writer.add_summary(tf_summary, _)
               summary_writer.flush() # write immediately
         
             # save model at every N steps

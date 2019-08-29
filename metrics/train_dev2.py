@@ -195,27 +195,36 @@ def loss_rotate_fn(imgs,
                    ):
     shape = (-1,28,28,1)
     loss_rotate_list = []
+    max_index_list = []
     for idx in range(int(batch_size/copy_size)):
       _imgs = imgs[copy_size*idx:copy_size*(idx+1)]
       _loss_rotate_list = []
+      _index_list = []
       for (i,j) in itertools.combinations([i for i in range(copy_size)],2):
         _loss_rotate_list.append(
           tf.reduce_mean(
               tf.square( encoder(tf.reshape(_imgs[i],shape)) - encoder(tf.reshape(_imgs[j],shape)) )
           ) 
         )
+        _index_list.append([i,j])
       loss_rotate_list.append(tf.reduce_max(_loss_rotate_list))
+      max_index_list.extend([copy_size*idx + max_jdx for max_jdx in _index_list[
+          tf.keras.backend.eval(tf.math.argmax(_loss_rotate_list))
+        ]
+      ])
 
     #TODO think this operation again
     # tf.reduce mean?
     loss_rotate = tf.reduce_mean(tf.stack(loss_rotate_list))
+    loss_rotate = tf.multiply(tf.constant(c_lambda ,dtype=tf.float32), loss_rotate)
     #gc.collect()
 
-    return tf.multiply(tf.constant(c_lambda ,dtype=tf.float32), loss_rotate)
+    return loss_rotate, max_index_list
 
 def loss_reconst_fn(imgs, 
                     encoder,
                     decoder,
+                    max_idx_list,
                     batch_size=32,
                     copy_size=4,
                     dangle=2
@@ -236,20 +245,27 @@ def loss_reconst_fn(imgs,
     loss_reconst_list = []
     angle_list = [i*math.pi/180 for i in range(1,360,dangle)]
     
-    encoded_imgs = encoder(imgs)
-    for idx in range(int(batch_size/copy_size)):
-      _loss_reconst_list = []
-      _imgs = imgs[copy_size*idx:copy_size*(idx+1)]
-      for angle in angle_list:
-        rimgs = rotate_operation(
-            decoder(encoded_imgs[copy_size*idx:copy_size*(idx+1)]),
-            angle=angle
-        ) # R_theta(x_hat)
-        _loss_reconst_list.append(tf.reduce_mean(tf.square(_imgs - rimgs)))
-      loss_reconst_list.append(tf.reduce_min(_loss_reconst_list))
+    simgs = imgs[loss_reconst_list]
+    encoded_imgs = encoder(simgs)
+    for angle in angle_list:
+      rimgs = rotate_operation(decoder(encoded_imgs),angle=angle) # R_theta(x_hat)
+      loss_reconst_list.append(tf.reduce_mean(tf.square(simgs - rimgs)))
+    loss_reconst = tf.reduce_min(tf.stack(loss_reconst_list))
+
+
+    #for idx in range(int(batch_size/copy_size)):
+    #  _loss_reconst_list = []
+    #  _imgs = imgs[copy_size*idx:copy_size*(idx+1)]
+    #  for angle in angle_list:
+    #    rimgs = rotate_operation(
+    #        decoder(encoded_imgs[copy_size*idx:copy_size*(idx+1)]),
+    #        angle=angle
+    #    ) # R_theta(x_hat)
+    #    _loss_reconst_list.append(tf.reduce_mean(tf.square(_imgs - rimgs)))
+    #  loss_reconst_list.append(tf.reduce_min(_loss_reconst_list))
  
-    # take mean among min values
-    loss_reconst = tf.reduce_mean(tf.stack(loss_reconst_list))
+    ## take mean among min values
+    #loss_reconst = tf.reduce_mean(tf.stack(loss_reconst_list))
     #gc.collect()
     
     # 08/28 2PM  before modification 
@@ -336,12 +352,13 @@ if __name__ == "__main__":
   img = make_copy_rotate(img_beforeCopyRotate,copy_size=FLAGS.copy_size)
 
   # compute loss and train_ops
-  loss_rotate = loss_rotate_fn(img, encoder,
-                               batch_size=FLAGS.batch_size,
-                               copy_size=FLAGS.copy_size,
-                               c_lambda=FLAGS.c_lambda
+  loss_rotate, max_idx_list = loss_rotate_fn(img, encoder,
+                                             batch_size=FLAGS.batch_size,
+                                             copy_size=FLAGS.copy_size,
+                                             c_lambda=FLAGS.c_lambda
   )
   loss_reconst = loss_reconst_fn(img, encoder, decoder, 
+                                 max_idx_list,
                                  batch_size=FLAGS.batch_size,
                                  copy_size=FLAGS.copy_size,
                                  dangle=FLAGS.dangle
@@ -408,7 +425,6 @@ if __name__ == "__main__":
     # set profiler
     #profiler = Profiler(sess.graph)
 
-
     # enter training loop
     for epoch in range(FLAGS.num_epoch):
         #num_batches=mnist.train.num_examples//FLAGS.batch_size
@@ -424,11 +440,12 @@ if __name__ == "__main__":
             print("iteration {}  loss reconst {}  loss rotate {}".format(
               iteration, train_loss_reconst, train_loss_rotate), flush=True
             )   
+
             # save scaler summary at every 10 steps
             if iteration % 10 == 0:
               summary_writer.add_summary(tf_summary, _)
               summary_writer.flush() # write immediately
-        
+
             # save model at every N steps
             if iteration % 50 == 0:
               if epoch % FLAGS.save_every == 0:
@@ -438,7 +455,6 @@ if __name__ == "__main__":
                       FLAGS.output_modeldir, "{}-{}-iter{}.h5".format(m, epoch, iteration)
                     )
                   )
-        
         
         X_batch,y_batch=mnist.train.next_batch(FLAGS.batch_size)
         train_loss_reconst= loss_reconst.eval(feed_dict={X:X_batch.reshape(-1,28,28,1)})
