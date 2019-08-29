@@ -3,6 +3,7 @@ import matplotlib
 matplotlib.use('Agg')
 
 import os
+import gc
 import json
 import time
 import math
@@ -216,6 +217,7 @@ def loss_rotate_fn(imgs,
     #TODO think this operation again
     # tf.reduce mean?
     loss_rotate = tf.reduce_mean(tf.stack(loss_rotate_list))
+    gc.collect()
 
     # idx converts for numpy
     #sess = tf.Session()
@@ -292,6 +294,7 @@ def loss_reconst_fn(imgs,
     
     # take mean among min values
     loss_reconst = tf.reduce_mean(tf.stack(loss_reconst_list))
+    gc.collect()
     
     # 08/28 2PM  before modification 
     #encoded_imgs = encoder(imgs)
