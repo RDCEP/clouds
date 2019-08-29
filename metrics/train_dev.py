@@ -61,6 +61,11 @@ def get_args():
     default=5
   )
   p.add_argument(
+    '--update_loss',
+    type=int,
+    default=5
+  )
+  p.add_argument(
     '--batch_size',
     type=int,
     default=32,
@@ -251,6 +256,8 @@ def loss_reconst_fn(imgs,
       rimgs = rotate_operation(decoder(encoded_imgs),angle=angle) # R_theta(x_hat)
       loss_reconst_list.append(tf.reduce_mean(tf.square(simgs - rimgs)))
     loss_reconst = tf.reduce_min(tf.stack(loss_reconst_list))
+    min_idx = tf.keras.backend.eval(tf.math.argmin(loss_reconst_list)) 
+    print( "min idx = {} | min angle = {} ".format(min_idx, angle_list[min_idx]) )
 
 
     #for idx in range(int(batch_size/copy_size)):
@@ -456,6 +463,25 @@ if __name__ == "__main__":
                       FLAGS.output_modeldir, "{}-{}-iter{}.h5".format(m, epoch, iteration)
                     )
                   )
+             
+
+            #if iteration % FLAGS.update_loss == 0:  
+            print(" \n ####   Update Loss   ####\n ")
+            # compute loss and train_ops
+            loss_rotate, max_idx_list = loss_rotate_fn(img, encoder,
+                                           batch_size=FLAGS.batch_size,
+                                           copy_size=FLAGS.copy_size,
+                                           c_lambda=FLAGS.c_lambda
+            )
+            loss_reconst = loss_reconst_fn(img, encoder, decoder, 
+                               max_idx_list,
+                               batch_size=FLAGS.batch_size,
+                               copy_size=FLAGS.copy_size,
+                               dangle=FLAGS.dangle
+            )
+            gc.collect()
+            loss_all = tf.math.add(loss_reconst, loss_rotate)
+            train_ops  = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss_all)
         
         X_batch,y_batch=mnist.train.next_batch(FLAGS.batch_size)
         train_loss_reconst= loss_reconst.eval(feed_dict={X:X_batch.reshape(-1,28,28,1)})
