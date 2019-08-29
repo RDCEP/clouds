@@ -209,7 +209,7 @@ def loss_rotate_fn(imgs,
     #TODO think this operation again
     # tf.reduce mean?
     loss_rotate = tf.reduce_mean(tf.stack(loss_rotate_list))
-    gc.collect()
+    #gc.collect()
 
     return tf.multiply(tf.constant(c_lambda ,dtype=tf.float32), loss_rotate)
 
@@ -250,7 +250,7 @@ def loss_reconst_fn(imgs,
  
     # take mean among min values
     loss_reconst = tf.reduce_mean(tf.stack(loss_reconst_list))
-    gc.collect()
+    #gc.collect()
     
     # 08/28 2PM  before modification 
     #encoded_imgs = encoder(imgs)
@@ -346,6 +346,7 @@ if __name__ == "__main__":
                                  copy_size=FLAGS.copy_size,
                                  dangle=FLAGS.dangle
   )
+  gc.collect()
  
   # observe loss values with tensorboard
   with tf.name_scope("summary"):
@@ -408,12 +409,8 @@ if __name__ == "__main__":
     #profiler = Profiler(sess.graph)
 
     # tf board
-    #TODO: maybe below lines not need
     #summary = sess.run(tf_summary_op, options=run_opts, run_metadata=run_metadata)
-    #summary_writer = tf.summary.FileWriter(
-    #     os.path.join(FLAGS.output_modeldir, 'logs'), 
-    #     graph=sess.graph
-    #) 
+    summary_writer = tf.summary.FileWriter(os.path.join(FLAGS.output_modeldir, 'logs')) 
 
     # enter training loop
     for epoch in range(FLAGS.num_epoch):
