@@ -370,6 +370,7 @@ if __name__ == "__main__":
  
   # observe loss values with tensorboard
   with tf.name_scope("summary"):
+    summary_writer = tf.summary.FileWriter(os.path.join(FLAGS.output_modeldir, 'logs')) 
     tf.summary.scalar("reconst loss", loss_reconst)
     tf.summary.scalar("rotate loss", loss_rotate)
     merged = tf.summary.merge_all()
@@ -445,7 +446,7 @@ if __name__ == "__main__":
             )   
 
             # save scaler summary at every 10 steps
-            if iteration % 10 == 0:
+            if iteration % 10 == 0: # and iteration != 0:
               summary_writer.add_summary(tf_summary, _)
               summary_writer.flush() # write immediately
 
@@ -473,6 +474,8 @@ if __name__ == "__main__":
               )
               gc.collect()
               loss_all = tf.math.add(loss_reconst, loss_rotate)
+              init = tf.global_variables_initializer()
+              sess.run(init)
               train_ops  = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss_all)
         
         X_batch,y_batch=mnist.train.next_batch(FLAGS.batch_size)
