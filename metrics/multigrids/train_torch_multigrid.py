@@ -17,6 +17,7 @@
 #   0.4 08/22/2019 Takuya Kurihana 1epoch ~18min on K80 1GPU. 
 #                                  Original version is train_torch_multigrid_original.py
 #   0.5 08/22/2019 Takuya Kurihana Add new unit to integrate pyramid-like bottleneck layer                           
+#   1.0 08/22/2019 Takuya Kurihana Change L2 loss to custom Rotate-Invartiant Loss                           
 #
 import os
 import json
@@ -360,6 +361,9 @@ class MGSeries(nn.Module):
         return self.mgseries(x)
 
 
+
+
+
 class MGResSeries(nn.Module):
 
     # Multigrid Residual Series
@@ -500,6 +504,11 @@ class MGAutoencoder(nn.Module):
             #   forward() method by reshaping the lowest 2 resolution sheets into a single _x2x2 tensor.
             #
 
+            # 08.29.2019 Advice from David
+            # units ==> how many "layer" do you want in series of residual connections.
+            #           number use specified to "units" is number of repeat of "MGResSeries"
+            # e.g. if units = -5, 
+            #      Encoder: MGUnit + 5 * MGSeries + MGResUnit + MGResUnit + MGResUnit + MGResUnit 
 
             c = -units
             c4 = c
@@ -552,6 +561,72 @@ class MGAutoencoder(nn.Module):
             return self.sigmoid(reconstruction[0])
 
 
+def loss_torch_fn(output_layer,
+                  input_layer,
+                  encoded_imgs,
+                  batch_size=32, dangle=2, c_lambda=1
+                  ):
+
+    #def rotate_operation(imgs, angle=1):
+    #    """input:
+    #            angle:  degree (pytorch rotate function takes degree as args)
+    #    """
+    #    rimgs = []
+    #    for img in imgs:
+    #      rimgs.append(transforms.functional.rotate(transforms.topilimage()(img.cpu()), angle))
+    #    # if channel has only 1 channel, apply unsqueeze not to shrink the channel
+    #    #return torch.cat([transforms.totensor()(rimg).unsqueeze(0).cuda() for rimg in rimgs ]) 
+    #    return torch.cat([transforms.totensor()(rimg).cuda() for rimg in rimgs ]) 
+    #TODO: more flexible function 
+    def multi_rotate_fn(imgs, angle, rgb=True):
+      """INPUT
+            imgs: tensor(#batch, 3, 32,32) or (#batch, 64, 2,2)
+      """
+      rimgs = []
+      if rgb:
+        for img in imgs:
+          cimg = transforms.functional.rotate(transforms.ToPILImage()(img.cpu()), angle)
+          cimg_np = transforms.ToTensor()(cimg).numpy()
+          rimgs.append(np.expand_dims(cimg_np, axis=0))
+        rimgs_np = np.concatenate(rimgs, axis=0)
+        return torch.from_numpy(rimgs_np).cuda()
+      else:
+        """More than 3 channels
+        """
+        for img in imgs:
+          _rimgs = []
+          for _img in img:
+            cimg = transforms.functional.rotate(transforms.ToPILImage()(_img.cpu()), angle)
+            cimg_np = transforms.ToTensor()(cimg).numpy()
+            _rimgs.append(cimg_np)
+          rimgs.append(np.expand_dims(np.concatenate(_rimgs, axis=0), axis=0))
+        rimgs_np = np.concatenate(rimgs, axis=0)
+        return torch.from_numpy(rimgs_np).cuda()
+
+    # loss lists
+    loss_reconst = [] # first term
+    loss_hidden  = [] # seconds term
+    angle_list = [i for i in range(1,360,dangle)]
+    for angle in angle_list:
+        rimgs = multi_rotate_fn(output_layer ,angle=angle) # R_theta(x_hat)
+        rencoded_imgs = multi_rotate_fn(encoded_imgs, angle=angle, rgb=False) # Z(R(x))
+
+        #TODO erase these lines for debug
+        #print('output layer',output_layer.cpu().detach().numpy().shape)
+        #print('rimgs',rimgs.cpu().detach().numpy().shape)
+        #print('encoded_imgs', encoded_imgs.cpu().detach().numpy().shape)
+        #print('rencoded_imgs',rencoded_imgs.cpu().detach().numpy().shape)
+
+        # loss
+        loss_reconst.append(torch.mean((input_layer - rimgs)**2) )
+        loss_hidden.append(torch.mean((encoded_imgs - rencoded_imgs)**2))
+
+    # Get min-max
+    reconst = torch.min(torch.stack(loss_reconst))
+    hidden  = torch.max(torch.stack(loss_reconst))
+
+    return reconst + c_lambda*hidden
+
 def get_args():
   p = argparse.ArgumentParser()
   p.add_argument(
@@ -573,6 +648,16 @@ def get_args():
     '--lr',
     type=float,
     default=0.001
+  )
+  p.add_argument(
+    '--dangle',
+    type=int,
+    default=2
+  )
+  p.add_argument(
+    '--c_lambda',
+    type=float,
+    default=1.0
   )
   p.add_argument(
     '--num_epoch',
@@ -634,12 +719,14 @@ if __name__ == "__main__":
   # convert original dataset to pyramid dataset with transforms
   # TODO: add normalization
   #
+  # Data is already range[0-1]
   CIFAR100dataset = PyramidDataset(train_dataset,train_dataset, 
                  layerReses=(32, 16, 8, 4, 2), 
                  transform=transforms.Compose([
                    transforms.ToPILImage(),
                    transforms.Resize((32,32)),
-                   transforms.ToTensor()
+                   transforms.ToTensor(),
+                   transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                  ]),
                  channel_last=True
   ) 
@@ -673,10 +760,10 @@ if __name__ == "__main__":
   # set optimizer and loss
   # TODO: add params for Adam
   optimizer = torch.optim.Adam(model.parameters(),lr=FLAGS.lr) 
-  ## BCELoss = Binary Cross Entropy Loss
-  #criterion = nn.BCELoss().cuda() if torch.cuda.is_available() else nn.BCELoss()
-  criterion = nn.MSELoss(reduce=True, reduction='mean').cuda() if torch.cuda.is_available() else nn.MSELoss(reduce=True, reduction='mean')
-  # TODO add custom loss here
+
+  # L2 loss
+  #criterion = nn.MSELoss(reduce=True, reduction='mean').cuda() if torch.cuda.is_available() else nn.MSELoss(reduce=True, reduction='mean')
+  # TODO add custom loss in the loop
 
   #==========================================================
   #                 Training Process
@@ -700,12 +787,6 @@ if __name__ == "__main__":
             if idx == 4:
               break
      
-      ### TODO: erase lines for debug
-      #input_imgs = torch.cat([i.cuda() for i in inputs])
-      #input_imgs = [i.cuda() for i in inputs][0] # get data corresponding to output?
-      #print('input shape', input_imgs.cpu().detach().numpy().shape, flush=True)
-      #print('output size', output.cpu().detach().numpy().size, flush=True)
-      #print('output shape', output.cpu().detach().numpy().shape, flush=True)
 
       # take loss
       """ L2 loss
@@ -717,7 +798,22 @@ if __name__ == "__main__":
       """
       input_img   = inputs[0].cuda()
       decoded_img = decoded_imgs[0].cuda()
-      loss = criterion(input_img, decoded_img)
+
+      # L2 loss
+      #loss = criterion(input_img, decoded_img)
+
+      # Rotate-Invariant Loss
+      encoded_img = encoded_imgs[-1] # last entry of list is the bottleneck layer
+      loss = loss_torch_fn(
+          decoded_img, 
+          input_img, 
+          encoded_img,
+          batch_size=FLAGS.batch_size,
+          dangle=FLAGS.dangle,
+          c_lambda=FLAGS.c_lambda
+      )
+      # For custom loss, required grad should be clearly specified
+      loss = torch.autograd.Variable(loss, requires_grad = True)
       running_loss += loss
 
       # zero gradients, perform a backward pass, and update weights
