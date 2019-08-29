@@ -195,41 +195,22 @@ def loss_rotate_fn(imgs,
                    ):
     shape = (-1,28,28,1)
     loss_rotate_list = []
-    #loss_rotate_idx_list = []
     for idx in range(int(batch_size/copy_size)):
       _imgs = imgs[copy_size*idx:copy_size*(idx+1)]
       _loss_rotate_list = []
-      #ij_list = []
       for (i,j) in itertools.combinations([i for i in range(copy_size)],2):
         _loss_rotate_list.append(
           tf.reduce_mean(
               tf.square( encoder(tf.reshape(_imgs[i],shape)) - encoder(tf.reshape(_imgs[j],shape)) )
           ) 
         )
-        #ij_list.append([i,j])
       loss_rotate_list.append(tf.reduce_max(_loss_rotate_list))
-      #loss_rotate_idx_list.append(tf.keras.backend.eval(
-      #    tf.math.argmax(input=_loss_rotate_list, axis=0)
-      #  )
-      #)
-      #loss_rotate_idx_list.extend()
 
     #TODO think this operation again
     # tf.reduce mean?
     loss_rotate = tf.reduce_mean(tf.stack(loss_rotate_list))
     gc.collect()
 
-    # idx converts for numpy
-    #sess = tf.Session()
-    #loss_rotate_idx_np_list = []
-    #with sess.as_default():
-    #  init = tf.global_variables_initializer()
-    #  sess.run(init)
-    #  for idx in loss_rotate_idx_list:
-    #    loss_rotate_idx_np_list.append(idx.eval())
-
-    #return tf.multiply(tf.constant(c_lambda ,dtype=tf.float32), loss_rotate), loss_rotate_idx_list
-    #return tf.multiply(tf.constant(c_lambda ,dtype=tf.float32), loss_rotate), loss_rotate_idx_np_list
     return tf.multiply(tf.constant(c_lambda ,dtype=tf.float32), loss_rotate)
 
 def loss_reconst_fn(imgs, 
@@ -266,32 +247,7 @@ def loss_reconst_fn(imgs,
         ) # R_theta(x_hat)
         _loss_reconst_list.append(tf.reduce_mean(tf.square(_imgs - rimgs)))
       loss_reconst_list.append(tf.reduce_min(_loss_reconst_list))
-
-
-    #FIXME this below operation took too much memory
-    #====================================================================================
-    ## new implement
-    ## for each image, get rotated version and compute min. finally. take mean of mins
-    #for i in range(int(batch_size/copy_size)):
-    #  idx = idx_list[i] # get index of pair/tuple with max latent loss
-    #  _imgs_list = []
-    #  for j in [ k for k in comb_list[idx]]:
-    #    jdx = copy_size*i + j
-    #    _imgs_list.append(tf.expand_dims(imgs[jdx], axis=0)) # (1, 28, 28, 1)
-    #  
-    #  # make tesnor with selected images
-    #  simgs = tf.concat(_imgs_list, axis=0) # (2, 28, 28, 1)
-    #  encoded_imgs = encoder(simgs)
-    #
-    #  # compute reconst loss with fine angle nest
-    #  _loss_reconst_list = []
-    #  for angle in angle_list:
-    #    rimgs = rotate_operation(decoder(encoded_imgs),angle=angle) # R_theta(x_hat)
-    #    _loss_reconst_list.append(tf.reduce_mean(tf.square(simgs - rimgs)))
-    #  _loss_reconst = tf.reduce_min(_loss_reconst_list) # min of reconst loss in these selected angles
-    #  loss_reconst_list.append(_loss_reconst)
-    #====================================================================================
-    
+ 
     # take mean among min values
     loss_reconst = tf.reduce_mean(tf.stack(loss_reconst_list))
     gc.collect()
@@ -369,10 +325,6 @@ if __name__ == "__main__":
   # get model
   encoder, decoder = model_fn()
 
-  #with tf.device('cpu:0'):
-  #  """Operate within CPU
-  #  """
-  # get dataset and one-shot-iterator
   dataset = input_fn(mnist.train.images, 
                      batch_size=FLAGS.batch_size, 
                      rotation=FLAGS.rotation,
@@ -384,7 +336,6 @@ if __name__ == "__main__":
   img = make_copy_rotate(img_beforeCopyRotate,copy_size=FLAGS.copy_size)
 
   # compute loss and train_ops
-  #loss_rotate, idx_list = loss_rotate_fn(img, encoder,
   loss_rotate = loss_rotate_fn(img, encoder,
                                batch_size=FLAGS.batch_size,
                                copy_size=FLAGS.copy_size,
