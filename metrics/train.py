@@ -253,12 +253,15 @@ def loss_reconst_fn(imgs,
     loss_reconst_list = []
     angle_list = [i*math.pi/180 for i in range(1,360,dangle)]
     
+    encoded_imgs = encoder(imgs)
     for idx in range(int(batch_size/copy_size)):
       _loss_reconst_list = []
       _imgs = imgs[copy_size*idx:copy_size*(idx+1)]
-      encoded_imgs = encoder(_imgs)
       for angle in angle_list:
-        rimgs = rotate_operation(decoder(encoded_imgs),angle=angle) # R_theta(x_hat)
+        rimgs = rotate_operation(
+            decoder(encoded_imgs[copy_size*idx:copy_size*(idx+1)]),
+            angle=angle
+        ) # R_theta(x_hat)
         _loss_reconst_list.append(tf.reduce_mean(tf.square(_imgs - rimgs)))
       loss_reconst_list.append(tf.reduce_min(_loss_reconst_list))
 
