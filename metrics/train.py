@@ -206,10 +206,7 @@ def loss_rotate_fn(imgs,
         )
       loss_rotate_list.append(tf.reduce_max(_loss_rotate_list))
 
-    #TODO think this operation again
-    # tf.reduce mean?
     loss_rotate = tf.reduce_mean(tf.stack(loss_rotate_list))
-    #gc.collect()
 
     return tf.multiply(tf.constant(c_lambda ,dtype=tf.float32), loss_rotate)
 
@@ -236,21 +233,6 @@ def loss_reconst_fn(imgs,
     loss_reconst_list = []
     angle_list = [i*math.pi/180 for i in range(1,360,dangle)]
     
-    #encoded_imgs = encoder(imgs)
-    #for idx in range(int(batch_size/copy_size)):
-    #  _loss_reconst_list = []
-    #  _imgs = imgs[copy_size*idx:copy_size*(idx+1)]
-    #  for angle in angle_list:
-    #    rimgs = rotate_operation(
-    #        decoder(encoded_imgs[copy_size*idx:copy_size*(idx+1)]),
-    #        angle=angle
-    #    ) # R_theta(x_hat)
-    #    _loss_reconst_list.append(tf.reduce_mean(tf.square(_imgs - rimgs)))
-    #  loss_reconst_list.append(tf.reduce_min(_loss_reconst_list))
- 
-    ## take mean among min values
-    #loss_reconst = tf.reduce_mean(tf.stack(loss_reconst_list))
-    #gc.collect()
     
     # 08/28 2PM  before modification 
     encoded_imgs = encoder(imgs)
@@ -278,7 +260,6 @@ def input_fn(data, batch_size=32, rotation=False, copy_size=4):
       print(" Apply rondam rotation to training images for AE ")
     dataset = tf.data.Dataset.from_tensor_slices((data1))
     dataset = dataset.shuffle(1000).repeat().batch(int(batch_size/copy_size))
-    #dataset = dataset.repeat().batch(batch_size)
     return dataset
 
 def make_copy_rotate(oimgs, copy_size=4):
@@ -352,14 +333,14 @@ if __name__ == "__main__":
  
   # observe loss values with tensorboard
   with tf.name_scope("summary"):
+    summary_writer = tf.summary.FileWriter(os.path.join(FLAGS.output_modeldir, 'logs')) 
     tf.summary.scalar("reconst loss", loss_reconst)
     tf.summary.scalar("rotate loss", loss_rotate)
     merged = tf.summary.merge_all()
 
   # Apply optimization
   # Method 2: Apply Adam concurrently
-  #  This method's accuracy was so bad. 
-  #  why?!
+  #  This method's accuracy was so bad when lambda is too big s.t. >10
   loss_all = tf.math.add(loss_reconst, loss_rotate)
   train_ops  = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss_all)
 
@@ -406,9 +387,6 @@ if __name__ == "__main__":
   with tf.Session() as sess:
     # initial run
     sess.run(init, options=run_opts, run_metadata=run_metadata)
-
-    # set profiler
-    #profiler = Profiler(sess.graph)
 
     # enter training loop
     for epoch in range(FLAGS.num_epoch):
@@ -467,23 +445,6 @@ if __name__ == "__main__":
           with open(FLAGS.output_modeldir+'/timelines/time%d.json' % epoch, 'w') as f:
             f.write(chrome_trace)
 
-          #+ Comment off for lots of logging 
-          #profiler.add_step(int(epoch), run_meta=run_metadata)
-          # profiling items 
-          #profiler.profile_graph(
-          #    options=(
-          #        ProfileOptionBuilder(ProfileOptionBuilder.time_and_memory())
-          #        .with_step(epoch)
-          #        .build()
-          #    )
-          #)
-          #profiler.advise(
-          #    {
-          #        "ExpensiveOperationChecker": {},
-          #        "AcceleratorUtilizationChecker": {},
-          #        "OperationChecker": {},
-          #    }
-          #)
 
     # Inference
     encoded=encoder(
