@@ -236,28 +236,30 @@ def loss_reconst_fn(imgs,
     loss_reconst_list = []
     angle_list = [i*math.pi/180 for i in range(1,360,dangle)]
     
-    encoded_imgs = encoder(imgs)
-    for idx in range(int(batch_size/copy_size)):
-      _loss_reconst_list = []
-      _imgs = imgs[copy_size*idx:copy_size*(idx+1)]
-      for angle in angle_list:
-        rimgs = rotate_operation(
-            decoder(encoded_imgs[copy_size*idx:copy_size*(idx+1)]),
-            angle=angle
-        ) # R_theta(x_hat)
-        _loss_reconst_list.append(tf.reduce_mean(tf.square(_imgs - rimgs)))
-      loss_reconst_list.append(tf.reduce_min(_loss_reconst_list))
+    #encoded_imgs = encoder(imgs)
+    #for idx in range(int(batch_size/copy_size)):
+    #  _loss_reconst_list = []
+    #  _imgs = imgs[copy_size*idx:copy_size*(idx+1)]
+    #  for angle in angle_list:
+    #    rimgs = rotate_operation(
+    #        decoder(encoded_imgs[copy_size*idx:copy_size*(idx+1)]),
+    #        angle=angle
+    #    ) # R_theta(x_hat)
+    #    _loss_reconst_list.append(tf.reduce_mean(tf.square(_imgs - rimgs)))
+    #  loss_reconst_list.append(tf.reduce_min(_loss_reconst_list))
  
-    # take mean among min values
-    loss_reconst = tf.reduce_mean(tf.stack(loss_reconst_list))
+    ## take mean among min values
+    #loss_reconst = tf.reduce_mean(tf.stack(loss_reconst_list))
     #gc.collect()
     
     # 08/28 2PM  before modification 
-    #encoded_imgs = encoder(imgs)
-    #for angle in angle_list:
-    #  rimgs = rotate_operation(decoder(encoded_imgs),angle=angle) # R_theta(x_hat)
-    #  loss_reconst_list.append(tf.reduce_mean(tf.square(imgs - rimgs)))
-    #loss_reconst = tf.reduce_min(tf.stack(loss_reconst_list))
+    encoded_imgs = encoder(imgs)
+    for angle in angle_list:
+      rimgs = rotate_operation(decoder(encoded_imgs),angle=angle) # R_theta(x_hat)
+      loss_reconst_list.append(tf.reduce_mean(tf.square(imgs - rimgs)))
+    loss_reconst = tf.reduce_min(tf.stack(loss_reconst_list))
+    min_idx = tf.keras.backend.eval(tf.math.argmin(loss_reconst_list)) 
+    print( "min idx = {} | min angle = {} ".format(min_idx, angle_list[min_idx]) )
 
     return loss_reconst
 
@@ -358,13 +360,13 @@ if __name__ == "__main__":
   # Method 2: Apply Adam concurrently
   #  This method's accuracy was so bad. 
   #  why?!
-  #loss_all = tf.math.add(loss_reconst, loss_rotate)
-  #train_ops  = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss_all)
+  loss_all = tf.math.add(loss_reconst, loss_rotate)
+  train_ops  = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss_all)
 
   # Method 1: Apply Adam individually
-  train_ops_reconst = tf.train.AdamOptimizer(FLAGS.lr_reconst).minimize(loss_reconst)
-  train_ops_rotate = tf.train.AdamOptimizer(FLAGS.lr_rotate).minimize(loss_rotate)
-  train_ops = tf.group(train_ops_reconst, train_ops_rotate)
+  #train_ops_reconst = tf.train.AdamOptimizer(FLAGS.lr_reconst).minimize(loss_reconst)
+  #train_ops_rotate = tf.train.AdamOptimizer(FLAGS.lr_rotate).minimize(loss_rotate)
+  #train_ops = tf.group(train_ops_reconst, train_ops_rotate)
 
   # set-up save models
   save_models = {"encoder": encoder, "decoder": decoder}
@@ -407,7 +409,6 @@ if __name__ == "__main__":
 
     # set profiler
     #profiler = Profiler(sess.graph)
-
 
     # enter training loop
     for epoch in range(FLAGS.num_epoch):
