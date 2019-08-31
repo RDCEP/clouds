@@ -330,7 +330,7 @@ if __name__ == "__main__":
                                c_lambda=FLAGS.c_lambda
     )
     loss_reconst, reconst_list = loss_reconst_fn(
-                                 X,_X encoder, decoder, 
+                                 X,_X, encoder, decoder, 
                                  batch_size=FLAGS.batch_size,
                                  copy_size=FLAGS.copy_size,
                                  dangle=FLAGS.dangle
