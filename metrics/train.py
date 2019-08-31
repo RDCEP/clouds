@@ -1,4 +1,6 @@
-
+#
+# + cleaning version: TO BE trian.py
+#
 import matplotlib
 matplotlib.use('Agg')
 
@@ -109,7 +111,6 @@ def model_fn(shape=(28,28,1)) :
     x = Conv2D(filters=16, kernel_size=3, padding='same',
               kernel_initializer='he_normal')(x)
     x = ReLU()(x)
-    #x = LeakyReLU()(x)
     x = MaxPooling2D((2, 2), padding='same')(x)
     x = BatchNormalization()(x)
     
@@ -120,20 +121,11 @@ def model_fn(shape=(28,28,1)) :
     x = MaxPooling2D((2, 2), padding='same')(x)
     x = BatchNormalization()(x)
         
-    # layer 3
-    #x = Conv2D(filters=32, kernel_size=3, padding='same')(x)
-    #x = LeakyReLU()(x)
-    #x = MaxPooling2D((2, 2), padding='same')(x)
-    #x = BatchNormalization()(x)
              
     # build model for encoder
     encoder = Model(inp, x, name='encoder')
              
     x = inp = Input(x.shape[1:], name="decoder_input")
-    # layer 4
-    #x = Conv2DTranspose(filters=32, kernel_size=3,strides=(2,2),padding='same')(x)
-    #x = LeakyReLU()(x)
-    #x = BatchNormalization()(x)
     
     # layer 5
     x = Conv2DTranspose(filters=10, kernel_size=3,strides=(2,2), padding='same')(x)
@@ -250,9 +242,6 @@ def loss_reconst_fn(imgs,
       rimgs = rotate_operation(decoder(encoded_imgs),angle=angle) # R_theta(x_hat)
       loss_reconst_list.append(tf.reduce_mean(tf.square(imgs - rimgs)))
     loss_reconst = tf.reduce_min(tf.stack(loss_reconst_list))
-    #print('after', flush=True)
-    #min_idx = tf.keras.backend.eval(tf.math.argmin(loss_reconst_list)) 
-    #print( "min idx = {} | min angle = {} ".format(min_idx, angle_list[min_idx]) )
 
     return loss_reconst, loss_reconst_list
 
@@ -273,24 +262,20 @@ def input_fn(data, batch_size=32, rotation=False, copy_size=4):
     dataset = dataset.shuffle(1000).repeat().batch(int(batch_size/copy_size))
     return dataset
 
-def make_copy_rotate(oimgs_np, copy_size=4):
+def make_copy_rotate(oimgs_np, copy_size=4, rotate=True):
   """
     INPUT:
       oimgs: original images in minibatch
     OUTPUT:
       crimgs: minibatch with original and these copy + rotations
   """
-  # tensor to numpy
-  #sess = tf.Session()
-  #with sess.as_default():
-  #  oimgs_np = oimgs.eval()
-
   img_list = []
   for img in oimgs_np:
     tmp_img_list = []
     tmp_img_list = [ img.copy().reshape(1,28,28,1) for i in range(copy_size)]
     _cimgs = np.concatenate(tmp_img_list, axis=0)
-    _crimgs = rotate_fn(_cimgs, seed=np.random.randint(0,999), return_np=False)
+    if rotate:
+      _crimgs = rotate_fn(_cimgs, seed=np.random.randint(0,999), return_np=False)
     img_list.append(_crimgs)
 
   #crimgs = np.concatenate(img_list, axis=0)
@@ -307,26 +292,17 @@ if __name__ == "__main__":
 
   # get arg-parse as FLAGS
   FLAGS = get_args()
-  
-  # set global time step
-  global_step = tf.train.get_or_create_global_step()
 
+  # ad-hoc params
+  num_test_images = 10
+  
   # make dirs
   os.makedirs(FLAGS.logdir, exist_ok=True)
   os.makedirs(FLAGS.figdir, exist_ok=True)
   os.makedirs(FLAGS.output_modeldir, exist_ok=True)
   os.makedirs(FLAGS.output_modeldir+'/timelines', exist_ok=True)
 
-  # ad-hoc params
-  num_test_images = 10
-
-
-  #====================================================================
-  # Training
-  #====================================================================
- 
   # outputnames
-  #bname1 = 'nepoch-'+str(FLAGS.num_epoch)+'_lr-'+str(FLAGS.lr)
   bname1 = '_nepoch-'+str(FLAGS.num_epoch)+'_lr-'+str(FLAGS.lr)
   bname2 = '_nbatch-'+str(FLAGS.batch_size)+'_lambda'+str(FLAGS.c_lambda)+'_dangle'+str(FLAGS.dangle)
   figname   = 'fig_'+FLAGS.expname+bname1+bname2
@@ -335,38 +311,26 @@ if __name__ == "__main__":
   # Trace and Profiling options
   #run_opts = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
   #run_metadata = tf.RunMetadata()
-
+  # set global time step
+  global_step = tf.train.get_or_create_global_step()
 
   with tf.Session() as sess:
-    X=tf.placeholder(tf.float32,shape=[None,28,28,1])
-    _img=tf.placeholder(tf.float32,shape=[None,28,28,1])
+    # set input parsing tensor
+    X =tf.placeholder(tf.float32,shape=[None,28,28,1])
+    _X=tf.placeholder(tf.float32,shape=[None,28,28,1])
+
     # get model
     encoder, decoder = model_fn()
 
-    #dataset = input_fn(mnist.train.images, 
-    #                   batch_size=FLAGS.batch_size, 
-    #                   rotation=FLAGS.rotation,
-    #                   copy_size=FLAGS.copy_size
-    #)
-    #img_beforeCopyRotate = dataset.make_one_shot_iterator().get_next()
-
-    # convert imgs to imgs with copy of rotations
-    #img = make_copy_rotate(img_beforeCopyRotate,copy_size=FLAGS.copy_size)
-
-    # initialize
-    #init=tf.global_variables_initializer()
-    #tf.initialize_all_variables()
-    #_img=tf.placeholder(tf.float32,shape=[None,28,28,1])
-    train_loss_list = []
 
     # compute loss and train_ops
-    #print('before', flush=True)
     loss_rotate = loss_rotate_fn(X, encoder,
                                batch_size=FLAGS.batch_size,
                                copy_size=FLAGS.copy_size,
                                c_lambda=FLAGS.c_lambda
     )
-    loss_reconst, reconst_list = loss_reconst_fn(X, encoder, decoder, 
+    loss_reconst, reconst_list = loss_reconst_fn(
+                                 X,_X encoder, decoder, 
                                  batch_size=FLAGS.batch_size,
                                  copy_size=FLAGS.copy_size,
                                  dangle=FLAGS.dangle
@@ -384,9 +348,6 @@ if __name__ == "__main__":
     # Method 2: Apply Adam concurrently
     #  This method's accuracy was so bad when lambda is too big s.t. >10
     loss_all = tf.math.add(loss_reconst, loss_rotate)
-    #optimizer  = tf.train.AdamOptimizer(FLAGS.lr)
-    #grads_and_vars = optimizer.compute_gradients(loss_all)
-    #train_ops = optimizer.apply_gradients(grads_and_vars, global_step=global_step)
     train_ops = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss_all)
 
     # Method 1: Apply Adam individually
@@ -407,40 +368,41 @@ if __name__ == "__main__":
     print("\n### Entering Training Loop ###\n")
     print("   Data Pre-Processing time [minutes]  : %f" % prep_etime, flush=True)
 
+
     # initial run
     init=tf.global_variables_initializer()
     sess.run(init)
-      #sess.run(init, options=run_opts, run_metadata=run_metadata)
-    
-    num_batches=int(mnist.train.num_examples/FLAGS.copy_size)//FLAGS.batch_size
 
-    # enter training loop
-    # start!
-    stime = time.time()
+    # initialize other variables
+    train_loss_list = []
+    num_batches=int(mnist.train.num_examples/FLAGS.copy_size)//FLAGS.batch_size
     angle_list = [i for i in range(1,360, FLAGS.dangle)]
+
+    #====================================================================
+    # Training
+    #====================================================================
+    stime = time.time()
     for epoch in range(FLAGS.num_epoch):
         #num_batches=mnist.train.num_examples//FLAGS.batch_size
         for iteration in range(num_batches):
             X_batch,y_batch=mnist.train.next_batch(int(FLAGS.batch_size/FLAGS.copy_size))
 
             # convert imgs to imgs with copy of rotations
-            img = make_copy_rotate(X_batch,copy_size=FLAGS.copy_size)
-            print("shape", img.shape, flush=True)
- 
-            #sess.run(train_ops,options=run_opts, run_metadata=run_metadata)
-            #_, tf_summary = sess.run([train_ops, merged],options=run_opts, run_metadata=run_metadata)
-            img_np = img.eval().reshape(-1,28,28,1)
+            img  = make_copy_rotate(X_batch,copy_size=FLAGS.copy_size)
+            oimg = make_copy_rotate(X_batch,copy_size=FLAGS.copy_size, rotate=False)
+            img_np  = img.eval().reshape(-1,28,28,1)
+            oimg_np = oimg.eval().reshape(-1,28,28,1)
+
+            # run & update 
             _, train_loss_reconst, train_loss_rotate, min_idx, tf_summary = sess.run(
-              [train_ops, loss_reconst, loss_rotate,tf.math.argmin(reconst_list), merged],feed_dict={X:img_np}
+              [train_ops, loss_reconst, loss_rotate,tf.math.argmin(reconst_list), merged],
+              feed_dict={X:img_np, _X:oimg_np}
             )
-            print("After...", flush=True)
 
             # check angles
             print( "min idx = {} | min angle = {} ".format(min_idx, angle_list[min_idx]) )
 
             # set for check loss/iteration
-            #train_loss_reconst= loss_reconst.eval(feed_dict={X:X_batch.reshape(-1,28,28,1)})
-            #train_loss_rotate = loss_rotate.eval(feed_dict={X:X_batch.reshape(-1,28,28,1)})
             print("iteration {}  loss reconst {}  loss rotate {}".format(
               iteration, train_loss_reconst, train_loss_rotate), flush=True
             )   
