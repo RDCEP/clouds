@@ -210,6 +210,7 @@ def loss_rotate_fn(imgs,
     return tf.multiply(tf.constant(c_lambda ,dtype=tf.float32), loss_rotate)
 
 def loss_reconst_fn(imgs, 
+                    oimgs,
                     encoder,
                     decoder,
                     batch_size=32,
@@ -219,6 +220,8 @@ def loss_reconst_fn(imgs,
 
     if isinstance(imgs, np.ndarray):
       imgs = tf.convert_to_tensor(imgs, dtype=tf.float32)
+    if isinstance(oimgs, np.ndarray):
+      oimgs = tf.convert_to_tensor(oimgs, dtype=tf.float32)
 
     def rotate_operation(imgs, angle=1):
         """angle: Radian.
@@ -237,11 +240,11 @@ def loss_reconst_fn(imgs,
     
     
     # 08/28 2PM  before modification 
-    encoded_imgs = encoder(imgs)
+    encoded_imgs = encoder(oimgs)
     for angle in angle_list:
       rimgs = rotate_operation(decoder(encoded_imgs),angle=angle) # R_theta(x_hat)
       loss_reconst_list.append(tf.reduce_mean(tf.square(imgs - rimgs)))
-    loss_reconst = tf.reduce_min(tf.stack(loss_reconst_list))
+    loss_reconst = tf.reduce_min(loss_reconst_list)
 
     return loss_reconst, loss_reconst_list
 
@@ -276,7 +279,9 @@ def make_copy_rotate(oimgs_np, copy_size=4, rotate=True):
     _cimgs = np.concatenate(tmp_img_list, axis=0)
     if rotate:
       _crimgs = rotate_fn(_cimgs, seed=np.random.randint(0,999), return_np=False)
-    img_list.append(_crimgs)
+      img_list.append(_crimgs)
+    else:
+      img_list.append(_cimgs)
 
   #crimgs = np.concatenate(img_list, axis=0)
   crimgs = tf.concat(img_list, axis=0)
