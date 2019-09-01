@@ -19,7 +19,7 @@ from tensorflow.python.keras.layers import *
 from tensorflow.python.keras.models import Model, Sequential
 from tensorflow.python.client import timeline
 from tensorflow.examples.tutorials.mnist import input_data
-#from tensorflow.profiler import ProfileOptionBuilder, Profiler
+from tensorflow.profiler import ProfileOptionBuilder, Profiler
 
 def get_args():
   p = argparse.ArgumentParser()
@@ -390,12 +390,12 @@ if __name__ == "__main__":
   print("\n### Entering Training Loop ###\n")
   print("   Data Pre-Processing time [minutes]  : %f" % prep_etime, flush=True)
 
- # gpu config 
- config = tf.ConfigProto(
+  # gpu config 
+  config = tf.ConfigProto(
     gpu_options=tf.GPUOptions(
         allow_growth=True
     )
- )
+  )
 
   with tf.Session(config=config) as sess:
     # initial run
