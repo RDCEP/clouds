@@ -251,8 +251,7 @@ def input_fn(data, batch_size=32, rotation=False, copy_size=4):
       data1 = rotate_fn(data1)
       print(" Apply rondam rotation to training images for AE ")
     dataset = tf.data.Dataset.from_tensor_slices((data1))
-    #dataset = dataset.shuffle(1000).repeat().batch(int(batch_size/copy_size))
-    dataset = dataset.shuffle(200).repeat().batch(int(batch_size/copy_size))
+    dataset = dataset.shuffle(1000).repeat().batch(int(batch_size/copy_size))
     return dataset
 
 def make_copy_rotate(oimgs_tf, batch_size=32, copy_size=4, rotate=True):
@@ -332,9 +331,6 @@ if __name__ == "__main__":
   figname   = 'fig_'+FLAGS.expname+bname1+bname2
   ofilename = 'loss_'+FLAGS.expname+bname1+bname2+'.txt'
 
-  # Trace and Profiling options
-  #run_opts = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
-  #run_metadata = tf.RunMetadata()
   # set global time step
   global_step = tf.train.get_or_create_global_step()
 
@@ -407,14 +403,28 @@ if __name__ == "__main__":
     num_batches=int(mnist.train.num_examples/FLAGS.copy_size)//FLAGS.batch_size
     angle_list = [i for i in range(1,360, FLAGS.dangle)]
 
+    # Trace and Profiling options
+    run_metadata = tf.RunMetadata()
+    run_opts = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+    profiler = Profiler(sess.graph)
+
     #====================================================================
     # Training
     #====================================================================
     stime = time.time()
     for epoch in range(FLAGS.num_epoch):
         for iteration in range(num_batches):
-            _, train_loss_reconst, train_loss_rotate, min_idx, tf_summary = sess.run(
-              [train_ops, loss_reconst, loss_rotate,tf.math.argmin(reconst_list), merged]
+            ## run all in once
+            #_, train_loss_reconst, train_loss_rotate, min_idx, tf_summary = sess.run(
+            #  [train_ops, loss_reconst, loss_rotate,tf.math.argmin(reconst_list), merged]
+            #)
+
+            ## run separately
+            # main total loss
+            sess.run(train_ops, run_metadata=run_metadata, options=run_ops)
+            # sub individual loss and angle
+            train_loss_reconst, train_loss_rotate, min_idx = sess.run( 
+                [loss_reconst, loss_rotate,tf.math.argmin(reconst_list)]
             )
             # check angles
             print( "min idx = {} | min angle = {} ".format(min_idx, angle_list[min_idx]) )
@@ -423,13 +433,21 @@ if __name__ == "__main__":
             print("iteration {}  loss reconst {}  loss rotate {}".format(
               iteration, train_loss_reconst, train_loss_rotate), flush=True
             )   
+
+            ## TODO make argparser for save every
             # save scaler summary at every 10 steps
-            if iteration % 10 == 0:
+            if iteration % 10 == 0 :
+              # summary
+              tf_summary = sess.run(merged, run_metadata=run_metadata, options=run_ops )
               summary_writer.add_summary(tf_summary, _)
               summary_writer.flush() # write immediately
+              # profiling
+              profiler.add_step(epoch*num_batches+iteration, run_metadata)
+              opts = option_builder.ProfileOptionBuilder.time_and_memory()
+              profiler.profile_graph(options=opts)
         
             # save model at every N steps
-            if iteration % 50 == 0:
+            if iteration % 20 == 0 and iteratoin != 0:
               if epoch % FLAGS.save_every == 0:
                 for m in save_models:
                   save_models[m].save_weights(
