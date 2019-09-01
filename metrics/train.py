@@ -14,11 +14,12 @@ import itertools
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
+from datetime import datetime
 from tensorflow.python.keras.layers import *
 from tensorflow.python.keras.models import Model, Sequential
 from tensorflow.python.client import timeline
 from tensorflow.examples.tutorials.mnist import input_data
-from tensorflow.profiler import ProfileOptionBuilder, Profiler
+#from tensorflow.profiler import ProfileOptionBuilder, Profiler
 
 def get_args():
   p = argparse.ArgumentParser()
@@ -44,16 +45,6 @@ def get_args():
   )
   p.add_argument(
     '--lr',
-    type=float,
-    default=0.001
-  )
-  p.add_argument(
-    '--lr_reconst',
-    type=float,
-    default=0.001
-  )
-  p.add_argument(
-    '--lr_rotate',
     type=float,
     default=0.001
   )
@@ -142,16 +133,17 @@ def model_fn(shape=(28,28,1)) :
              
     return encoder, decoder
 
-def rotate_fn(images, seed=0, return_np=True):
+def rotate_fn(images, seed=0, return_np=False):
     """
     Apply random rotation to data and parse to dataset module
     images: before parse to encoder
 
     * copy function from classifier.py
     """
+    # in the case numpy is input
     # float point 32 if numpy array
-    if isinstance(images, np.ndarray):
-      images = images.astype(np.float32)
+    #if isinstance(images, np.ndarray):
+    #  images = images.astype(np.float32)
 
     # random rotation
     random_angles = tf.random.uniform(
@@ -181,20 +173,21 @@ def rotate_fn(images, seed=0, return_np=True):
       return rotated_tensor_images
 
 
-def loss_rotate_fn(imgs, 
+def loss_rotate_fn(imgs_tf, 
                    encoder,
                    batch_size=32,
                    copy_size=4,
                    c_lambda=1
                    ):
 
-    if isinstance(imgs, np.ndarray):
-      imgs = tf.convert_to_tensor(imgs, dtype=tf.float32)
+    #if isinstance(imgs, np.ndarray):
+    #  imgs = tf.convert_to_tensor(imgs, dtype=tf.float32)
 
+    stime = datetime.now()
+    imgs  = make_copy_rotate(imgs_tf,batch_size=batch_size,copy_size=copy_size) 
     shape = (-1,28,28,1)
     loss_rotate_list = []
     for idx in range(int(batch_size/copy_size)):
-      print(imgs.shape)
       _imgs = imgs[copy_size*idx:copy_size*(idx+1)]
       _loss_rotate_list = []
       for (i,j) in itertools.combinations([i for i in range(copy_size)],2):
@@ -207,10 +200,11 @@ def loss_rotate_fn(imgs,
 
     loss_rotate = tf.reduce_mean(tf.stack(loss_rotate_list))
 
+    etime = datetime.now()
+    print(" Loss Rotate {} s".format(etime - stime))
     return tf.multiply(tf.constant(c_lambda ,dtype=tf.float32), loss_rotate)
 
-def loss_reconst_fn(imgs, 
-                    oimgs,
+def loss_reconst_fn(imgs_tf, 
                     encoder,
                     decoder,
                     batch_size=32,
@@ -218,11 +212,15 @@ def loss_reconst_fn(imgs,
                     dangle=2
                     ):
 
-    if isinstance(imgs, np.ndarray):
-      imgs = tf.convert_to_tensor(imgs, dtype=tf.float32)
-    if isinstance(oimgs, np.ndarray):
-      oimgs = tf.convert_to_tensor(oimgs, dtype=tf.float32)
+    # in the case input is ndarray for Feeding
+    #if isinstance(imgs, np.ndarray):
+    #  imgs = tf.convert_to_tensor(imgs, dtype=tf.float32)
+    #if isinstance(oimgs, np.ndarray):
+    #  oimgs = tf.convert_to_tensor(oimgs, dtype=tf.float32)
 
+    stime = datetime.now()
+    imgs  = make_copy_rotate(imgs_tf,batch_size=batch_size,copy_size=copy_size) 
+    oimgs = make_copy_rotate(imgs_tf,batch_size=batch_size,copy_size=copy_size, rotate=False) 
     def rotate_operation(imgs, angle=1):
         """angle: Radian.
             angle = degree * math.pi/180
@@ -241,11 +239,14 @@ def loss_reconst_fn(imgs,
     
     # 08/28 2PM  before modification 
     encoded_imgs = encoder(oimgs)
+    reconst_imgs = decoder(encoded_imgs)
     for angle in angle_list:
-      rimgs = rotate_operation(decoder(encoded_imgs),angle=angle) # R_theta(x_hat)
+      rimgs = rotate_operation(reconst_imgs,angle=angle) # R_theta(x_hat)
       loss_reconst_list.append(tf.reduce_mean(tf.square(imgs - rimgs)))
     loss_reconst = tf.reduce_min(loss_reconst_list)
 
+    etime = datetime.now()
+    print(" Loss Reconst {} s".format(etime - stime))
     return loss_reconst, loss_reconst_list
 
 
@@ -265,8 +266,36 @@ def input_fn(data, batch_size=32, rotation=False, copy_size=4):
     dataset = dataset.shuffle(1000).repeat().batch(int(batch_size/copy_size))
     return dataset
 
-def make_copy_rotate(oimgs_np, copy_size=4, rotate=True):
+def make_copy_rotate(oimgs_tf, batch_size=32, copy_size=4, rotate=True):
   """
+    INPUT:
+      oimgs: original images in minibatch
+    OUTPUT:
+      crimgs: minibatch with original and these copy + rotations
+  """
+  stime = datetime.now()
+  img_list = []
+  for idx in range(int(batch_size/copy_size)):
+    tmp_img_list = []
+    tmp_img_tf = oimgs_tf[idx]
+    tmp_img_list = [ tf.expand_dims(tf.identity(tmp_img_tf), axis=0) for i in range(copy_size)]
+    _cimgs = tf.concat(tmp_img_list, axis=0)
+    if rotate:
+      _crimgs = rotate_fn(_cimgs, seed=np.random.randint(0,999), return_np=False)
+      img_list.append(_crimgs)
+    else:
+      img_list.append(_cimgs)
+
+  #crimgs = np.concatenate(img_list, axis=0)
+  crimgs = tf.concat(img_list, axis=0)
+  etime = datetime.now()
+  print(" make_copy_rotate {} s".format(etime - stime))
+  return crimgs
+
+def generic_make_copy_rotate(oimgs_np, copy_size=4, rotate=True):
+  """
+   ** OLD VERSION:
+      Function was operated by numpy. MUST be changed to tf.tensor for acceleration
     INPUT:
       oimgs: original images in minibatch
     OUTPUT:
@@ -320,22 +349,34 @@ if __name__ == "__main__":
   global_step = tf.train.get_or_create_global_step()
 
   with tf.Session() as sess:
+    #TODO erase these lines + Code for Feeding
     # set input parsing tensor
-    X =tf.placeholder(tf.float32,shape=[None,28,28,1])
-    _X=tf.placeholder(tf.float32,shape=[None,28,28,1])
+    #X =tf.placeholder(tf.float32,shape=[None,28,28,1])
+    #_X=tf.placeholder(tf.float32,shape=[None,28,28,1])
 
     # get model
     encoder, decoder = model_fn()
 
+    # get data from iterator
+    dataset = input_fn(mnist.train.images, 
+                       batch_size=FLAGS.batch_size, 
+                       rotation=FLAGS.rotation,
+                       copy_size=FLAGS.copy_size
+    )
+    # iterator + get next original img
+    img = dataset.make_one_shot_iterator().get_next()
 
     # compute loss and train_ops
-    loss_rotate = loss_rotate_fn(X, encoder,
-                               batch_size=FLAGS.batch_size,
-                               copy_size=FLAGS.copy_size,
-                               c_lambda=FLAGS.c_lambda
+    #loss_rotate = loss_rotate_fn(X, encoder, # Feeding
+    loss_rotate = loss_rotate_fn(img, encoder,
+                                 batch_size=FLAGS.batch_size,
+                                 copy_size=FLAGS.copy_size,
+                                 c_lambda=FLAGS.c_lambda
     )
+  
+    #                              X,_X, encoder, decoder, 
     loss_reconst, reconst_list = loss_reconst_fn(
-                                 X,_X, encoder, decoder, 
+                                 img, encoder, decoder, 
                                  batch_size=FLAGS.batch_size,
                                  copy_size=FLAGS.copy_size,
                                  dangle=FLAGS.dangle
@@ -350,15 +391,9 @@ if __name__ == "__main__":
       merged = tf.summary.merge_all()
 
     # Apply optimization
-    # Method 2: Apply Adam concurrently
-    #  This method's accuracy was so bad when lambda is too big s.t. >10
     loss_all = tf.math.add(loss_reconst, loss_rotate)
     train_ops = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss_all)
 
-    # Method 1: Apply Adam individually
-    #train_ops_reconst = tf.train.AdamOptimizer(FLAGS.lr_reconst).minimize(loss_reconst)
-    #train_ops_rotate = tf.train.AdamOptimizer(FLAGS.lr_rotate).minimize(loss_rotate)
-    #train_ops = tf.group(train_ops_reconst, train_ops_rotate)
 
     # set-up save models
     save_models = {"encoder": encoder, "decoder": decoder}
@@ -388,20 +423,24 @@ if __name__ == "__main__":
     #====================================================================
     stime = time.time()
     for epoch in range(FLAGS.num_epoch):
-        #num_batches=mnist.train.num_examples//FLAGS.batch_size
         for iteration in range(num_batches):
-            X_batch,y_batch=mnist.train.next_batch(int(FLAGS.batch_size/FLAGS.copy_size))
-
+            # TODO erase these lines Feeding
+            #X_batch,y_batch=mnist.train.next_batch(int(FLAGS.batch_size/FLAGS.copy_size))
             # convert imgs to imgs with copy of rotations
-            img  = make_copy_rotate(X_batch,copy_size=FLAGS.copy_size)
-            oimg = make_copy_rotate(X_batch,copy_size=FLAGS.copy_size, rotate=False)
-            img_np  = img.eval().reshape(-1,28,28,1)
-            oimg_np = oimg.eval().reshape(-1,28,28,1)
+            #img  = make_copy_rotate(X_batch,copy_size=FLAGS.copy_size)
+            #oimg = make_copy_rotate(X_batch,copy_size=FLAGS.copy_size, rotate=False)
+            #img_np  = img.eval().reshape(-1,28,28,1)
+            #oimg_np = oimg.eval().reshape(-1,28,28,1)
 
             # run & update 
+            #_, train_loss_reconst, train_loss_rotate, min_idx, tf_summary = sess.run(
+            #  [train_ops, loss_reconst, loss_rotate,tf.math.argmin(reconst_list), merged],
+            #  feed_dict={X:img_np, _X:oimg_np}
+            #)
+            #img_tf = sess.run(img)
+            #print(" Mean", tf.reduce_mean(img_tf).eval()) # check if image is same or not
             _, train_loss_reconst, train_loss_rotate, min_idx, tf_summary = sess.run(
-              [train_ops, loss_reconst, loss_rotate,tf.math.argmin(reconst_list), merged],
-              feed_dict={X:img_np, _X:oimg_np}
+              [train_ops, loss_reconst, loss_rotate,tf.math.argmin(reconst_list), merged]
             )
 
             # check angles
