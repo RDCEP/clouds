@@ -406,7 +406,7 @@ if __name__ == "__main__":
     # Trace and Profiling options
     run_metadata = tf.RunMetadata()
     run_opts = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
-    profiler = Profiler(sess.graph)
+    #profiler = Profiler(sess.graph)
 
     #====================================================================
     # Training
@@ -421,7 +421,7 @@ if __name__ == "__main__":
 
             ## run separately
             # main total loss
-            sess.run(train_ops, run_metadata=run_metadata, options=run_ops)
+            sess.run(train_ops, run_metadata=run_metadata, options=run_opts)
             # sub individual loss and angle
             train_loss_reconst, train_loss_rotate, min_idx = sess.run( 
                 [loss_reconst, loss_rotate,tf.math.argmin(reconst_list)]
@@ -438,16 +438,17 @@ if __name__ == "__main__":
             # save scaler summary at every 10 steps
             if iteration % 10 == 0 :
               # summary
-              tf_summary = sess.run(merged, run_metadata=run_metadata, options=run_ops )
-              summary_writer.add_summary(tf_summary, _)
+              tf_summary = sess.run(merged, run_metadata=run_metadata, options=run_opts )
+              summary_writer.add_summary(tf_summary,epoch*num_batches+iteration )
               summary_writer.flush() # write immediately
               # profiling
-              profiler.add_step(epoch*num_batches+iteration, run_metadata)
-              opts = option_builder.ProfileOptionBuilder.time_and_memory()
-              profiler.profile_graph(options=opts)
-        
+              #profiler.add_step(epoch*num_batches+iteration, run_metadata)
+              #opts = ProfileOptionBuilder(ProfileOptionBuilder.time_and_memory().build())
+              #profiler.profile_operations(options=opts)
+              #profiler.advise({"AcceleratorUtilizationChecker": {}})
+
             # save model at every N steps
-            if iteration % 20 == 0 and iteratoin != 0:
+            if iteration % 20 == 0 and iteration != 0:
               if epoch % FLAGS.save_every == 0:
                 for m in save_models:
                   save_models[m].save_weights(
