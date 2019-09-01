@@ -261,25 +261,27 @@ def make_copy_rotate(oimgs_tf, batch_size=32, copy_size=4, rotate=True):
     OUTPUT:
       crimgs: minibatch with original and these copy + rotations
   """
-  stime = datetime.now()
-  img_list = []
-  for idx in range(int(batch_size/copy_size)):
-    tmp_img_list = []
-    tmp_img_tf = oimgs_tf[idx]
-    tmp_img_list = [ tf.expand_dims(tf.identity(tmp_img_tf), axis=0) for i in range(copy_size)]
-    _cimgs = tf.concat(tmp_img_list, axis=0)
-    if rotate:
-      _crimgs = rotate_fn(_cimgs, seed=np.random.randint(0,999), return_np=False)
-      img_list.append(_crimgs)
-    else:
-      img_list.append(_cimgs)
+  # operate within cpu   
+  with tf.device('/cpu:0'):
+    stime = datetime.now()
+    img_list = []
+    for idx in range(int(batch_size/copy_size)):
+      tmp_img_list = []
+      tmp_img_tf = oimgs_tf[idx]
+      tmp_img_list = [ tf.expand_dims(tf.identity(tmp_img_tf), axis=0) for i in range(copy_size)]
+      _cimgs = tf.concat(tmp_img_list, axis=0)
+      if rotate:
+        _crimgs = rotate_fn(_cimgs, seed=np.random.randint(0,999), return_np=False)
+        img_list.append(_crimgs)
+      else:
+        img_list.append(_cimgs)
 
-  #crimgs = np.concatenate(img_list, axis=0)
-  crimgs = tf.concat(img_list, axis=0)
-  etime = datetime.now()
-  print(" make_copy_rotate {} s".format(etime - stime))
-  #del tmp_img_list, img_list
-  return crimgs
+    #crimgs = np.concatenate(img_list, axis=0)
+    crimgs = tf.concat(img_list, axis=0)
+    etime = datetime.now()
+    print(" make_copy_rotate {} s".format(etime - stime))
+    #del tmp_img_list, img_list
+    return crimgs
 
 def generic_make_copy_rotate(oimgs_np, copy_size=4, rotate=True):
   """
@@ -405,7 +407,7 @@ if __name__ == "__main__":
 
     # Trace and Profiling options
     run_metadata = tf.RunMetadata()
-    run_opts = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+    run_opts = tf.RunOptions(trace_level=tf.RunOptions.HARDWARE_TRACE)
     #profiler = Profiler(sess.graph)
 
     #====================================================================
@@ -443,8 +445,11 @@ if __name__ == "__main__":
               summary_writer.flush() # write immediately
               # profiling
               #profiler.add_step(epoch*num_batches+iteration, run_metadata)
-              #opts = ProfileOptionBuilder(ProfileOptionBuilder.time_and_memory().build())
-              #profiler.profile_operations(options=opts)
+              #profiler.profile_graph(options=ProfileOptionBuilder(
+              #  ProfileOptionBuilder.time_and_memory())
+              #  .with_step(epoch*num_batches+iteration)
+              #  .build()
+              #)
               #profiler.advise({"AcceleratorUtilizationChecker": {}})
 
             # save model at every N steps
