@@ -335,62 +335,61 @@ if __name__ == "__main__":
   # set global time step
   global_step = tf.train.get_or_create_global_step()
 
-  with tf.Session() as sess:
+  # get model
+  encoder, decoder = model_fn()
 
-    # get model
-    encoder, decoder = model_fn()
+  # get data from iterator
+  dataset = input_fn(mnist.train.images, 
+                     batch_size=FLAGS.batch_size, 
+                     rotation=FLAGS.rotation,
+                     copy_size=FLAGS.copy_size
+  )
+  # iterator + get next original img
+  img = dataset.make_one_shot_iterator().get_next()
 
-    # get data from iterator
-    dataset = input_fn(mnist.train.images, 
-                       batch_size=FLAGS.batch_size, 
-                       rotation=FLAGS.rotation,
-                       copy_size=FLAGS.copy_size
-    )
-    # iterator + get next original img
-    img = dataset.make_one_shot_iterator().get_next()
-
-    # compute loss and train_ops
-    loss_rotate = loss_rotate_fn(img, encoder,
-                                 batch_size=FLAGS.batch_size,
-                                 copy_size=FLAGS.copy_size,
-                                 c_lambda=FLAGS.c_lambda
-    )
+  # compute loss and train_ops
+  loss_rotate = loss_rotate_fn(img, encoder,
+                               batch_size=FLAGS.batch_size,
+                               copy_size=FLAGS.copy_size,
+                               c_lambda=FLAGS.c_lambda
+  )
   
-    #                              X,_X, encoder, decoder, 
-    loss_reconst, reconst_list = loss_reconst_fn(
-                                 img, encoder, decoder, 
-                                 batch_size=FLAGS.batch_size,
-                                 copy_size=FLAGS.copy_size,
-                                 dangle=FLAGS.dangle
-    )
-    gc.collect()
+  #                              X,_X, encoder, decoder, 
+  loss_reconst, reconst_list = loss_reconst_fn(
+                               img, encoder, decoder, 
+                               batch_size=FLAGS.batch_size,
+                               copy_size=FLAGS.copy_size,
+                               dangle=FLAGS.dangle
+  )
+  gc.collect()
  
-    # observe loss values with tensorboard
-    with tf.name_scope("summary"):
-      summary_writer = tf.summary.FileWriter(os.path.join(FLAGS.output_modeldir, 'logs')) 
-      tf.summary.scalar("reconst loss", loss_reconst)
-      tf.summary.scalar("rotate loss", loss_rotate)
-      merged = tf.summary.merge_all()
+  # observe loss values with tensorboard
+  with tf.name_scope("summary"):
+    summary_writer = tf.summary.FileWriter(os.path.join(FLAGS.output_modeldir, 'logs')) 
+    tf.summary.scalar("reconst loss", loss_reconst)
+    tf.summary.scalar("rotate loss", loss_rotate)
+    merged = tf.summary.merge_all()
 
-    # Apply optimization
-    loss_all = tf.math.add(loss_reconst, loss_rotate)
-    train_ops = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss_all)
-
-
-    # set-up save models
-    save_models = {"encoder": encoder, "decoder": decoder}
-
-    # save model definition
-    for m in save_models:
-      with open(os.path.join(FLAGS.output_modeldir, m+'.json'), 'w') as f:
-        f.write(save_models[m].to_json())
-
-    # End for prep-processing during main code
-    prep_etime = (time.time() -prep_stime)/60.0 # minutes
-    print("\n### Entering Training Loop ###\n")
-    print("   Data Pre-Processing time [minutes]  : %f" % prep_etime, flush=True)
+  # Apply optimization
+  loss_all = tf.math.add(loss_reconst, loss_rotate)
+  train_ops = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss_all)
 
 
+  # set-up save models
+  save_models = {"encoder": encoder, "decoder": decoder}
+
+  # save model definition
+  for m in save_models:
+    with open(os.path.join(FLAGS.output_modeldir, m+'.json'), 'w') as f:
+      f.write(save_models[m].to_json())
+
+  # End for prep-processing during main code
+  prep_etime = (time.time() -prep_stime)/60.0 # minutes
+  print("\n### Entering Training Loop ###\n")
+  print("   Data Pre-Processing time [minutes]  : %f" % prep_etime, flush=True)
+
+
+  with tf.Session() as sess:
     # initial run
     init=tf.global_variables_initializer()
     sess.run(init)
