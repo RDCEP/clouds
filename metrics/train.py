@@ -195,6 +195,7 @@ def loss_rotate_fn(imgs_tf,
 
     etime = datetime.now()
     print(" Loss Rotate {} s".format(etime - stime))
+    del loss_rotate_list, _loss_rotate_list, _imgs
     return tf.multiply(tf.constant(c_lambda ,dtype=tf.float32), loss_rotate)
 
 def loss_reconst_fn(imgs_tf, 
@@ -250,7 +251,8 @@ def input_fn(data, batch_size=32, rotation=False, copy_size=4):
       data1 = rotate_fn(data1)
       print(" Apply rondam rotation to training images for AE ")
     dataset = tf.data.Dataset.from_tensor_slices((data1))
-    dataset = dataset.shuffle(1000).repeat().batch(int(batch_size/copy_size))
+    #dataset = dataset.shuffle(1000).repeat().batch(int(batch_size/copy_size))
+    dataset = dataset.shuffle(200).repeat().batch(int(batch_size/copy_size))
     return dataset
 
 def make_copy_rotate(oimgs_tf, batch_size=32, copy_size=4, rotate=True):
@@ -277,6 +279,7 @@ def make_copy_rotate(oimgs_tf, batch_size=32, copy_size=4, rotate=True):
   crimgs = tf.concat(img_list, axis=0)
   etime = datetime.now()
   print(" make_copy_rotate {} s".format(etime - stime))
+  del tmp_img_list, img_list
   return crimgs
 
 def generic_make_copy_rotate(oimgs_np, copy_size=4, rotate=True):
