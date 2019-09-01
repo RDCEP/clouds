@@ -163,10 +163,6 @@ def rotate_fn(images, seed=0, return_np=False):
     
     #FIXME debug here
     if return_np:
-      # convert from tensor to numpy
-      #sess = tf.Session()
-      #with sess.as_default():
-      #  rotated_images = rotated_tensor_images.eval()
       rotated_images = tf.keras.backend.eval(rotated_tensor_images)
       return rotated_images
     else:
@@ -179,9 +175,6 @@ def loss_rotate_fn(imgs_tf,
                    copy_size=4,
                    c_lambda=1
                    ):
-
-    #if isinstance(imgs, np.ndarray):
-    #  imgs = tf.convert_to_tensor(imgs, dtype=tf.float32)
 
     stime = datetime.now()
     imgs  = make_copy_rotate(imgs_tf,batch_size=batch_size,copy_size=copy_size) 
@@ -211,12 +204,6 @@ def loss_reconst_fn(imgs_tf,
                     copy_size=4,
                     dangle=2
                     ):
-
-    # in the case input is ndarray for Feeding
-    #if isinstance(imgs, np.ndarray):
-    #  imgs = tf.convert_to_tensor(imgs, dtype=tf.float32)
-    #if isinstance(oimgs, np.ndarray):
-    #  oimgs = tf.convert_to_tensor(oimgs, dtype=tf.float32)
 
     stime = datetime.now()
     imgs  = make_copy_rotate(imgs_tf,batch_size=batch_size,copy_size=copy_size) 
@@ -349,10 +336,6 @@ if __name__ == "__main__":
   global_step = tf.train.get_or_create_global_step()
 
   with tf.Session() as sess:
-    #TODO erase these lines + Code for Feeding
-    # set input parsing tensor
-    #X =tf.placeholder(tf.float32,shape=[None,28,28,1])
-    #_X=tf.placeholder(tf.float32,shape=[None,28,28,1])
 
     # get model
     encoder, decoder = model_fn()
@@ -367,7 +350,6 @@ if __name__ == "__main__":
     img = dataset.make_one_shot_iterator().get_next()
 
     # compute loss and train_ops
-    #loss_rotate = loss_rotate_fn(X, encoder, # Feeding
     loss_rotate = loss_rotate_fn(img, encoder,
                                  batch_size=FLAGS.batch_size,
                                  copy_size=FLAGS.copy_size,
@@ -424,25 +406,9 @@ if __name__ == "__main__":
     stime = time.time()
     for epoch in range(FLAGS.num_epoch):
         for iteration in range(num_batches):
-            # TODO erase these lines Feeding
-            #X_batch,y_batch=mnist.train.next_batch(int(FLAGS.batch_size/FLAGS.copy_size))
-            # convert imgs to imgs with copy of rotations
-            #img  = make_copy_rotate(X_batch,copy_size=FLAGS.copy_size)
-            #oimg = make_copy_rotate(X_batch,copy_size=FLAGS.copy_size, rotate=False)
-            #img_np  = img.eval().reshape(-1,28,28,1)
-            #oimg_np = oimg.eval().reshape(-1,28,28,1)
-
-            # run & update 
-            #_, train_loss_reconst, train_loss_rotate, min_idx, tf_summary = sess.run(
-            #  [train_ops, loss_reconst, loss_rotate,tf.math.argmin(reconst_list), merged],
-            #  feed_dict={X:img_np, _X:oimg_np}
-            #)
-            #img_tf = sess.run(img)
-            #print(" Mean", tf.reduce_mean(img_tf).eval()) # check if image is same or not
             _, train_loss_reconst, train_loss_rotate, min_idx, tf_summary = sess.run(
               [train_ops, loss_reconst, loss_rotate,tf.math.argmin(reconst_list), merged]
             )
-
             # check angles
             print( "min idx = {} | min angle = {} ".format(min_idx, angle_list[min_idx]) )
 
