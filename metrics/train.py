@@ -169,7 +169,7 @@ def rotate_fn(images, seed=0, return_np=False):
       return rotated_tensor_images
 
 
-def loss_rotate_fn(imgs_tf, 
+def loss_rotate_fn(imgs, 
                    encoder,
                    batch_size=32,
                    copy_size=4,
@@ -177,7 +177,7 @@ def loss_rotate_fn(imgs_tf,
                    ):
 
     stime = datetime.now()
-    imgs  = make_copy_rotate(imgs_tf,batch_size=batch_size,copy_size=copy_size) 
+    #imgs  = make_copy_rotate(imgs_tf,batch_size=batch_size,copy_size=copy_size) 
     shape = (-1,28,28,1)
     loss_rotate_list = []
     for idx in range(int(batch_size/copy_size)):
@@ -198,7 +198,8 @@ def loss_rotate_fn(imgs_tf,
     #del loss_rotate_list, _loss_rotate_list, _imgs
     return tf.multiply(tf.constant(c_lambda ,dtype=tf.float32), loss_rotate)
 
-def loss_reconst_fn(imgs_tf, 
+def loss_reconst_fn(imgs,
+                    oimgs, 
                     encoder,
                     decoder,
                     batch_size=32,
@@ -207,8 +208,8 @@ def loss_reconst_fn(imgs_tf,
                     ):
 
     stime = datetime.now()
-    imgs  = make_copy_rotate(imgs_tf,batch_size=batch_size,copy_size=copy_size) 
-    oimgs = make_copy_rotate(imgs_tf,batch_size=batch_size,copy_size=copy_size, rotate=False) 
+    #imgs  = make_copy_rotate(imgs_tf,batch_size=batch_size,copy_size=copy_size) 
+    #oimgs = make_copy_rotate(imgs_tf,batch_size=batch_size,copy_size=copy_size, rotate=False) 
     def rotate_operation(imgs, angle=1):
         """angle: Radian.
             angle = degree * math.pi/180
@@ -223,8 +224,7 @@ def loss_reconst_fn(imgs_tf,
 
     loss_reconst_list = []
     angle_list = [i*math.pi/180 for i in range(1,360,dangle)]
-    
-    
+     
     # 08/28 2PM  before modification 
     encoded_imgs = encoder(oimgs)
     reconst_imgs = decoder(encoded_imgs)
@@ -250,11 +250,39 @@ def input_fn(data, batch_size=32, rotation=False, copy_size=4):
     if rotation:
       data1 = rotate_fn(data1)
       print(" Apply rondam rotation to training images for AE ")
+    # ++ common version
     dataset = tf.data.Dataset.from_tensor_slices((data1))
     dataset = dataset.shuffle(1000).repeat().batch(int(batch_size/copy_size))
     return dataset
 
-def make_copy_rotate(oimgs_tf, batch_size=32, copy_size=4, rotate=True):
+def make_copy_rotate_image(oimgs_tf, batch_size=32, copy_size=4):
+  """
+    INPUT:
+      oimgs_tf : original images in minibatch for rotation
+    OUTPUT:
+      crimgs: minibatch with original and these copy + rotations
+  """
+  print(" SHAPE in make_copy_rotate_image", oimgs_tf.shape)
+  # operate within cpu   
+  stime = datetime.now()
+  img_list = []
+  for idx in range(int(batch_size/copy_size)):
+    tmp_img_list = []
+    tmp_img_tf = oimgs_tf[idx]
+    #print(tmp_img_tf.shape)
+    #tmp_img_list.append(tf.expand_dims(tmp_img_tf))
+    tmp_img_list.extend([ tf.expand_dims(tf.identity(tmp_img_tf), axis=0) for i in range(copy_size)])
+    img_list.extend(tmp_img_list)
+
+  coimgs = tf.concat(img_list, axis=0)
+  crimgs = rotate_fn(coimgs, seed=np.random.randint(0,999), return_np=False)
+  etime = datetime.now()
+  print(" make_copy_rotate {} s".format(etime - stime))
+  return crimgs, coimgs
+
+#TODO remove this fn as we don't use 
+# preprocess fn for batch from dataset
+def generic2_make_copy_rotate(oimgs_tf, batch_size=32, copy_size=4, rotate=True):
   """
     INPUT:
       oimgs: original images in minibatch
@@ -283,6 +311,7 @@ def make_copy_rotate(oimgs_tf, batch_size=32, copy_size=4, rotate=True):
   #del tmp_img_list, img_list
   return crimgs
 
+#TODO remove this fn as we don't use 
 def generic_make_copy_rotate(oimgs_np, copy_size=4, rotate=True):
   """
    ** OLD VERSION:
@@ -345,8 +374,14 @@ if __name__ == "__main__":
                      rotation=FLAGS.rotation,
                      copy_size=FLAGS.copy_size
   )
+
+  # apply preprocessing  
+  dataset = dataset.map(lambda x: make_copy_rotate_image(
+        x,batch_size=FLAGS.batch_size,copy_size=FLAGS.copy_size)
+  )
+
   # iterator + get next original img
-  img = dataset.make_one_shot_iterator().get_next()
+  img , oimg = dataset.make_one_shot_iterator().get_next()
 
   # compute loss and train_ops
   loss_rotate = loss_rotate_fn(img, encoder,
@@ -355,14 +390,14 @@ if __name__ == "__main__":
                                c_lambda=FLAGS.c_lambda
   )
   
-  #                              X,_X, encoder, decoder, 
   loss_reconst, reconst_list = loss_reconst_fn(
-                               img, encoder, decoder, 
+                               img, oimg,
+                               encoder, decoder, 
                                batch_size=FLAGS.batch_size,
                                copy_size=FLAGS.copy_size,
                                dangle=FLAGS.dangle
   )
-  gc.collect()
+  #gc.collect()
  
   # observe loss values with tensorboard
   with tf.name_scope("summary"):
@@ -391,7 +426,7 @@ if __name__ == "__main__":
   # gpu config 
   config = tf.ConfigProto(
     gpu_options=tf.GPUOptions(
-        allow_growth=True
+        allow_growth=False
     )
   )
 
