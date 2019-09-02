@@ -267,12 +267,11 @@ def make_copy_rotate_image(oimgs_tf, batch_size=32, copy_size=4):
   stime = datetime.now()
   img_list = []
   for idx in range(int(batch_size/copy_size)):
-    tmp_img_list = []
     tmp_img_tf = oimgs_tf[idx]
+    img_list.extend([tf.reshape(tmp_img_tf, (1,28,28,1))] )
     #print(tmp_img_tf.shape)
     #tmp_img_list.append(tf.expand_dims(tmp_img_tf))
-    tmp_img_list.extend([ tf.expand_dims(tf.identity(tmp_img_tf), axis=0) for i in range(copy_size)])
-    img_list.extend(tmp_img_list)
+    img_list.extend([ tf.expand_dims(tf.identity(tmp_img_tf), axis=0) for i in range(copy_size-1)])
 
   coimgs = tf.concat(img_list, axis=0)
   crimgs = rotate_fn(coimgs, seed=np.random.randint(0,999), return_np=False)
