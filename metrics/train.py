@@ -367,47 +367,49 @@ if __name__ == "__main__":
   # get model
   encoder, decoder = model_fn()
 
-  # get data from iterator
-  dataset = input_fn(mnist.train.images, 
+  with tf.device('/cpu:0'):
+
+    # get data from iterator
+    dataset = input_fn(mnist.train.images, 
                      batch_size=FLAGS.batch_size, 
                      rotation=FLAGS.rotation,
                      copy_size=FLAGS.copy_size
-  )
+    )
 
-  # apply preprocessing  
-  dataset = dataset.map(lambda x: make_copy_rotate_image(
+    # apply preprocessing  
+    dataset = dataset.map(lambda x: make_copy_rotate_image(
         x,batch_size=FLAGS.batch_size,copy_size=FLAGS.copy_size)
-  )
+    )
 
-  # iterator + get next original img
-  img , oimg = dataset.make_one_shot_iterator().get_next()
+    # iterator + get next original img
+    img , oimg = dataset.make_one_shot_iterator().get_next()
 
-  # compute loss and train_ops
-  loss_rotate = loss_rotate_fn(img, encoder,
+    # compute loss and train_ops
+    loss_rotate = loss_rotate_fn(img, encoder,
                                batch_size=FLAGS.batch_size,
                                copy_size=FLAGS.copy_size,
                                c_lambda=FLAGS.c_lambda
-  )
+    )
   
-  loss_reconst, reconst_list = loss_reconst_fn(
+    loss_reconst, reconst_list = loss_reconst_fn(
                                img, oimg,
                                encoder, decoder, 
                                batch_size=FLAGS.batch_size,
                                copy_size=FLAGS.copy_size,
                                dangle=FLAGS.dangle
-  )
-  #gc.collect()
+    )
+    gc.collect()
  
-  # observe loss values with tensorboard
-  with tf.name_scope("summary"):
-    summary_writer = tf.summary.FileWriter(os.path.join(FLAGS.output_modeldir, 'logs')) 
-    tf.summary.scalar("reconst loss", loss_reconst)
-    tf.summary.scalar("rotate loss", loss_rotate)
-    merged = tf.summary.merge_all()
+    # observe loss values with tensorboard
+    with tf.name_scope("summary"):
+        summary_writer = tf.summary.FileWriter(os.path.join(FLAGS.output_modeldir, 'logs')) 
+        tf.summary.scalar("reconst loss", loss_reconst)
+        tf.summary.scalar("rotate loss", loss_rotate)
+        merged = tf.summary.merge_all()
 
-  # Apply optimization
-  loss_all = tf.math.add(loss_reconst, loss_rotate)
-  train_ops = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss_all)
+    # Apply optimization
+    loss_all = tf.math.add(loss_reconst, loss_rotate)
+    train_ops = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss_all)
 
   # set-up save models
   save_models = {"encoder": encoder, "decoder": decoder}
