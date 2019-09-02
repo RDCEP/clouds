@@ -427,8 +427,9 @@ if __name__ == "__main__":
   # gpu config 
   config = tf.ConfigProto(
     gpu_options=tf.GPUOptions(
-        allow_growth=False
-    )
+        allow_growth=True
+    ),
+    log_device_placement=True
   )
 
   with tf.Session(config=config) as sess:
