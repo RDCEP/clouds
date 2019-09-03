@@ -367,23 +367,22 @@ if __name__ == "__main__":
   # get model
   encoder, decoder = model_fn()
 
-  with tf.device('/cpu:0'):
+  # get data from iterator
+  dataset = input_fn(mnist.train.images, 
+                   batch_size=FLAGS.batch_size, 
+                   rotation=FLAGS.rotation,
+                   copy_size=FLAGS.copy_size
+  )
 
-    # get data from iterator
-    dataset = input_fn(mnist.train.images, 
-                     batch_size=FLAGS.batch_size, 
-                     rotation=FLAGS.rotation,
-                     copy_size=FLAGS.copy_size
-    )
+  # apply preprocessing  
+  dataset = dataset.map(lambda x: make_copy_rotate_image(
+    x,batch_size=FLAGS.batch_size,copy_size=FLAGS.copy_size)
+  )
 
-    # apply preprocessing  
-    dataset = dataset.map(lambda x: make_copy_rotate_image(
-        x,batch_size=FLAGS.batch_size,copy_size=FLAGS.copy_size)
-    )
+  # iterator + get next original img
+  img , oimg = dataset.make_one_shot_iterator().get_next()
 
-    # iterator + get next original img
-    img , oimg = dataset.make_one_shot_iterator().get_next()
-
+  with tf.device('/CPU'):
     # compute loss and train_ops
     loss_rotate = loss_rotate_fn(img, encoder,
                                batch_size=FLAGS.batch_size,
@@ -400,16 +399,16 @@ if __name__ == "__main__":
     )
     gc.collect()
  
-    # observe loss values with tensorboard
-    with tf.name_scope("summary"):
-        summary_writer = tf.summary.FileWriter(os.path.join(FLAGS.output_modeldir, 'logs')) 
-        tf.summary.scalar("reconst loss", loss_reconst)
-        tf.summary.scalar("rotate loss", loss_rotate)
-        merged = tf.summary.merge_all()
+  # observe loss values with tensorboard
+  with tf.name_scope("summary"):
+      summary_writer = tf.summary.FileWriter(os.path.join(FLAGS.output_modeldir, 'logs')) 
+      tf.summary.scalar("reconst loss", loss_reconst)
+      tf.summary.scalar("rotate loss", loss_rotate)
+      merged = tf.summary.merge_all()
 
-    # Apply optimization
-    loss_all = tf.math.add(loss_reconst, loss_rotate)
-    train_ops = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss_all)
+  # Apply optimization
+  loss_all = tf.math.add(loss_reconst, loss_rotate)
+  train_ops = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss_all)
 
   # set-up save models
   save_models = {"encoder": encoder, "decoder": decoder}
@@ -429,7 +428,7 @@ if __name__ == "__main__":
     gpu_options=tf.GPUOptions(
         allow_growth=True
     ),
-    log_device_placement=True
+    log_device_placement=False
   )
 
   with tf.Session(config=config) as sess:
@@ -465,16 +464,17 @@ if __name__ == "__main__":
             # main total loss
             sess.run(train_ops, run_metadata=run_metadata, options=run_opts)
             # sub individual loss and angle
-            train_loss_reconst, train_loss_rotate, min_idx = sess.run( 
-                [loss_reconst, loss_rotate,tf.math.argmin(reconst_list)]
-            )
-            # check angles
-            print( "min idx = {} | min angle = {} ".format(min_idx, angle_list[min_idx]) )
+            with tf.device('/CPU'):
+                train_loss_reconst, train_loss_rotate, min_idx = sess.run( 
+                    [loss_reconst, loss_rotate,tf.math.argmin(reconst_list)]
+                )
+                # check angles
+                print( "min idx = {} | min angle = {} ".format(min_idx, angle_list[min_idx]) )
 
-            # set for check loss/iteration
-            print("iteration {}  loss reconst {}  loss rotate {}".format(
-              iteration, train_loss_reconst, train_loss_rotate), flush=True
-            )   
+                # set for check loss/iteration
+                print("iteration {}  loss reconst {}  loss rotate {}".format(
+                    iteration, train_loss_reconst, train_loss_rotate), flush=True
+                )   
 
             ## TODO make argparser for save every
             # save scaler summary at every 10 steps
