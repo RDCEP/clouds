@@ -177,19 +177,29 @@ def loss_rotate_fn(imgs,
                    ):
 
     stime = datetime.now()
-    #imgs  = make_copy_rotate(imgs_tf,batch_size=batch_size,copy_size=copy_size) 
-    shape = (-1,28,28,1)
     loss_rotate_list = []
+
+    encoded_imgs = encoder(imgs)
     for idx in range(int(batch_size/copy_size)):
-      _imgs = imgs[copy_size*idx:copy_size*(idx+1)]
+      _imgs = encoded_imgs[copy_size*idx:copy_size*(idx+1)]
       _loss_rotate_list = []
       for (i,j) in itertools.combinations([i for i in range(copy_size)],2):
         _loss_rotate_list.append(
-          tf.reduce_mean(
-              tf.square( encoder(tf.reshape(_imgs[i],shape)) - encoder(tf.reshape(_imgs[j],shape)) )
-          ) 
+          tf.reduce_mean( tf.square( _imgs[i] - _imgs[j]) )
         )
       loss_rotate_list.append(tf.reduce_max(_loss_rotate_list))
+
+    # before debug
+    #for idx in range(int(batch_size/copy_size)):
+    #  _imgs = imgs[copy_size*idx:copy_size*(idx+1)]
+    #  _loss_rotate_list = []
+    #  for (i,j) in itertools.combinations([i for i in range(copy_size)],2):
+    #    _loss_rotate_list.append(
+    #      tf.reduce_mean(
+    #          tf.square( encoder(tf.reshape(_imgs[i],shape)) - encoder(tf.reshape(_imgs[j],shape)) )
+    #      ) 
+    #    )
+    #  loss_rotate_list.append(tf.reduce_max(_loss_rotate_list))
 
     loss_rotate = tf.reduce_mean(tf.stack(loss_rotate_list))
 
@@ -367,11 +377,12 @@ if __name__ == "__main__":
   # get model
   encoder, decoder = model_fn()
 
+  #with tf.device('/GPU'):
   # get data from iterator
   dataset = input_fn(mnist.train.images, 
-                   batch_size=FLAGS.batch_size, 
-                   rotation=FLAGS.rotation,
-                   copy_size=FLAGS.copy_size
+                 batch_size=FLAGS.batch_size, 
+                 rotation=FLAGS.rotation,
+                 copy_size=FLAGS.copy_size
   )
 
   # apply preprocessing  
@@ -382,32 +393,37 @@ if __name__ == "__main__":
   # iterator + get next original img
   img , oimg = dataset.make_one_shot_iterator().get_next()
 
-  with tf.device('/CPU'):
-    # compute loss and train_ops
-    loss_rotate = loss_rotate_fn(img, encoder,
-                               batch_size=FLAGS.batch_size,
-                               copy_size=FLAGS.copy_size,
-                               c_lambda=FLAGS.c_lambda
-    )
+  # compute loss and train_ops
+  loss_rotate = loss_rotate_fn(img, encoder,
+                             batch_size=FLAGS.batch_size,
+                             copy_size=FLAGS.copy_size,
+                             c_lambda=FLAGS.c_lambda
+  )
   
-    loss_reconst, reconst_list = loss_reconst_fn(
-                               img, oimg,
-                               encoder, decoder, 
-                               batch_size=FLAGS.batch_size,
-                               copy_size=FLAGS.copy_size,
-                               dangle=FLAGS.dangle
-    )
+  loss_reconst, reconst_list = loss_reconst_fn(
+                             img, oimg,
+                             encoder, decoder, 
+                             batch_size=FLAGS.batch_size,
+                             copy_size=FLAGS.copy_size,
+                             dangle=FLAGS.dangle
+  )
  
-    # observe loss values with tensorboard
-    with tf.name_scope("summary"):
-      summary_writer = tf.summary.FileWriter(os.path.join(FLAGS.output_modeldir, 'logs')) 
-      tf.summary.scalar("reconst loss", loss_reconst)
-      tf.summary.scalar("rotate loss", loss_rotate)
-      merged = tf.summary.merge_all()
+  # observe loss values with tensorboard
+  with tf.name_scope("summary"):
+    tf.summary.scalar("reconst loss", loss_reconst)
+    tf.summary.scalar("rotate loss", loss_rotate)
+    merged = tf.summary.merge_all()
 
-    # Apply optimization
-    loss_all = tf.math.add(loss_reconst, loss_rotate)
-    train_ops = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss_all)
+  # Apply optimization
+  loss_all = tf.math.add(loss_reconst, loss_rotate)
+  train_ops = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss_all)
+
+    # mix precision
+    #loss_scale_manager = tf.contrib.mixed_precision.FixedLossScaleManager(5000)
+    #loss_scale_optimizer = tf.contrib.mixed_precision.LossScaleOptimizer(
+    #        train_ops, loss_scale_manager
+    #)
+    #train_op = loss_scale_optimizer.minimize(loss_all)
 
   # set-up save models
   save_models = {"encoder": encoder, "decoder": decoder}
@@ -425,7 +441,7 @@ if __name__ == "__main__":
   # gpu config 
   config = tf.ConfigProto(
     gpu_options=tf.GPUOptions(
-        allow_growth=False
+        allow_growth=True
     ),
     log_device_placement=False
   )
@@ -442,8 +458,9 @@ if __name__ == "__main__":
     angle_list = [i for i in range(1,360, FLAGS.dangle)]
 
     # Trace and Profiling options
+    summary_writer = tf.summary.FileWriter(os.path.join(FLAGS.output_modeldir, 'logs'), sess.graph) 
     run_metadata = tf.RunMetadata()
-    run_opts = tf.RunOptions(trace_level=tf.RunOptions.HARDWARE_TRACE)
+    run_opts = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
     #profiler = Profiler(sess.graph)
 
     #====================================================================
@@ -457,6 +474,7 @@ if __name__ == "__main__":
             ## run all in once
             _, train_loss_reconst, train_loss_rotate, min_idx, tf_summary = sess.run(
               [train_ops, loss_reconst, loss_rotate,tf.math.argmin(reconst_list), merged]
+              , run_metadata=run_metadata, options=run_opts
             )
             # check angles
             print( "min idx = {} | min angle = {} ".format(min_idx, angle_list[min_idx]) )
@@ -472,7 +490,7 @@ if __name__ == "__main__":
 
             ## TODO make argparser for save every
             # save scaler summary at every 10 steps
-            if iteration % 10 == 0 :
+            if iteration % 2 == 0 :
             #    # sub individual loss and angle
             #  with tf.device('/CPU'):
             #    train_loss_reconst, train_loss_rotate, min_idx = sess.run( 
@@ -488,7 +506,8 @@ if __name__ == "__main__":
 
               # summary
               #tf_summary = sess.run(merged, run_metadata=run_metadata, options=run_opts )
-              summary_writer.add_summary(tf_summary,_ )
+              summary_writer.add_run_metadata(run_metadata, 'step%03d' % iteration)
+              summary_writer.add_summary(tf_summary, iteration )
               summary_writer.flush() # write immediately
               # profiling
               #profiler.add_step(epoch*num_batches+iteration, run_metadata)
@@ -497,6 +516,16 @@ if __name__ == "__main__":
               #  .with_step(epoch*num_batches+iteration)
               #  .build()
               #)
+
+              #============================================================
+              #   Profiler
+              #============================================================
+              #   Profiler
+              fetched_timeline = timeline.Timeline(run_metadata.step_stats)
+              chrome_trace = fetched_timeline.generate_chrome_trace_format(show_memory=True)
+              with open(FLAGS.output_modeldir+'/timelines/time%d-%d.json' % (epoch, iteration), 'w') as f:
+                f.write(chrome_trace)
+
               #profiler.advise({"AcceleratorUtilizationChecker": {}})
 
             # save model at every N steps
@@ -525,16 +554,6 @@ if __name__ == "__main__":
                 FLAGS.output_modeldir, "{}-{}.h5".format(m, epoch)
               )
             )
-
-          #============================================================
-          #   Profiler
-          #============================================================
-          #   Profiler
-          fetched_timeline = timeline.Timeline(run_metadata.step_stats)
-          chrome_trace = fetched_timeline.generate_chrome_trace_format()
-          with open(FLAGS.output_modeldir+'/timelines/time%d.json' % epoch, 'w') as f:
-            f.write(chrome_trace)
-
 
     # Inference
     encoded=encoder(
