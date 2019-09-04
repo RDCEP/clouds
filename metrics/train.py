@@ -171,16 +171,6 @@ def loss_fn(imgs, encoder, decoder):
     rimgs = decoder(encoder(imgs))
     return tf.reduce_mean(tf.square(imgs - rimgs))
 
-# First Idea : Log loss
-#def loss_fn(imgs, labels, encoder):
-#    preds = encoder(imgs)
-#    preds =  tf.reshape(preds, (-1, 10))
-#    return tf.reduce_mean(
-#        tf.keras.losses.binary_crossentropy(labels, preds)
-#    )
-    #return tf.losses.log_loss(
-    #          labels,
-    #          preds
     #       )
 
 if __name__ == '__main__':
@@ -196,12 +186,7 @@ if __name__ == '__main__':
   # get dataset and one-shot-iterator
   dataset = input_fn(mnist.train.images,mnist.train.labels, 
                      batch_size=FLAGS.batch_size)
-  # apply preprocessing  
-  # Is this function maybe trgger OOM kill ?  
-  #_dataset = dataset.map(lambda x, y: resize_image_fn(
-  #  x,y,height=FLAGS.height,width=FLAGS.width)
-  #)
-  #imgs, labels= dataset.make_one_shot_iterator().get_next()
+  # why get_one_shot_iterator leads OOM error?
   train_iterator = dataset.make_initializable_iterator()
   imgs, labels = train_iterator.get_next()
 
@@ -211,7 +196,6 @@ if __name__ == '__main__':
   print("\n {} \n".format(decoder.summary()), flush=True)
 
   # loss + optimizer
-  #loss = loss_fn(imgs,labels, encoder)  # loss loss
   loss = loss_fn(imgs,encoder,decoder)
   train_ops = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss)
 
@@ -255,14 +239,6 @@ if __name__ == '__main__':
           # check
           if iteration % 20 == 0:
              print(" Iteration {} Loss {}".format(iteration, train_loss))
-
-        # TODO erase
-        #imgs_np = imgs.eval()
-        #labels_np = labels.eval()
-        #preds = np.squeeze(encoder.predict(imgs_np), axis=(1,2))
-        #preds = encoder.predict(imgs_np)
-        #acc = accuracy_score(np.argmax(preds, axis=-1),np.argmax(labels_np, axis=-1))
-        #print("\n Epoch {} Accuracy {} %  \n".format(epoch, acc*100))
 
         X_batch,y_batch=mnist.train.next_batch(FLAGS.batch_size)
         train_loss = loss.eval(feed_dict={X:X_batch.reshape(-1,28,28,1)})
