@@ -63,6 +63,11 @@ def get_args():
     default=32
   )
   p.add_argument(
+    '--nblocks',
+    type=int,
+    default=5
+  )
+  p.add_argument(
     '--save_every',
     type=int,
     default=10
@@ -77,14 +82,73 @@ def get_args():
   print("\n")
   return args
 
-def model_tf_fn(encoder, shape=(2,2,64)):
-    inp = Input(shape=shape) 
-    fc_layer = Flatten(encoder)
-    x = Dense(10, activation='relu')(fc_layer)
-    tf_model = Model(inp, x, name='transfer')
-    return x
+def model_fn(shape=(32,32,1), nblocks=5, base_dim=2) :
+    """
+      Reference: https://blog.keras.io/building-autoencoders-in-keras.html
+    """
+    def convSeries_fn(x,
+                      filters=16, 
+                      kernel_size=3, 
+                      nstack_layer=3, 
+                      stride=2, 
+                      up=True, 
+                      pooling=True
+                      ):
+      """
+      INPUT
+        nstack_layer : number of iteration of conv layer before pooling
+        up           : boolean. True is encoder, False is decoder(conv2D transpose)
+      """
+      for idx  in range(nstack_layer):
+        if up:
+          x = Conv2D(filters=filters, kernel_size=kernel_size, padding='same',
+                     kernel_initializer='he_normal')(x)
+        else:
+          if idx == nstack_layer-1:
+            x = Conv2DTranspose(filters=filters, kernel_size=kernel_size, 
+                                strides=(stride,stride), padding='same')(x)
+          else:
+            x = Conv2D(filters=filters, kernel_size=kernel_size, padding='same',
+                     kernel_initializer='he_normal')(x)
+        x = ReLU()(x)
+          
+      if pooling:
+        x = MaxPooling2D((2, 2), padding='same')(x)
+      x = BatchNormalization()(x)
+      return x
 
-def load_model(model_dir='.', epoch=10):
+    # set params
+    params = {
+      'filters': [ 2**(i+base_dim) for i in range(nblocks)],
+      'kernel_size': 3
+    }
+    
+    ## start construction
+
+    x = inp = Input(shape=shape, name='encoding_input')
+    x = Conv2D(filters=1, kernel_size=3, padding='same', kernel_initializer='he_normal')(x)
+    # encoder layers
+    for iblock in range(nblocks):
+      filters = params["filters"][iblock]
+      kernel_size = params["kernel_size"]
+      if iblock != nblocks-1:
+        x = convSeries_fn(x,filters=filters, kernel_size=kernel_size, up=True)
+      else:
+        x = convSeries_fn(x,filters=filters, kernel_size=kernel_size, up=True, pooling=False)
+             
+    # build model for encoder + digit layer
+    #encoder = Model(inp, x, name='encoder')
+    encoder = x
+    return encoder , inp
+
+def model_tf_fn(encoder, inp):
+    fc_layer = Flatten()(encoder)
+    x = Dense(128, activation='relu')(fc_layer)
+    x = Dense(10, activation='softmax')(x)
+    tf_model = Model(inp, x, name='transfer')
+    return tf_model
+
+def load_weight(model_dir='.', epoch=10):
     encoder_def = model_dir+'/encoder.json'
     encoder_weight = model_dir+'/encoder-'+str(epoch)+'.h5'
     with open(encoder_def, "r") as f:
@@ -92,11 +156,11 @@ def load_model(model_dir='.', epoch=10):
     encoder.load_weights(encoder_weight)
     return encoder
 
-def resize_image_fn(imgs,labels, height=32, width=32):
+def resize_image_fn(imgs,height=32, width=32):
   """Resize images from (#batch,H',W',C) --> (#batch,H,W,C)
   """
   reimgs = tf.image.resize_images(imgs, (height, width))
-  return reimgs, labels
+  return reimgs
 
 def input_fn(data,labels, batch_size=32):
     data   = np.reshape(data, (-1,28,28,1))
@@ -121,31 +185,53 @@ if __name__ == "__main__":
   FLAGS = get_args()
 
   # diretory
-  #os.makedirs(FLAGS.output_modeldir, exist_ok=True)
-
-  # get dataset and one-shot-iterator
-  dataset = input_fn(mnist.train.images,mnist.train.labels, 
-                     batch_size=FLAGS.batch_size)
-  train_iterator = dataset.make_initializable_iterator()
-  imgs, labels = train_iterator.get_next()
+  os.makedirs(FLAGS.output_modeldir, exist_ok=True)
 
   # get model
-  encoder = load_model(model_dir=FLAGS.transfer_modeldir, epoch=FLAGS.tf_epoch)
-  classifier = model_tf_fn(encoder)
+  encoder, inp  = model_fn(nblocks=FLAGS.nblocks) # not Modelized
+  classifier = model_tf_fn(encoder, inp) # get model
   print("\n {} \n".format(classifier.summary()), flush=True)
-  stop  
 
-  # loss + optimizer
-  loss = loss_fn(imgs,labels,tf_model)  # loss loss
-  train_ops = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss)
+  # load trained weight
+  trained_encoder = load_weight(model_dir=FLAGS.transfer_modeldir, epoch=FLAGS.tf_epoch)
 
+  # weight
+  nlayer = 0
+  for lx, ly in zip(classifier.layers[:-1], trained_encoder.layers):
+    lx.set_weights(ly.get_weights())
+    nlayer+=1
+
+  # Fix weight 
+  for ilayer in classifier.layers[:nlayer]:
+    ilayer.trinable = False
+
+  # Compile model
+  classifier.compile(
+      loss=tf.keras.losses.categorical_crossentropy,
+      optimizer=tf.keras.optimizers.Adam(FLAGS.lr),
+      metrics=['accuracy']
+  )
+
+  # dataset
+  imgs_tf =  resize_image_fn(mnist.train.images.reshape(-1,28,28,1),
+                             height=FLAGS.height, 
+                             width=FLAGS.width
+  )
+  imgs = tf.keras.backend.eval(imgs_tf)
+  print(imgs.shape)
+  
   # set-up save models
   save_models = {"classifier": classifier}
-
   # save model definition
   for m in save_models:
     with open(os.path.join(FLAGS.output_modeldir, m+'.json'), 'w') as f:
       f.write(save_models[m].to_json())
+
+  # set save-cehckpoints
+  checkpoint_path = FLAGS.output_modeldir
+  cp_callback = tf.keras.callbacks.ModelCheckpoint(
+                checkpoint_path, save_weights_only=True,verbose=1
+  )
 
   # gpu config 
   config = tf.ConfigProto(
@@ -154,23 +240,32 @@ if __name__ == "__main__":
     ),
     log_device_placement=False
   )
-  
+  stime = time.time()
+
   # TRAINING
-  with tf.Session(config=config) as sess:
-    #sess = tf_debug.LocalCLIDebugWrapperSession(sess)
-    # initial run
-    init=tf.global_variables_initializer()
-    X=tf.placeholder(tf.float32,shape=[None,28,28,1])
-    sess.run(init)
-    sess.run(train_iterator.initializer)
+  num_batches=int(mnist.train.num_examples//FLAGS.batch_size*0.8)
+  # 80% training 20 % validation
+  classifier.fit(
+    imgs,
+    mnist.train.labels,
+    batch_size=None,
+    steps_per_epoch=num_batches,
+    epochs=FLAGS.num_epoch,
+    validation_split=0.2,
+    verbose=1,
+    callbacks = [cp_callback]
+  )
 
-    # initialize other variables
-    num_batches=mnist.train.num_examples//FLAGS.batch_size
-
-    # Trace and Profiling options
-    run_metadata = tf.RunMetadata()
-    run_opts = tf.RunOptions(trace_level=tf.RunOptions.HARDWARE_TRACE)
-
-    #stime = time.time()
-    #for epoch in range(FLAGS.num_epoch):
-    #    for iteration in range(num_batches):
+  # save models
+  for m in save_models:
+    save_models[m].save_weights(
+      os.path.join(
+        FLAGS.output_modeldir, "{}-{}.h5".format(m, FLAGS.num_epoch)
+      )
+    )
+  
+        
+  # FINISH
+  etime = (time.time() -stime)/60.0 # minutes
+  print("### NORMAL END ###")
+  print("   Execution time [minutes]  : %f" % etime, flush=True)
