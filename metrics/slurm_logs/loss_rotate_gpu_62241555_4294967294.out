@@ -1,0 +1,102 @@
+Extracting /scratch/midway2/tkurihana/clouds/metrics/MNIST_data/train-images-idx3-ubyte.gz
+Extracting /scratch/midway2/tkurihana/clouds/metrics/MNIST_data/train-labels-idx1-ubyte.gz
+Extracting /scratch/midway2/tkurihana/clouds/metrics/MNIST_data/t10k-images-idx3-ubyte.gz
+Extracting /scratch/midway2/tkurihana/clouds/metrics/MNIST_data/t10k-labels-idx1-ubyte.gz
+	 logdir                     /home/tkurihana/scratch-midway2/clouds/metrics/log
+	 figdir                     /home/tkurihana/scratch-midway2/clouds/metrics/fig
+	 output_modeldir            /home/tkurihana/scratch-midway2/clouds/metrics/output_model/62241555
+	 expname                    62241555
+	 lr                         0.001
+	 num_epoch                  2
+	 batch_size                 16
+	 copy_size                  4
+	 dangle                     2
+	 c_lambda                   0.1
+	 save_every                 1
+	 rotation                   False
+
+
+
+ Number of actual original images == 4 
+ SHAPE in make_copy_rotate_image (?, 28, 28, 1)
+ make_copy_rotate 0:00:00.072601 s
+ Loss Rotate 0:00:00.206668 s
+ Loss Reconst 0:00:08.894225 s
+
+### Entering Training Loop ###
+
+   Data Pre-Processing time [minutes]  : 0.351630
+min idx = 76 | min angle = 153 
+iteration 0  loss reconst 0.10570795834064484  loss rotate 0.018109669908881187
+min idx = 166 | min angle = 333 
+iteration 1  loss reconst 0.09140433371067047  loss rotate 0.023858198896050453
+min idx = 121 | min angle = 243 
+iteration 2  loss reconst 0.09869455546140671  loss rotate 0.021310819312930107
+min idx = 157 | min angle = 315 
+iteration 3  loss reconst 0.08123088628053665  loss rotate 0.02406485192477703
+min idx = 31 | min angle = 63 
+iteration 4  loss reconst 0.077782541513443  loss rotate 0.018542204052209854
+min idx = 148 | min angle = 297 
+iteration 5  loss reconst 0.09226594865322113  loss rotate 0.016208868473768234
+min idx = 166 | min angle = 333 
+iteration 6  loss reconst 0.07756947726011276  loss rotate 0.014188706874847412
+min idx = 23 | min angle = 47 
+iteration 7  loss reconst 0.062421515583992004  loss rotate 0.00913366861641407
+min idx = 166 | min angle = 333 
+iteration 8  loss reconst 0.07850682735443115  loss rotate 0.011954369023442268
+min idx = 65 | min angle = 131 
+iteration 9  loss reconst 0.0707494392991066  loss rotate 0.010141066275537014
+min idx = 58 | min angle = 117 
+iteration 10  loss reconst 0.07732900977134705  loss rotate 0.008995815180242062
+min idx = 58 | min angle = 117 
+iteration 11  loss reconst 0.07987558096647263  loss rotate 0.007372093852609396
+min idx = 27 | min angle = 55 
+iteration 12  loss reconst 0.08708702772855759  loss rotate 0.009736820124089718
+min idx = 103 | min angle = 207 
+iteration 13  loss reconst 0.08763232827186584  loss rotate 0.0077539607882499695
+min idx = 168 | min angle = 337 
+iteration 14  loss reconst 0.08620986342430115  loss rotate 0.007326101418584585
+min idx = 153 | min angle = 307 
+iteration 15  loss reconst 0.0991213247179985  loss rotate 0.005881989374756813
+min idx = 146 | min angle = 293 
+iteration 16  loss reconst 0.08020611852407455  loss rotate 0.0076265111565589905
+min idx = 20 | min angle = 41 
+iteration 17  loss reconst 0.07118106633424759  loss rotate 0.007156245410442352
+min idx = 76 | min angle = 153 
+iteration 18  loss reconst 0.08584563434123993  loss rotate 0.006950049195438623
+min idx = 167 | min angle = 335 
+iteration 19  loss reconst 0.08786028623580933  loss rotate 0.0063350810669362545
+min idx = 13 | min angle = 27 
+iteration 20  loss reconst 0.07025619596242905  loss rotate 0.005833740811794996
+min idx = 158 | min angle = 317 
+iteration 21  loss reconst 0.07592849433422089  loss rotate 0.006016479339450598
+min idx = 117 | min angle = 235 
+iteration 22  loss reconst 0.10521987825632095  loss rotate 0.006612600293010473
+min idx = 54 | min angle = 109 
+iteration 23  loss reconst 0.06762788444757462  loss rotate 0.0043220557272434235
+min idx = 171 | min angle = 343 
+iteration 24  loss reconst 0.06723935902118683  loss rotate 0.004925234708935022
+min idx = 62 | min angle = 125 
+iteration 25  loss reconst 0.06855746358633041  loss rotate 0.0051177628338336945
+min idx = 23 | min angle = 47 
+iteration 26  loss reconst 0.07972436398267746  loss rotate 0.00442861532792449
+min idx = 38 | min angle = 77 
+iteration 27  loss reconst 0.06528673321008682  loss rotate 0.0039498875848948956
+min idx = 175 | min angle = 351 
+iteration 28  loss reconst 0.08569701761007309  loss rotate 0.004769877530634403
+min idx = 36 | min angle = 73 
+iteration 29  loss reconst 0.07754141092300415  loss rotate 0.0038453098386526108
+min idx = 8 | min angle = 17 
+iteration 30  loss reconst 0.08875876665115356  loss rotate 0.004955710377544165
+min idx = 81 | min angle = 163 
+iteration 31  loss reconst 0.0856347382068634  loss rotate 0.003915853798389435
+min idx = 113 | min angle = 227 
+iteration 32  loss reconst 0.0805736780166626  loss rotate 0.004471522755920887
+min idx = 152 | min angle = 305 
+iteration 33  loss reconst 0.08889628201723099  loss rotate 0.004238569177687168
+min idx = 118 | min angle = 237 
+iteration 34  loss reconst 0.07885964959859848  loss rotate 0.0055351885966956615
+min idx = 132 | min angle = 265 
+iteration 35  loss reconst 0.08237415552139282  loss rotate 0.004085905384272337
+min idx = 23 | min angle = 47 
+iteration 36  loss reconst 0.08678906410932541  loss rotate 0.004216261673718691

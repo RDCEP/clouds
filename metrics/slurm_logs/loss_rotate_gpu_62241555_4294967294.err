@@ -1,0 +1,31 @@
+WARNING:tensorflow:From train_gpu.py:354: read_data_sets (from tensorflow.contrib.learn.python.learn.datasets.mnist) is deprecated and will be removed in a future version.
+Instructions for updating:
+Please use alternatives such as official/mnist/dataset.py from tensorflow/models.
+WARNING:tensorflow:From /home/tkurihana/.conda/envs/py3501/lib/python3.6/site-packages/tensorflow/contrib/learn/python/learn/datasets/mnist.py:260: maybe_download (from tensorflow.contrib.learn.python.learn.datasets.base) is deprecated and will be removed in a future version.
+Instructions for updating:
+Please write your own downloading logic.
+WARNING:tensorflow:From /home/tkurihana/.conda/envs/py3501/lib/python3.6/site-packages/tensorflow/contrib/learn/python/learn/datasets/mnist.py:262: extract_images (from tensorflow.contrib.learn.python.learn.datasets.mnist) is deprecated and will be removed in a future version.
+Instructions for updating:
+Please use tf.data to implement this functionality.
+WARNING:tensorflow:From /home/tkurihana/.conda/envs/py3501/lib/python3.6/site-packages/tensorflow/contrib/learn/python/learn/datasets/mnist.py:267: extract_labels (from tensorflow.contrib.learn.python.learn.datasets.mnist) is deprecated and will be removed in a future version.
+Instructions for updating:
+Please use tf.data to implement this functionality.
+WARNING:tensorflow:From /home/tkurihana/.conda/envs/py3501/lib/python3.6/site-packages/tensorflow/contrib/learn/python/learn/datasets/mnist.py:110: dense_to_one_hot (from tensorflow.contrib.learn.python.learn.datasets.mnist) is deprecated and will be removed in a future version.
+Instructions for updating:
+Please use tf.one_hot on tensors.
+WARNING:tensorflow:From /home/tkurihana/.conda/envs/py3501/lib/python3.6/site-packages/tensorflow/contrib/learn/python/learn/datasets/mnist.py:290: DataSet.__init__ (from tensorflow.contrib.learn.python.learn.datasets.mnist) is deprecated and will be removed in a future version.
+Instructions for updating:
+Please use alternatives such as official/mnist/dataset.py from tensorflow/models.
+2019-09-03 11:43:24.372709: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: SSE4.1 SSE4.2 AVX AVX2 AVX512F FMA
+2019-09-03 11:43:24.554938: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1432] Found device 0 with properties: 
+name: Tesla V100-PCIE-16GB major: 7 minor: 0 memoryClockRate(GHz): 1.38
+pciBusID: 0000:d8:00.0
+totalMemory: 15.75GiB freeMemory: 15.44GiB
+2019-09-03 11:43:24.554983: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1511] Adding visible gpu devices: 0
+2019-09-03 11:43:24.994983: I tensorflow/core/common_runtime/gpu/gpu_device.cc:982] Device interconnect StreamExecutor with strength 1 edge matrix:
+2019-09-03 11:43:24.995027: I tensorflow/core/common_runtime/gpu/gpu_device.cc:988]      0 
+2019-09-03 11:43:24.995037: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1001] 0:   N 
+2019-09-03 11:43:24.995223: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 14939 MB memory) -> physical GPU (device: 0, name: Tesla V100-PCIE-16GB, pci bus id: 0000:d8:00.0, compute capability: 7.0)
+2019-09-03 11:44:00.859599: I tensorflow/stream_executor/dso_loader.cc:151] successfully opened CUDA library libcupti.so.9.0 locally
+/tmp/slurmd/job62241555/slurm_script: line 51: 63175 Killed                  python train_gpu.py --logdir ${logdir} --figdir ${figdir} --output_modeldir ${output_modeldir} --expname ${SLURM_JOB_ID} --lr ${learning_rate} --num_epoch=${num_epoch} --batch_size=${batch_size} --copy_size=${copy_size} --dangle=${dangle} --c_lambda ${c_lambda} --save_every ${save_every}
+slurmstepd-midway2-0656: error: Detected 1 oom-kill event(s) in step 62241555.batch cgroup. Some of your processes may have been killed by the cgroup out-of-memory handler.
