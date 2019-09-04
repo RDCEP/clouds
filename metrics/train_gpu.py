@@ -189,23 +189,10 @@ def loss_rotate_fn(imgs,
         )
       loss_rotate_list.append(tf.reduce_max(_loss_rotate_list))
 
-    # before debug
-    #for idx in range(int(batch_size/copy_size)):
-    #  _imgs = imgs[copy_size*idx:copy_size*(idx+1)]
-    #  _loss_rotate_list = []
-    #  for (i,j) in itertools.combinations([i for i in range(copy_size)],2):
-    #    _loss_rotate_list.append(
-    #      tf.reduce_mean(
-    #          tf.square( encoder(tf.reshape(_imgs[i],shape)) - encoder(tf.reshape(_imgs[j],shape)) )
-    #      ) 
-    #    )
-    #  loss_rotate_list.append(tf.reduce_max(_loss_rotate_list))
-
     loss_rotate = tf.reduce_mean(tf.stack(loss_rotate_list))
 
     etime = datetime.now()
     print(" Loss Rotate {} s".format(etime - stime))
-    #del loss_rotate_list, _loss_rotate_list, _imgs
     return tf.multiply(tf.constant(c_lambda ,dtype=tf.float32), loss_rotate)
 
 def loss_reconst_fn(imgs,
@@ -218,8 +205,6 @@ def loss_reconst_fn(imgs,
                     ):
 
     stime = datetime.now()
-    #imgs  = make_copy_rotate(imgs_tf,batch_size=batch_size,copy_size=copy_size) 
-    #oimgs = make_copy_rotate(imgs_tf,batch_size=batch_size,copy_size=copy_size, rotate=False) 
     def rotate_operation(imgs, angle=1):
         """angle: Radian.
             angle = degree * math.pi/180
@@ -279,8 +264,6 @@ def make_copy_rotate_image(oimgs_tf, batch_size=32, copy_size=4):
   for idx in range(int(batch_size/copy_size)):
     tmp_img_tf = oimgs_tf[idx]
     img_list.extend([tf.reshape(tmp_img_tf, (1,28,28,1))] )
-    #print(tmp_img_tf.shape)
-    #tmp_img_list.append(tf.expand_dims(tmp_img_tf))
     img_list.extend([ tf.expand_dims(tf.identity(tmp_img_tf), axis=0) for i in range(copy_size-1)])
 
   coimgs = tf.concat(img_list, axis=0)
@@ -288,63 +271,6 @@ def make_copy_rotate_image(oimgs_tf, batch_size=32, copy_size=4):
   etime = datetime.now()
   print(" make_copy_rotate {} s".format(etime - stime))
   return crimgs, coimgs
-
-#TODO remove this fn as we don't use 
-# preprocess fn for batch from dataset
-def generic2_make_copy_rotate(oimgs_tf, batch_size=32, copy_size=4, rotate=True):
-  """
-    INPUT:
-      oimgs: original images in minibatch
-    OUTPUT:
-      crimgs: minibatch with original and these copy + rotations
-  """
-  # operate within cpu   
-  #with tf.device('/cpu:0'):
-  stime = datetime.now()
-  img_list = []
-  for idx in range(int(batch_size/copy_size)):
-    tmp_img_list = []
-    tmp_img_tf = oimgs_tf[idx]
-    tmp_img_list = [ tf.expand_dims(tf.identity(tmp_img_tf), axis=0) for i in range(copy_size)]
-    _cimgs = tf.concat(tmp_img_list, axis=0)
-    if rotate:
-      _crimgs = rotate_fn(_cimgs, seed=np.random.randint(0,999), return_np=False)
-      img_list.append(_crimgs)
-    else:
-      img_list.append(_cimgs)
-
-  #crimgs = np.concatenate(img_list, axis=0)
-  crimgs = tf.concat(img_list, axis=0)
-  etime = datetime.now()
-  print(" make_copy_rotate {} s".format(etime - stime))
-  #del tmp_img_list, img_list
-  return crimgs
-
-#TODO remove this fn as we don't use 
-def generic_make_copy_rotate(oimgs_np, copy_size=4, rotate=True):
-  """
-   ** OLD VERSION:
-      Function was operated by numpy. MUST be changed to tf.tensor for acceleration
-    INPUT:
-      oimgs: original images in minibatch
-    OUTPUT:
-      crimgs: minibatch with original and these copy + rotations
-  """
-  img_list = []
-  for img in oimgs_np:
-    tmp_img_list = []
-    tmp_img_list = [ img.copy().reshape(1,28,28,1) for i in range(copy_size)]
-    _cimgs = np.concatenate(tmp_img_list, axis=0)
-    if rotate:
-      _crimgs = rotate_fn(_cimgs, seed=np.random.randint(0,999), return_np=False)
-      img_list.append(_crimgs)
-    else:
-      img_list.append(_cimgs)
-
-  #crimgs = np.concatenate(img_list, axis=0)
-  crimgs = tf.concat(img_list, axis=0)
-  return crimgs
-    
 
 if __name__ == "__main__":
   # time for data preparation
@@ -386,12 +312,15 @@ if __name__ == "__main__":
   )
 
   # apply preprocessing  
-  dataset = dataset.map(lambda x: make_copy_rotate_image(
+  dataset_mapper = dataset.map(lambda x: make_copy_rotate_image(
     x,batch_size=FLAGS.batch_size,copy_size=FLAGS.copy_size)
   )
 
   # iterator + get next original img
-  img , oimg = dataset.make_one_shot_iterator().get_next()
+  #### Maybe-This line affects Memory issue???
+  ####img , oimg = dataset.make_one_shot_iterator().get_next()
+  train_iterator = dataset_mapper.make_initializable_iterator()
+  img, oimg = train_iterator.get_next()
 
   # compute loss and train_ops
   loss_rotate = loss_rotate_fn(img, encoder,
@@ -417,13 +346,6 @@ if __name__ == "__main__":
   # Apply optimization
   loss_all = tf.math.add(loss_reconst, loss_rotate)
   train_ops = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss_all)
-
-    # mix precision
-    #loss_scale_manager = tf.contrib.mixed_precision.FixedLossScaleManager(5000)
-    #loss_scale_optimizer = tf.contrib.mixed_precision.LossScaleOptimizer(
-    #        train_ops, loss_scale_manager
-    #)
-    #train_op = loss_scale_optimizer.minimize(loss_all)
 
   # set-up save models
   save_models = {"encoder": encoder, "decoder": decoder}
@@ -451,6 +373,7 @@ if __name__ == "__main__":
     init=tf.global_variables_initializer()
     X=tf.placeholder(tf.float32,shape=[None,28,28,1]) 
     sess.run(init)
+    sess.run(train_iterator.initializer)
 
     # initialize other variables
     train_loss_list = []
@@ -461,7 +384,6 @@ if __name__ == "__main__":
     summary_writer = tf.summary.FileWriter(os.path.join(FLAGS.output_modeldir, 'logs'), sess.graph) 
     run_metadata = tf.RunMetadata()
     run_opts = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
-    #profiler = Profiler(sess.graph)
 
     #====================================================================
     # Training
@@ -484,38 +406,16 @@ if __name__ == "__main__":
                 iteration, train_loss_reconst, train_loss_rotate), flush=True
             )
 
-            ## run separately
-            # main total loss
-            #_, tf_summary = sess.run([train_ops, merged], run_metadata=run_metadata, options=run_opts)
 
             ## TODO make argparser for save every
             # save scaler summary at every 10 steps
             if iteration % 2 == 0 :
-            #    # sub individual loss and angle
-            #  with tf.device('/CPU'):
-            #    train_loss_reconst, train_loss_rotate, min_idx = sess.run( 
-            #        [loss_reconst, loss_rotate,tf.math.argmin(reconst_list)]
-            #    )
-            #    # check angles
-            #    print( "min idx = {} | min angle = {} ".format(min_idx, angle_list[min_idx]) )
-
-            #    # set for check loss/iteration
-            #    print("iteration {}  loss reconst {}  loss rotate {}".format(
-            #        iteration, train_loss_reconst, train_loss_rotate), flush=True
-            #    )   
 
               # summary
               #tf_summary = sess.run(merged, run_metadata=run_metadata, options=run_opts )
               summary_writer.add_run_metadata(run_metadata, 'step%03d' % iteration)
               summary_writer.add_summary(tf_summary, iteration )
               summary_writer.flush() # write immediately
-              # profiling
-              #profiler.add_step(epoch*num_batches+iteration, run_metadata)
-              #profiler.profile_graph(options=ProfileOptionBuilder(
-              #  ProfileOptionBuilder.time_and_memory())
-              #  .with_step(epoch*num_batches+iteration)
-              #  .build()
-              #)
 
               #============================================================
               #   Profiler
@@ -526,7 +426,6 @@ if __name__ == "__main__":
               with open(FLAGS.output_modeldir+'/timelines/time%d-%d.json' % (epoch, iteration), 'w') as f:
                 f.write(chrome_trace)
 
-              #profiler.advise({"AcceleratorUtilizationChecker": {}})
 
             # save model at every N steps
             if iteration % 20 == 0 and iteration != 0:
