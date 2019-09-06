@@ -124,7 +124,7 @@ def get_args():
   return args
   
 
-def model_fn(shape=(32,32,1), nblocks=5, base_dim=2) :
+def model_fn(shape=(32,32,1), nblocks=5, base_dim=3) :
     """
       Reference: https://blog.keras.io/building-autoencoders-in-keras.html
     """
@@ -298,7 +298,11 @@ def loss_reconst_fn(imgs,
     return loss_reconst, loss_reconst_list
 
 
-def input_fn(data, batch_size=32, rotation=False, copy_size=4, height=32, width=32):
+def input_fn(data, batch_size=32, rotation=False, copy_size=4, height=32, width=32, prefetch=1):
+    """
+      INPUT:
+        prefetch: tf.int64. How many "minibatch" we asynchronously prepare on CPU ahead of GPU
+    """
     # check batch/copy ratio
     try:
       if batch_size % copy_size == 0:
@@ -313,7 +317,7 @@ def input_fn(data, batch_size=32, rotation=False, copy_size=4, height=32, width=
     # ++ common version
     data1 = resize_image_fn(data1, height=height, width=width)
     dataset = tf.data.Dataset.from_tensor_slices((data1))
-    dataset = dataset.shuffle(1000).repeat().batch(int(batch_size/copy_size))
+    dataset = dataset.shuffle(1000).repeat().batch(int(batch_size/copy_size)).prefetch(prefetch)
     return dataset
 
 def make_copy_rotate_image(oimgs_tf, batch_size=32, copy_size=4, height=32, width=32):
@@ -405,11 +409,6 @@ if __name__ == '__main__':
                              dangle=FLAGS.dangle
   )
  
-  # observe loss values with tensorboard
-  with tf.name_scope("summary"):
-    tf.summary.scalar("reconst loss", loss_reconst)
-    tf.summary.scalar("rotate loss", loss_rotate)
-    merged = tf.summary.merge_all()
 
   # Apply optimization
   # ++ Method 1
@@ -421,6 +420,13 @@ if __name__ == '__main__':
   #train_ops_reconst = tf.train.AdamOptimizer(FLAGS.lr_reconst).minimize(loss_reconst)
   #train_ops_rotate  = tf.train.AdamOptimizer(FLAGS.lr_rotate).minimize(loss_rotate)
   #train_ops = tf.group(train_ops_reconst,train_ops_rotate)
+
+  # observe loss values with tensorboard
+  with tf.name_scope("summary"):
+    tf.summary.scalar("reconst loss", loss_reconst)
+    tf.summary.scalar("rotate loss", loss_rotate)
+    tf.summary.scalar("total loss", loss_all)
+    merged = tf.summary.merge_all()
 
   # set-up save models
   save_models = {"encoder": encoder, "decoder": decoder}
