@@ -284,10 +284,11 @@ def loss_reconst_fn(imgs,
         return rimgs
 
     loss_reconst_list = []
-    angle_list = [i*math.pi/180 for i in range(1,360,dangle)]
+    angle_list = [i*math.pi/180 for i in range(0,360,dangle)]
      
     # 08/28 2PM  before modification 
     encoded_imgs = encoder(oimgs)
+    #encoded_imgs = encoder(imgs)
     reconst_imgs = decoder(encoded_imgs)
     for angle in angle_list:
       rimgs = rotate_operation(reconst_imgs,angle=angle) # R_theta(x_hat)
@@ -342,6 +343,41 @@ def make_copy_rotate_image(oimgs_tf, batch_size=32, copy_size=4, height=32, widt
   print(" make_copy_rotate {} s".format(etime - stime))
   return crimgs, coimgs
 
+def load_latest_model_weights(model, model_dir, name):
+    """Loads the latest weights for `model.
+    Args:
+        model: Keras model
+        model_dir: path to where model definition and weights are saved
+        name: string of what the model is called.
+
+    Returns:
+        Number of steps which the loaded weights have been trained.
+        Side effect: loads these weights into `model`
+
+    Model weights are assumed to be saved in the format:
+        `model_dir`/`name`-`step`.h5
+    """
+    latest = 0, None
+    for m in listdir(model_dir):
+        if ".h5" in m and name in m:
+            step = int(m.split("-")[1].replace(".h5", ""))
+            #print(latest)
+            latest = max(latest, (step, m))
+
+    step, model_file = latest
+
+    #TODO: Write a better fix for the case the folder is empty
+    if not listdir(model_dir):
+        step = None
+        return step
+
+    if model_file:
+        model_file = path.join(model_dir, model_file)
+        model.load_weights(model_file)
+        print("loaded weights for %s from %s", name, model_file)
+
+    return step
+
 if __name__ == '__main__':
   # time for data preparation
   prep_stime = time.time()
@@ -395,11 +431,11 @@ if __name__ == '__main__':
 
   # loss + optimizer
   # compute loss and train_ops
-  loss_rotate = loss_rotate_fn(imgs, encoder,
-                             batch_size=FLAGS.batch_size,
-                             copy_size=FLAGS.copy_size,
-                             c_lambda=FLAGS.c_lambda
-  )
+  #loss_rotate = loss_rotate_fn(imgs, encoder,
+  #                           batch_size=FLAGS.batch_size,
+  #                           copy_size=FLAGS.copy_size,
+  #                           c_lambda=FLAGS.c_lambda
+  #)
   
   loss_reconst, reconst_list = loss_reconst_fn(
                              imgs, oimgs,
@@ -413,7 +449,8 @@ if __name__ == '__main__':
   # Apply optimization
   # ++ Method 1
   # Method 2 sometimes showed 0 loss in early statge. 
-  loss_all = tf.math.add(loss_reconst, loss_rotate)
+  #loss_all = tf.math.add(loss_reconst, loss_rotate)
+  loss_all = loss_reconst
   train_ops = tf.train.AdamOptimizer(FLAGS.lr).minimize(loss_all)
 
   # ++ Method 2
@@ -424,7 +461,7 @@ if __name__ == '__main__':
   # observe loss values with tensorboard
   with tf.name_scope("summary"):
     tf.summary.scalar("reconst loss", loss_reconst)
-    tf.summary.scalar("rotate loss", loss_rotate)
+    #tf.summary.scalar("rotate loss", loss_rotate)
     tf.summary.scalar("total loss", loss_all)
     merged = tf.summary.merge_all()
 
@@ -449,6 +486,7 @@ if __name__ == '__main__':
   print("\n### Entering Training Loop ###\n")
   print("   Data Pre-Processing time [minutes]  : %f" % prep_etime, flush=True)
   
+
   # TRAINING
   with tf.Session(config=config) as sess:
     #sess = tf_debug.LocalCLIDebugWrapperSession(sess)
@@ -461,12 +499,19 @@ if __name__ == '__main__':
     train_loss_reconst_list = []
     train_loss_rotate_list = []
     num_batches=int(mnist.train.num_examples/FLAGS.copy_size)//FLAGS.batch_size
-    angle_list = [i for i in range(1,360, FLAGS.dangle)]
+    angle_list = [i for i in range(0,360, FLAGS.dangle)]
 
     # Trace and Profiling options
     summary_writer = tf.summary.FileWriter(os.path.join(FLAGS.output_modeldir, 'logs'), sess.graph) 
     run_metadata = tf.RunMetadata()
     run_opts = tf.RunOptions(trace_level=tf.RunOptions.HARDWARE_TRACE)
+
+    # Restore model
+    restore_dir='./output_model/62322468'
+    for m in save_models:
+        gs = load_latest_model_weights(save_models[m], restore_dir, m)
+        if gs is not None:
+            sess.run(global_step.assign(gs))
 
     #====================================================================
     # Training
@@ -475,8 +520,12 @@ if __name__ == '__main__':
     for epoch in range(FLAGS.num_epoch):
         for iteration in range(num_batches):
             ## run all in once
-            _, train_loss_reconst, train_loss_rotate, min_idx, tf_summary = sess.run(
-              [train_ops, loss_reconst, loss_rotate,tf.math.argmin(reconst_list), merged]
+            #_, train_loss_reconst, train_loss_rotate, min_idx, tf_summary = sess.run(
+            #  [train_ops, loss_reconst, loss_rotate,tf.math.argmin(reconst_list), merged]
+            #  , run_metadata=run_metadata, options=run_opts
+            #)
+            gs, train_loss_reconst, min_idx, tf_summary = sess.run(
+              [train_ops, loss_reconst, tf.math.argmin(reconst_list), merged]
               , run_metadata=run_metadata, options=run_opts
             )
             # check angles
@@ -484,10 +533,11 @@ if __name__ == '__main__':
 
             # set for check loss/iteration
             print("iteration {}  loss reconst {}  loss rotate {}".format(
-                iteration, train_loss_reconst, train_loss_rotate), flush=True
+                iteration, train_loss_reconst, 1), flush=True
             )
+            #iteration, train_loss_reconst, train_loss_rotate), flush=True
             train_loss_reconst_list.append(train_loss_reconst)
-            train_loss_rotate_list.append(train_loss_rotate)
+            #train_loss_rotate_list.append(train_loss_rotate)
 
 
             ## TODO make argparser for save every
