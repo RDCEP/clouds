@@ -368,9 +368,14 @@ if __name__ == '__main__':
 
   # set data
   mnist = input_data.read_data_sets(os.path.abspath("./MNIST_data/"), one_hot=False)
-  targetDigitIndex = np.where(mnist.train.labels==FLAGS.digit)
-  train_images = mnist.train.images[targetDigitIndex]
-  print( " Target Digit {} | Number of Debug Images {} ".format(FLAGS.digit, len(train_images)) )
+  #targetDigitIndex = np.where( 
+  #    (mnist.train.labels==FLAGS.digit) | 
+  #    (mnist.train.labels== 0 ) |
+  #    (mnist.train.labels== 1 ) |
+  #)
+  #train_images = mnist.train.images[targetDigitIndex]
+  train_images  = mnist.train.images
+  #print( " Target Digit {} | Number of Debug Images {} ".format(FLAGS.digit, len(train_images)) )
 
   # ad-hoc params
   #num_test_images = int(FLAGS.batch_size/FLAGS.copy_size)
@@ -481,7 +486,7 @@ if __name__ == '__main__':
     # initialize other variables
     #num_batches=int(mnist.train.num_examples/FLAGS.copy_size)//FLAGS.batch_size
     #num_batches=int(mnist.train.num_examples*FLAGS.copy_size)//FLAGS.batch_size
-    num_batches=int(mnist.train.num_examples*FLAGS.copy_size)//FLAGS.batch_size
+    num_batches=int(len(train_images)*FLAGS.copy_size)//FLAGS.batch_size
     #angle_list = [i for i in range(0,360, FLAGS.dangle)]
     angle_list = [i for i in range(0,180, FLAGS.dangle)]
 
