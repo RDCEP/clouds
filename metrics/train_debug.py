@@ -258,14 +258,16 @@ def loss_rotate_fn(imgs,
         _loss_rotate_list.append(
           tf.reduce_mean( tf.square( _imgs[i] - _imgs[j]) )
         )
-      loss_rotate_list.append(tf.reduce_max(_loss_rotate_list))
+      loss_rotate_list.append(tf.reduce_max(tf.stack(_loss_rotate_list, axis=0)))
 
-    loss_rotate = tf.reduce_mean(tf.stack(loss_rotate_list))
+    #loss_rotate = tf.reduce_mean(tf.stack(loss_rotate_list, axis=0))
+    loss_rotate = tf.reduce_max(tf.stack(loss_rotate_list, axis=0))
 
     etime = datetime.now()
     print(" Loss Rotate {} s".format(etime - stime))
     #del loss_rotate_list, _loss_rotate_list, _imgs
-    return tf.multiply(tf.constant(c_lambda ,dtype=tf.float32), loss_rotate)
+    #return tf.multiply(tf.constant(c_lambda ,dtype=tf.float32), loss_rotate)
+    return loss_rotate
 
 def loss_reconst_fn(imgs,
                     oimgs, 
@@ -308,7 +310,7 @@ def loss_reconst_fn(imgs,
       rimgs = rotate_operation(reconst_imgs,angle=angle) # R_theta(x_hat)
       loss_reconst_list.append(tf.reduce_mean(tf.square(imgs - rimgs)))
     loss_reconst_tf = tf.stack(loss_reconst_list, axis=0)
-    loss_reconst = tf.reduce_min(loss_reconst_tf)
+    #loss_reconst = tf.reduce_min(loss_reconst_tf)
     etime = datetime.now()
     print(" Loss Reconst {} s".format(etime - stime))
     #return loss_reconst, loss_reconst_tf
@@ -394,7 +396,7 @@ if __name__ == '__main__':
   #figname   = 'fig_'+FLAGS.expname+bname1+bname2
   # TODO Add for debug. Remove finally
   figname   = 'fig_'+FLAGS.expname+bname1+bname2+str(ctime.strftime("%s"))
-  ofilename = 'loss_'+FLAGS.expname+bname1+bname2+'.txt'
+  ofilename = 'loss_'+FLAGS.expname+bname1+bname2+str(ctime.strftime("%s"))+'.txt'
 
   # set global time step
   global_step = tf.train.get_or_create_global_step()
@@ -424,11 +426,11 @@ if __name__ == '__main__':
 
   # loss + optimizer
   # compute loss and train_ops
-  #loss_rotate = loss_rotate_fn(imgs, encoder,
-  #                           batch_size=FLAGS.batch_size,
-  #                           copy_size=FLAGS.copy_size,
-  #                           c_lambda=FLAGS.c_lambda
-  #)
+  loss_rotate = loss_rotate_fn(imgs, encoder,
+                             batch_size=FLAGS.batch_size,
+                             copy_size=FLAGS.copy_size,
+                             c_lambda=FLAGS.c_lambda
+  )
   
   #loss_reconst, reconst_list = loss_reconst_fn(
   loss_reconst  = loss_reconst_fn(
@@ -442,14 +444,22 @@ if __name__ == '__main__':
 
   # Apply optimization
   #loss_all = loss_reconst
-  #train_ops = tf.train.AdamOptimizer(FLAGS.lr).minimize(tf.reduce_min(reconst_list))
-  train_ops = tf.train.AdamOptimizer(FLAGS.lr).minimize(tf.reduce_min(loss_reconst))
+  #train_ops = tf.train.AdamOptimizer(FLAGS.lr).minimize(tf.reduce_min(loss_reconst))
+  #train_ops = tf.train.AdamOptimizer(FLAGS.lr).minimize(tf.reduce_min(loss_reconst))
+  #train_ops = tf.train.AdamOptimizer(FLAGS.lr).minimize(
+  #train_ops = tf.train.AdamOptimizer(FLAGS.lr).minimize(
+  train_ops = tf.train.GradientDescentOptimizer(FLAGS.lr).minimize(
+    tf.math.add(
+        tf.reduce_min(loss_reconst),
+        tf.multiply(tf.constant(FLAGS.c_lambda ,dtype=tf.float32), loss_rotate)
+    )
+  )
 
 
   # observe loss values with tensorboard
   with tf.name_scope("summary"):
     tf.summary.scalar("reconst loss", tf.reduce_min(loss_reconst) )
-    #tf.summary.scalar("rotate loss", loss_rotate)
+    tf.summary.scalar("rotate loss", loss_rotate)
     #tf.summary.scalar("total loss", loss_all)
     merged = tf.summary.merge_all()
 
@@ -489,6 +499,8 @@ if __name__ == '__main__':
     num_batches=int(len(train_images)*FLAGS.copy_size)//FLAGS.batch_size
     #angle_list = [i for i in range(0,360, FLAGS.dangle)]
     angle_list = [i for i in range(0,180, FLAGS.dangle)]
+    loss_reconst_list = []
+    loss_rotate_list = []
 
     # Trace and Profiling options
     summary_writer = tf.summary.FileWriter(os.path.join(FLAGS.output_modeldir, 'logs'), sess.graph) 
@@ -499,52 +511,54 @@ if __name__ == '__main__':
     # Training
     #====================================================================
     stime = time.time()
-    #for iteration in range(0,1000,1):
-    for iteration in range(num_batches):
-        #_, train_loss_reconst, min_idx, tf_summary = sess.run(
-        #  [train_ops, loss_reconst, tf.math.argmin(reconst_list), merged]
-        #  , run_metadata=run_metadata, options=run_opts
-        #)
-        # check angles
-        #print( "min idx = {} | min degree = {}".format(
-        #    min_idx, angle_list[min_idx],
-        #  ) 
-        #)
+    stime = time.time()
+    for epoch in range(FLAGS.num_epoch):
+    #for epoch in range(0,1,1):
+      for iteration in range(num_batches):
         _, tf.summary = sess.run([train_ops, merged])
 
         if iteration % 100 == 0:
           # set for check loss/iteration
           _loss_reconst = sess.run(loss_reconst)
-          print("iteration {} Degree {}  loss reconst {}  loss min reconst {}".format(
-              iteration, angle_list[np.argmin(_loss_reconst)],  
-              _loss_reconst, np.min(_loss_reconst)
+          _loss_rotate = sess.run(loss_rotate)
+          #print("iteration {} Degree {}  loss reconst {}  loss min reconst {}".format(
+          #    iteration, angle_list[np.argmin(_loss_reconst)],  
+          #    _loss_reconst, np.min(_loss_reconst)
+          #  ), flush=True
+          #)
+          print("iteration {} Degree {} loss min reconst {}  loss rotate {} ".format(
+              iteration, angle_list[np.argmin(_loss_reconst)],np.min(_loss_reconst), _loss_rotate
             ), flush=True
           )
+          loss_reconst_list.append(np.min(_loss_reconst))
+          loss_rotate_list.append(np.min(_loss_rotate))
+
+        if iteration % 1000 == 0:
+          for m in save_models:
+            save_models[m].save_weights(
+              os.path.join(
+                FLAGS.output_modeldir, "{}-{}-iter{}.h5".format(m, epoch, iteration)
+              )
+            ) 
+      # save model at every N steps
+      if epoch % FLAGS.save_every == 0:
+         for m in save_models:
+           save_models[m].save_weights(
+             os.path.join(
+               FLAGS.output_modeldir, "{}-{}.h5".format(m, epoch)
+             )
+           )
 
     #=======================
     # + Visualization
     #=======================
-    #print('entry of reconst_list (min loss in each angle)')
-    #print( reconst_list.eval() , tf.reduce_mean(reconst_list).eval() )
-    #print( reconst_list.eval() )
-    #print(tf.stack(reconst_list, axis=0))
-    #print(tf.reduce_min(tf.stack(reconst_list, axis=0)))
-    #print(tf.reduce_min(tf.stack(reconst_list)).eval() )
-
-    # save loss result
     with tf.device("/CPU"):
       encoded = encoder(imgs)
-      #results = tf.keras.backend.eval(decoder(encoded))      
-      #test_images  = tf.keras.backend.eval(oimgs)
-      #rtest_images = tf.keras.backend.eval(imgs)
-
       results, test_images, rtest_images = sess.run(
         [decoder(encoded), oimgs, imgs]
       )
 
       #Comparing original images with reconstructions
-      #f,a=plt.subplots(3,num_test_images,figsize=(2*num_test_images,6))
-      #for idx, i in enumerate(range(0, FLAGS.batch_size, FLAGS.copy_size)):
       f,a=plt.subplots(3,num_test_images,figsize=(2*num_test_images,6))
       for idx, i in enumerate(range(num_test_images)):
         a[0][idx].imshow(np.reshape(test_images[i],(FLAGS.height,FLAGS.width)), cmap='jet')
@@ -557,7 +571,10 @@ if __name__ == '__main__':
         a[1][idx].set_yticklabels([])
         a[2][idx].set_xticklabels([])
         a[2][idx].set_yticklabels([])
-        #a[0][idx].set_title(" Min Deg. = {}".format(angle_list[min_idx]))
       plt.savefig(FLAGS.figdir+'/'+figname+'.png')
+
+      with open(os.path.join(FLAGS.logdir, ofilename), 'w') as f:
+        for re, ro in zip(loss_reconst_list, loss_rotate_list):
+          f.write(str(re)+','+str(ro)+'\n')
 
   print("### DEBUG NORMAL END ###")
