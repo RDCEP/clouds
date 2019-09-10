@@ -1,6 +1,9 @@
 #
 # + cleaning version: TO BE trian.py
 #
+# + History
+# 09/10 Regulate rotation angle only {0, 120, 240}
+#
 import matplotlib
 matplotlib.use('Agg')
 
@@ -45,17 +48,6 @@ def get_args():
     type=float,
     default=0.001
   )
-  # comment off
-  #p.add_argument(
-  #  '--lr_reconst',
-  #  type=float,
-  #  default=0.001
-  #)
-  #p.add_argument(
-  #  '--lr_rotate',
-  #  type=float,
-  #  default=0.001
-  #)
   p.add_argument(
     '--expname',
     type=str,
@@ -283,12 +275,6 @@ def loss_reconst_fn(imgs,
         """angle: Radian.
             angle = degree * math.pi/180
         """
-        #rimgs = tf.contrib.image.rotate(
-        #        imgs,
-        #        tf.constant(angle ,dtype=tf.float32),
-        #        interpolation='NEAREST',
-        #        name=None
-        #)
         rimgs = tf.contrib.image.transform(
         imgs,
         tf.contrib.image.angles_to_projective_transforms(
@@ -443,11 +429,6 @@ if __name__ == '__main__':
  
 
   # Apply optimization
-  #loss_all = loss_reconst
-  #train_ops = tf.train.AdamOptimizer(FLAGS.lr).minimize(tf.reduce_min(loss_reconst))
-  #train_ops = tf.train.AdamOptimizer(FLAGS.lr).minimize(tf.reduce_min(loss_reconst))
-  #train_ops = tf.train.AdamOptimizer(FLAGS.lr).minimize(
-  #train_ops = tf.train.AdamOptimizer(FLAGS.lr).minimize(
   train_ops = tf.train.GradientDescentOptimizer(FLAGS.lr).minimize(
     tf.math.add(
         tf.reduce_min(loss_reconst),
@@ -460,7 +441,6 @@ if __name__ == '__main__':
   with tf.name_scope("summary"):
     tf.summary.scalar("reconst loss", tf.reduce_min(loss_reconst) )
     tf.summary.scalar("rotate loss", loss_rotate)
-    #tf.summary.scalar("total loss", loss_all)
     merged = tf.summary.merge_all()
 
   # set-up save models
@@ -494,8 +474,6 @@ if __name__ == '__main__':
     sess.run(train_iterator.initializer)
 
     # initialize other variables
-    #num_batches=int(mnist.train.num_examples/FLAGS.copy_size)//FLAGS.batch_size
-    #num_batches=int(mnist.train.num_examples*FLAGS.copy_size)//FLAGS.batch_size
     num_batches=int(len(train_images)*FLAGS.copy_size)//FLAGS.batch_size
     #angle_list = [i for i in range(0,360, FLAGS.dangle)]
     angle_list = [i for i in range(0,180, FLAGS.dangle)]
@@ -511,9 +489,8 @@ if __name__ == '__main__':
     # Training
     #====================================================================
     stime = time.time()
-    stime = time.time()
-    for epoch in range(FLAGS.num_epoch):
-    #for epoch in range(0,1,1):
+    #for epoch in range(FLAGS.num_epoch):
+    for epoch in range(0,1,1):
       for iteration in range(num_batches):
         _, tf.summary = sess.run([train_ops, merged])
 
@@ -521,11 +498,6 @@ if __name__ == '__main__':
           # set for check loss/iteration
           _loss_reconst = sess.run(loss_reconst)
           _loss_rotate = sess.run(loss_rotate)
-          #print("iteration {} Degree {}  loss reconst {}  loss min reconst {}".format(
-          #    iteration, angle_list[np.argmin(_loss_reconst)],  
-          #    _loss_reconst, np.min(_loss_reconst)
-          #  ), flush=True
-          #)
           print("iteration {} Degree {} loss min reconst {}  loss rotate {} ".format(
               iteration, angle_list[np.argmin(_loss_reconst)],np.min(_loss_reconst), _loss_rotate
             ), flush=True
