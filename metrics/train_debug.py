@@ -337,10 +337,29 @@ def loss_reconst_fn(imgs,
     #encoded_imgs = encoder(oimgs)
     #encoded_imgs = encoder(imgs)
     #reconst_imgs = decoder(encoded_imgs)
+
+    # memory intensive code
+    #for angle in angle_list:
+    #  rimgs = rotate_operation(imgs,angle=angle) # R_theta(x)
+    #  encoded_imgs  = encoder(rimgs)
+    #  decoded_rimgs = decoder(encoded_imgs)# f(R_theta(x))
+    #  loss_reconst_list.append(tf.reduce_mean(tf.square(imgs - decoded_rimgs)))
+
+    # Save memory
+    rimgs_list = []
+    # make rotated images at once
     for angle in angle_list:
-      rimgs = rotate_operation(imgs,angle=angle) # R_theta(x)
-      decoded_rimgs  = decoder(encoder(rimgs))# f(R_theta(x))
-      loss_reconst_list.append(tf.reduce_mean(tf.square(imgs - decoded_rimgs)))
+      rimgs_list.append(rotate_operation(imgs,angle=angle)) # R_theta(x)
+    rimgs = tf.concat(rimgs_list, axis=0)
+    # get encoded-decoded images at once
+    encoded_imgs  = encoder(rimgs)
+    decoded_rimgs = decoder(encoded_imgs)# f(R_theta(x))
+    for i in range(len(angle_list)):
+      loss_reconst_list.append(
+        tf.reduce_mean(
+          tf.square(imgs - decoded_rimgs[i*copy_size:(i+1)*copy_size])
+        )
+      )
     loss_reconst_tf = tf.stack(loss_reconst_list, axis=0)
     #loss_reconst = tf.reduce_min(loss_reconst_tf)
     etime = datetime.now()
