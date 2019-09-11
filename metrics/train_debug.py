@@ -338,9 +338,9 @@ def loss_reconst_fn(imgs,
     #encoded_imgs = encoder(imgs)
     #reconst_imgs = decoder(encoded_imgs)
     for angle in angle_list:
-      _rimgs = rotate_operation(imgs,angle=angle) # R_theta(x)
-      rimgs  = decoder(encoder(rimgs))# f(R_theta(x))
-      loss_reconst_list.append(tf.reduce_mean(tf.square(imgs - rimgs)))
+      rimgs = rotate_operation(imgs,angle=angle) # R_theta(x)
+      decoded_rimgs  = decoder(encoder(rimgs))# f(R_theta(x))
+      loss_reconst_list.append(tf.reduce_mean(tf.square(imgs - decoded_rimgs)))
     loss_reconst_tf = tf.stack(loss_reconst_list, axis=0)
     #loss_reconst = tf.reduce_min(loss_reconst_tf)
     etime = datetime.now()
