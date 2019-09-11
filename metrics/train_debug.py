@@ -218,10 +218,28 @@ def rotate_fn(images, seed=0, return_np=False, batch_size=32):
 
     # ++ Debug mode
     # rotate-angle = {0,120,240}
-    angles_np = np.array([0, 120,240])
-    rnd_idx = np.random.randint(0,3,batch_size)
+    ## method 1 randomly generate index 
+    #angles_np = np.array([0, 120,240])
+    #rnd_idx = np.random.randint(0,3,batch_size)
+    ## method 2 random sort 
+    n = 0
+    angles = []
+    while n < batch_size:
+      for i in [0, 120, 240]:
+        angles.append(i)
+        n = len(angles)
+        if n == batch_size:
+          break
+    angles_np = np.array(angles)
+    np.random.shuffle(angles_np)
+  
+    # method 1
+    #random_angles =  tf.constant(
+    #  math.pi/180*np.asarray([angles_np[i] for i in rnd_idx]),
+    #  dtype=tf.float32    
+    #)
     random_angles =  tf.constant(
-      math.pi/180*np.asarray([angles_np[i] for i in rnd_idx]),
+      math.pi/180*angles_np,
       dtype=tf.float32    
     )
 
@@ -302,8 +320,8 @@ def loss_reconst_fn(imgs,
         return rimgs
 
     loss_reconst_list = []
-    #angle_list = [i*math.pi/180 for i in range(0,360,dangle)]
-    angle_list = [i*math.pi/180 for i in range(0,180,dangle)]
+    angle_list = [i*math.pi/180 for i in range(0,360,dangle)]
+    #angle_list = [i*math.pi/180 for i in range(0,180,dangle)]
      
     # 08/28 2PM  before modification 
     #encoded_imgs = encoder(oimgs)
@@ -375,14 +393,10 @@ if __name__ == '__main__':
 
   # set data
   mnist = input_data.read_data_sets(os.path.abspath("./MNIST_data/"), one_hot=False)
-  #targetDigitIndex = np.where( 
-  #    (mnist.train.labels==FLAGS.digit) | 
-  #    (mnist.train.labels== 0 ) |
-  #    (mnist.train.labels== 1 ) |
-  #)
-  #train_images = mnist.train.images[targetDigitIndex]
-  train_images  = mnist.train.images
-  #print( " Target Digit {} | Number of Debug Images {} ".format(FLAGS.digit, len(train_images)) )
+  targetDigitIndex = np.where( mnist.train.labels==FLAGS.digit) 
+  train_images = mnist.train.images[targetDigitIndex]
+  #train_images  = mnist.train.images
+  print( " Target Digit {} | Number of Debug Images {} ".format(FLAGS.digit, len(train_images)) )
 
   # ad-hoc params
   #num_test_images = int(FLAGS.batch_size/FLAGS.copy_size)
@@ -494,8 +508,8 @@ if __name__ == '__main__':
 
     # initialize other variables
     num_batches=int(len(train_images)*FLAGS.copy_size)//FLAGS.batch_size
-    #angle_list = [i for i in range(0,360, FLAGS.dangle)]
-    angle_list = [i for i in range(0,180, FLAGS.dangle)]
+    angle_list = [i for i in range(0,360, FLAGS.dangle)]
+    #angle_list = [i for i in range(0,180, FLAGS.dangle)]
     loss_reconst_list = []
     loss_rotate_list = []
 
@@ -521,9 +535,10 @@ if __name__ == '__main__':
           )
   
           print(
-                 "iteration {:7} Degree at 1st term{:3}  Degree at 2nd term {:10} | loss min reconst {:10}  loss rotate {:10} ".format(
-              iteration, angle_list[np.argmin(_loss_reconst)], np.min(_random_angles),
-              np.min(_loss_reconst),_loss_rotate
+                 "iteration {:7} Degree at 1st term{:4}  Degree at 2nd term {:10} | loss min reconst {:10}  loss rotate {:10} ".format(
+              iteration, angle_list[np.argmin(_loss_reconst)], 
+              round(np.min(_random_angles),7),
+              round(np.min(_loss_reconst),7) , round(_loss_rotate, 7)
             ), flush=True
           )
           loss_reconst_list.append(np.min(_loss_reconst))
