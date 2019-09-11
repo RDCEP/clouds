@@ -199,7 +199,7 @@ def resize_image_fn(imgs,height=32, width=32):
   reimgs = tf.image.resize_images(imgs, (height, width))
   return reimgs
 
-def rotate_fn(images, seed=0, return_np=False):
+def rotate_fn(images, seed=0, return_np=False, batch_size=32):
     """
     Apply random rotation to data and parse to dataset module
     images: before parse to encoder
@@ -208,14 +208,24 @@ def rotate_fn(images, seed=0, return_np=False):
     """
 
     # random rotation
-    random_angles = tf.random.uniform(
-        shape = (tf.shape(images)[0], ), 
-        minval = 0*math.pi/180,
-        maxval = 180.00*math.pi/180,
-        dtype=tf.float32,
-        seed = seed
+    #random_angles = tf.random.uniform(
+    #    shape = (tf.shape(images)[0], ), 
+    #    minval = 0*math.pi/180,
+    #    maxval = 359.99*math.pi/180,
+    #    dtype=tf.float32,
+    #    seed = seed
+    #)
+
+    # ++ Debug mode
+    # rotate-angle = {0,120,240}
+    angles_np = np.array([0, 120,240])
+    rnd_idx = np.random.randint(0,3,batch_size)
+    random_angles =  tf.constant(
+      math.pi/180*np.asarray([angles_np[i] for i in rnd_idx]),
+      dtype=tf.float32    
     )
-        #maxval = 359.999*math.pi/180,
+
+
     rotated_tensor_images = tf.contrib.image.transform(
       images,
       tf.contrib.image.angles_to_projective_transforms(
@@ -223,13 +233,20 @@ def rotate_fn(images, seed=0, return_np=False):
             tf.cast(tf.shape(images)[2], tf.float32)
         )
     )
+        #maxval = 180.00*math.pi/180,
     
+    #FIXME here is only for debugging
+    random_degrees = tf.multiply(
+        tf.constant(180.0/math.pi, dtype=tf.float32), random_angles
+    )
+
     #FIXME debug here
+    # remove numpy option and integrate output as tf.tensor
     if return_np:
       rotated_images = tf.keras.backend.eval(rotated_tensor_images)
       return rotated_images
     else:
-      return rotated_tensor_images
+      return rotated_tensor_images,random_degrees
 
 
 def loss_rotate_fn(imgs, 
@@ -342,10 +359,12 @@ def make_copy_rotate_image(oimgs_tf, batch_size=32, copy_size=4, height=32, widt
     img_list.extend([ tf.expand_dims(tf.identity(tmp_img_tf), axis=0) for i in range(copy_size-1)])
 
   coimgs = tf.concat(img_list, axis=0)
-  crimgs = rotate_fn(coimgs, seed=np.random.randint(0,999), return_np=False)
+  #crimgs = rotate_fn(coimgs, seed=np.random.randint(0,999), return_np=False)
+  #TODO for debugging
+  crimgs, random_degrees = rotate_fn(coimgs, seed=np.random.randint(0,999), return_np=False, batch_size=batch_size)
   etime = datetime.now()
   print(" make_copy_rotate {} s".format(etime - stime))
-  return crimgs, coimgs
+  return crimgs, coimgs, random_degrees
 
 if __name__ == '__main__':
   # time for data preparation
@@ -403,7 +422,7 @@ if __name__ == '__main__':
 
   # why get_one_shot_iterator leads OOM error?
   train_iterator = dataset_mapper.make_initializable_iterator()
-  imgs, oimgs  = train_iterator.get_next()
+  imgs, oimgs, random_degrees  = train_iterator.get_next()
 
   # get model
   encoder, decoder = model_fn(nblocks=FLAGS.nblocks)
@@ -489,21 +508,27 @@ if __name__ == '__main__':
     # Training
     #====================================================================
     stime = time.time()
-    #for epoch in range(FLAGS.num_epoch):
-    for epoch in range(0,1,1):
+    for epoch in range(FLAGS.num_epoch):
+    #for epoch in range(0,1,1):
       for iteration in range(num_batches):
+      #for iteration in range(0,101,1):
         _, tf.summary = sess.run([train_ops, merged])
 
         if iteration % 100 == 0:
           # set for check loss/iteration
-          _loss_reconst = sess.run(loss_reconst)
-          _loss_rotate = sess.run(loss_rotate)
-          print("iteration {} Degree {} loss min reconst {}  loss rotate {} ".format(
-              iteration, angle_list[np.argmin(_loss_reconst)],np.min(_loss_reconst), _loss_rotate
+          _loss_reconst,_loss_rotate, _random_angles = sess.run(
+              [loss_reconst, loss_rotate, random_degrees]
+          )
+  
+          print(
+                 "iteration {:7} Degree at 1st term{:3}  Degree at 2nd term {:10} | loss min reconst {:10}  loss rotate {:10} ".format(
+              iteration, angle_list[np.argmin(_loss_reconst)], np.min(_random_angles),
+              np.min(_loss_reconst),_loss_rotate
             ), flush=True
           )
           loss_reconst_list.append(np.min(_loss_reconst))
           loss_rotate_list.append(np.min(_loss_rotate))
+          #stop
 
         if iteration % 1000 == 0:
           for m in save_models:
@@ -520,6 +545,16 @@ if __name__ == '__main__':
                FLAGS.output_modeldir, "{}-{}.h5".format(m, epoch)
              )
            )
+
+         # correct theta
+         _loss_reconst,_loss_rotate, _random_angles = sess.run(
+             [loss_reconst, loss_rotate, random_degrees]
+         )
+         print( "\n Save Model: Correct Theta {:3} and Psi {:10} \n".format(
+              angle_list[np.argmin(_loss_reconst)], np.min(_random_angles)
+            )
+         )
+         
 
     #=======================
     # + Visualization
