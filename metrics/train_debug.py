@@ -547,7 +547,7 @@ if __name__ == '__main__':
           print(
                  "iteration {:7} Theta 1st term {:4}  Theta at 2nd term {:4} | loss min reconst {:10}  loss rotate {:10} ".format(
               iteration, angle_list[np.argmin(_loss_reconst)],angle_list[np.argmin(_loss_rotate)],   
-              round(np.min(_loss_reconst),7) , round(np.min(_loss_rotate,) 7)
+              round(np.min(_loss_reconst),7) , round(np.max(_loss_rotate), 7)
             ), flush=True
           )
           loss_reconst_list.append(np.min(_loss_reconst))
