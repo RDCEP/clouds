@@ -1,7 +1,8 @@
 #!/bin/bash
 
 #SBATCH --account=pi-foster  # default pi-chard
-#SBATCH --job-name=loss_rotate_maxmax_sgd
+#SBATCH --job-name=loss_rotate_maxmax_sgd_five
+##SBATCH --job-name=loss_rotate_maxmax_sgd
 ##SBATCH --job-name=loss_reconst_adam
 #SBATCH --output=%x_%A_%a.out
 #SBATCH --error=%x_%A_%a.err
@@ -30,11 +31,12 @@ digit=5
 
 # params
 learning_rate=0.01 # Adam:0.001 SGD:0.01
-num_epoch=1
-batch_size=32   # default 32
-copy_size=16
+num_epoch=10
+batch_size=3   # default 32
+copy_size=3
+#copy_size=16
 dangle=2
-c_lambda=10.0
+c_lambda=1.0
 height=32
 width=32
 nblocks=5
