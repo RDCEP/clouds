@@ -426,6 +426,7 @@ if __name__ == '__main__':
   # TODO Add for debug. Remove finally
   figname   = 'fig_'+FLAGS.expname+bname1+bname2+str(ctime.strftime("%s"))
   ofilename = 'loss_'+FLAGS.expname+bname1+bname2+str(ctime.strftime("%s"))+'.txt'
+  dfilename = 'degree_'+FLAGS.expname+bname1+bname2+str(ctime.strftime("%s"))+'.txt'
 
   # set global time step
   global_step = tf.train.get_or_create_global_step()
@@ -522,6 +523,8 @@ if __name__ == '__main__':
     #angle_list = [i for i in range(0,180, FLAGS.dangle)]
     loss_reconst_list = []
     loss_rotate_list = []
+    deg_reconst_list = []
+    deg_rotate_list = []
 
     # Trace and Profiling options
     summary_writer = tf.summary.FileWriter(os.path.join(FLAGS.output_modeldir, 'logs'), sess.graph) 
@@ -545,13 +548,15 @@ if __name__ == '__main__':
           )
   
           print(
-                 "iteration {:7} Theta 1st term {:4}  Theta at 2nd term {:4} | loss min reconst {:10}  loss rotate {:10} ".format(
+                 "iteration {:7} Theta 1st term {:4}  Theta at 2nd term {:4} | loss reconst {:12}  loss rotate {:12} ".format(
               iteration, angle_list[np.argmin(_loss_reconst)],angle_list[np.argmax(_loss_rotate)],   
-              round(np.min(_loss_reconst),7) , round(np.max(_loss_rotate), 7)
+              math.floor(np.min(_loss_reconst)*(10**6))/10**6 , np.max(_loss_rotate)
             ), flush=True
           )
           loss_reconst_list.append(np.min(_loss_reconst))
-          loss_rotate_list.append(np.min(_loss_rotate))
+          loss_rotate_list.append(np.max(_loss_rotate))
+          deg_reconst_list.append(angle_list[np.argmin(_loss_reconst)])
+          deg_rotate_list.append(angle_list[np.argmax(_loss_rotate)])
           #stop
 
         if iteration % 1000 == 0:
@@ -574,7 +579,7 @@ if __name__ == '__main__':
          _loss_reconst,_loss_rotate = sess.run(
              [loss_reconst, loss_rotate]
          )
-         print( "\n Save Model: Correct Theta {:3} and Psi {:10} \n".format(
+         print( "\n Save Model: Correct Theta {:4} and Psi {:4} \n".format(
               angle_list[np.argmin(_loss_reconst)], angle_list[np.argmax(_loss_rotate)]
             )
          )
@@ -603,8 +608,14 @@ if __name__ == '__main__':
         a[2][idx].set_yticklabels([])
       plt.savefig(FLAGS.figdir+'/'+figname+'.png')
 
+      # loss
       with open(os.path.join(FLAGS.logdir, ofilename), 'w') as f:
         for re, ro in zip(loss_reconst_list, loss_rotate_list):
+          f.write(str(re)+','+str(ro)+'\n')
+
+      # degree
+      with open(os.path.join(FLAGS.logdir, dfilename), 'w') as f:
+        for re, ro in zip(deg_reconst_list, deg_rotate_list):
           f.write(str(re)+','+str(ro)+'\n')
 
   print("### DEBUG NORMAL END ###")
