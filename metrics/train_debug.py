@@ -540,13 +540,13 @@ if __name__ == '__main__':
 
         if iteration % 100 == 0:
           # set for check loss/iteration
-          _loss_reconst,_loss_rotate, _random_angles = sess.run(
-              [loss_reconst, loss_rotate, random_degrees]
+          _loss_reconst,_loss_rotate = sess.run(
+              [loss_reconst, loss_rotate]
           )
   
           print(
                  "iteration {:7} Theta 1st term {:4}  Theta at 2nd term {:4} | loss min reconst {:10}  loss rotate {:10} ".format(
-              iteration, angle_list[np.argmin(_loss_reconst)],angle_list[np.argmin(_loss_rotate)],   
+              iteration, angle_list[np.argmin(_loss_reconst)],angle_list[np.argmax(_loss_rotate)],   
               round(np.min(_loss_reconst),7) , round(np.max(_loss_rotate), 7)
             ), flush=True
           )
@@ -571,11 +571,11 @@ if __name__ == '__main__':
            )
 
          # correct theta
-         _loss_reconst,_loss_rotate, _random_angles = sess.run(
-             [loss_reconst, loss_rotate, random_degrees]
+         _loss_reconst,_loss_rotate = sess.run(
+             [loss_reconst, loss_rotate]
          )
          print( "\n Save Model: Correct Theta {:3} and Psi {:10} \n".format(
-              angle_list[np.argmin(_loss_reconst)], np.min(_random_angles)
+              angle_list[np.argmin(_loss_reconst)], angle_list[np.argmax(_loss_rotate)]
             )
          )
          
