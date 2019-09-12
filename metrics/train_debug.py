@@ -286,14 +286,31 @@ def loss_rotate_fn(imgs,
     stime = datetime.now()
     loss_rotate_list = []
 
-    encoded_imgs = encoder(imgs)
-    # orthodox pattern
+
+    # Debugged orthodox version
     angle_list = [i*math.pi/180 for i in range(0,360,dangle)]
+    rimgs_list = []
     for angle in angle_list:
-      rencoded_imgs = rotate_operation(encoded_imgs,angle=angle) # R_theta(x_hat)
+      rimgs_list.append(rotate_operation(imgs,angle=angle)) # R_theta(x)
+    rimgs = tf.concat(rimgs_list, axis=0)
+    # get encoded  images at once
+    encoded_imgs  = encoder(imgs)
+    encoded_rimgs = encoder(rimgs)
+    for i in range(len(angle_list)):
       loss_rotate_list.append(
-        tf.reduce_mean(tf.square(encoded_imgs - rencoded_imgs)) 
+        tf.reduce_mean(
+          tf.square(encoded_imgs - encoded_rimgs[i*copy_size:(i+1)*copy_size])
+        )
       )
+
+    #encoded_imgs = encoder(imgs)
+    # orthodox pattern
+    #angle_list = [i*math.pi/180 for i in range(0,360,dangle)]
+    #for angle in angle_list:
+    #  rencoded_imgs = rotate_operation(encoded_imgs,angle=angle) # R_theta(x_hat)
+    #  loss_rotate_list.append(
+    #    tf.reduce_mean(tf.square(encoded_imgs - rencoded_imgs)) 
+    #  )
 
     # ++ previous version for speed up
     #for idx in range(int(batch_size/copy_size)):
