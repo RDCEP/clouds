@@ -3,6 +3,8 @@
 #
 # + History
 # 09/10 Regulate rotation angle only {0, 120, 240}
+# 09/11 Modify code with G.Davis. R(f(x)) ==> f(R(x))
+# 09/12 Add restart training from trained weight
 #
 import matplotlib
 matplotlib.use('Agg')
@@ -225,8 +227,7 @@ def rotate_fn(images, seed=0, return_np=False, batch_size=32):
     n = 0
     angles = []
     while n < batch_size:
-      #for i in [0, 120, 240]:
-      for i in [0, 90, 180, 270]:
+      for i in [0, 120, 240]:
         angles.append(i)
         n = len(angles)
         if n == batch_size:
@@ -432,6 +433,40 @@ def make_copy_rotate_image(oimgs_tf, batch_size=32, copy_size=4, height=32, widt
   print(" make_copy_rotate {} s".format(etime - stime))
   return crimgs, coimgs 
 
+def load_latest_model_weights(model, model_dir, name):
+    """
+      INPUT:
+        model: encoder or decoder
+        model_dir: model directory 
+        name: model name.
+
+      OUTPUT:
+        step: global step 
+    """
+    #TODO add restart model dir and restart argument?
+    latest = 0, None
+    # get trained wegiht 
+    for m in os.listdir(model_dir):
+        if ".h5" in m and name in m:
+            step = int(m.split("-")[1].replace(".h5", ""))
+            latest = max(latest, (step, m))
+
+    step, model_file = latest
+
+    if not os.listdir(model_dir):
+        raise NameError("no directory. check model path again")
+
+    if model_file:
+        model_file = os.path.join(model_dir, model_file)
+        model.load_weights(model_file)
+        print(" ... loaded weights for %s from %s", name, model_file)
+
+    else:
+        print("no weights for %s in %s", name, model_dir)
+
+    return step
+
+
 if __name__ == '__main__':
   # time for data preparation
   prep_stime = time.time()
@@ -565,6 +600,16 @@ if __name__ == '__main__':
     sess.run(init)
     sess.run(train_iterator.initializer)
 
+    #NEW 
+    # restart function
+    # TODO add argparse
+    restart_modeldir = os.path.abspath('./output_model/62426991') # lambda=1.0 epoch ~38
+    for m in save_models:
+      gs = load_latest_model_weights(save_models[m],restart_modeldir,m)
+      if gs is not None:
+        sess.run(global_step.assign(gs))
+
+
     # initialize other variables
     num_batches=int(len(train_images)*FLAGS.copy_size)//FLAGS.batch_size
     angle_list = [i for i in range(0,360, FLAGS.dangle)]
@@ -587,7 +632,7 @@ if __name__ == '__main__':
     #for epoch in range(0,1,1):
       for iteration in range(num_batches):
       #for iteration in range(0,101,1):
-        _, tf.summary = sess.run([train_ops, merged])
+        gs, _, tf.summary = sess.run([global_step, train_ops, merged])
 
         if iteration % 100 == 0:
           # set for check loss/iteration
