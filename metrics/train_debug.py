@@ -531,7 +531,7 @@ if __name__ == '__main__':
   # observe loss values with tensorboard
   with tf.name_scope("summary"):
     tf.summary.scalar("reconst loss", tf.reduce_min(loss_reconst) )
-    #tf.summary.scalar("rotate loss", tf.reduce_max(loss_rotate) )
+    tf.summary.scalar("rotate loss", tf.reduce_max(loss_rotate) )
     merged = tf.summary.merge_all()
 
   # set-up save models
@@ -593,8 +593,8 @@ if __name__ == '__main__':
           _loss_reconst,_loss_rotate = sess.run(
               [loss_reconst, loss_rotate]
           )
-          #_loss_reconst = sess.run(
-          #    [loss_reconst]
+          #_loss_rotate = sess.run(
+          #    [loss_rotate]
           #)
   
           print(
@@ -641,17 +641,17 @@ if __name__ == '__main__':
          _loss_reconst,_loss_rotate = sess.run(
              [loss_reconst, loss_rotate]
          )
-         print( "\n Save Model {}: Correct Theta {:4} and Psi {:4} \n".format(
+         print( "\n Save Model Epoch {}: Correct Theta {:4} and Psi {:4} \n".format(
               epoch,
               angle_list[np.argmin(_loss_reconst)], angle_list[np.argmax(_loss_rotate)]
             )
          )
-         #_loss_reconst = sess.run(
-         #    [loss_reconst]
+         #_loss_rotate = sess.run(
+         #    [loss_rotate]
          #)
          #print( "\n Save Model Epoch {}: Correct Theta {:4} \n".format(
          #     epoch,
-         #     angle_list[np.argmin(_loss_reconst)],
+         #     angle_list[np.argmax(_loss_rotate)],
          #   )
          #)
               #angle_list[np.argmax(_loss_rotate)],

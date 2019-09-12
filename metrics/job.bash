@@ -1,17 +1,14 @@
 #!/bin/bash
 
 #SBATCH --account=pi-foster  # default pi-chard
-#SBATCH --job-name=loss_rotate_maxmax_sgd_five
-##SBATCH --job-name=loss_rotate_maxmax_sgd
-##SBATCH --job-name=loss_reconst_adam
+#SBATCH --job-name=loss_full_sgd
 #SBATCH --output=%x_%A_%a.out
 #SBATCH --error=%x_%A_%a.err
 #SBATCH --partition=gm4
-##SBATCH --partition=gpu2
 #SBATCH --gres=gpu:1
 #SBATCH --nodes=1
 #SBATCH --mem-per-cpu=8000
-#SBATCH --time=3:00:00
+#SBATCH --time=6:00:00
 #SBATCH --qos=gm4
 
 module load cuda/8.0
@@ -31,12 +28,12 @@ digit=5
 
 # params
 learning_rate=0.01 # Adam:0.001 SGD:0.01
-num_epoch=10
+num_epoch=50
 batch_size=3   # default 32
 copy_size=3
 #copy_size=16
 dangle=2
-c_lambda=1.0
+c_lambda=3.0
 height=32
 width=32
 nblocks=5
