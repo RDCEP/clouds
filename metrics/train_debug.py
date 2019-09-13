@@ -225,14 +225,14 @@ def rotate_fn(images, seed=0, return_np=False, batch_size=32):
     n = 0
     angles = []
     while n < batch_size:
-      #for i in [0, 120, 240]:
-      for i in [0, 90, 180, 270]:
+      for i in [0, 120, 240]:
+      #for i in [0, 90, 180, 270]:
         angles.append(i)
         n = len(angles)
         if n == batch_size:
           break
     angles_np = np.array(angles)
-    np.random.shuffle(angles_np)
+    #np.random.shuffle(angles_np)
   
     # method 1
     #random_angles =  tf.constant(
@@ -287,22 +287,31 @@ def loss_rotate_fn(imgs,
     stime = datetime.now()
     loss_rotate_list = []
 
-
-    # Debugged orthodox version
-    angle_list = [i*math.pi/180 for i in range(0,360,dangle)]
-    rimgs_list = []
-    for angle in angle_list:
-      rimgs_list.append(rotate_operation(imgs,angle=angle)) # R_theta(x)
-    rimgs = tf.concat(rimgs_list, axis=0)
-    # get encoded  images at once
+    # Debugged here speed up + save memory
     encoded_imgs  = encoder(imgs)
-    encoded_rimgs = encoder(rimgs)
-    for i in range(len(angle_list)):
+    for (i,j) in itertools.combinations([i for i in range(copy_size)],2):
       loss_rotate_list.append(
         tf.reduce_mean(
-          tf.square(encoded_imgs - encoded_rimgs[i*copy_size:(i+1)*copy_size])
+          tf.square(encoded_imgs[i] - encoded_imgs[j])
         )
       )
+
+
+    # Debugged orthodox version
+    #angle_list = [i*math.pi/180 for i in range(0,360,dangle)]
+    #rimgs_list = []
+    #for angle in angle_list:
+    #  rimgs_list.append(rotate_operation(imgs,angle=angle)) # R_theta(x)
+    #rimgs = tf.concat(rimgs_list, axis=0)
+    ## get encoded  images at once
+    #encoded_imgs  = encoder(imgs)
+    #encoded_rimgs = encoder(rimgs)
+    #for i in range(len(angle_list)):
+    #  loss_rotate_list.append(
+    #    tf.reduce_mean(
+    #      tf.square(encoded_imgs - encoded_rimgs[i*copy_size:(i+1)*copy_size])
+    #    )
+    #  )
 
     #encoded_imgs = encoder(imgs)
     # orthodox pattern
