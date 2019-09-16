@@ -603,7 +603,10 @@ if __name__ == '__main__':
     #NEW 
     # restart function
     # TODO add argparse
-    restart_modeldir = os.path.abspath('./output_model/62426991') # lambda=1.0 epoch ~38
+    restart_modeldir = os.path.abspath('./output_model/62430095') 
+    # lambda=1.5 lr 0.01 epoch  ~38->: 62426991
+    #        1.0 lr 0.001 epoch ~50->: 62430095 
+    #
     for m in save_models:
       gs = load_latest_model_weights(save_models[m],restart_modeldir,m)
       if gs is not None:

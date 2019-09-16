@@ -287,31 +287,31 @@ def loss_rotate_fn(imgs,
     stime = datetime.now()
     loss_rotate_list = []
 
-    # Debugged here speed up + save memory
-    encoded_imgs  = encoder(imgs)
-    for (i,j) in itertools.combinations([i for i in range(copy_size)],2):
-      loss_rotate_list.append(
-        tf.reduce_mean(
-          tf.square(encoded_imgs[i] - encoded_imgs[j])
-        )
-      )
+    # Try here speed up + save memory
+    #encoded_imgs  = encoder(imgs)
+    #for (i,j) in itertools.combinations([i for i in range(copy_size)],2):
+    #  loss_rotate_list.append(
+    #    tf.reduce_mean(
+    #      tf.square(encoded_imgs[i] - encoded_imgs[j])
+    #    )
+    #  )
 
 
     # Debugged orthodox version
-    #angle_list = [i*math.pi/180 for i in range(0,360,dangle)]
-    #rimgs_list = []
-    #for angle in angle_list:
-    #  rimgs_list.append(rotate_operation(imgs,angle=angle)) # R_theta(x)
-    #rimgs = tf.concat(rimgs_list, axis=0)
-    ## get encoded  images at once
-    #encoded_imgs  = encoder(imgs)
-    #encoded_rimgs = encoder(rimgs)
-    #for i in range(len(angle_list)):
-    #  loss_rotate_list.append(
-    #    tf.reduce_mean(
-    #      tf.square(encoded_imgs - encoded_rimgs[i*copy_size:(i+1)*copy_size])
-    #    )
-    #  )
+    angle_list = [i*math.pi/180 for i in range(0,360,dangle)]
+    rimgs_list = []
+    for angle in angle_list:
+      rimgs_list.append(rotate_operation(imgs,angle=angle)) # R_theta(x)
+    rimgs = tf.concat(rimgs_list, axis=0)
+    # get encoded  images at once
+    encoded_imgs  = encoder(imgs)
+    encoded_rimgs = encoder(rimgs)
+    for i in range(len(angle_list)):
+      loss_rotate_list.append(
+        tf.reduce_mean(
+          tf.square(encoded_imgs - encoded_rimgs[i*copy_size:(i+1)*copy_size])
+        )
+      )
 
     #encoded_imgs = encoder(imgs)
     # orthodox pattern
@@ -521,12 +521,20 @@ if __name__ == '__main__':
 
   # Apply optimization
   # Full version
-  train_ops = tf.train.GradientDescentOptimizer(FLAGS.lr).minimize(
-    tf.math.add(
-        tf.reduce_min(loss_reconst),
-        tf.reduce_max(loss_rotate)
-    )
+  train_ops1 = tf.train.GradientDescentOptimizer(FLAGS.lr).minimize(
+        tf.reduce_min(loss_reconst)
   )
+  train_ops2 = tf.train.GradientDescentOptimizer(FLAGS.lr*0.1).minimize(
+        tf.reduce_max(loss_rotate)
+  )
+  train_ops = tf.group(train_ops1, train_ops2)
+
+  #train_ops = tf.train.GradientDescentOptimizer(FLAGS.lr).minimize(
+  #  tf.math.add(
+  #      tf.reduce_min(loss_reconst),
+  #      tf.reduce_max(loss_rotate)
+  #  )
+  #)
 
   # Reconst-agn version
   #train_ops = tf.train.GradientDescentOptimizer(FLAGS.lr).minimize(
