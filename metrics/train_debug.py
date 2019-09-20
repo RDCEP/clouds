@@ -266,10 +266,12 @@ def loss_rotate_fn(imgs,
       loss_rotate_list.append(loss_rotate)
 
     # loss
-    loss_rotate_tf = tf.multiply(
-                          tf.constant(c_lambda ,dtype=tf.float32), 
-                          tf.stack(loss_rotate_list, axis=0)
-    )
+    # multiply before reduce_mean
+    #loss_rotate_tf = tf.multiply(
+    #                      tf.constant(c_lambda ,dtype=tf.float32), 
+    #                      tf.stack(loss_rotate_list, axis=0)
+    #)
+    loss_rotate_tf = tf.stack(loss_rotate_list, axis=0)
 
     # ++ previous version for speed up
     #for idx in range(int(batch_size/copy_size)):
@@ -310,6 +312,9 @@ def loss_reconst_fn(imgs,
       loss_reconst_list.append(
           tf.reduce_mean(tf.square(imgs - rimgs), axis=[1,2,3])
       ) # take mean for each image
+      #    tf.reduce_mean(tf.square(imgs - rimgs), axis=[1,2,3])
+      # take sum
+      #    tf.reduce_sum(tf.square(imgs - rimgs))
     # save optimal theta
     loss_reconst_thetas = tf.math.argmin(tf.stack(loss_reconst_list, axis=0),axis=0)
 
@@ -442,24 +447,24 @@ if __name__ == '__main__':
                              c_lambda=FLAGS.c_lambda
   )
   
-  #loss_reconst, theta_reconst  = loss_reconst_fn(imgs,
-  #                                encoder, decoder, 
-  #                                batch_size=FLAGS.batch_size,
-  #                                copy_size=FLAGS.copy_size,
-  #                                dangle=FLAGS.dangle
-  #)
+  loss_reconst, theta_reconst  = loss_reconst_fn(imgs,
+                                  encoder, decoder, 
+                                  batch_size=FLAGS.batch_size,
+                                  copy_size=FLAGS.copy_size,
+                                  dangle=FLAGS.dangle
+  )
  
   # debug 1st process
   #loss = loss_L2_fn(imgs,encoder, decoder)
 
   # Apply optimization 
   # Full version
-  #train_ops = tf.train.GradientDescentOptimizer(FLAGS.lr).minimize(
-  #  tf.math.add(
-  #      tf.reduce_mean(loss_reconst),
-  #      tf.reduce_mean(loss_rotate)
-  #  )
-  #)
+  train_ops = tf.train.GradientDescentOptimizer(FLAGS.lr).minimize(
+    tf.math.add(
+        tf.reduce_mean(loss_reconst),
+        tf.multiply(tf.constant(FLAGS.c_lambda, dtype=tf.float32),tf.reduce_mean(loss_rotate))
+    )
+  )
   #      tf.reduce_mean(loss_rotate)
 
   # L2 loss: Check Minibatch creation
@@ -482,17 +487,20 @@ if __name__ == '__main__':
   #)
 
   # Bottleneck version
-  train_ops = tf.train.GradientDescentOptimizer(FLAGS.lr).minimize(
-        tf.reduce_mean(loss_rotate),
-  )
+  #train_ops = tf.train.GradientDescentOptimizer(FLAGS.lr).minimize(
+  #      tf.multiply( tf.constant(FLAGS.c_lambda, dtype=tf.float32), tf.reduce_mean(loss_rotate))
+  #)
 
 
   # observe loss values with tensorboard
   with tf.name_scope("summary"):
     #tf.summary.scalar("L2 loss", loss )
     ###tf.summary.scalar("reconst loss", tf.reduce_sum(loss_reconst) )
-    #tf.summary.scalar("reconst loss", tf.reduce_mean(loss_reconst) )
-    tf.summary.scalar("rotate loss", tf.reduce_mean(loss_rotate) )
+    tf.summary.scalar("reconst loss", tf.reduce_mean(loss_reconst) )
+    #tf.summary.scalar("rotate loss", tf.reduce_mean(loss_rotate) )
+    tf.summary.scalar("rotate loss",  
+        tf.multiply(tf.constant(FLAGS.c_lambda,dtype=tf.float32), tf.reduce_mean(loss_rotate))
+    )
     ###tf.summary.scalar("rotate loss", tf.reduce_sum(loss_rotate) )
     #tf.summary.scalar("rotate loss", tf.reduce_max(loss_rotate) )
     merged = tf.summary.merge_all()
@@ -553,12 +561,12 @@ if __name__ == '__main__':
         _, tf.summary = sess.run([train_ops, merged])
 
         if iteration % 100 == 0:
-          #_loss_reconst,_loss_rotate, _theta_reconst = sess.run(
-          #    [loss_reconst, loss_rotate, theta_reconst]
-          #)
+          _loss_reconst,_loss_rotate, _theta_reconst = sess.run(
+              [loss_reconst, loss_rotate, theta_reconst]
+          )
           ### rotate 
-          _loss_rotate = sess.run(loss_rotate)
-          print(_loss_rotate)
+          #_loss_rotate = sess.run(loss_rotate)
+          #print(_loss_rotate)
           ### reconst
           #_loss_reconst, _theta_reconst = sess.run(
           #    [loss_reconst, theta_reconst]
@@ -568,31 +576,31 @@ if __name__ == '__main__':
           ### L2
           #_loss_l2 = sess.run(loss)
   
-          #print(
-          #       "iteration {:7} | loss reconst {:10}  loss rotate {:10} | Theta 1st term {}".format(
-          #    iteration,   
-          #    math.floor(np.mean(_loss_reconst)*(10**6))/10**6, 
-          #    np.mean(_loss_rotate), 
-          #   _theta_reconst
-          #  ), flush=True
-          #)
+          print(
+                 "iteration {:7} | loss reconst {:10}  loss rotate {:10} | Theta 1st term {}".format(
+              iteration,   
+              math.floor(np.mean(_loss_reconst)*(10**6))/10**6, 
+              FLAGS.c_lambda*np.mean(_loss_rotate), 
+             _theta_reconst
+            ), flush=True
+          )
           #    np.mean(_loss_rotate), 
 
           ### Reconst
           #print(
           #       "iteration {:7} loss reconst {:12} Thetas {}".format(
-          #    iteration,np.sum(_loss_reconst), _theta_reconst
+          #    iteration,np.mean(_loss_reconst), _theta_reconst
           #  ), flush=True
           #)
           #    iteration,np.mean(_loss_reconst), _theta_reconst
           #    iteration,np.min(_loss_reconst), _theta_reconst
 
           ### Bottleneck
-          print(
-                 "iteration {:7} loss bottleneck {:12} ".format(
-              iteration,np.mean(_loss_rotate)
-            ), flush=True
-          )
+          #print(
+          #       "iteration {:7} loss bottleneck {:12} ".format(
+          #    iteration, FLAGS.c_lambda*np.mean(_loss_rotate)
+          #  ), flush=True
+          #)
 
 
           #print(
@@ -603,10 +611,10 @@ if __name__ == '__main__':
           # Save loss to lsit
           #loss_l2_list.append(_loss_l2)
           #loss_reconst_list.append(np.sum(_loss_reconst))
-          #loss_reconst_list.append(np.mean(_loss_reconst))
-          loss_rotate_list.append(np.mean(_loss_rotate))
-          #deg_reconst_list.append(_loss_reconst)
-          #deg_rotate_list.append(_loss_rotate)
+          loss_reconst_list.append(np.mean(_loss_reconst))
+          loss_rotate_list.append(FLAGS.c_lambda*np.mean(_loss_rotate))
+          #loss_rotate_list.append(np.mean(_loss_rotate))
+          deg_reconst_list.append(_loss_reconst)
 
         #if iteration % 2000 == 0:
         #  for m in save_models:
@@ -629,24 +637,25 @@ if __name__ == '__main__':
          #    [loss_reconst, theta_reconst]
          #)
          #print( "\n Save Model Epoch {}: Loss {:12} Theta {} \n".format(
-         #     epoch, np.sum(_loss_reconst), _theta_reconst
+         #     epoch, np.mean(_loss_reconst), _theta_reconst
          #   )
+         #)
 
-         _loss_rotate  = sess.run(loss_rotate)
-         print( "\n Save Model Epoch {}: Loss {:12} \n".format(
-              epoch, np.mean(_loss_rotate)
-            )
-         )
+         #_loss_rotate  = sess.run(loss_rotate)
+         #print( "\n Save Model Epoch {}: Loss {:12} \n".format(
+         #     epoch, np.mean(_loss_rotate)
+         #   )
+         #)
 
          # Full
-         #_loss_reconst,_loss_rotate, _theta_reconst = sess.run(
-         #     [loss_reconst, loss_rotate, theta_reconst]
-         #)
-         #print( "\n Save Model Epoch {}: \n 1st term Loss: {} 2nd term Loss: {} | Correct Thetas: {}  \n".format(
-         #     epoch, np.mean(_loss_reconst), np.mean(_loss_rotate), _theta_reconst
-         #   ),
-         #   flush=True
-         #)
+         _loss_reconst,_loss_rotate, _theta_reconst = sess.run(
+              [loss_reconst, loss_rotate, theta_reconst]
+         )
+         print( "\n Save Model Epoch {}: \n 1st term Loss: {} 2nd term Loss: {} | Correct Thetas: {}  \n".format(
+              epoch, np.mean(_loss_reconst), np.mean(_loss_rotate), _theta_reconst
+            ),
+            flush=True
+         )
          #     epoch, np.min(_loss_reconst), _theta_reconst
 
          #_loss_l2 = sess.run(loss)
@@ -688,12 +697,12 @@ if __name__ == '__main__':
 
       ## Full
       # loss
-      #with open(os.path.join(FLAGS.logdir, ofilename), 'w') as f:
-      #  for re, ro in zip(loss_reconst_list, loss_rotate_list):
-      #    f.write(str(re)+','+str(ro)+'\n')
+      with open(os.path.join(FLAGS.logdir, ofilename), 'w') as f:
+        for re, ro in zip(loss_reconst_list, loss_rotate_list):
+          f.write(str(re)+','+str(ro)+'\n')
       # degree
-      #with open(os.path.join(FLAGS.logdir, dfilename), 'w') as f:
-      #  f.write("\n".join(" ".join(map(str,x)) for x in (deg_reconst_list, deg_reconst_list)))
+      with open(os.path.join(FLAGS.logdir, dfilename), 'w') as f:
+        f.write("\n".join(" ".join(map(str,x)) for x in (deg_reconst_list, deg_reconst_list)))
 
       # degree
       #with open(os.path.join(FLAGS.logdir, dfilename), 'w') as f:
@@ -710,9 +719,9 @@ if __name__ == '__main__':
       #  f.write("\n".join(" ".join(map(str,x)) for x in deg_reconst_list))
 
       # bottleneck loss
-      with open(os.path.join(FLAGS.logdir, ofilename), 'w') as f:
-        for ro, ro in zip(loss_rotate_list, loss_rotate_list):
-          f.write(str(ro)+','+str(ro)+'\n')
+      #with open(os.path.join(FLAGS.logdir, ofilename), 'w') as f:
+      #  for ro, ro in zip(loss_rotate_list, loss_rotate_list):
+      #    f.write(str(ro)+','+str(ro)+'\n')
 
 
   print("### DEBUG NORMAL END ###")
