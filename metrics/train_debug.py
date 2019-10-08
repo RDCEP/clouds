@@ -260,7 +260,8 @@ def loss_rotate_fn(imgs,
       # sum up loss for each image class
       for i,j in itertools.product(range(copy_size), range(copy_size)):
         if i != j:
-          loss_rotate += tf.square( _imgs[i] - _imgs[j])
+          #loss_rotate += tf.reduce_sum(tf.square( _imgs[i] - _imgs[j]))
+          loss_rotate += tf.reduce_mean(tf.square( _imgs[i] - _imgs[j]))
           #_loss_rotate_list.append(tf.square( _imgs[i] - _imgs[j]))
       #loss_rotate_list.append(tf.reduce_sum(tf.stack(_loss_rotate_list, axis=0)))
       loss_rotate_list.append(loss_rotate)
@@ -381,6 +382,40 @@ def loss_L2_fn(imgs, encoder, decoder):
   return tf.reduce_mean(
             tf.square(imgs - decoded_imgs)
          )
+
+def load_latest_model_weights(model, model_dir, name):
+    """
+      INPUT:
+        model: encoder or decoder
+        model_dir: model directory 
+        name: model name.
+
+      OUTPUT:
+        step: global step 
+    """
+    #TODO add restart model dir and restart argument?
+    latest = 0, None
+    # get trained wegiht 
+    for m in os.listdir(model_dir):
+        if ".h5" in m and name in m:
+            step = int(m.split("-")[1].replace(".h5", ""))
+            latest = max(latest, (step, m))
+
+    step, model_file = latest
+
+    if not os.listdir(model_dir):
+        raise NameError("no directory. check model path again")
+
+    if model_file:
+        model_file = os.path.join(model_dir, model_file)
+        model.load_weights(model_file)
+        print(" ... loaded weights for %s from %s", name, model_file)
+
+    else:
+        print("no weights for %s in %s", name, model_dir)
+
+    return step
+
 
 if __name__ == '__main__':
   # time for data preparation
@@ -545,6 +580,13 @@ if __name__ == '__main__':
     deg_reconst_list = []
     #deg_rotate_list = []
 
+    #restart_modeldir = os.path.abspath('./output_model/62628601') 
+    #for m in save_models:
+    #  gs = load_latest_model_weights(save_models[m],restart_modeldir,m)
+    #  if gs is not None:
+    #    sess.run(global_step.assign(gs))
+
+
     # Trace and Profiling options
     summary_writer = tf.summary.FileWriter(os.path.join(FLAGS.output_modeldir, 'logs'), sess.graph) 
     run_metadata = tf.RunMetadata()
@@ -558,7 +600,7 @@ if __name__ == '__main__':
     #for epoch in range(0,1,1):
       for iteration in range(num_batches):
       #for iteration in range(0,101,1):
-        _, tf.summary = sess.run([train_ops, merged])
+        gs,_, tf.summary = sess.run([global_step,train_ops, merged])
 
         if iteration % 100 == 0:
           _loss_reconst,_loss_rotate, _theta_reconst = sess.run(
@@ -579,11 +621,12 @@ if __name__ == '__main__':
           print(
                  "iteration {:7} | loss reconst {:10}  loss rotate {:10} | Theta 1st term {}".format(
               iteration,   
-              math.floor(np.mean(_loss_reconst)*(10**6))/10**6, 
+              np.mean(_loss_reconst), 
               FLAGS.c_lambda*np.mean(_loss_rotate), 
              _theta_reconst
             ), flush=True
           )
+          #    math.floor(np.mean(_loss_reconst)*(10**6))/10**6, 
           #    np.mean(_loss_rotate), 
 
           ### Reconst
