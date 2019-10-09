@@ -135,7 +135,7 @@ def get_args():
   return args
   
 
-def model_fn(shape=(128,128,6), nblocks=5, base_dim=3) :
+def model_fn(shape=(32,32,6), nblocks=5, base_dim=3) :
     """
       Reference: https://blog.keras.io/building-autoencoders-in-keras.html
     """
@@ -271,8 +271,7 @@ def loss_rotate_fn(imgs,
     loss_rotate_list = []
 
     # ++ developing version for speed up
-    imgs = tf.image.central_crop(imgs, 0.5)
-    imgs = tf.image.resize_images(imgs, [128,128])
+    imgs = tf.image.central_crop(imgs, 0.25)
     encoded_imgs = encoder(imgs)
     for idx in range(int(batch_size/copy_size)):
       _imgs = encoded_imgs[copy_size*idx:copy_size*(idx+1)]
@@ -306,13 +305,8 @@ def loss_reconst_fn(imgs,
   
     # crop images
     crop_imgs = tf.image.central_crop(imgs, 0.5)
-    crop_imgs = tf.image.resize_images(crop_imgs, [128,128])
-
-    # images for loss
     comp_imgs = tf.image.central_crop(imgs, 0.25)
-    comp_imgs = tf.image.resize_images(comp_imgs, [64,64])
-   
-    encoded_imgs = encoder(imgs)
+    encoded_imgs = encoder(crop_imgs)
     decoded_imgs = decoder(encoded_imgs)
     #decoded_imgs = 
 
@@ -537,7 +531,7 @@ if __name__ == '__main__':
   imgs, oimgs  = train_iterator.get_next()
 
   # get model
-  encoder, decoder = model_fn(shape=(128,128,6),nblocks=FLAGS.nblocks)
+  encoder, decoder = model_fn(shape=(32,32,6),nblocks=FLAGS.nblocks)
   print("\n {} \n".format(encoder.summary()), flush=True)
   print("\n {} \n".format(decoder.summary()), flush=True)
 
@@ -665,10 +659,10 @@ if __name__ == '__main__':
     # Training
     #====================================================================
     stime = time.time()
-    #for epoch in range(FLAGS.num_epoch):
-    for epoch in range(0,1,1):
-      #for iteration in range(num_batches):
-      for iteration in range(0,101,1):
+    for epoch in range(FLAGS.num_epoch):
+    #for epoch in range(0,1,1):
+      for iteration in range(num_batches):
+      #for iteration in range(0,11,1):
         gs,_, tf.summary = sess.run([global_step,train_ops, merged])
 
         if iteration % 10 == 0:
@@ -722,8 +716,7 @@ if __name__ == '__main__':
     # + Visualization
     #=======================
     with tf.device("/CPU"):
-      crop_imgs = tf.image.central_crop(imgs, 0.5)
-      crop_imgs = tf.image.resize_images(crop_imgs, [128,128])
+      crop_imgs = tf.image.central_crop(imgs, 0.25)
       results, test_images, rtest_images = sess.run(
         [decoder(encoder(crop_imgs)), oimgs, crop_imgs]
       )
@@ -732,8 +725,8 @@ if __name__ == '__main__':
       f,a=plt.subplots(3,num_test_images,figsize=(2*num_test_images,6))
       for idx, i in enumerate(range(num_test_images)):
         a[0][idx].imshow(np.reshape(test_images[i],(FLAGS.height,FLAGS.width, 6))[:,:,0], cmap='jet')
-        a[1][idx].imshow(np.reshape(rtest_images[i],(FLAGS.height,FLAGS.width, 6))[:,:,0], cmap='jet')
-        a[2][idx].imshow(np.reshape(results[i],(FLAGS.height,FLAGS.width,6))[:,:,0], cmap='jet')
+        a[1][idx].imshow(np.reshape(rtest_images[i],(int(FLAGS.height/4),int(FLAGS.width/4), 6))[:,:,0], cmap='jet')
+        a[2][idx].imshow(np.reshape(results[i],(int(FLAGS.height/4),int(FLAGS.width/4),6))[:,:,0], cmap='jet')
         # set axis turn off
         a[0][idx].set_xticklabels([])
         a[0][idx].set_yticklabels([])
