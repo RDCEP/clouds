@@ -202,7 +202,7 @@ def model_fn(shape=(128,128,6), nblocks=5, base_dim=3) :
       else:
         x = convSeries_fn(x,filters=filters, kernel_size=kernel_size, up=True, pooling=False)
     
-    x = Conv2D(filters=1, kernel_size=3, padding='same', kernel_initializer='he_normal')(x)
+    x = Conv2D(filters=6, kernel_size=3, padding='same', kernel_initializer='he_normal')(x)
     decoder = Model(inp, x, name='decoder')
              
     return encoder, decoder
@@ -271,6 +271,8 @@ def loss_rotate_fn(imgs,
     loss_rotate_list = []
 
     # ++ developing version for speed up
+    imgs = tf.image.central_crop(imgs, 0.5)
+    imgs = tf.image.resize(imgs, [128,128])
     encoded_imgs = encoder(imgs)
     for idx in range(int(batch_size/copy_size)):
       _imgs = encoded_imgs[copy_size*idx:copy_size*(idx+1)]
@@ -279,32 +281,11 @@ def loss_rotate_fn(imgs,
       # sum up loss for each image class
       for i,j in itertools.product(range(copy_size), range(copy_size)):
         if i != j:
-          #loss_rotate += tf.reduce_sum(tf.square( _imgs[i] - _imgs[j]))
           loss_rotate += tf.reduce_mean(tf.square( _imgs[i] - _imgs[j]))
-          #_loss_rotate_list.append(tf.square( _imgs[i] - _imgs[j]))
-      #loss_rotate_list.append(tf.reduce_sum(tf.stack(_loss_rotate_list, axis=0)))
       loss_rotate_list.append(loss_rotate)
 
     # loss
-    # multiply before reduce_mean
-    #loss_rotate_tf = tf.multiply(
-    #                      tf.constant(c_lambda ,dtype=tf.float32), 
-    #                      tf.stack(loss_rotate_list, axis=0)
-    #)
     loss_rotate_tf = tf.stack(loss_rotate_list, axis=0)
-
-    # ++ previous version for speed up
-    #for idx in range(int(batch_size/copy_size)):
-    #  _imgs = encoded_imgs[copy_size*idx:copy_size*(idx+1)]
-    #  _loss_rotate_list = []
-    #  for (i,j) in itertools.combinations([i for i in range(copy_size)],2):
-    #    _loss_rotate_list.append(
-    #      tf.reduce_mean( tf.square( _imgs[i] - _imgs[j]) )
-    #    )
-    #  loss_rotate_list.append(tf.reduce_max(tf.stack(_loss_rotate_list, axis=0)))
-    #loss_rotate = tf.reduce_mean(tf.stack(loss_rotate_list, axis=0))
-    #loss_rotate = tf.reduce_max(tf.stack(loss_rotate_list, axis=0))
-
 
     etime = datetime.now()
     print(" Loss Rotate {} s".format(etime - stime))
@@ -322,19 +303,26 @@ def loss_reconst_fn(imgs,
     stime = datetime.now()
     loss_reconst_list = []
     angle_list = [i*math.pi/180 for i in range(0,360,dangle)]
-     
+  
+    # crop images
+    crop_imgs = tf.image.central_crop(imgs, 0.5)
+    crop_imgs = tf.image.resize(crop_imgs, [128,128])
+
+    # images for loss
+    comp_imgs = tf.image.central_crop(imgs, 0.25)
+    comp_imgs = tf.image.resize(comp_imgs, [64,64])
+   
     encoded_imgs = encoder(imgs)
     decoded_imgs = decoder(encoded_imgs)
+    #decoded_imgs = 
 
     #TODO: Add here to check each image has different theta value
     for angle in angle_list:
       rimgs = rotate_operation(decoded_imgs,angle=angle) # R_theta(x_hat)
+      rimgs = tf.image.central_crop(rimgs, 0.5)
       loss_reconst_list.append(
-          tf.reduce_mean(tf.square(imgs - rimgs), axis=[1,2,3])
+          tf.reduce_mean(tf.square(comp_imgs - rimgs), axis=[1,2,3])
       ) # take mean for each image
-      #    tf.reduce_mean(tf.square(imgs - rimgs), axis=[1,2,3])
-      # take sum
-      #    tf.reduce_sum(tf.square(imgs - rimgs))
     # save optimal theta
     loss_reconst_thetas = tf.math.argmin(tf.stack(loss_reconst_list, axis=0),axis=0)
 
@@ -456,6 +444,39 @@ def input_clouds_fn(filelist, gmean, gstdv, batch_size=32, copy_size=4, prefetch
     dataset = dataset.shuffle(1000).repeat().batch(int(batch_size)).prefetch(prefetch)
     return dataset
 
+def load_latest_model_weights(model, model_dir, name):
+    """
+      INPUT:
+        model: encoder or decoder
+        model_dir: model directory 
+        name: model name.
+
+      OUTPUT:
+        step: global step 
+    """
+    #TODO add restart model dir and restart argument?
+    latest = 0, None
+    # get trained wegiht 
+    for m in os.listdir(model_dir):
+        if ".h5" in m and name in m:
+            step = int(m.split("-")[1].replace(".h5", ""))
+            latest = max(latest, (step, m))
+
+    step, model_file = latest
+
+    if not os.listdir(model_dir):
+        raise NameError("no directory. check model path again")
+
+    if model_file:
+        model_file = os.path.join(model_dir, model_file)
+        model.load_weights(model_file)
+        print(" ... loaded weights for %s from %s", name, model_file)
+
+    else:
+        print("no weights for %s in %s", name, model_dir)
+
+    return step
+
 if __name__ == '__main__':
   # time for data preparation
   prep_stime = time.time()
@@ -517,8 +538,8 @@ if __name__ == '__main__':
 
   # get model
   encoder, decoder = model_fn(shape=(128,128,6),nblocks=FLAGS.nblocks)
-  #print("\n {} \n".format(encoder.summary()), flush=True)
-  #print("\n {} \n".format(decoder.summary()), flush=True)
+  print("\n {} \n".format(encoder.summary()), flush=True)
+  print("\n {} \n".format(decoder.summary()), flush=True)
 
   # loss + optimizer
   # compute loss and train_ops
@@ -627,7 +648,8 @@ if __name__ == '__main__':
     deg_reconst_list = []
     #deg_rotate_list = []
 
-    #restart_modeldir = os.path.abspath('./output_model/62628601') 
+    # restart
+    #restart_modeldir = os.path.abspath('./output_model/62931913') 
     #for m in save_models:
     #  gs = load_latest_model_weights(save_models[m],restart_modeldir,m)
     #  if gs is not None:
@@ -707,9 +729,9 @@ if __name__ == '__main__':
       #Comparing original images with reconstructions
       f,a=plt.subplots(3,num_test_images,figsize=(2*num_test_images,6))
       for idx, i in enumerate(range(num_test_images)):
-        a[0][idx].imshow(np.reshape(test_images[i],(FLAGS.height,FLAGS.width,6))[:,:,0], cmap='jet')
-        a[1][idx].imshow(np.reshape(rtest_images[i],(FLAGS.height,FLAGS.width,6))[:,:,0], cmap='jet')
-        a[2][idx].imshow(np.reshape(results[i],(FLAGS.height,FLAGS.width,6))[:,:,0], cmap='jet')
+        a[0][idx].imshow(np.reshape(test_images[i],(FLAGS.height,FLAGS.width, 6))[:,:,0], cmap='jet')
+        a[1][idx].imshow(np.reshape(rtest_images[i],(int(FLAGS.height/2),int(FLAGS.width/2), 6))[:,:,0], cmap='jet')
+        a[2][idx].imshow(np.reshape(results[i],(int(FLAGS.height/2),int(FLAGS.width, 6)/2))[:,:,0], cmap='jet')
         # set axis turn off
         a[0][idx].set_xticklabels([])
         a[0][idx].set_yticklabels([])
@@ -719,14 +741,14 @@ if __name__ == '__main__':
         a[2][idx].set_yticklabels([])
       plt.savefig(FLAGS.figdir+'/'+figname+'.png')
 
-      ## Full
-      # loss
-      with open(os.path.join(FLAGS.logdir, ofilename), 'w') as f:
-        for re, ro in zip(loss_reconst_list, loss_rotate_list):
-          f.write(str(re)+','+str(ro)+'\n')
-      # degree
-      with open(os.path.join(FLAGS.logdir, dfilename), 'w') as f:
-        f.write("\n".join(" ".join(map(str,x)) for x in (deg_reconst_list, deg_reconst_list)))
+    ## Full
+    # loss
+    with open(os.path.join(FLAGS.logdir, ofilename), 'w') as f:
+      for re, ro in zip(loss_reconst_list, loss_rotate_list):
+        f.write(str(re)+','+str(ro)+'\n')
+    # degree
+    with open(os.path.join(FLAGS.logdir, dfilename), 'w') as f:
+      f.write("\n".join(" ".join(map(str,x)) for x in (deg_reconst_list, deg_reconst_list)))
 
 
   print("### DEBUG NORMAL END ###")
