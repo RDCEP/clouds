@@ -272,6 +272,8 @@ def loss_rotate_fn(imgs,
 
     # ++ developing version for speed up
     imgs = tf.image.central_crop(imgs, 0.25)
+    imgs = resize_image_fn(imgs, height=64, width=64)
+
     encoded_imgs = encoder(imgs)
     for idx in range(int(batch_size/copy_size)):
       _imgs = encoded_imgs[copy_size*idx:copy_size*(idx+1)]
@@ -313,9 +315,9 @@ def loss_reconst_fn(imgs,
     #TODO: Add here to check each image has different theta value
     for angle in angle_list:
       rimgs = rotate_operation(decoded_imgs,angle=angle) # R_theta(x_hat)
-      rimgs = tf.image.central_crop(rimgs, 0.5)
+      crop_rimgs = tf.image.central_crop(rimgs, 0.5)
       loss_reconst_list.append(
-          tf.reduce_mean(tf.square(comp_imgs - rimgs), axis=[1,2,3])
+          tf.reduce_mean(tf.square(comp_imgs - crop_rimgs), axis=[1,2,3])
       ) # take mean for each image
     # save optimal theta
     loss_reconst_thetas = tf.math.argmin(tf.stack(loss_reconst_list, axis=0),axis=0)
@@ -330,7 +332,7 @@ def loss_reconst_fn(imgs,
     #return loss_reconst_tf
 
     # debug version
-    return loss_reconst_tf, loss_reconst_thetas
+    return loss_reconst_tf, loss_reconst_thetas, comp_imgs, crop_rimgs
 
 
 def input_fn(data, batch_size=32, rotation=False, copy_size=4, height=32, width=32, prefetch=1):
@@ -543,7 +545,7 @@ if __name__ == '__main__':
                              c_lambda=FLAGS.c_lambda
   )
   
-  loss_reconst, theta_reconst  = loss_reconst_fn(imgs,
+  loss_reconst, theta_reconst , comp_imgs, rimgs = loss_reconst_fn(imgs,
                                   encoder, decoder, 
                                   batch_size=FLAGS.batch_size,
                                   copy_size=FLAGS.copy_size,
@@ -643,12 +645,11 @@ if __name__ == '__main__':
     #deg_rotate_list = []
 
     # restart
-    #restart_modeldir = os.path.abspath('./output_model/62931913') 
-    #for m in save_models:
-    #  gs = load_latest_model_weights(save_models[m],restart_modeldir,m)
-    #  if gs is not None:
-    #    sess.run(global_step.assign(gs))
-
+    restart_modeldir = os.path.abspath('./output_model/63006895') 
+    for m in save_models:
+      gs = load_latest_model_weights(save_models[m],restart_modeldir,m)
+      if gs is not None:
+        sess.run(global_step.assign(gs))
 
     # Trace and Profiling options
     summary_writer = tf.summary.FileWriter(os.path.join(FLAGS.output_modeldir, 'logs'), sess.graph) 
@@ -659,22 +660,21 @@ if __name__ == '__main__':
     # Training
     #====================================================================
     stime = time.time()
-    for epoch in range(FLAGS.num_epoch):
-    #for epoch in range(0,1,1):
-      for iteration in range(num_batches):
-      #for iteration in range(0,11,1):
+    #for epoch in range(FLAGS.num_epoch):
+    for epoch in range(0,1,1):
+      #for iteration in range(num_batches):
+      for iteration in range(0,11,1):
         gs,_, tf.summary = sess.run([global_step,train_ops, merged])
 
-        if iteration % 10 == 0:
-          _loss_reconst,_loss_rotate, _theta_reconst = sess.run(
-              [loss_reconst, loss_rotate, theta_reconst]
+        if iteration % 100 == 0:
+          _loss_reconst,_loss_rotate = sess.run(
+              [loss_reconst, loss_rotate ]
           )
           print(
-                 "iteration {:7} | loss reconst {:10}  loss rotate {:10} | Theta 1st term {}".format(
+                 "iteration {:7} | loss reconst {:10}  loss rotate {:10} ".format(
               iteration,   
               np.mean(_loss_reconst), 
               FLAGS.c_lambda*np.mean(_loss_rotate), 
-             _theta_reconst
             ), flush=True
           )
           # Save loss to lsit
@@ -683,7 +683,7 @@ if __name__ == '__main__':
           loss_reconst_list.append(np.mean(_loss_reconst))
           loss_rotate_list.append(FLAGS.c_lambda*np.mean(_loss_rotate))
           #loss_rotate_list.append(np.mean(_loss_rotate))
-          deg_reconst_list.append(_loss_reconst)
+          #deg_reconst_list.append(_loss_reconst)
 
         #if iteration % 2000 == 0:
         #  for m in save_models:
@@ -716,25 +716,24 @@ if __name__ == '__main__':
     # + Visualization
     #=======================
     with tf.device("/CPU"):
-      crop_imgs = tf.image.central_crop(imgs, 0.25)
-      results, test_images, rtest_images = sess.run(
-        [decoder(encoder(crop_imgs)), oimgs, crop_imgs]
+      crop_imgs = tf.image.central_crop(imgs, 0.5)
+      results, test_images, rtest_images, comp_imgs_np, rimgs_np = sess.run(
+        [decoder(encoder(crop_imgs)), oimgs, imgs, comp_imgs, rimgs]
       )
 
       #Comparing original images with reconstructions
       f,a=plt.subplots(3,num_test_images,figsize=(2*num_test_images,6))
       for idx, i in enumerate(range(num_test_images)):
-        a[0][idx].imshow(np.reshape(test_images[i],(FLAGS.height,FLAGS.width, 6))[:,:,0], cmap='jet')
-        a[1][idx].imshow(np.reshape(rtest_images[i],(int(FLAGS.height/4),int(FLAGS.width/4), 6))[:,:,0], cmap='jet')
-        a[2][idx].imshow(np.reshape(results[i],(int(FLAGS.height/4),int(FLAGS.width/4),6))[:,:,0], cmap='jet')
+        a[0][idx].imshow(np.reshape(test_images[i],(flags.height,flags.width, 6))[:,:,0], cmap='jet')
+        a[1][idx].imshow(np.reshape(rtest_images[i],(int(FLAGS.height/2),int(FLAGS.width/2), 6))[:,:,0], cmap='jet')
+        a[2][idx].imshow(np.reshape(results[i],(int(FLAGS.height/2),int(FLAGS.width/2),6))[:,:,0], cmap='jet')
+        #a[3][idx].imshow(np.reshape(comp_imgs_np[i],(int(FLAGS.height/4),int(FLAGS.width/4),6))[:,:,0], cmap='jet')
+        #a[4][idx].imshow(np.reshape(rimgs_np[i],(int(FLAGS.height/4),int(FLAGS.width/4),6))[:,:,0], cmap='jet')
         # set axis turn off
-        a[0][idx].set_xticklabels([])
-        a[0][idx].set_yticklabels([])
-        a[1][idx].set_xticklabels([])
-        a[1][idx].set_yticklabels([])
-        a[2][idx].set_xticklabels([])
-        a[2][idx].set_yticklabels([])
-      plt.savefig(FLAGS.figdir+'/'+figname+'.png')
+        for j in range(3):
+          a[j][idx].set_xticklabels([])
+          a[j][idx].set_yticklabels([])
+      #plt.savefig(FLAGS.figdir+'/'+figname+'.png')
 
     ## Full
     # loss
@@ -742,8 +741,8 @@ if __name__ == '__main__':
       for re, ro in zip(loss_reconst_list, loss_rotate_list):
         f.write(str(re)+','+str(ro)+'\n')
     # degree
-    with open(os.path.join(FLAGS.logdir, dfilename), 'w') as f:
-      f.write("\n".join(" ".join(map(str,x)) for x in (deg_reconst_list, deg_reconst_list)))
+    #with open(os.path.join(FLAGS.logdir, dfilename), 'w') as f:
+    #  f.write("\n".join(" ".join(map(str,x)) for x in (deg_reconst_list, deg_reconst_list)))
 
 
   print("### DEBUG NORMAL END ###")
