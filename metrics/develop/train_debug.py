@@ -135,7 +135,7 @@ def get_args():
   return args
   
 
-def model_fn(shape=(32,32,6), nblocks=5, base_dim=3) :
+def model_fn(shape=(64,64,6), nblocks=5, base_dim=3) :
     """
       Reference: https://blog.keras.io/building-autoencoders-in-keras.html
     """
@@ -271,10 +271,10 @@ def loss_rotate_fn(imgs,
     loss_rotate_list = []
 
     # ++ developing version for speed up
-    imgs = tf.image.central_crop(imgs, 0.25)
-    imgs = resize_image_fn(imgs, height=64, width=64)
+    crop_imgs = tf.image.central_crop(imgs, 0.25)
+    resize_imgs = resize_image_fn(crop_imgs, height=64, width=64)
 
-    encoded_imgs = encoder(imgs)
+    encoded_imgs = encoder(resize_imgs)
     for idx in range(int(batch_size/copy_size)):
       _imgs = encoded_imgs[copy_size*idx:copy_size*(idx+1)]
       #_loss_rotate_list = []
@@ -332,7 +332,8 @@ def loss_reconst_fn(imgs,
     #return loss_reconst_tf
 
     # debug version
-    return loss_reconst_tf, loss_reconst_thetas, comp_imgs, crop_rimgs
+    #return loss_reconst_tf, loss_reconst_thetas, comp_imgs, crop_rimgs
+    return loss_reconst_tf, loss_reconst_thetas 
 
 
 def input_fn(data, batch_size=32, rotation=False, copy_size=4, height=32, width=32, prefetch=1):
@@ -533,7 +534,8 @@ if __name__ == '__main__':
   imgs, oimgs  = train_iterator.get_next()
 
   # get model
-  encoder, decoder = model_fn(shape=(32,32,6),nblocks=FLAGS.nblocks)
+  #FIXME here change parameter from ad-hoc to FLAGS
+  encoder, decoder = model_fn(shape=(64,64,6),nblocks=FLAGS.nblocks)
   print("\n {} \n".format(encoder.summary()), flush=True)
   print("\n {} \n".format(decoder.summary()), flush=True)
 
@@ -545,15 +547,14 @@ if __name__ == '__main__':
                              c_lambda=FLAGS.c_lambda
   )
   
-  loss_reconst, theta_reconst , comp_imgs, rimgs = loss_reconst_fn(imgs,
+  #loss_reconst, theta_reconst , comp_imgs, rimgs = loss_reconst_fn(imgs,
+  loss_reconst, theta_reconst = loss_reconst_fn(imgs,
                                   encoder, decoder, 
                                   batch_size=FLAGS.batch_size,
                                   copy_size=FLAGS.copy_size,
                                   dangle=FLAGS.dangle
   )
  
-  # debug 1st process
-  #loss = loss_L2_fn(imgs,encoder, decoder)
 
   # Apply optimization 
   # Full version
@@ -563,44 +564,12 @@ if __name__ == '__main__':
         tf.multiply(tf.constant(FLAGS.c_lambda, dtype=tf.float32),tf.reduce_mean(loss_rotate))
     )
   )
-  #      tf.reduce_mean(loss_rotate)
-
-  # L2 loss: Check Minibatch creation
-  #train_ops = tf.train.GradientDescentOptimizer(FLAGS.lr).minimize(loss)
- 
-
-  # Reconst-agn version
-  # 09/16
-  #train_ops = tf.train.GradientDescentOptimizer(FLAGS.lr).minimize(
-  #      tf.reduce_min(loss_reconst),
-  #)
-  # 09/17 method 2 take sum as exactly following the equation
-  # sum does not work well
-  #train_ops = tf.train.GradientDescentOptimizer(FLAGS.lr).minimize(
-  #      tf.reduce_sum(loss_reconst),
-  #)
-  # 09/17 method-1 take mean
-  #train_ops = tf.train.GradientDescentOptimizer(FLAGS.lr).minimize(
-  #      tf.reduce_mean(loss_reconst),
-  #)
-
-  # Bottleneck version
-  #train_ops = tf.train.GradientDescentOptimizer(FLAGS.lr).minimize(
-  #      tf.multiply( tf.constant(FLAGS.c_lambda, dtype=tf.float32), tf.reduce_mean(loss_rotate))
-  #)
-
-
   # observe loss values with tensorboard
   with tf.name_scope("summary"):
-    #tf.summary.scalar("L2 loss", loss )
-    ###tf.summary.scalar("reconst loss", tf.reduce_sum(loss_reconst) )
     tf.summary.scalar("reconst loss", tf.reduce_mean(loss_reconst) )
-    #tf.summary.scalar("rotate loss", tf.reduce_mean(loss_rotate) )
     tf.summary.scalar("rotate loss",  
         tf.multiply(tf.constant(FLAGS.c_lambda,dtype=tf.float32), tf.reduce_mean(loss_rotate))
     )
-    ###tf.summary.scalar("rotate loss", tf.reduce_sum(loss_rotate) )
-    #tf.summary.scalar("rotate loss", tf.reduce_max(loss_rotate) )
     merged = tf.summary.merge_all()
 
   # set-up save models
@@ -634,22 +603,20 @@ if __name__ == '__main__':
     sess.run(train_iterator.initializer)
 
     # initialize other variables
-    #num_batches=int(len(train_images)*FLAGS.copy_size)//FLAGS.batch_size
     num_batches=int(len(train_images_list)*FLAGS.copy_size*10000)//FLAGS.batch_size
     angle_list = [i for i in range(0,360, FLAGS.dangle)]
-    #angle_list = [i for i in range(0,180, FLAGS.dangle)]
     loss_l2_list = []
     loss_reconst_list = []
     loss_rotate_list = []
     deg_reconst_list = []
-    #deg_rotate_list = []
 
     # restart
-    restart_modeldir = os.path.abspath('./output_model/63006895') 
-    for m in save_models:
-      gs = load_latest_model_weights(save_models[m],restart_modeldir,m)
-      if gs is not None:
-        sess.run(global_step.assign(gs))
+    # TODO add FLAGS
+    #restart_modeldir = os.path.abspath('./output_model/63155023') 
+    #for m in save_models:
+    #  gs = load_latest_model_weights(save_models[m],restart_modeldir,m)
+    #  if gs is not None:
+    #    sess.run(global_step.assign(gs))
 
     # Trace and Profiling options
     summary_writer = tf.summary.FileWriter(os.path.join(FLAGS.output_modeldir, 'logs'), sess.graph) 
@@ -660,10 +627,10 @@ if __name__ == '__main__':
     # Training
     #====================================================================
     stime = time.time()
-    #for epoch in range(FLAGS.num_epoch):
-    for epoch in range(0,1,1):
-      #for iteration in range(num_batches):
-      for iteration in range(0,11,1):
+    for epoch in range(FLAGS.num_epoch):
+    #for epoch in range(0,1,1):
+      for iteration in range(num_batches):
+      #for iteration in range(0,11,1):
         gs,_, tf.summary = sess.run([global_step,train_ops, merged])
 
         if iteration % 100 == 0:
@@ -678,12 +645,8 @@ if __name__ == '__main__':
             ), flush=True
           )
           # Save loss to lsit
-          #loss_l2_list.append(_loss_l2)
-          #loss_reconst_list.append(np.sum(_loss_reconst))
           loss_reconst_list.append(np.mean(_loss_reconst))
           loss_rotate_list.append(FLAGS.c_lambda*np.mean(_loss_rotate))
-          #loss_rotate_list.append(np.mean(_loss_rotate))
-          #deg_reconst_list.append(_loss_reconst)
 
         #if iteration % 2000 == 0:
         #  for m in save_models:
@@ -717,14 +680,16 @@ if __name__ == '__main__':
     #=======================
     with tf.device("/CPU"):
       crop_imgs = tf.image.central_crop(imgs, 0.5)
-      results, test_images, rtest_images, comp_imgs_np, rimgs_np = sess.run(
-        [decoder(encoder(crop_imgs)), oimgs, imgs, comp_imgs, rimgs]
+      #results, test_images, rtest_images, comp_imgs_np, rimgs_np = sess.run(
+     #   [decoder(encoder(crop_imgs)), oimgs, imgs, comp_imgs, rimgs]
+      results, test_images, rtest_images = sess.run(
+        [decoder(encoder(crop_imgs)), oimgs, crop_imgs]
       )
 
       #Comparing original images with reconstructions
       f,a=plt.subplots(3,num_test_images,figsize=(2*num_test_images,6))
       for idx, i in enumerate(range(num_test_images)):
-        a[0][idx].imshow(np.reshape(test_images[i],(flags.height,flags.width, 6))[:,:,0], cmap='jet')
+        a[0][idx].imshow(np.reshape(test_images[i],(FLAGS.height,FLAGS.width, 6))[:,:,0], cmap='jet')
         a[1][idx].imshow(np.reshape(rtest_images[i],(int(FLAGS.height/2),int(FLAGS.width/2), 6))[:,:,0], cmap='jet')
         a[2][idx].imshow(np.reshape(results[i],(int(FLAGS.height/2),int(FLAGS.width/2),6))[:,:,0], cmap='jet')
         #a[3][idx].imshow(np.reshape(comp_imgs_np[i],(int(FLAGS.height/4),int(FLAGS.width/4),6))[:,:,0], cmap='jet')
@@ -733,7 +698,7 @@ if __name__ == '__main__':
         for j in range(3):
           a[j][idx].set_xticklabels([])
           a[j][idx].set_yticklabels([])
-      #plt.savefig(FLAGS.figdir+'/'+figname+'.png')
+      plt.savefig(FLAGS.figdir+'/'+figname+'.png')
 
     ## Full
     # loss
