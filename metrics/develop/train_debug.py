@@ -19,7 +19,6 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 from datetime import datetime
-from sklearn.metrics import accuracy_score
 from tensorflow.python.keras.layers import *
 from tensorflow.python.keras.models import Model, Sequential
 from tensorflow.python.client import timeline
@@ -158,8 +157,12 @@ def model_fn(shape=(64,64,6), nblocks=5, base_dim=3) :
                      kernel_initializer='he_normal')(x)
         else:
           if idx == nstack_layer-1:
+            ## Replace conv2dTranspose with upsampling
             x = Conv2DTranspose(filters=filters, kernel_size=kernel_size, 
                                 strides=(stride,stride), padding='same')(x)
+            
+            ## upsampling 2D 10/17
+            #x = UpSampling2D(size=(2,2))(x)
           else:
             x = Conv2D(filters=filters, kernel_size=kernel_size, padding='same',
                      kernel_initializer='he_normal')(x)
