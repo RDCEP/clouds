@@ -283,9 +283,23 @@ def gen_patches(swaths, stride=64, patch_size=128, rpatch_size=128, channels=6,
 
         for i, j in coords:
           patch = copy.deepcopy(swath[i:i + patch_size, j:j + patch_size])
+          # Common standardization
+          #if normalization:
+          #  patch -= global_mean
+          #  patch /= global_stdv
+          # Assume band 6,7,20 are log-normal dist but 28,29 30 are normal-dist
           if normalization:
-            patch -= global_mean
-            patch /= global_stdv
+            if comm.Get_rank() == 0:
+              print(" ## Apply log transformation for band 6,7,20## ") 
+
+  
+            for ichannel in range(channels):
+              if ichannel >= 3:
+                patch[:,:,:,ichannel] = patch[:,:,:,ichannel] - global_mean[ichannel]
+                patch[:,:,:,ichannel] = patch[:,:,:,ichannel]/global_stdv[ichannel]
+              else:
+                patch[:,:,:,ichannel] = np.log10(patch[:,:,:,ichannel]+1.0e-10)
+                
         
           if not np.isnan(patch).any():
           #TODO: Add lines below to compare MOD35
