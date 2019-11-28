@@ -21,15 +21,31 @@ which python
 cwd=`pwd`
 
 ##### setting I
-scale_patch_size=18  # unit[K-patches] ==>  1,000 patches
+#scale_patch_size=135  # unit[K-patches] ==>  1,000 patches
+scale_patch_size=100  # unit[K-patches] ==>  1,000 patches
 # e.g. current maximum is about 1,500. 1,700 will be OOM error
-n_cluster=12
+#n_cluster=12
+#n_cluster=10
+#n_cluster=8
+#n_cluster=7
+n_cluster=14
 
 ##### settnig II
 bands="28_29_31"
-inputdir=${cwd}/outputs/output_clouds_feature_20151116-20151215
-outputdir=${cwd}/output_clustering_2000_2018_m02_band${bands}/sklearn_agglomerative/${scale_patch_size}k
-model_name='m02_b'${bands}
+# + no norm
+#inputdir=${cwd}/outputs/output_clouds_feature_20151116-20151215
+#outputdir=${cwd}/output_clustering_2000_2018_m02_band${bands}/sklearn_agglomerative/${scale_patch_size}k
+#model_name='m02_b'${bands}
+
+# + normed
+inputdir=${cwd}/outputs_normed/output_clouds_feature_2010-2012-2015-JJA
+outputdir=${cwd}/output_clustering_2000_2018_m02_band${bands}_normed/sklearn_agglomerative/${scale_patch_size}k
+model_name='m02_norm_b'${bands}
+
+# + rotate-invariant
+#inputdir=${cwd}/outputs_rotate-invariant/output_clouds_feature_20151116-20151215
+#outputdir=${cwd}/output_clustering_2000_2018_rt0_band${bands}/sklearn_agglomerative/${scale_patch_size}k
+#model_name='rt0_b'${bands}
 
 python prg_sklearn_m02_agglomerative.py \
        --scale_patch_size=${scale_patch_size}  \

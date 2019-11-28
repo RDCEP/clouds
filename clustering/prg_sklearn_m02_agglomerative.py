@@ -107,10 +107,11 @@ for ifile in filelist:
 
 # open filenamelist to save   
 nn = npatches + _npatches
+clusters=args.n_cluster
 os.makedirs(outputdir, exist_ok=True)
-with open(outputdir+"/filelist_metadata_aggl_random-"+str(nn)+".txt", 'w') as ofile:
-#with open("filelist_metadata_"+str(nn)+".txt", 'w') as ofile:
-    ofile.writelines(used_filelist)
+with open(outputdir+"/filelist_metadata_aggl_random-np"+str(nn)+"-nc"+str(clusters)+".txt", 'w') as ofile:
+    ofile.write("\n".join(used_filelist))
+    #ofile.writelines(used_filelist)
 
 data = np.concatenate(array, axis=0) # Shape of data [#patches, #bottleneck-layer]
 print("   Data Shape [#patches, #Dim.]  :",  data.shape)
@@ -120,7 +121,6 @@ print("   Data Shape [#patches, #Dim.]  :",  data.shape)
 # train clustering stage: bisecting-kmeans (top-down hierarchical clustering)
 # web example: https://spark.apache.org/docs/latest/ml-clustering.html#bisecting-k-means
 #
-clusters=args.n_cluster
 # set method
 method = AgglomerativeClustering(n_clusters=clusters)
 
