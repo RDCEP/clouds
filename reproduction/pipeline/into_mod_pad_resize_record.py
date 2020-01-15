@@ -290,15 +290,17 @@ def gen_patches(swaths, stride=64, patch_size=128, rpatch_size=128, channels=6,
           # Assume band 6,7,20 are log-normal dist but 28,29 30 are normal-dist
           if normalization:
             if comm.Get_rank() == 0:
-              print(" ## Apply log transformation for band 6,7,20## ") 
+              #print(" ## Apply log transformation for band 6,7,20## ") 
+              print(" ## Apply log transformation for band 6,7,20,26## ") 
 
-  
+            #TODO automate logtransformation
             for ichannel in range(channels):
-              if ichannel >= 3:
-                patch[:,:,:,ichannel] = patch[:,:,:,ichannel] - global_mean[ichannel]
-                patch[:,:,:,ichannel] = patch[:,:,:,ichannel]/global_stdv[ichannel]
+              if ichannel >= 4:
+              #if ichannel >= 3: 6 channels
+                patch[:,:,ichannel] = patch[:,:,ichannel] - global_mean[ichannel]
+                patch[:,:,ichannel] = patch[:,:,ichannel]/global_stdv[ichannel]
               else:
-                patch[:,:,:,ichannel] = np.log10(patch[:,:,:,ichannel]+1.0e-10)
+                patch[:,:,ichannel] = np.log10(patch[:,:,ichannel]+1.0e-10)
                 
         
           if not np.isnan(patch).any():
@@ -358,7 +360,8 @@ def write_patches(patches, out_dir, patches_per_record):
     rank = MPI.COMM_WORLD.Get_rank()
     for i, patch in enumerate(patches):
         if i % patches_per_record == 0:
-            rec = "{}-{}_normed.tfrecord".format(rank, i // patches_per_record)
+            #rec = "{}-{}_normed.tfrecord".format(rank, i // patches_per_record)
+            rec = "{}-{}_normed_logtf.tfrecord".format(rank, i // patches_per_record)
             #rec = "{}-{}.tfrecord".format(rank, i // patches_per_record)
             print("Writing to", rec, flush=True)
             f = tf.python_io.TFRecordWriter(os.path.join(out_dir, rec))
