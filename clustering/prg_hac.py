@@ -273,47 +273,9 @@ if __name__ == "__main__":
     # define a model selected from metrics
     clf = clf_dict[FLAGS.clf_key]
       
-    # label
-    #olabel, oclustering = compute_hac(encoder,clf, patches)
+    ###  label
+    olabel, oclustering = compute_hac(encoder,clf, patches)
     ### save 
-    #outputdir = os.path.join(
-    #    FLAGS.output_basedir, 
-    #    '{}/nclusters-{}/{}'.format(str(FLAGS.expname),str(FLAGS.nclusters), FLAGS.clf_key ))
-    #os.makedirs(outputdir, exist_ok=True)
-    ## original models: dump to pickle
-    #with open(os.path.join(outputdir, f'original-hac_{FLAGS.cexpname}.pkl'), 'wb') as f:
-    #    pickle.dump(oclustering, f )
-    #print("NORMAL END : CLUSTERING")
-
-
-    #label = []
-    #for ilabel in olabel:
-    #  tmp = [ ilabel for j in range(FLAGS.copy_size)]
-    #  label.extend(tmp)
-    #label = np.asarray(label)
-
-    """ Make original label"""
-    # copy patches
-    #rpatches = copy_rot_fn(patches, 
-    #              height=FLAGS.height, width=FLAGS.width, ch=FLAGS.channel, copy_size=FLAGS.copy_size)
-    plist = []
-    n = patches.shape[0] // FLAGS.alpha
-    for  i in range(n):
-      plist.append(
-        copy_rot_fn(patches[i*FLAGS.alpha:(i+1)*FLAGS.alpha], 
-                    height=FLAGS.height, width=FLAGS.width, ch=FLAGS.channel, copy_size=FLAGS.copy_size)
-      )
-    if patches.shape[0] - n *FLAGS.alpha > 0:
-      plist.append(copy_rot_fn(patches[n*FLAGS.alpha:], 
-                    height=FLAGS.height, width=FLAGS.width, ch=FLAGS.channel, copy_size=FLAGS.copy_size)
-      )
-    rpatches = np.concatenate(plist, axis=0)
-    del plist, patches
-    gc.collect()
-
-    # compute model 
-    label, oclustering = compute_hac(encoder, clf, rpatches)
-    # SAVE
     outputdir = os.path.join(
         FLAGS.output_basedir, 
         '{}/nclusters-{}/{}'.format(str(FLAGS.expname),str(FLAGS.nclusters), FLAGS.clf_key ))
@@ -324,31 +286,116 @@ if __name__ == "__main__":
     print("NORMAL END : CLUSTERING")
 
 
-    """ Rotated used-patches label (no copy process)"""
-    n = rpatches.shape[0] // FLAGS.alpha
-    for idx, i in enumerate(range(n)):
-      radians = [j*math.pi/180 for j in np.random.randint(0,359,FLAGS.alpha) ]
-      if idx == 0:
-        r2patches = rotate_fn(rpatches[i*FLAGS.alpha:(i+1)*FLAGS.alpha], angles=radians) 
-        r2patches_np = tf.keras.backend.eval(r2patches)
-      else:
-        tmp = rotate_fn(rpatches[i*FLAGS.alpha:(i+1)*FLAGS.alpha], angles=radians) 
-        tmp_np = tf.keras.backend.eval(r2patches)
-        r2patches_np = np.concatenate([r2patches_np, tmp_np], axis=0)
+    ## index selection
+    sindex_list = []
+    for cluster in range(FLAGS.nclusters):
+      # first approach: extract first index
+      sindex_list.append(np.where(olabel == cluster)[0][0])
+      # second approach: extract data at random 
+      #
+      # TODO
+    sindex = np.asarray(sindex_list)
+    np.save(os.path.join(outputdir, 'sindex'), sindex )
 
-    if rpatches.shape[0] - n *FLAGS.alpha > 0:
-        leftover = rpatches.shape[0] - n *FLAGS.alpha 
-        radians = [j*math.pi/180 for j in np.random.randint(0,359,int(leftover)) ]
-        tmp = rotate_fn(rpatches[i*FLAGS.alpha:(i+1)*FLAGS.alpha], angles=radians) 
-        tmp_np = tf.keras.backend.eval(r2patches)
-        r2patches_np = np.concatenate([r2patches_np, tmp_np], axis=0)
+    ## label creation /large_hac3
+    label = []
+    for ilabel in range(FLAGS.nclusters):
+      tmp = [ ilabel for j in range(FLAGS.copy_size)]
+      label.extend(tmp)
+    label = np.asarray(label)
 
-    del rpatches, r2patches
+    ## label creation /large_hac1
+    #label = []
+    #for ilabel in olabel:
+    #  tmp = [ ilabel for j in range(FLAGS.copy_size)]
+    #  label.extend(tmp)
+    #label = np.asarray(label)
+
+    #### code for /large_hac3
+    """ Make original label"""
+    ## copy patches
+    plist = []
+    spatches = patches[sindex]
+    n = spatches.shape[0] // FLAGS.alpha
+    for  i in range(n):
+      plist.append(
+        copy_rot_fn(spatches[i*FLAGS.alpha:(i+1)*FLAGS.alpha], 
+                    height=FLAGS.height, width=FLAGS.width, ch=FLAGS.channel, copy_size=FLAGS.copy_size)
+      )
+    if spatches.shape[0] - n *FLAGS.alpha > 0:
+      plist.append(copy_rot_fn(spatches[n*FLAGS.alpha:], 
+                    height=FLAGS.height, width=FLAGS.width, ch=FLAGS.channel, copy_size=FLAGS.copy_size)
+      )
+    if len(plist) > 1:
+      rpatches = np.concatenate(plist, axis=0)
+    else:
+      rpatches = plist[0]
+    del plist, patches, spatches
     gc.collect()
 
+    #### code for /large_hac2
+    #
+    #""" Make original label"""
+    ## copy patches
+    ##rpatches = copy_rot_fn(patches, 
+    ##              height=FLAGS.height, width=FLAGS.width, ch=FLAGS.channel, copy_size=FLAGS.copy_size)
+    #plist = []
+    #n = patches.shape[0] // FLAGS.alpha
+    #for  i in range(n):
+    #  plist.append(
+    #    copy_rot_fn(patches[i*FLAGS.alpha:(i+1)*FLAGS.alpha], 
+    #                height=FLAGS.height, width=FLAGS.width, ch=FLAGS.channel, copy_size=FLAGS.copy_size)
+    #  )
+    #if patches.shape[0] - n *FLAGS.alpha > 0:
+    #  plist.append(copy_rot_fn(patches[n*FLAGS.alpha:], 
+    #                height=FLAGS.height, width=FLAGS.width, ch=FLAGS.channel, copy_size=FLAGS.copy_size)
+    #  )
+    #rpatches = np.concatenate(plist, axis=0)
+    #del plist, patches
+    #gc.collect()
+
     # compute model 
-    clabels, rclustering = compute_hac(encoder, clf, r2patches_np)
-    del r2patches_np
+    #label, oclustering = compute_hac(encoder, clf, rpatches)
+    # SAVE
+    #outputdir = os.path.join(
+    #    FLAGS.output_basedir, 
+    #    '{}/nclusters-{}/{}'.format(str(FLAGS.expname),str(FLAGS.nclusters), FLAGS.clf_key ))
+    #os.makedirs(outputdir, exist_ok=True)
+    ## original models: dump to pickle
+    #with open(os.path.join(outputdir, f'original-hac_{FLAGS.cexpname}.pkl'), 'wb') as f:
+    #    pickle.dump(oclustering, f )
+    #print("NORMAL END : CLUSTERING")
+
+
+    #""" Rotated used-patches label (no copy process)"""
+    #n = rpatches.shape[0] // FLAGS.alpha
+    #for idx, i in enumerate(range(n)):
+    #  radians = [j*math.pi/180 for j in np.random.randint(0,359,FLAGS.alpha) ]
+    #  if idx == 0:
+    #    r2patches = rotate_fn(rpatches[i*FLAGS.alpha:(i+1)*FLAGS.alpha], angles=radians) 
+    #    r2patches_np = tf.keras.backend.eval(r2patches)
+    #  else:
+    #    tmp = rotate_fn(rpatches[i*FLAGS.alpha:(i+1)*FLAGS.alpha], angles=radians) 
+    #    tmp_np = tf.keras.backend.eval(r2patches)
+    #    r2patches_np = np.concatenate([r2patches_np, tmp_np], axis=0)
+
+    #if rpatches.shape[0] - n *FLAGS.alpha > 0:
+    #    leftover = rpatches.shape[0] - n *FLAGS.alpha 
+    #    radians = [j*math.pi/180 for j in np.random.randint(0,359,int(leftover)) ]
+    #    tmp = rotate_fn(rpatches[i*FLAGS.alpha:(i+1)*FLAGS.alpha], angles=radians) 
+    #    tmp_np = tf.keras.backend.eval(r2patches)
+    #    r2patches_np = np.concatenate([r2patches_np, tmp_np], axis=0)
+    #del rpatches, r2patches
+    #gc.collect()
+    # compute model 
+    #clabels, rclustering = compute_hac(encoder, clf, r2patches_np)
+    #del r2patches_np
+    #gc.collect()
+
+
+    # compute model 
+    clabels, rclustering = compute_hac(encoder, clf, rpatches)
+    del rpatches
     gc.collect()
 
 
