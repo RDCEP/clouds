@@ -274,24 +274,25 @@ if __name__ == "__main__":
     clf = clf_dict[FLAGS.clf_key]
       
     # label
-    olabel, oclustering = compute_hac(encoder,clf, patches)
+    #olabel, oclustering = compute_hac(encoder,clf, patches)
     ### save 
-    outputdir = os.path.join(
-        FLAGS.output_basedir, 
-        '{}/nclusters-{}/{}'.format(str(FLAGS.expname),str(FLAGS.nclusters), FLAGS.clf_key ))
-    os.makedirs(outputdir, exist_ok=True)
-    # original models: dump to pickle
-    with open(os.path.join(outputdir, f'original-hac_{FLAGS.cexpname}.pkl'), 'wb') as f:
-        pickle.dump(oclustering, f )
-    print("NORMAL END : CLUSTERING")
+    #outputdir = os.path.join(
+    #    FLAGS.output_basedir, 
+    #    '{}/nclusters-{}/{}'.format(str(FLAGS.expname),str(FLAGS.nclusters), FLAGS.clf_key ))
+    #os.makedirs(outputdir, exist_ok=True)
+    ## original models: dump to pickle
+    #with open(os.path.join(outputdir, f'original-hac_{FLAGS.cexpname}.pkl'), 'wb') as f:
+    #    pickle.dump(oclustering, f )
+    #print("NORMAL END : CLUSTERING")
 
 
-    label = []
-    for ilabel in olabel:
-      tmp = [ ilabel for j in range(FLAGS.copy_size)]
-      label.extend(tmp)
-    label = np.asarray(label)
+    #label = []
+    #for ilabel in olabel:
+    #  tmp = [ ilabel for j in range(FLAGS.copy_size)]
+    #  label.extend(tmp)
+    #label = np.asarray(label)
 
+    """ Make original label"""
     # copy patches
     #rpatches = copy_rot_fn(patches, 
     #              height=FLAGS.height, width=FLAGS.width, ch=FLAGS.channel, copy_size=FLAGS.copy_size)
@@ -307,14 +308,49 @@ if __name__ == "__main__":
                     height=FLAGS.height, width=FLAGS.width, ch=FLAGS.channel, copy_size=FLAGS.copy_size)
       )
     rpatches = np.concatenate(plist, axis=0)
-    del plist
+    del plist, patches
     gc.collect()
 
     # compute model 
-    clabels, rclustering = compute_hac(encoder, clf, rpatches)
+    label, oclustering = compute_hac(encoder, clf, rpatches)
+    # SAVE
+    outputdir = os.path.join(
+        FLAGS.output_basedir, 
+        '{}/nclusters-{}/{}'.format(str(FLAGS.expname),str(FLAGS.nclusters), FLAGS.clf_key ))
+    os.makedirs(outputdir, exist_ok=True)
+    # original models: dump to pickle
+    with open(os.path.join(outputdir, f'original-hac_{FLAGS.cexpname}.pkl'), 'wb') as f:
+        pickle.dump(oclustering, f )
+    print("NORMAL END : CLUSTERING")
 
-    del rpatches
+
+    """ Rotated used-patches label (no copy process)"""
+    n = rpatches.shape[0] // FLAGS.alpha
+    for idx, i in enumerate(range(n)):
+      radians = [j*math.pi/180 for j in np.random.randint(0,359,FLAGS.alpha) ]
+      if idx == 0:
+        r2patches = rotate_fn(rpatches[i*FLAGS.alpha:(i+1)*FLAGS.alpha], angles=radians) 
+        r2patches_np = tf.keras.backend.eval(r2patches)
+      else:
+        tmp = rotate_fn(rpatches[i*FLAGS.alpha:(i+1)*FLAGS.alpha], angles=radians) 
+        tmp_np = tf.keras.backend.eval(r2patches)
+        r2patches_np = np.concatenate([r2patches_np, tmp_np], axis=0)
+
+    if rpatches.shape[0] - n *FLAGS.alpha > 0:
+        leftover = rpatches.shape[0] - n *FLAGS.alpha 
+        radians = [j*math.pi/180 for j in np.random.randint(0,359,int(leftover)) ]
+        tmp = rotate_fn(rpatches[i*FLAGS.alpha:(i+1)*FLAGS.alpha], angles=radians) 
+        tmp_np = tf.keras.backend.eval(r2patches)
+        r2patches_np = np.concatenate([r2patches_np, tmp_np], axis=0)
+
+    del rpatches, r2patches
     gc.collect()
+
+    # compute model 
+    clabels, rclustering = compute_hac(encoder, clf, r2patches_np)
+    del r2patches_np
+    gc.collect()
+
 
     # compute scores
     all_scores = {}
