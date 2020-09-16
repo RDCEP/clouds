@@ -234,7 +234,7 @@ def get_argument(verbose=True):
 if __name__ == "__main__":
 
     # FIXME set hardwritten param for less memory
-    npatches = 300
+    #npatches = 300
 
     # create argument parser
     FLAGS = get_argument(verbose=True)
@@ -243,12 +243,14 @@ if __name__ == "__main__":
     #patches = load_dataset(datadir=FLAGS.tf_datadir, filebasename='2-10*.tfrecord', 
 
     """ Modify here to leave out patches with less gradation """
-    _patches = load_dataset(datadir=FLAGS.tf_datadir, filebasename='2-10*.tfrecord', 
+    #_patches = load_dataset(datadir=FLAGS.tf_datadir, filebasename='2-10*.tfrecord', 
+    patches = load_dataset(datadir=FLAGS.tf_datadir, filebasename='3-0*.tfrecord', 
                 height=FLAGS.height, width=FLAGS.width,channel=FLAGS.channel)
 
     #patches = left_out_fn(_patches, min_std=0.08, max_mean=0.9, min_mean=0.1)
-    idx3  = np.load('./index_2-10_normed.npy') # index satsfying criteria
-    patches = np.squeeze(_patches[idx3])[:npatches]
+    #idx3  = np.load('./index_2-10_normed.npy') # index satsfying criteria
+    #patches = np.squeeze(_patches[idx3])[:npatches]
+    #patches = patches[:npatches]
   
 
     """ Original """
