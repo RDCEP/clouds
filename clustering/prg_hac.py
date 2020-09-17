@@ -15,6 +15,7 @@ import glob
 import pickle
 import random
 import argparse
+import itertools
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -314,62 +315,74 @@ if __name__ == "__main__":
     # define a model selected from metrics
     clf = clf_dict[FLAGS.clf_key]
 
-    ### large_hac6
-    
-    ### compute model 
-    #label, oclustering = compute_hac(encoder, clf, patches)
-    ### SAVE
-    #outputdir = os.path.join(
-    #    FLAGS.output_basedir, 
-    #    '{}/nclusters-{}/{}'.format(str(FLAGS.expname),str(FLAGS.nclusters), FLAGS.clf_key ))
-    #os.makedirs(outputdir, exist_ok=True)
-    ### original models: dump to pickle
-    #with open(os.path.join(outputdir, f'original-hac_{FLAGS.cexpname}.pkl'), 'wb') as f:
-    #    pickle.dump(oclustering, f )
-    #print("NORMAL END : CLUSTERING")
-    
-    #""" Process start"""
-    #thetas =  np.linspace(0,360,FLAGS.copy_size+1)[:-1] 
-    #all_scores = {}
-    #all_labels = {}
-    #for idx, theta in enumerate(range()):    
-    #  rpatches = rot_fn(patches,method='fix',theta=theta)
-    #  clabels, rclustering = compute_hac(encoder, clf, rpatches)
-    #  gc.collect()
-    #  
-    #  # return dict
-    #  scores = eval_fn(label, clabels, scoring=scoring)
-    #  all_scores[f'nclusters-{FLAGS.nclusters}_theta-{theta}'] = scores
-    #  all_labels[f'nclusters-{FLAGS.nclusters}_theta-{theta}'] = clabels
-    #
-    ## save config
-    #outputdir = os.path.join(
-    #    FLAGS.output_basedir, 
-    #    '{}/nclusters-{}/{}'.format(str(FLAGS.expname),str(FLAGS.nclusters), FLAGS.clf_key ))
-    #os.makedirs(outputdir, exist_ok=True)
-    #
-    ## scores: dump to pickle
-    #with open(os.path.join(outputdir, f'score-hac_{FLAGS.cexpname}.pkl'), 'wb') as f:
-    #    pickle.dump(all_scores, f )
-    #print("NORMAL END : SCORES")
-    #
-    ### replicate&rotate models: dump to pickle
-    #with open(os.path.join(outputdir, f'rotlabel-hac_{FLAGS.cexpname}.pkl'), 'wb') as f:
-    #    pickle.dump(all_labels, f )
-    #print("NORMAL END : RCLUSTERING")
-    
-      
-    ####  label
-    olabel, oclustering = compute_hac(encoder,clf, patches)
-    ### save 
+    ### large_hac7
+    """ Original Code for large_hac7 """
+    ## compute model 
+    label, oclustering = compute_hac(encoder, clf, patches)
+    ## SAVE
     outputdir = os.path.join(
         FLAGS.output_basedir, 
         '{}/nclusters-{}/{}'.format(str(FLAGS.expname),str(FLAGS.nclusters), FLAGS.clf_key ))
     os.makedirs(outputdir, exist_ok=True)
-    # original models: dump to pickle
+    ## original models: dump to pickle
     with open(os.path.join(outputdir, f'original-hac_{FLAGS.cexpname}.pkl'), 'wb') as f:
         pickle.dump(oclustering, f )
     print("NORMAL END : CLUSTERING")
+    
+    """ Process start"""
+    thetas =  np.linspace(0,360,FLAGS.copy_size+1)[:-1] 
+    #all_scores = {}
+    all_labels = {}
+    clabels_list = [label]
+    for idx, theta in enumerate(thetas):    
+      rpatches = rot_fn(patches,method='fix',theta=theta)
+      clabels, rclustering = compute_hac(encoder, clf, rpatches)
+      clabels_list.append(clabels)
+      del rpatches
+      gc.collect()
+    all_labels[f'nclusters-{FLAGS.nclusters}_thetas-{FLAGS.copy_size}'] = clabels_list
+
+    x = [i for i in range(len(clabels_list))]
+    all_scores = {}
+    for i,j in itertools.combinations(x,2):
+      ilabel = clabels_list[i]
+      jlabel = clabels_list[j]
+      scores = eval_fn(labels=ilabel, clabels=jlabel, scoring=scoring)       
+      all_scores[f'nclusters-{FLAGS.nclusters}-i{i}-j{j}'] = scores
+
+      # return dict
+      #scores = eval_fn(label, clabels, scoring=scoring)
+      #all_scores[f'nclusters-{FLAGS.nclusters}_theta-{theta}'] = scores
+      #all_labels[f'nclusters-{FLAGS.nclusters}_theta-{theta}'] = clabels
+    
+    # save config
+    outputdir = os.path.join(
+        FLAGS.output_basedir, 
+        '{}/nclusters-{}/{}'.format(str(FLAGS.expname),str(FLAGS.nclusters), FLAGS.clf_key ))
+    os.makedirs(outputdir, exist_ok=True)
+    
+    # scores: dump to pickle
+    with open(os.path.join(outputdir, f'score-hac_{FLAGS.cexpname}.pkl'), 'wb') as f:
+        pickle.dump(all_scores, f )
+    print("NORMAL END : SCORES")
+    
+    ## replicate&rotate models: dump to pickle
+    with open(os.path.join(outputdir, f'rotlabel-hac_{FLAGS.cexpname}.pkl'), 'wb') as f:
+        pickle.dump(all_labels, f )
+    print("NORMAL END : RCLUSTERING")
+    
+      
+    #####  label
+    #olabel, oclustering = compute_hac(encoder,clf, patches)
+    #### save 
+    #outputdir = os.path.join(
+    #    FLAGS.output_basedir, 
+    #    '{}/nclusters-{}/{}'.format(str(FLAGS.expname),str(FLAGS.nclusters), FLAGS.clf_key ))
+    #os.makedirs(outputdir, exist_ok=True)
+    ## original models: dump to pickle
+    #with open(os.path.join(outputdir, f'original-hac_{FLAGS.cexpname}.pkl'), 'wb') as f:
+    #    pickle.dump(oclustering, f )
+    #print("NORMAL END : CLUSTERING")
 
 
     ## index selection
@@ -390,12 +403,12 @@ if __name__ == "__main__":
     #  label.extend(tmp)
     #label = np.asarray(label)
 
-    # label creation /large_hac1
-    label = []
-    for ilabel in olabel:
-      tmp = [ ilabel for j in range(FLAGS.copy_size)]
-      label.extend(tmp)
-    label = np.asarray(label)
+    # label creation /large_hac1 /large_hac6
+    #label = []
+    #for ilabel in olabel:
+    #  tmp = [ ilabel for j in range(FLAGS.copy_size)]
+    #  label.extend(tmp)
+    #label = np.asarray(label)
 
     ##### code for /large_hac3
     #""" Make original label"""
@@ -423,20 +436,20 @@ if __name__ == "__main__":
     
     #""" Make original label"""
     ## copy patches
-    plist = []
-    n = patches.shape[0] // FLAGS.alpha
-    for  i in range(n):
-      plist.append(
-        copy_rot_fn(patches[i*FLAGS.alpha:(i+1)*FLAGS.alpha], 
-                    height=FLAGS.height, width=FLAGS.width, ch=FLAGS.channel, copy_size=FLAGS.copy_size)
-      )
-    if patches.shape[0] - n *FLAGS.alpha > 0:
-      plist.append(copy_rot_fn(patches[n*FLAGS.alpha:], 
-                    height=FLAGS.height, width=FLAGS.width, ch=FLAGS.channel, copy_size=FLAGS.copy_size)
-      )
-    rpatches = np.concatenate(plist, axis=0)
-    del plist, patches
-    gc.collect()
+    #plist = []
+    #n = patches.shape[0] // FLAGS.alpha
+    #for  i in range(n):
+    #  plist.append(
+    #    copy_rot_fn(patches[i*FLAGS.alpha:(i+1)*FLAGS.alpha], 
+    #                height=FLAGS.height, width=FLAGS.width, ch=FLAGS.channel, copy_size=FLAGS.copy_size)
+    #  )
+    #if patches.shape[0] - n *FLAGS.alpha > 0:
+    #  plist.append(copy_rot_fn(patches[n*FLAGS.alpha:], 
+    #                height=FLAGS.height, width=FLAGS.width, ch=FLAGS.channel, copy_size=FLAGS.copy_size)
+    #  )
+    #rpatches = np.concatenate(plist, axis=0)
+    #del plist, patches
+    #gc.collect()
     ##
     ### compute model 
     #label, oclustering = compute_hac(encoder, clf, rpatches)
@@ -509,43 +522,43 @@ if __name__ == "__main__":
     #gc.collect()
 
     # compute model 
-    clabels, rclustering = compute_hac(encoder, clf, rpatches)
-    del rpatches
-    gc.collect()
+    #clabels, rclustering = compute_hac(encoder, clf, rpatches)
+    #del rpatches
+    #gc.collect()
 
 
     ## compute scores
-    all_scores = {}
-    scores = {}
-    for ikey in scoring:
-      if ikey == 'ami':
-        tmp = AMI(label, clabels)
-      elif ikey == 'nmi':
-        tmp = NMI(label, clabels)
-      elif ikey == 'cls':
-        tmp = CLS(label, clabels)
-      elif ikey == 'hs':
-        tmp = HS(label, clabels)
-      elif ikey == 'ars':
-        tmp = ARS(label, clabels)
-      scores[ikey] = tmp
-    ## store as dict
-    all_scores[f'nclusters-{FLAGS.nclusters}'] = scores
+    #all_scores = {}
+    #scores = {}
+    #for ikey in scoring:
+    #  if ikey == 'ami':
+    #    tmp = AMI(label, clabels)
+    #  elif ikey == 'nmi':
+    #    tmp = NMI(label, clabels)
+    #  elif ikey == 'cls':
+    #    tmp = CLS(label, clabels)
+    #  elif ikey == 'hs':
+    #    tmp = HS(label, clabels)
+    #  elif ikey == 'ars':
+    #    tmp = ARS(label, clabels)
+    #  scores[ikey] = tmp
+    ### store as dict
+    #all_scores[f'nclusters-{FLAGS.nclusters}'] = scores
 
-    ### save 
-    outputdir = os.path.join(
-        FLAGS.output_basedir, 
-        '{}/nclusters-{}/{}'.format(str(FLAGS.expname),str(FLAGS.nclusters), FLAGS.clf_key ))
-    os.makedirs(outputdir, exist_ok=True)
-
-    ## scores: dump to pickle
-    with open(os.path.join(outputdir, f'score-hac_{FLAGS.cexpname}.pkl'), 'wb') as f:
-        pickle.dump(all_scores, f )
-    print("NORMAL END : SCORES")
-
-    ## replicate&rotate models: dump to pickle
-    with open(os.path.join(outputdir, f'reprot-hac_{FLAGS.cexpname}.pkl'), 'wb') as f:
-        pickle.dump(rclustering, f )
-    print("NORMAL END : RCLUSTERING")
+    #### save 
+    #outputdir = os.path.join(
+    #    FLAGS.output_basedir, 
+    #    '{}/nclusters-{}/{}'.format(str(FLAGS.expname),str(FLAGS.nclusters), FLAGS.clf_key ))
+    #os.makedirs(outputdir, exist_ok=True)
+    #
+    ### scores: dump to pickle
+    #with open(os.path.join(outputdir, f'score-hac_{FLAGS.cexpname}.pkl'), 'wb') as f:
+    #    pickle.dump(all_scores, f )
+    #print("NORMAL END : SCORES")
+    #
+    ### replicate&rotate models: dump to pickle
+    #with open(os.path.join(outputdir, f'reprot-hac_{FLAGS.cexpname}.pkl'), 'wb') as f:
+    #    pickle.dump(rclustering, f )
+    #print("NORMAL END : RCLUSTERING")
     
        
