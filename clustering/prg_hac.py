@@ -274,7 +274,7 @@ if __name__ == "__main__":
 
     """ Modify here to leave out patches with less gradation """
     #_patches = load_dataset(datadir=FLAGS.tf_datadir, filebasename='2-10*.tfrecord', 
-    _patches = load_dataset(datadir=FLAGS.tf_datadir, filebasename='2-10*.tfrecord', 
+    patches = load_dataset(datadir=FLAGS.tf_datadir, filebasename='2-10*.tfrecord', 
                 height=FLAGS.height, width=FLAGS.width,channel=FLAGS.channel)
 
     #patches = left_out_fn(_patches, min_std=0.08, max_mean=0.9, min_mean=0.1)
@@ -283,14 +283,14 @@ if __name__ == "__main__":
     #patches = patches[:npatches]
 
     ## large_hac6
-    index_list = []
-    with open('./select_index-2-10.txt') as f:
-      lines = f.read()
-      for line in lines.split("\n"):
-        if len(line) > 0:
-          index_list.append(int(line))
-    sindex = np.array(index_list)
-    patches = _patches[sindex]
+    #index_list = []
+    #with open('./select_index-2-10.txt') as f:
+    #  lines = f.read()
+    #  for line in lines.split("\n"):
+    #    if len(line) > 0:
+    #      index_list.append(int(line))
+    #sindex = np.array(index_list)
+    #patches = _patches[sindex]
   
 
     """ Original """
@@ -328,48 +328,80 @@ if __name__ == "__main__":
     with open(os.path.join(outputdir, f'original-hac_{FLAGS.cexpname}.pkl'), 'wb') as f:
         pickle.dump(oclustering, f )
     print("NORMAL END : CLUSTERING")
+
+    ### large_hac8
+    # Rotation by a theta degree: Get relatively larger theta 
+    # to give enough angle of rotation
+    n = patches.shape[0] // FLAGS.alpha
+    for idx, i in enumerate(range(n)):
+      radians = [ j*math.pi/180 for j in np.random.randint(0,359,FLAGS.alpha) ]
+      #print(radians)
+      if idx == 0:
+        tmp = rotate_fn(patches[i*FLAGS.alpha:(i+1)*FLAGS.alpha], angles=radians) 
+        rpatches_np = tf.keras.backend.eval(tmp)
+      else:
+        tmp = rotate_fn(patches[i*FLAGS.alpha:(i+1)*FLAGS.alpha], angles=radians) 
+        tmp_np = tf.keras.backend.eval(tmp)
+        rpatches_np = np.concatenate([rpatches_np, tmp_np], axis=0)
     
-    """ Process start"""
-    thetas =  np.linspace(0,360,FLAGS.copy_size+1)[:-1] 
+    if patches.shape[0] - n *FLAGS.alpha > 0:
+        leftover = patches.shape[0] - n *FLAGS.alpha 
+        #radians = [ theta for j in range(leftover) ]
+        radians = [ j*math.pi/180 for j in np.random.randint(0,359,leftover) ]
+        tmp = rotate_fn(patches[n*FLAGS.alpha:], angles=radians) 
+        tmp_np = tf.keras.backend.eval(tmp)
+        rpatches_np = np.concatenate([rpatches_np, tmp_np], axis=0)
+    
+    del patches
+    gc.collect()
+
+    # compute model 
+    clabels, rclustering = compute_hac(encoder, clf, rpatches_np)
+    gc.collect()
+
+    
+    ### large_hac7
+    #""" Process start"""
+    #thetas =  np.linspace(0,360,FLAGS.copy_size+1)[:-1] 
+    ##all_scores = {}
+    #all_labels = {}
+    #clabels_list = [label]
+    #for idx, theta in enumerate(thetas):    
+    #  rpatches = rot_fn(patches,method='fix',theta=theta)
+    #  clabels, rclustering = compute_hac(encoder, clf, rpatches)
+    #  clabels_list.append(clabels)
+    #  del rpatches
+    #  gc.collect()
+    #all_labels[f'nclusters-{FLAGS.nclusters}_thetas-{FLAGS.copy_size}'] = clabels_list
+
+    #x = [i for i in range(len(clabels_list))]
     #all_scores = {}
-    all_labels = {}
-    clabels_list = [label]
-    for idx, theta in enumerate(thetas):    
-      rpatches = rot_fn(patches,method='fix',theta=theta)
-      clabels, rclustering = compute_hac(encoder, clf, rpatches)
-      clabels_list.append(clabels)
-      del rpatches
-      gc.collect()
-    all_labels[f'nclusters-{FLAGS.nclusters}_thetas-{FLAGS.copy_size}'] = clabels_list
-
-    x = [i for i in range(len(clabels_list))]
-    all_scores = {}
-    for i,j in itertools.combinations(x,2):
-      ilabel = clabels_list[i]
-      jlabel = clabels_list[j]
-      scores = eval_fn(labels=ilabel, clabels=jlabel, scoring=scoring)       
-      all_scores[f'nclusters-{FLAGS.nclusters}-i{i}-j{j}'] = scores
-
-      # return dict
-      #scores = eval_fn(label, clabels, scoring=scoring)
-      #all_scores[f'nclusters-{FLAGS.nclusters}_theta-{theta}'] = scores
-      #all_labels[f'nclusters-{FLAGS.nclusters}_theta-{theta}'] = clabels
-    
-    # save config
-    outputdir = os.path.join(
-        FLAGS.output_basedir, 
-        '{}/nclusters-{}/{}'.format(str(FLAGS.expname),str(FLAGS.nclusters), FLAGS.clf_key ))
-    os.makedirs(outputdir, exist_ok=True)
-    
-    # scores: dump to pickle
-    with open(os.path.join(outputdir, f'score-hac_{FLAGS.cexpname}.pkl'), 'wb') as f:
-        pickle.dump(all_scores, f )
-    print("NORMAL END : SCORES")
-    
-    ## replicate&rotate models: dump to pickle
-    with open(os.path.join(outputdir, f'rotlabel-hac_{FLAGS.cexpname}.pkl'), 'wb') as f:
-        pickle.dump(all_labels, f )
-    print("NORMAL END : RCLUSTERING")
+    #for i,j in itertools.combinations(x,2):
+    #  ilabel = clabels_list[i]
+    #  jlabel = clabels_list[j]
+    #  scores = eval_fn(labels=ilabel, clabels=jlabel, scoring=scoring)       
+    #  all_scores[f'nclusters-{FLAGS.nclusters}-i{i}-j{j}'] = scores
+    #
+    #  # return dict
+    #  #scores = eval_fn(label, clabels, scoring=scoring)
+    #  #all_scores[f'nclusters-{FLAGS.nclusters}_theta-{theta}'] = scores
+    #  #all_labels[f'nclusters-{FLAGS.nclusters}_theta-{theta}'] = clabels
+    #
+    ## save config
+    #outputdir = os.path.join(
+    #    FLAGS.output_basedir, 
+    #    '{}/nclusters-{}/{}'.format(str(FLAGS.expname),str(FLAGS.nclusters), FLAGS.clf_key ))
+    #os.makedirs(outputdir, exist_ok=True)
+    #
+    ## scores: dump to pickle
+    #with open(os.path.join(outputdir, f'score-hac_{FLAGS.cexpname}.pkl'), 'wb') as f:
+    #    pickle.dump(all_scores, f )
+    #print("NORMAL END : SCORES")
+    #
+    ### replicate&rotate models: dump to pickle
+    #with open(os.path.join(outputdir, f'rotlabel-hac_{FLAGS.cexpname}.pkl'), 'wb') as f:
+    #    pickle.dump(all_labels, f )
+    #print("NORMAL END : RCLUSTERING")
     
       
     #####  label
@@ -528,37 +560,37 @@ if __name__ == "__main__":
 
 
     ## compute scores
-    #all_scores = {}
-    #scores = {}
-    #for ikey in scoring:
-    #  if ikey == 'ami':
-    #    tmp = AMI(label, clabels)
-    #  elif ikey == 'nmi':
-    #    tmp = NMI(label, clabels)
-    #  elif ikey == 'cls':
-    #    tmp = CLS(label, clabels)
-    #  elif ikey == 'hs':
-    #    tmp = HS(label, clabels)
-    #  elif ikey == 'ars':
-    #    tmp = ARS(label, clabels)
-    #  scores[ikey] = tmp
-    ### store as dict
-    #all_scores[f'nclusters-{FLAGS.nclusters}'] = scores
+    all_scores = {}
+    scores = {}
+    for ikey in scoring:
+      if ikey == 'ami':
+        tmp = AMI(label, clabels)
+      elif ikey == 'nmi':
+        tmp = NMI(label, clabels)
+      elif ikey == 'cls':
+        tmp = CLS(label, clabels)
+      elif ikey == 'hs':
+        tmp = HS(label, clabels)
+      elif ikey == 'ars':
+        tmp = ARS(label, clabels)
+      scores[ikey] = tmp
+    ## store as dict
+    all_scores[f'nclusters-{FLAGS.nclusters}'] = scores
 
-    #### save 
-    #outputdir = os.path.join(
-    #    FLAGS.output_basedir, 
-    #    '{}/nclusters-{}/{}'.format(str(FLAGS.expname),str(FLAGS.nclusters), FLAGS.clf_key ))
-    #os.makedirs(outputdir, exist_ok=True)
-    #
-    ### scores: dump to pickle
-    #with open(os.path.join(outputdir, f'score-hac_{FLAGS.cexpname}.pkl'), 'wb') as f:
-    #    pickle.dump(all_scores, f )
-    #print("NORMAL END : SCORES")
-    #
-    ### replicate&rotate models: dump to pickle
-    #with open(os.path.join(outputdir, f'reprot-hac_{FLAGS.cexpname}.pkl'), 'wb') as f:
-    #    pickle.dump(rclustering, f )
-    #print("NORMAL END : RCLUSTERING")
+    ### save 
+    outputdir = os.path.join(
+        FLAGS.output_basedir, 
+        '{}/nclusters-{}/{}'.format(str(FLAGS.expname),str(FLAGS.nclusters), FLAGS.clf_key ))
+    os.makedirs(outputdir, exist_ok=True)
+    
+    ## scores: dump to pickle
+    with open(os.path.join(outputdir, f'score-hac_{FLAGS.cexpname}.pkl'), 'wb') as f:
+        pickle.dump(all_scores, f )
+    print("NORMAL END : SCORES")
+    
+    ## replicate&rotate models: dump to pickle
+    with open(os.path.join(outputdir, f'reprot-hac_{FLAGS.cexpname}.pkl'), 'wb') as f:
+        pickle.dump(rclustering, f )
+    print("NORMAL END : RCLUSTERING")
     
        
