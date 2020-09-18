@@ -237,6 +237,20 @@ def rot_fn(patches, method=None, theta=180):
     rpatches_np = tf.keras.backend.eval(rpatches)
     return rpatches_np
 
+def selection_fn(patches, nclusters=14):
+    basedir = "/home/tkurihana/clouds/clustering/textfile/nc-14"
+    data = []
+    labels = []
+    for icluster in range(nclusters):
+      with open(os.path.join(
+        basedir,f"m2_02_global_2000_2018_band28_29_31-cluster-{icluster}-top20.txt")
+        ): as f
+        lines = f.read().split("\n")
+        for line in lines:
+          if len(line) > 0:
+            data.append(int(line))
+            labels.append(icluster)
+    return np.array(data), np.array(labels)
 
 def get_argument(verbose=True):
     p = argparse.ArgumentParser()
@@ -292,6 +306,10 @@ if __name__ == "__main__":
     #sindex = np.array(index_list)
     #patches = _patches[sindex]
   
+
+    # large_hac9 top 20 patches from centroid for nclusters-14: 
+    spatches = selection_fn(patches)
+
 
     """ Original """
     # classifier load model
