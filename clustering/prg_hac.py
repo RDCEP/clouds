@@ -157,6 +157,16 @@ def copy_rot_fn(patches, height=None, width=None, ch=None, copy_size=None):
     return rtest_imgs
 
 
+def compute_hac2(encoder, clf=None,spatches=None,):
+    encs = encoder.predict(spatches)
+    del spatches
+    gc.collect()
+    n,h,w,c = encs.shape
+    #clabels = clf.fit_predict(encs.reshape(n, h*w*c))
+    clustering = clf.fit(encs.reshape(n, h*w*c))
+    clabels = clustering.labels_
+    return clabels, clustering, encs
+
 def compute_hac(encoder, clf=None,spatches=None,):
     encs = encoder.predict(spatches)
     del spatches
@@ -227,15 +237,37 @@ def eval_fn(labels=None, clabels=None, scoring=None):
     # store as dict
     return scores
 
-def rot_fn(patches, method=None, theta=180):
-    if method == 'random':
-        radians = [ itheta*math.pi/180 for itheta in np.random.randint(0,359,patches.shape[0]) ]
-    elif method == 'fix':
-        radians = [ theta*math.pi/180 for j in range(patches.shape[0])]        
-                   
-    rpatches = rotate_fn(patches, angles=radians) 
-    rpatches_np = tf.keras.backend.eval(rpatches)
-    return rpatches_np
+#def rot_fn(patches, method=None, theta=180):
+#    if method == 'random':
+#        radians = [ itheta*math.pi/180 for itheta in np.random.randint(0,359,patches.shape[0]) ]
+#    elif method == 'fix':
+#        radians = [ theta*math.pi/180 for j in range(patches.shape[0])]        
+#                   
+#    rpatches = rotate_fn(patches, angles=radians) 
+#    rpatches_np = tf.keras.backend.eval(rpatches)
+#    return rpatches_np
+
+def rot_fn(imgs, copy_size=180):
+    radians = []
+    nsize = imgs.shape[0]/copy_size
+    for j in range(int(nsize)):
+        radians.extend([i*math.pi/180 for i in np.linspace(0,360,copy_size+1) ][:-1] )
+        #radians.extend([i*math.pi/180 for i in np.linspace(30,360,copy_size+1) ][:-1] )
+    print(len(radians))
+    rimgs_tf = rotate_fn(imgs, angles=radians)
+    rtest_imgs = tf.keras.backend.eval(rimgs_tf)
+    del imgs, rimgs_tf
+    return rtest_imgs
+
+def copy_fn(patches, height=None, width=None, ch=None, copy_size=None):
+    img_list = []
+    for patch in patches:
+        img_list.extend([np.reshape(patch, (1,height,width,ch))])
+        img_list.extend([ np.expand_dims(np.copy(patch.reshape(height,width,ch)), axis=0) 
+                     for i in range(copy_size-1)])
+    imgs = np.concatenate(img_list, axis=0)
+    print(imgs.shape)
+    return imgs
 
 def selection_fn(patches, nclusters=14):
     basedir = "/home/tkurihana/clouds/clustering/textfile/nc-14"
@@ -244,7 +276,7 @@ def selection_fn(patches, nclusters=14):
     for icluster in range(nclusters):
       with open(os.path.join(
         basedir,f"m2_02_global_2000_2018_band28_29_31-cluster-{icluster}-top20.txt")
-        ): as f
+        ) as f:
         lines = f.read().split("\n")
         for line in lines:
           if len(line) > 0:
@@ -308,7 +340,7 @@ if __name__ == "__main__":
   
 
     # large_hac9 top 20 patches from centroid for nclusters-14: 
-    spatches = selection_fn(patches)
+    #spatches = selection_fn(patches)
 
 
     """ Original """
@@ -333,10 +365,16 @@ if __name__ == "__main__":
     # define a model selected from metrics
     clf = clf_dict[FLAGS.clf_key]
 
-    ### large_hac7
-    """ Original Code for large_hac7 """
+    #### large_hac9
+    """ copy original patches """
+    cpatches = copy_fn(patches, height=FLAGS.height, width=FLAGS.width, 
+                       ch=FLAGS.channel, copy_size=FLAGS.copy_size)
+
+    """ Original Code for large_hac9 former large_hac7 """
     ## compute model 
-    label, oclustering = compute_hac(encoder, clf, patches)
+    #label, oclustering = compute_hac(encoder, clf, patches)
+    #label, oclustering  = compute_hac(encoder, clf, cpatches)
+    label, oclustering, oencs = compute_hac2(encoder, clf, cpatches)
     ## SAVE
     outputdir = os.path.join(
         FLAGS.output_basedir, 
@@ -345,37 +383,70 @@ if __name__ == "__main__":
     ## original models: dump to pickle
     with open(os.path.join(outputdir, f'original-hac_{FLAGS.cexpname}.pkl'), 'wb') as f:
         pickle.dump(oclustering, f )
+    np.save(os.path.join(outputdir, f'oencs-hac_{FLAGS.cexpname}_nc-{FLAGS.nclusters}'),oencs)
     print("NORMAL END : CLUSTERING")
+    del oencs
+    gc.collect()
 
-    ### large_hac8
+
+    ### large_hac9: develop from large_hac8
     # Rotation by a theta degree: Get relatively larger theta 
     # to give enough angle of rotation
     n = patches.shape[0] // FLAGS.alpha
     for idx, i in enumerate(range(n)):
-      radians = [ j*math.pi/180 for j in np.random.randint(0,359,FLAGS.alpha) ]
-      #print(radians)
       if idx == 0:
-        tmp = rotate_fn(patches[i*FLAGS.alpha:(i+1)*FLAGS.alpha], angles=radians) 
-        rpatches_np = tf.keras.backend.eval(tmp)
+        rpatches_np = rot_fn(cpatches[i*FLAGS.copy_size*FLAGS.alpha:(i+1)*FLAGS.copy_size*FLAGS.alpha],
+                         copy_size=FLAGS.copy_size) 
       else:
-        tmp = rotate_fn(patches[i*FLAGS.alpha:(i+1)*FLAGS.alpha], angles=radians) 
-        tmp_np = tf.keras.backend.eval(tmp)
+        tmp_np = rot_fn(cpatches[i*FLAGS.copy_size*FLAGS.alpha:(i+1)*FLAGS.copy_size*FLAGS.alpha],
+                         copy_size=FLAGS.copy_size) 
         rpatches_np = np.concatenate([rpatches_np, tmp_np], axis=0)
     
-    if patches.shape[0] - n *FLAGS.alpha > 0:
+    if patches.shape[0] - n*FLAGS.alpha > 0:
         leftover = patches.shape[0] - n *FLAGS.alpha 
-        #radians = [ theta for j in range(leftover) ]
-        radians = [ j*math.pi/180 for j in np.random.randint(0,359,leftover) ]
-        tmp = rotate_fn(patches[n*FLAGS.alpha:], angles=radians) 
-        tmp_np = tf.keras.backend.eval(tmp)
+        tmp_np = rot_fn(cpatches[n*FLAGS.copy_size*FLAGS.alpha:],copy_size=FLAGS.copy_size) 
         rpatches_np = np.concatenate([rpatches_np, tmp_np], axis=0)
-    
-    del patches
+
+    del cpatches
     gc.collect()
+    
+    ## compute model 
+    #clabels, rclustering = compute_hac(encoder, clf, rpatches_np)
+    clabels, rclustering, rencs = compute_hac2(encoder, clf, rpatches_np)
+    del rpatches_np
+    gc.collect()
+    np.save(os.path.join(outputdir, f'rencs-hac_{FLAGS.cexpname}_nc-{FLAGS.nclusters}'),rencs)
+
+
+    #### large_hac8
+    ## Rotation by a theta degree: Get relatively larger theta 
+    ## to give enough angle of rotation
+    #n = patches.shape[0] // FLAGS.alpha
+    #for idx, i in enumerate(range(n)):
+    #  radians = [ j*math.pi/180 for j in np.random.randint(0,359,FLAGS.alpha) ]
+    #  #print(radians)
+    #  if idx == 0:
+    #    tmp = rotate_fn(patches[i*FLAGS.alpha:(i+1)*FLAGS.alpha], angles=radians) 
+    #    rpatches_np = tf.keras.backend.eval(tmp)
+    #  else:
+    #    tmp = rotate_fn(patches[i*FLAGS.alpha:(i+1)*FLAGS.alpha], angles=radians) 
+    #    tmp_np = tf.keras.backend.eval(tmp)
+    #    rpatches_np = np.concatenate([rpatches_np, tmp_np], axis=0)
+    #
+    #if patches.shape[0] - n *FLAGS.alpha > 0:
+    #    leftover = patches.shape[0] - n *FLAGS.alpha 
+    #    #radians = [ theta for j in range(leftover) ]
+    #    radians = [ j*math.pi/180 for j in np.random.randint(0,359,leftover) ]
+    #    tmp = rotate_fn(patches[n*FLAGS.alpha:], angles=radians) 
+    #    tmp_np = tf.keras.backend.eval(tmp)
+    #    rpatches_np = np.concatenate([rpatches_np, tmp_np], axis=0)
+    
+    #del patches
+    #gc.collect()
 
     # compute model 
-    clabels, rclustering = compute_hac(encoder, clf, rpatches_np)
-    gc.collect()
+    #clabels, rclustering = compute_hac(encoder, clf, rpatches_np)
+    #gc.collect()
 
     
     ### large_hac7
