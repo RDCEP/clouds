@@ -259,6 +259,22 @@ def rot_fn(imgs, copy_size=180):
     del imgs, rimgs_tf
     return rtest_imgs
 
+
+def rot_fn2(imgs, copy_size=180):
+    """ rotate patches x copy_size data at random without overlap """
+    radians = []
+    nsize = imgs.shape[0]/copy_size
+    for j in range(int(nsize)):
+        tmp_radian = [i*math.pi/180 for i in np.linspace(0,360,copy_size+1) ][:-1] 
+        random.shuffle(tmp_radian)    
+        radians.extend(tmp_radian)
+        #radians.extend([i*math.pi/180 for i in np.linspace(30,360,copy_size+1) ][:-1] )
+    print(len(radians))
+    rimgs_tf = rotate_fn(imgs, angles=radians)
+    rtest_imgs = tf.keras.backend.eval(rimgs_tf)
+    del imgs, rimgs_tf
+    return rtest_imgs
+
 def copy_fn(patches, height=None, width=None, ch=None, copy_size=None):
     img_list = []
     for patch in patches:
@@ -310,7 +326,8 @@ def get_argument(verbose=True):
 if __name__ == "__main__":
 
     # FIXME set hardwritten param for less memory
-    #npatches = 300
+    begin=100
+    npatches = 100
 
     # create argument parser
     FLAGS = get_argument(verbose=True)
@@ -320,13 +337,14 @@ if __name__ == "__main__":
 
     """ Modify here to leave out patches with less gradation """
     #_patches = load_dataset(datadir=FLAGS.tf_datadir, filebasename='2-10*.tfrecord', 
-    patches = load_dataset(datadir=FLAGS.tf_datadir, filebasename='2-10*.tfrecord', 
+    _patches = load_dataset(datadir=FLAGS.tf_datadir, filebasename='2-10*.tfrecord', 
                 height=FLAGS.height, width=FLAGS.width,channel=FLAGS.channel)
 
     #patches = left_out_fn(_patches, min_std=0.08, max_mean=0.9, min_mean=0.1)
-    #idx3  = np.load('./index_2-10_normed.npy') # index satsfying criteria
-    #patches = np.squeeze(_patches[idx3])[:npatches]
-    #patches = patches[:npatches]
+    idx3  = np.load('./index_2-10_normed.npy') # index satsfying criteria
+    patches = np.squeeze(_patches[idx3])
+    patches = patches[begin:begin+npatches]
+    del _patches
 
     ## large_hac6
     #index_list = []
@@ -365,16 +383,45 @@ if __name__ == "__main__":
     # define a model selected from metrics
     clf = clf_dict[FLAGS.clf_key]
 
-    #### large_hac9
-    """ copy original patches """
-    cpatches = copy_fn(patches, height=FLAGS.height, width=FLAGS.width, 
-                       ch=FLAGS.channel, copy_size=FLAGS.copy_size)
+    #### large_hac10
+    """  Code for first clustering: large_hac10  """
+    n = patches.shape[0] // FLAGS.alpha
+    for idx ,  i in enumerate(range(n)):
+      if idx == 0:
+        rpatches = copy_rot_fn(patches[i*FLAGS.alpha:(i+1)*FLAGS.alpha], 
+                    height=FLAGS.height, width=FLAGS.width, ch=FLAGS.channel, copy_size=FLAGS.copy_size
+        )
+      else:
+        tmp = copy_rot_fn(patches[i*FLAGS.alpha:(i+1)*FLAGS.alpha], 
+                    height=FLAGS.height, width=FLAGS.width, ch=FLAGS.channel, copy_size=FLAGS.copy_size
+        )
+        rpatches = np.concatenate([rpatches, tmp], axis=0)
 
-    """ Original Code for large_hac9 former large_hac7 """
+    if patches.shape[0] - n *FLAGS.alpha > 0:
+      tmp = copy_rot_fn(patches[n*FLAGS.alpha:], 
+                    height=FLAGS.height, width=FLAGS.width, ch=FLAGS.channel, copy_size=FLAGS.copy_size
+      )
+      if n == 0:
+        rpatches = copy_rot_fn(patches, 
+                    height=FLAGS.height, width=FLAGS.width, ch=FLAGS.channel, copy_size=FLAGS.copy_size
+        )
+      else:
+        rpatches = np.concatenate([rpatches, tmp], axis=0)
+    gc.collect()
+
+
+    #### large_hac9
+    #""" copy original patches """
+    #cpatches = copy_fn(patches, height=FLAGS.height, width=FLAGS.width, 
+    #                   ch=FLAGS.channel, copy_size=FLAGS.copy_size)
+
+    #""" Original Code for large_hac9 former large_hac7 """
     ## compute model 
     #label, oclustering = compute_hac(encoder, clf, patches)
     #label, oclustering  = compute_hac(encoder, clf, cpatches)
-    label, oclustering, oencs = compute_hac2(encoder, clf, cpatches)
+    #label, oclustering, oencs = compute_hac2(encoder, clf, cpatches)  ### large_hac9
+    label, oclustering, oencs = compute_hac2(encoder, clf, rpatches)  ### large_hac10
+
     ## SAVE
     outputdir = os.path.join(
         FLAGS.output_basedir, 
@@ -389,25 +436,26 @@ if __name__ == "__main__":
     gc.collect()
 
 
+    ### large_hac10: develop from large_hac9
     ### large_hac9: develop from large_hac8
     # Rotation by a theta degree: Get relatively larger theta 
     # to give enough angle of rotation
     n = patches.shape[0] // FLAGS.alpha
     for idx, i in enumerate(range(n)):
       if idx == 0:
-        rpatches_np = rot_fn(cpatches[i*FLAGS.copy_size*FLAGS.alpha:(i+1)*FLAGS.copy_size*FLAGS.alpha],
+        rpatches_np = rot_fn2(rpatches[i*FLAGS.copy_size*FLAGS.alpha:(i+1)*FLAGS.copy_size*FLAGS.alpha],
                          copy_size=FLAGS.copy_size) 
       else:
-        tmp_np = rot_fn(cpatches[i*FLAGS.copy_size*FLAGS.alpha:(i+1)*FLAGS.copy_size*FLAGS.alpha],
+        tmp_np = rot_fn2(rpatches[i*FLAGS.copy_size*FLAGS.alpha:(i+1)*FLAGS.copy_size*FLAGS.alpha],
                          copy_size=FLAGS.copy_size) 
         rpatches_np = np.concatenate([rpatches_np, tmp_np], axis=0)
     
     if patches.shape[0] - n*FLAGS.alpha > 0:
         leftover = patches.shape[0] - n *FLAGS.alpha 
-        tmp_np = rot_fn(cpatches[n*FLAGS.copy_size*FLAGS.alpha:],copy_size=FLAGS.copy_size) 
+        tmp_np = rot_fn2(rpatches[n*FLAGS.copy_size*FLAGS.alpha:],copy_size=FLAGS.copy_size) 
         rpatches_np = np.concatenate([rpatches_np, tmp_np], axis=0)
 
-    del cpatches
+    del rpatches
     gc.collect()
     
     ## compute model 
