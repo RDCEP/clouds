@@ -266,7 +266,7 @@ def rot_fn2(imgs, copy_size=180):
     nsize = imgs.shape[0]/copy_size
     for j in range(int(nsize)):
         tmp_radian = [i*math.pi/180 for i in np.linspace(0,360,copy_size+1) ][:-1] 
-        random.shuffle(tmp_radian)    
+        #random.shuffle(tmp_radian)    
         radians.extend(tmp_radian)
         #radians.extend([i*math.pi/180 for i in np.linspace(30,360,copy_size+1) ][:-1] )
     print(len(radians))
@@ -326,8 +326,8 @@ def get_argument(verbose=True):
 if __name__ == "__main__":
 
     # FIXME set hardwritten param for less memory
-    begin=100
-    npatches = 100
+    begin=0  #100
+    npatches =90   #100
 
     # create argument parser
     FLAGS = get_argument(verbose=True)
@@ -341,7 +341,8 @@ if __name__ == "__main__":
                 height=FLAGS.height, width=FLAGS.width,channel=FLAGS.channel)
 
     #patches = left_out_fn(_patches, min_std=0.08, max_mean=0.9, min_mean=0.1)
-    idx3  = np.load('./index_2-10_normed.npy') # index satsfying criteria
+    #idx3  = np.load('./index_2-10_normed.npy') # index satsfying criteria
+    idx3  = np.load('./index_top90.npy') # index satsfying criteria
     patches = np.squeeze(_patches[idx3])
     patches = patches[begin:begin+npatches]
     del _patches
