@@ -6,6 +6,7 @@ import sys
 import json
 import glob
 import copy
+import time
 import pickle
 import itertools
 import numpy as np
@@ -174,10 +175,14 @@ def build_params(patches,label=None, nclusters=-1, build_all=False):
         # vectorize axis=1
         if build_all:
           # True: get entire distribution
-          hist_list.append(patches.reshape(n*h*w))
+          tmp = patches.reshape(n*h*w)
+          ok_idx = np.where(~np.isnan(tmp))
+          hist_list.append(tmp[ok_idx])
         else:
           # False: get individual distributino
-          hist_list.append(patches.reshape(n,h*w))
+          tmp = patches.reshape(n,h*w)
+          ok_idx = np.where(~np.isnan(tmp))
+          hist_list.append(tmp[ok_idx])
     return hist_list
 
 
@@ -196,9 +201,66 @@ def compare_hist_opencv(hist1, hist2, metric=None):
     """
     return cv2.compareHist(hist1, hist2, metric)
 
+def run_intra_similarity_fn(patch=None, label=None, nlcusters=None,nstep=100, density=True):
+    """
+    """
+    stime = time.time()
+    # normalize [0,1*nstep]
+    nmin = np.nanmin(patch)
+    nmax = np.nanmax(patch)
+    patch= (patch-nmin)/(nmax-nmin)*nstep)
+
+    # build vectorized data for each cluster
+    # type: List
+    all_data = build_params(patch,label, nclusters, build_all=True)
+
+    # compute histogram
+    results = {}
+    for tmp, cluster in zip(all_data, range(nclusters)):
+      hists = {}
+      tmp_results = {}
+
+      # compute histogram for each patch
+      for idx, data in enumerate(tmp):
+        hist_inv, _  = np.histogram(data, np.linspace(0,nstep, nstep+1),density=density)
+        hists[idx] = hist_inv
+
+      # compute similarity across patches within same cluster
+      x = [i for i in range(tmp.shape[0])]
+      for i,j in itertools.combinations(x,2):
+        hist1 = hists[i]
+        hist2 = hists[j]
+        tmp = {}
+        tmp['emd'] = compare_hist_emd(hists1,hists2)
+
+        # opencv
+        metric_list = [
+          'correlation','chi-square','intersection','bhattacharyya'
+        ]
+        metrics ={
+          'correlation': cv2.HISTCMP_CORREL,
+          'chi-square' : cv2.HISTCMP_CHISQR,
+          'intersection' : cv2.HISTCMP_INTERSECT,
+          'bhattacharyya' : cv2.HISTCMP_BHATTACHARYYA
+        }
+      
+        for metic in metric_list:
+          tmp[f"{metric}"] = compare_hist_opencv(hist1, hist2, metrics[metric])
+        
+        tmp_results[f"{i}-{j}"] = tmp
+    
+      # wrap another dict
+      results[f'ncluster-{ncluster}'] = tmp_results
+
+    etime = time.time()
+    elapse = (etime - stime)/60
+    print(f"ANALYSIS NORMAL TERMINATE {elapse} min", flush=True)
+    return results
+
 def run_inter_similarity_fn(patch=None, label=None, nlcusters=None,nstep=100, density=True):
     """
     """
+    stime = time.time()
     # normalize [0,1*nstep]
     nmin = np.nanmin(patch)
     nmax = np.nanmax(patch)
@@ -214,7 +276,7 @@ def run_inter_similarity_fn(patch=None, label=None, nlcusters=None,nstep=100, de
       hist_alls, _  = np.histogram(tmp, np.linspace(0,nstep, nstep+1),density=density)
       hists[cluster] = hist_alls
 
-    #
+    # inter cluster 
     results = {}
     x = [i for i in range(nclusters)]
     for i,j in itertools.combinations(x,2):
@@ -239,8 +301,60 @@ def run_inter_similarity_fn(patch=None, label=None, nlcusters=None,nstep=100, de
         
       results[f"cluster{i}-cluster{j}"] = tmp
     
-    print("ANALYSIS NORMAL TERMINATE", flush=True)
+    etime = time.time()
+    elapse = (etime - stime)/60
+    print(f"ANALYSIS NORMAL TERMINATE {elapse} min", flush=True)
     return results
+
+
+def run_inter_ratio_fn(patch, label, nclusters=None,ncategory=4):
+    """ Compute ratio of categories across class
+    """
+    # build vectorized data for each cluster
+    # type: List
+    stime = time.time()
+    data = build_params(patch,label, nclusters, build_all=True)
+      
+    inter_results = {}
+    for cluster, tmp in enumerate(data):
+      tmp_result = {}
+      for cat in range(ncategory):
+        if cat < 3:
+          tmp_result[cat] = len(np.where(tmp == cat)[0])/tmp.size*100
+        elif cat>=3:
+          tmp_result[cat] = len(np.where(tmp >= cat)[0])/tmp.size*100
+      inter_results[f'ncluster-{cluster}'] = tmp_result
+    etime = time.time()
+    elapse = (etime - stime)/60
+    print(f"ANALYSIS NORMAL TERMINATE {elapse} min", flush=True)
+    return inter_results
+          
+
+def run_intra_ratio_fn(patch, label, nclusters=None,ncategory=4):
+    """ Compute ratio of categories across same class
+    """
+    # build vectorized data for each cluster
+    # type: List
+    stime = time.time()
+    all_data = build_params(patch,label, nclusters, build_all=False)
+      
+    intra_results = {}
+    for cluster, data in enumerate(all_data):
+      inter_result = {}
+      for idx, tmp in enumerate(data):
+        for cat in range(ncategory):
+          if cat < 3:
+            tmp_result[cat] = len(np.where(tmp == cat)[0])/tmp.size*100
+          elif cat>=3:
+            tmp_result[cat] = len(np.where(tmp >= cat)[0])/tmp.size*100
+        inter_results[idx] = tmp_result
+      intra_results[f"ncluster-{ncluster}"] = inter_results
+    etime = time.time()
+    elapse = (etime - stime)/60
+    print(f"ANALYSIS NORMAL TERMINATE {elapse} min", flush=True)
+
+    return intra_results
+
 
 def get_argument(verbose=True):
     p = argparse.ArgumentParser()
@@ -291,12 +405,55 @@ if __name__ == "__main__":
                                 ) 
 
 
+    
+    ### save 
+    outputdir = os.path.join(
+        FLAGS.output_basedir, 
+        '{}/nclusters-{}/{}'.format(str(FLAGS.expname),str(FLAGS.nclusters), FLAGS.clf_key ))
+    os.makedirs(outputdir, exist_ok=True)
+
     for key in key_list:
       print(f" START ANALYZE {key} \n", flush=True)
-      patch = patches[ikey]
+
+      if key != 'phase':
+        patch = patches[ikey]
+
+        # compute inter cluster similarity
+        inter_result = run_inter_similarity_fn(patch, label, nlcusters=FLAGS.nclusters, 
+                                             nstep=FLAGS.nstep, density=True):
+
+        ## scores: dump to pickle
+        with open(os.path.join(outputdir, f'sim-inter_{FLAGS.cexpname}_{key}_{FLAGS.nstep}.pkl'), 'wb') as f:
+          pickle.dump(inter_results, f )
+        print("NORMAL END : INTER")
 
 
+        # compute intra cluster similarity
+        intra_result = run_intra_similarity_fn(patch, label, nlcusters=FLAGS.nclusters, 
+                                             nstep=FLAGS.nstep, density=True):
+        ## scores: dump to pickle
+        with open(os.path.join(outputdir, f'sim-intra_{FLAGS.cexpname}_{key}_{FLAGS.nstep}.pkl'), 'wb') as f:
+          pickle.dump(inter_results, f )
+        print("NORMAL END : INTRA")
 
+
+      elif key == 'phase':
+        # phase is categorical data; four category; 0:clear sky, 1:liquie, 2:ice, 3~:undef
+        """Approach: Compute ratio of four categories
+        """
+        # inter
+        inter_result = run_inter_ratio_fn(patch, label, nclusters=FLAGS.nclusters,ncategory=4)
+        ## scores: dump to pickle
+        with open(os.path.join(outputdir, f'sim-inter_{FLAGS.cexpname}_{key}_{FLAGS.nstep}.pkl'), 'wb') as f:
+          pickle.dump(inter_results, f )
+        print("NORMAL END : INTER")
+
+        # intra
+        intra_result = run_inter_ratio_fn(patch, label, nclusters=FLAGS.nclusters,ncategory=4)
+        ## scores: dump to pickle
+        with open(os.path.join(outputdir, f'sim-intra_{FLAGS.cexpname}_{key}_{FLAGS.nstep}.pkl'), 'wb') as f:
+          pickle.dump(inter_results, f )
+        print("NORMAL END : INTRA")
 
 
 
