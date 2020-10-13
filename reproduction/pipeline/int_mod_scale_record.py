@@ -297,6 +297,8 @@ if __name__ == "__main__":
 
         # Operate scaling and masking + yield patch info
         _patches, filenames, coordinates = patch_info
+        # debug
+        print(np.mean(_patches, axis=(0,1,2)))
 
         ### Six bands
         patches = make_scale_mask_operator(
@@ -308,8 +310,13 @@ if __name__ == "__main__":
         #  _patches, filenames, coordinates,  gmean, gstdv, 
         #  channels=FLAGS.channels, nsigma=FLAGS.nsigma, sbands=FLAGS.sbands)
           #channels=FLAGS.channels, nsigma=FLAGS.nsigma)
+
+        # Add 10/06
+        npatches_per_record = _patches.shape[0]
+        print(f" tfname {os.path.basename(fname)} | num. of patches {npatches_per_record} ", flush=True)
     
         # save into tfrecord
-        write_patches(patches, basefname, FLAGS.out_dir, FLAGS.patches_per_record)
+        #write_patches(patches, basefname, FLAGS.out_dir, FLAGS.patches_per_record)
+        write_patches(patches, basefname, FLAGS.out_dir, npatches_per_record)
 
         print("Rank %d done." % rank, flush=True)
