@@ -453,7 +453,8 @@ if __name__ == "__main__":
     for fname in fnames:
       swaths  = gen_sds([fname], 
                       ref_var='EV_500_Aggr1km_RefSB', ems_var='EV_1KM_Emissive',
-                      ref_bands=["4","7"], ems_bands=FLAGS.ems_band) # Aqua: replace band 6 with band 7
+                      ref_bands=["5","7"], ems_bands=FLAGS.ems_band) # Aqua: replace band 6 with band 7
+                      #ref_bands=["4","7"], ems_bands=FLAGS.ems_band) # Aqua: replace band 6 with band 7
                       #ref_bands=["6","7"], ems_bands=FLAGS.ems_band) # Terra
     
       patches = gen_patches(swaths, FLAGS.stride, FLAGS.shape, 
