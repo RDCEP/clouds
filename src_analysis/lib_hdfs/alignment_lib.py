@@ -15,7 +15,8 @@ import numpy as np
 import scipy as sc
 from pyhdf.SD import SD, SDC
 
-libdir = '/home/tkurihana/scratch-midway2/clouds/src_analysis/lib_hdfs'
+#libdir = '/home/tkurihana/scratch-midway2/clouds/src_analysis/lib_hdfs'
+libdir=os.getcwd()
 sys.path.insert(1,os.path.join(sys.path[0],libdir))
 from analysis_lib import mod06_proc_sds
 from analysis_lib import _gen_patches
@@ -75,19 +76,53 @@ def _decode_cloud_flag(sds_array, fillna=True):
         ncarray[nan_idx] = np.nan
     return ncarray
 
-def const_clouds_array(patches, clouds_mask, width=128, height=128, thres=0.3):
+# 3d array version [6,ix,iy]
+def _decode_ocean_flag(sds_array, fillna=True):
+    """ Assume sds_array = hdf.select('Cloud_Mask') [6,nx,ny]
+         File: Cloud_Mask_1.hdf which stores first important 6bits
+
+         +Flags
+         0: 00 = water
+         1: 01 = coastal
+         2: 10 = desert
+         3: 11 = land
+    """
+    def bits_stripping(bit_start,bit_count,value):
+        bitmask=pow(2,bit_start+bit_count)-1
+        return np.right_shift(np.bitwise_and(value,bitmask),bit_start)
+    cm_array = sds_array.get()
+    _, nx, ny = cm_array.shape
+    print(cm_array.shape)
+    carray = np.zeros((nx,ny))
+    for ix in range(nx):
+        for iy in range(ny):
+            # Shown below is the first byte only, of the six byte Cloud Mask
+            # cm_array[index,ix,iy] : index should be 0 but get 6-7 bits of first  byte 
+            cloud_mask_flag = bits_stripping(6,7,cm_array[0,ix,iy])
+            carray[ix, iy] = cloud_mask_flag
+    ncarray = carray.astype(np.float64)
+    if fillna:
+        nan_idx = np.where(cm_array[0] == sds_array.attributes()['_FillValue'])
+        ncarray[nan_idx] = np.nan
+    return ncarray
+
+
+def const_clouds_array(patches, clouds_mask, nx, ny, width=128, height=128, thres=0.3, stride=128):
     """
     thres: range 0-1. ratio of clouds within the given patch
     dev_const_clouds_array in analysis_mode021KM/016
     """
-    nx, ny = patches.shape[:2]
+    #nx, ny = patches.shape[:2]
     patches_list = []
     xy_list = []
-    for i in range(nx):
-        for j in range(ny):
+    for i,ii in enumerate(range(0,nx,stride)):
+        for j,jj in enumerate(range(0,ny,stride)):
+          if ii + width <= nx and jj + height <= ny:
             if not np.isnan(patches[i,j]).any():
-                if np.any(clouds_mask[i*width:(i+1)*width,j*height:(j+1)*height] == 0):
-                    tmp = clouds_mask[i*width:(i+1)*width,j*height:(j+1)*height]
+                #if np.any(clouds_mask[i*width:(i+1)*width,j*height:(j+1)*height] == 0):
+                #    tmp = clouds_mask[i*width:(i+1)*width,j*height:(j+1)*height]
+                if np.any(clouds_mask[ii:ii+width,jj:jj+height] == 0):
+                    tmp = clouds_mask[ii:ii+width,jj:jj+height]
                     nclouds = len(np.argwhere(tmp == 0))
                     if nclouds/(width*height) > thres:
                         patches_list += [patches[i,j]]
@@ -129,6 +164,40 @@ def translate_const_clouds_array(patch, clouds_mask, width=128, height=128, thre
     else:
       # return patch and false
       return patch, clouds_flag    
+
+# new function for into_mod_normed_record 2021/01/12 for ocean flag
+def translate_const_ocean_array(patch, ocean_mask, width=128, height=128, thres=0.99, coord=(0,0)):
+    """
+    1 patch - 0 ocean-flags/patch.
+    thres: range 0-1. ratio of ocean within the given patch
+    function to return one ocean_patch and ocean-flag based on corrdinate (i,j)
+    return patch with 99% of ocean pixel
+    
+    OUT:
+      ocean_patch: np.array(128,128,nband)
+      ocean_flag : Boolean{True; valid cloud  patch on ocean, False; o.w.}  
+    """
+    # coordinates
+    # this (i,j) is i in [0,2030,width] & [0,1354,height]
+    i,j = coord
+
+    # prep flag
+    ocean_flag = False
+
+    # main process
+    if np.any(ocean_mask[i:i+width,j:j+height] == 0):
+        tmp = ocean_mask[i:i+width,j:j+height]
+        noceans = len(np.argwhere(tmp == 0))
+        if noceans/(width*height) > thres:
+          # valid patch
+          ocean_flag = True
+          return patch, ocean_flag    
+        else:
+          # return patch and false
+          return patch, ocean_flag    
+    else:
+      # return patch and false
+      return patch, ocean_flag    
        
 
 # below, from prg_augment_2 
@@ -169,6 +238,45 @@ def mod02_proc_sds(sds_array):
     
     #del nan_idx, offset, scales, offset_ones
     return scales_array
+
+def mod02_proc_sds_mosaic(sds_array):
+    """
+    IN: array = hdf_data.select(variable_name)
+    """
+    array = sds_array.get()
+    array = array.astype(np.float64)
+
+    # check bandinfo
+    _bands = sds_array.attributes()['band_names']
+    print("Process bands", _bands)
+    bands = _bands.split(",")
+
+    # nan process
+    nan_idx = np.where( array == sds_array.attributes()['_FillValue'])
+    if len(nan_idx) > 0:
+        array[nan_idx] = np.nan
+    else:
+        pass
+    # invalid value process
+    # TODO: future change 32767 to other value
+    invalid_idx = np.where( array > 32767 )
+    if len(nan_idx) > 0:
+        array[invalid_idx] = np.nan
+    else:
+        pass
+
+    # radiacne offset
+    offset = sds_array.attributes()['radiance_offsets']
+    offset_array = np.zeros(array.shape) # new matrix
+    offset_ones  = np.ones(array.shape)  # 1 Matrix
+    offset_array[:,:] = array[:,:] - offset*offset_ones[:,:]
+
+    # radiance scale
+    scales = sds_array.attributes()['radiance_scales']
+    scales_array = np.zeros(array.shape) # new matrix
+    scales_array[:,:] = scales*offset_array[:,:]
+    return scales_array, bands
+
 
 def gen_mod02_img(hdf):
     # band RefSB
@@ -242,9 +350,24 @@ def gen_mod35_img(hdf):
     clouds_mask_array = _decode_cloud_flag(cm_sds)
     return clouds_mask_array
 
+def gen_mod35_ocean_img(hdf):
+    cm_sds = hdf.select('Cloud_Mask')
+    ocean_mask_array = _decode_ocean_flag(cm_sds)
+    return ocean_mask_array
+
 def gen_mod35_img_single(
       hdf_datadir='hdf data directory',
       date='2015001' 
+    ):
+    mod35_file = glob.glob(hdf_datadir+'/MOD35_L2.A'+date+'.mosaic.061*.Cloud_Mask_1.hdf')[0]
+    hdf    = SD(mod35_file, SDC.READ)
+    cm_sds = hdf.select('Cloud_Mask')
+    clouds_mask_array = decode_cloud_flag(cm_sds)
+    return clouds_mask_array
+
+def gen_mod35_img_mosaic(
+      hdf_datadir='hdf data directory',
+      date='2015001'
     ):
     mod35_file = glob.glob(hdf_datadir+'/MOD35_L2.A'+date+'.mosaic.061*.Cloud_Mask_1.hdf')[0]
     hdf    = SD(mod35_file, SDC.READ)
@@ -423,6 +546,77 @@ def mod02_proc_sds_single(sds_array):
     scales_array = np.zeros(array.shape) # new matrix
     scales_array[:,:] = scales*offset_array[:,:]
     return scales_array, bands
+
+def gen_mod02_img_mosaic(
+      hdf_datadir='hdf data directory',
+      date='2015001'
+    ):
+
+    #ad-hoc bands assumed 6,7,20,28,29 and 31
+    #print(date, flush=True)
+    _refsb_list = [
+      hdf_datadir+'/MOD021KM.A'+date+'.mosaic.061.*.EV_500_Aggr1km_RefSB_4.hdf',
+      hdf_datadir+'/MOD021KM.A'+date+'.mosaic.061.*.EV_500_Aggr1km_RefSB_5.hdf',
+    ]
+    refsb_list = [ glob.glob(i)[0] for i in _refsb_list]
+
+    _ev_list = [
+      hdf_datadir+'/MOD021KM.A'+date+'.mosaic.061.*.EV_1KM_Emissive_1.hdf',
+      hdf_datadir+'/MOD021KM.A'+date+'.mosaic.061.*.EV_1KM_Emissive_8.hdf',
+      hdf_datadir+'/MOD021KM.A'+date+'.mosaic.061.*.EV_1KM_Emissive_9.hdf',
+      hdf_datadir+'/MOD021KM.A'+date+'.mosaic.061.*.EV_1KM_Emissive_11.hdf'
+    ]
+    ev_list = [ glob.glob(i)[0] for i in _ev_list]
+
+    # band RefSB
+    #refsb_sds = hdf.select("EV_500_Aggr1km_RefSB")
+    refsb_array = []
+    for ifile in refsb_list:
+      refsb_hdf = SD(ifile, SDC.READ)
+      refsb_sds = refsb_hdf.select("EV_500_Aggr1km_RefSB")
+      refsb_array.append(mod02_proc_sds_mosaic(refsb_sds))
+    refsb_bands = [6,7]
+
+    # band Emissive
+    ev_array = []
+    for ifile in ev_list:
+      ev_hdf = SD(ifile, SDC.READ)
+      ev_sds = ev_hdf.select("EV_1KM_Emissive")
+      ev_array.append(mod02_proc_sds_mosaic(ev_sds))
+    ev_bands = [20,28,29,31]
+
+    # band selection
+    # + RefSB
+    for idx, ref_band in enumerate(refsb_bands):
+        if ref_band == 6:
+            b6_array = refsb_array[idx][0]
+        elif ref_band == 7:
+            b7_array = refsb_array[idx][0]
+
+
+    # + Emissive
+    for idx, ev_band in enumerate(ev_bands):
+        if ev_band == 20:
+            b20_array = ev_array[idx][0]
+        elif ev_band == 28:
+            b28_array = ev_array[idx][0]
+        elif ev_band == 29:
+            b29_array = ev_array[idx][0]
+        elif ev_band == 31:
+            b31_array = ev_array[idx][0]
+
+    # size adjust for
+    nx, ny = b6_array.shape
+    d_list = [
+        b6_array.reshape(nx,ny,1),
+        b7_array.reshape(nx,ny,1),
+        b20_array.reshape(nx,ny,1),
+        b28_array.reshape(nx,ny,1),
+        b29_array.reshape(nx,ny,1),
+        b31_array.reshape(nx,ny,1),
+    ]
+    mod02_img = np.concatenate(d_list, axis=2)
+    return mod02_img
 
 def _gen_patches(img, stride=128, size=128, 
                  normalization=False, flag_nan=True, isNoBackground=False,
