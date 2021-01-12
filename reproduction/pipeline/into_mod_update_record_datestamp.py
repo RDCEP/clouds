@@ -21,6 +21,7 @@ __author__ = "tkurihana@uchicago.edu"
 
 import tensorflow as tf
 import os
+import gc
 import sys
 import glob
 import copy
@@ -37,8 +38,10 @@ clouds_dir="/Research/clouds/src_analysis/lib_hdfs"
 #clouds_dir="/clouds/src_analysis/lib_hdfs"
 sys.path.insert(1,os.path.join(sys.path[0],homedir+clouds_dir))
 from alignment_lib import gen_mod35_img
+from alignment_lib import gen_mod35_ocean_img
 from alignment_lib import get_filepath
 from alignment_lib import translate_const_clouds_array
+from alignment_lib import translate_const_ocean_array
 
 def _int64_feature(value):
     return tf.train.Feature(int64_list=tf.train.Int64List(value=value))
@@ -153,7 +156,9 @@ def gen_sds(filelist=[], ref_var='EV_500_Aggr1km_RefSB', ems_var='EV_1KM_Emissiv
 def gen_patches(swaths, stride=64, patch_size=128, 
                  normalization=False, flag_shuffle=False,
                  global_mean=np.zeros((6)), global_stdv=np.ones((6)),
-                 mod35_datadir='./', thres=0.3, prefix='MOD35_L2.A'):
+                 mod35_datadir='./', thres=0.3, ocean_thres=0.999,
+                 apply_ocean_flag=True, 
+                 prefix='MOD35_L2.A'):
     
     """Normalizes swaths and yields patches of size `shape` every `strides` pixels
         IN:  swath;   image data in hdf file
@@ -235,6 +240,11 @@ def gen_patches(swaths, stride=64, patch_size=128,
       clouds_mask_img = gen_mod35_img(hdf_m35)
       print("GEN. CLOUD MASK", flush=True)
 
+      # 2021/01/12 generate ocean mask
+      ocean_mask_img = gen_mod35_ocean_img(hdf_m35) 
+      print("GEN. OCEAN MASK", flush=True)
+
+
       for i, j in coords:
         patch = swath[i:i + patch_size, j:j + patch_size]
 
@@ -257,7 +267,16 @@ def gen_patches(swaths, stride=64, patch_size=128,
               #  if ichannel >= 3: #6 channels for band 6,7,20
               #    clouds_patch[:,:,ichannel] = np.log10(clouds_patch[:,:,ichannel]+1.0e-10)
 
-              yield fname, (i, j), clouds_patch
+              if apply_ocean_flag:
+                ocean_clouds_patch, ocean_flag = translate_const_ocean_array(
+                  clouds_patch, ocean_mask_img, thres=ocean_thres, coord=(i,j)
+                )
+
+                if  ocean_flag:
+                  yield fname, (i, j), ocean_clouds_patch
+
+              else :
+                yield fname, (i, j), clouds_patch
             
 
 def write_feature(writer, filename, coord, patch):
@@ -286,7 +305,8 @@ def write_patches(patches, out_dir, patches_per_record, fbasename,tmp_fbasename,
     rank = MPI.COMM_WORLD.Get_rank()
     for i, patch in enumerate(patches):
         #if i % patches_per_record == 0:
-        if fbasename != tmp_fbasename:
+        #if i == 0 and fbasename != tmp_fbasename:
+        if i == 0:
             rec = "{}.tfrecord".format(fbasename.strip(f".{ext}"))
             #rec = "{}-{}_normed.tfrecord".format(rank, i // patches_per_record)
             #rec = "{}-{}.tfrecord".format(rank, i // patches_per_record)
@@ -351,12 +371,18 @@ def get_args(verbose=False):
         default=0.3
     )
     p.add_argument(
+        "--thres_ocean_frac", 
+        type=float,
+        help='threshold value range[0-1) for alignment process',
+        default=0.999
+    )
+    p.add_argument(
         "--prefix", 
         type=str,
         help='basename of MOD35 or MYD35 name e.g. MYD35_L2.A2 ',
         default=0.3
     )
-    
+    padd_argument('--ocean_flag', action='store_true')
     # parse only one band info by int parser
     #p.add_argument(
     #    "--ems_band",
@@ -435,12 +461,16 @@ if __name__ == "__main__":
                           global_mean=global_mean,
                           global_stdv=global_stdv,
                           mod35_datadir=FLAGS.mod35_datadir, 
-                          thres=FLAGS.thres_cloud_frac,prefix=FLAGS.prefix )
+                          thres=FLAGS.thres_cloud_frac,prefix=FLAGS.prefix, 
+                          ocean_thres=FLAGS.thres_ocean_frac,
+                          apply_ocean_flag=FLAGS.ocean_flag, 
+                          )
      
-      fbaseame = os.path.basename(fname) 
+      fbasename = os.path.basename(fname) 
       write_patches(patches, FLAGS.out_dir, FLAGS.patches_per_record, fbasename,tmp_fbasename)
       if fbasename != tmp_fbasename:
         tmp_fbasename = fbasename
       #write_patches(patches, FLAGS.out_dir, FLAGS.patches_per_record)
+      gc.collect()
 
       print("Rank %d done." % rank, flush=True)
