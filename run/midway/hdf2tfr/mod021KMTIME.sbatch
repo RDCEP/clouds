@@ -13,7 +13,7 @@
 #module load Anaconda3/5.0.0.1
 #source activate clouds-cpu
 
-SLURM_NTASKS=6
+SLURM_NTASKS=12
 
 which python
 
@@ -40,8 +40,8 @@ OUTPUTBASEDIR="/home/tkurihana/Research/data/tfrecords"  #/home/tkurihana/scratc
 #DATA="/home/tkurihana/Research/data2/MOD02/laads_2000_2018_train"
 #DATA="/home/tkurihana/Research/data/MOD02/20151201"
 
-#DATA="/home/tkurihana/Research/data/MYD02/20080101"
-DATA="/home/tkurihana/Research/data/MYD02/$1"
+DATA="/home/tkurihana/Research/data/MYD02/20080101"
+#DATA="/home/tkurihana/Research/data/MYD02/$1"
 
 #OUT=${OUTPUTBASEDIR}/"clouds_laads_preprocessed_2000_2018"
 #OUT=${OUTPUTBASEDIR}/"clouds_laads_rawdecoded_2000_2018"
@@ -52,12 +52,13 @@ DATA="/home/tkurihana/Research/data/MYD02/$1"
 # special for stride since it's too large
 OUTPUTBASEDIR="/home/tkurihana/hdd3/data3"
 #OUT=${OUTPUTBASEDIR}/"clouds_MYD_laads_rawdecoded_20080101_timestamp_stride"  # smaller stride overlapped each other
-OUT=${OUTPUTBASEDIR}/"clouds_MYD_laads_rawdecoded_${1}_timestamp_stride"  # smaller stride overlapped each other
+#OUT=${OUTPUTBASEDIR}/"clouds_MYD_laads_rawdecoded_${1}_timestamp_stride"  # smaller stride overlapped each other
 #OUT=${OUTPUTBASEDIR}/"clouds_MYD_laads_rawdecoded_20080101_timestamp_stride32"  # smaller stride overlapped each other
+OUT=${OUTPUTBASEDIR}/"clouds_MYD_laads_rawdecoded_20080101_timestamp_stride_ocean"  # smaller stride overlapped each other
 
 #mod35_datadir="/home/tkurihana/Research/data2/MOD35/laads_2000_2018_train_all"
-#mod35_datadir="/home/tkurihana/Research/data/MYD35/20080101"
-mod35_datadir="/home/tkurihana/Research/data/MYD35/${1}"
+mod35_datadir="/home/tkurihana/Research/data/MYD35/20080101"
+#mod35_datadir="/home/tkurihana/Research/data/MYD35/${1}"
 #stats_datadir="${OUT}/global_mean_std"
 stats_datadir=${OUTPUTBASEDIR}/"clouds_laads_rawdecoded_2000_2018/global_mean_std"
 
@@ -75,7 +76,11 @@ PPR=100000 # default PPR=10000
 #PPR=491 # default PPR=10000
 prefix='MYD35_L2.A' # MOD35_L2.A
 
-echo "Aqua Band 6 is contaminated by striping issue: Use band 5 alternatively"
+# if Aqua
+#echo "Aqua Band 6 is contaminated by striping issue: Use band 5 alternatively"
+
+
+
 
 #======================================================
 # Set new parameters
