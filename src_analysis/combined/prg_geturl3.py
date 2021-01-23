@@ -28,7 +28,10 @@ import prg_gen_rndm_metadata as pgrm
 BASE_URL = {'MOD02': 'https://ladsweb.modaps.eosdis.nasa.gov/archives/allData/61/MOD021KM',
             'MOD35': 'https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD35_L2', 
             'MOD06': 'https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD06_L2',
-            'MOD03': 'https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD03'}
+            'MOD03': 'https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MOD03',
+            'MYD02': 'https://ladsweb.modaps.eosdis.nasa.gov/archives/allData/61/MYD021KM',
+            'MYD35': 'https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MYD35_L2', 
+            'MYD06': 'https://ladsweb.modaps.eosdis.nasa.gov/archive/allData/61/MYD06_L2'}
 
 
 def get_href_lists2(url, keyword):
@@ -104,16 +107,18 @@ def download_data(url, start_time, outputdir='.', appkey=None):
       os.makedirs(outputdir, exist_ok=True)
     except OSError as e:
       print(f'directory is unable to create ... {e}')
+    
+    # 10/05/2020 tak
+    if not os.path.exists(os.path.join(outputdir, os.path.basename(url))):
+      try:
+        BASHSCRIPT='./execute.bash'
+        p = Popen([ 'bash',BASHSCRIPT, url,appkey,outputdir ], stdout=PIPE, stderr=PIPE)
+      except Exception as e:
+        print(e)
 
-    try:
-      BASHSCRIPT='./execute.bash'
-      p = Popen([ 'bash',BASHSCRIPT, url,appkey,outputdir ], stdout=PIPE, stderr=PIPE)
-    except Exception as e:
-      print(e)
-
-    print("## FINISH DOWNLOAD ! ## %s" % filename)
-    curr_time = datetime.datetime.now()
-    print(pd.Timedelta(curr_time - start_time))
+      print("## FINISH DOWNLOAD ! ## %s" % filename)
+      curr_time = datetime.datetime.now()
+      print(pd.Timedelta(curr_time - start_time))
 
 
 def delta_day(year='0000', month='00', day='00'):
@@ -155,9 +160,15 @@ def combining_fn(iline, url, thresval, outputdir, start_time, keyword, appkey):
 
     Outputs: saved HDF files
     '''
-    date = iline.split('\n')[0]
-    year = date[:4]
-    days = delta_day(year=date[:4], month=date[5:7], day=date[8:])
+    # 2008-01-01
+    #date = iline.split('\n')[0]
+    #year = date[:4]
+    #days = delta_day(year=date[:4], month=date[5:7], day=date[8:])
+    
+    # 2008001
+    year=date[:4]
+    days=date[4:]
+    print(year, days); exit(0)
     url = f'{url}/{year}/{days}/'
     # Check if valid url
     response = requests.get(url)
@@ -170,7 +181,8 @@ def combining_fn(iline, url, thresval, outputdir, start_time, keyword, appkey):
                 download_data(https, start_time, outputdir, appkey)
                 bfilename = os.path.basename(ihref)
                 while not os.path.exists(os.path.join(outputdir, bfilename+'.is.done')) :
-                  time.sleep(1)
+                  #time.sleep(1)
+                  time.sleep(0.01)
                 print(os.path.join(outputdir, bfilename))
                 try:
                     os.remove(os.path.join(outputdir, bfilename+'.is.done'))
