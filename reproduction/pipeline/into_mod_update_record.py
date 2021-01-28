@@ -33,8 +33,8 @@ from pyhdf.SD import SD, SDC
 
 # own library
 homedir=str(Path.home())
-clouds_dir="/Research/clouds/src_analysis/lib_hdfs"
-#clouds_dir="/clouds/src_analysis/lib_hdfs"
+#clouds_dir="/Research/clouds/src_analysis/lib_hdfs"
+clouds_dir="/clouds/src_analysis/lib_hdfs"
 sys.path.insert(1,os.path.join(sys.path[0],homedir+clouds_dir))
 from alignment_lib import gen_mod35_img
 from alignment_lib import gen_mod35_ocean_img
@@ -415,7 +415,9 @@ def write_patches(patches, out_dir, patches_per_record):
     rank = MPI.COMM_WORLD.Get_rank()
     for i, patch in enumerate(patches):
         if i % patches_per_record == 0:
-            rec = "{}-{}_normed.tfrecord".format(rank, i // patches_per_record)
+            rec = "{}-{}_ocean.tfrecord".format(rank, 2 + ( i // patches_per_record ) )
+            #rec = "{}-{}_ocean.tfrecord".format(rank, i // patches_per_record)
+            #rec = "{}-{}_normed.tfrecord".format(rank, i // patches_per_record)
             #rec = "{}-{}.tfrecord".format(rank, i // patches_per_record)
             print("Writing to", rec, flush=True)
             f = tf.python_io.TFRecordWriter(os.path.join(out_dir, rec))
