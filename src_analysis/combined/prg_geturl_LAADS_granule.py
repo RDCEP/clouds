@@ -110,12 +110,16 @@ def preload(src,tok,thres=100):
 DESC = "This script will recursively download all files if they don't exist from a LAADS URL and stores them to the specified path"
  
  
-def sync(src, dest, tok, m2src, granules):
+def sync(src, dest, tok, m2src, granules, product):
     '''synchronize src url with dest directory'''
     # filename setup 
     filename = granules[0]
     timestamp= granules[1].split(',')
     ssrc = os.path.join(src, str(timestamp[0]), str(timestamp[1]) ) + '/'  # https://www.sejuku.net/blog/64408
+
+    # save directory setup
+    ddest = os.path.join(dest, product,  str(timestamp[0]), str(timestamp[1]))
+    os.makedirs(ddest, exist_ok=True)
 
     try:
         import csv
@@ -134,11 +138,11 @@ def sync(src, dest, tok, m2src, granules):
     for f in sfiles:
         # currently we use filesize of 0 to indicate directory
         filesize = int(f['size'])
-        path = os.path.join(dest, f['name'])
+        path = os.path.join(ddest, f['name'])
         url = ssrc + '/' + f['name']
         if filesize == 0:
             try:
-                print('creating dir:', path)
+                print('creating dir:', path, flush=True)
                 os.mkdir(path)
                 sync(ssrc + '/' + f['name'], path, tok)
             except IOError as e:
@@ -147,11 +151,11 @@ def sync(src, dest, tok, m2src, granules):
         else:
             try:
                 if not os.path.exists(path):
-                    print('downloading: ' , path)
+                    print('downloading: ' , path, flush=True)
                     with open(path, 'w+b') as fh:
                         geturl(url, tok, fh)
                 else:
-                    print('skipping: ', path)
+                    print('skipping: ', path, flush=True)
             except IOError as e:
                 print("open `%s': %s" % (e.filename, e.strerror), file=sys.stderr)
                 sys.exit(-1)
@@ -165,6 +169,7 @@ def _main(argv):
     parser.add_argument('-d', '--destination', dest='destination', metavar='DIR', help='Store directory structure in DIR', required=True)
     parser.add_argument('-t', '--token', dest='token', metavar='TOK', help='Use app token TOK to authenticate', required=True)
     parser.add_argument('-g', '--granule', dest='granule', metavar='GRN', help='Load pickle file to download granule scale', required=True)
+    parser.add_argument('-p', '--product', dest='product', metavar='PRD', help='MODIS product name', required=True)
     args = parser.parse_args(argv[1:])
     if not os.path.exists(args.destination):
         os.makedirs(args.destination)
@@ -172,7 +177,7 @@ def _main(argv):
         granules = pickle.load(f) # load dict
     
     for granule, dates in granules.items():
-        r = sync(args.source, args.destination, args.token, args.m2source, (granule,dates))
+        r = sync(args.source, args.destination, args.token, args.m2source, (granule,dates), args.product)
     return r
  
 if __name__ == '__main__':
