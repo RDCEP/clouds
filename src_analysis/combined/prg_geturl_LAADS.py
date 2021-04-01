@@ -52,17 +52,21 @@ def geturl(url, token=None, out=None):
  
         else:
             from urllib.request import urlopen, Request, URLError, HTTPError
-            try:
-                fh = urlopen(Request(url, headers=headers), context=CTX)
-                if out is None:
-                    return fh.read().decode('utf-8')
-                else:
-                    shutil.copyfileobj(fh, out)
-            except HTTPError as e:
-                print('HTTP GET error code: %d' % e.code(), file=sys.stderr)
-                print('HTTP GET error message: %s' % e.message, file=sys.stderr)
-            except URLError as e:
-                print('Failed to make request: %s' % e.reason, file=sys.stderr)
+            while True:
+                try:
+                    fh = urlopen(Request(url, headers=headers), context=CTX, timeout=100000)
+                    if not isinstance(fh, int):
+                        if fh.getcode() == 200:
+                            if out is None:
+                                return fh.read().decode('utf-8')
+                            else:
+                                shutil.copyfileobj(fh, out)
+                            break
+                except HTTPError as e:
+                    print('HTTP GET error code: %d' % e.code(), file=sys.stderr)
+                    print('HTTP GET error message: %s' % e.message, file=sys.stderr)
+                except URLError as e:
+                    print('Failed to make request: %s' % e.reason, file=sys.stderr)
             return None
  
     except AttributeError:
@@ -123,7 +127,14 @@ def sync(src, dest, tok, m2src):
     # extract indices >= threshold in MOD02
     indices = preload(m2src,tok)
     sfiles = [ files[i] for i in indices]
- 
+  
+    # restart in the middle 
+    for idx, i in enumerate(sfiles):
+      if i['name'] == "MYD03.A2008001.1425.061.2018030220026.hdf":
+        sdx = idx
+        print(sdx)
+    sfiles = sfiles[sdx:] 
+
     # use os.path since python 2/3 both support it while pathlib is 3.4+
     for f in sfiles:
         # currently we use filesize of 0 to indicate directory
