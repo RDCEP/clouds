@@ -8,6 +8,7 @@ __author__ = "tkurihana@uchicago.edu"
 
 import tensorflow as tf
 import os
+import gc
 import sys
 import cv2
 import glob
@@ -23,8 +24,8 @@ from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
 # own library
 homedir=str(Path.home())
-clouds_dir="/Research/clouds/src_analysis/lib_hdfs"
-#clouds_dir="/clouds/src_analysis/lib_hdfs"
+#clouds_dir="/Research/clouds/src_analysis/lib_hdfs"
+clouds_dir="/clouds/src_analysis/lib_hdfs"
 sys.path.insert(1,os.path.join(sys.path[0],homedir+clouds_dir))
 from alignment_lib import gen_mod35_img
 from alignment_lib import get_filepath
@@ -251,7 +252,7 @@ def get_args(verbose=False):
     p.add_argument(
         "--sbands",
         nargs='+',
-        help="List of selected bandwidth from 6,7,20,28,29,31 ",
+        help="List of selected bandwidth from 5/6,7,20,28,29,31 ",
     )
     FLAGS = p.parse_args()
     if verbose:
@@ -298,7 +299,7 @@ if __name__ == "__main__":
         # Operate scaling and masking + yield patch info
         _patches, filenames, coordinates = patch_info
         # debug
-        print(np.mean(_patches, axis=(0,1,2)))
+        #print(np.mean(_patches, axis=(0,1,2)))
 
         ### Six bands
         patches = make_scale_mask_operator(
@@ -318,5 +319,6 @@ if __name__ == "__main__":
         # save into tfrecord
         #write_patches(patches, basefname, FLAGS.out_dir, FLAGS.patches_per_record)
         write_patches(patches, basefname, FLAGS.out_dir, npatches_per_record)
+        gc.collect()
 
         print("Rank %d done." % rank, flush=True)

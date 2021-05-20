@@ -226,6 +226,10 @@ def gen_patches_old(swaths, stride=64, patch_size=128,
       
       # Get MOD35 data
       m35_file = get_filepath(fname, mod35_datadir, prefix=prefix)
+      if m35_file is None:
+        # call mpiabort function
+        sys.excepthook =  mpiabort_excepthook
+        sys.excepthook = sys.__excepthook__  # 1st call?
       hdf_m35 = SD(m35_file, SDC.READ)
       if hdf_m35 is None:
         # call mpiabort function
@@ -303,19 +307,7 @@ def gen_patches(swaths, stride=64, patch_size=128,
         resized. Patches come from the swath in random order and are whiten-normalized.
     """
     # checkio for normalizaion scheme
-    if normalization:
-        norm_ok_flag = 0
-        # check initial array are replaced by parsed computed array
-        if not global_mean.all() == 0.000:
-          norm_ok_flag += 1
-          if not global_stdv.all() == 1.000 :
-            norm_ok_flag += 1
-        try:
-          if norm_ok_flag == 2:
-             print(" Apply Normalization scheme by global mean&stdv ", flush=True)
-        except:
-          raise ValueError(" Correct global mean & stdv are not parsed")
-            
+    # deprecated in new version
       
     # params
     for fname, swath in swaths:
@@ -415,7 +407,7 @@ def write_patches(patches, out_dir, patches_per_record):
     rank = MPI.COMM_WORLD.Get_rank()
     for i, patch in enumerate(patches):
         if i % patches_per_record == 0:
-            rec = "{}-{}_ocean.tfrecord".format(rank, 2 + ( i // patches_per_record ) )
+            rec = "{}-{}_ocean_re3.tfrecord".format(rank,  ( i // patches_per_record ) )
             #rec = "{}-{}_ocean.tfrecord".format(rank, i // patches_per_record)
             #rec = "{}-{}_normed.tfrecord".format(rank, i // patches_per_record)
             #rec = "{}-{}.tfrecord".format(rank, i // patches_per_record)
@@ -562,7 +554,8 @@ if __name__ == "__main__":
     #TODO modify arg to add multiple temp/altitude bands  
     swaths  = gen_sds(fnames, 
                       ref_var='EV_500_Aggr1km_RefSB', ems_var='EV_1KM_Emissive',
-                      ref_bands=["5","7"], ems_bands=FLAGS.ems_band) # Aqua: replace band 6 with band 7
+                      ref_bands=["6","7"], ems_bands=FLAGS.ems_band) # Aqua: replace band 6 with band 7
+                      #ref_bands=["5","7"], ems_bands=FLAGS.ems_band) # Aqua: replace band 6 with band 7
                       #ref_bands=["4","7"], ems_bands=FLAGS.ems_band) # Aqua: replace band 6 with band 7
                       #ref_bands=["6","7"], ems_bands=FLAGS.ems_band) # Terra
                       #ref_bands=["6","7"], ems_bands=["20"]+FLAGS.ems_band)
