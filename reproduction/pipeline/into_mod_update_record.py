@@ -1,4 +1,4 @@
-#
+
 #
 #  Generate "RAW" i.e. no normalization and mask-operation data from MOD021KM data
 #
@@ -20,6 +20,8 @@
 __author__ = "tkurihana@uchicago.edu"
 
 import tensorflow as tf
+print(tf.__version__)
+
 import os
 import sys
 import glob
@@ -32,9 +34,10 @@ from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from pyhdf.SD import SD, SDC
 
 # own library
-homedir=str(Path.home())
+homedir=os.path.realpath(str(Path.home()))
+#homedir=str(Path.home())
 #clouds_dir="/Research/clouds/src_analysis/lib_hdfs"
-clouds_dir="/clouds/src_analysis/lib_hdfs"
+clouds_dir="/clouds_project/clouds/src_analysis/lib_hdfs"
 sys.path.insert(1,os.path.join(sys.path[0],homedir+clouds_dir))
 from alignment_lib import gen_mod35_img
 from alignment_lib import gen_mod35_ocean_img
@@ -192,18 +195,18 @@ def gen_patches_old(swaths, stride=64, patch_size=128,
         resized. Patches come from the swath in random order and are whiten-normalized.
     """
     # checkio for normalizaion scheme
-    if normalization:
-        norm_ok_flag = 0
-        # check initial array are replaced by parsed computed array
-        if not global_mean.all() == 0.000:
-          norm_ok_flag += 1
-          if not global_stdv.all() == 1.000 :
-            norm_ok_flag += 1
-        try:
-          if norm_ok_flag == 2:
-             print(" Apply Normalization scheme by global mean&stdv ", flush=True)
-        except:
-          raise ValueError(" Correct global mean & stdv are not parsed")
+    #if normalization:
+    #    norm_ok_flag = 0
+    #    # check initial array are replaced by parsed computed array
+    #    if not global_mean.all() == 0.000:
+    #      norm_ok_flag += 1
+    #      if not global_stdv.all() == 1.000 :
+    #        norm_ok_flag += 1
+    #    try:
+    #      if norm_ok_flag == 2:
+    #         print(" Apply Normalization scheme by global mean&stdv ", flush=True)
+    #    except:
+    #      raise ValueError(" Correct global mean & stdv are not parsed")
             
       
     # params
@@ -225,12 +228,25 @@ def gen_patches_old(swaths, stride=64, patch_size=128,
       #  np.random.shuffle(coords)
       
       # Get MOD35 data
-      m35_file = get_filepath(fname, mod35_datadir, prefix=prefix)
+      try:
+        m35_file = get_filepath(fname, mod35_datadir, prefix=prefix)
+      except Exception as e:
+        # call mpiabort function
+        sys.excepthook =  mpiabort_excepthook
+        sys.excepthook = sys.__excepthook__  # 1st call?
+        
       if m35_file is None:
         # call mpiabort function
         sys.excepthook =  mpiabort_excepthook
         sys.excepthook = sys.__excepthook__  # 1st call?
-      hdf_m35 = SD(m35_file, SDC.READ)
+
+      try:
+        hdf_m35 = SD(m35_file, SDC.READ)
+      except Exception as e:
+        # call mpiabort function
+        sys.excepthook =  mpiabort_excepthook
+        sys.excepthook = sys.__excepthook__  # 1st call?
+
       if hdf_m35 is None:
         # call mpiabort function
         sys.excepthook =  mpiabort_excepthook
@@ -328,12 +344,27 @@ def gen_patches(swaths, stride=64, patch_size=128,
       #  np.random.shuffle(coords)
       
       # Get MOD35 data
-      m35_file = get_filepath(fname, mod35_datadir, prefix=prefix)
-      hdf_m35 = SD(m35_file, SDC.READ)
+      try:
+        m35_file = get_filepath(fname, mod35_datadir, prefix=prefix)
+      except Exception as e:
+        break
+        # call mpiabort function
+        #sys.excepthook =  mpiabort_excepthook
+        #sys.excepthook = sys.__excepthook__  # 1st call?
+
+      try:
+        hdf_m35 = SD(m35_file, SDC.READ)
+      except Exception as e:
+        # call mpiabort function
+        break
+        #sys.excepthook =  mpiabort_excepthook
+        #sys.excepthook = sys.__excepthook__  # 1st call?
+
       if hdf_m35 is None:
         # call mpiabort function
-        sys.excepthook =  mpiabort_excepthook
-        sys.excepthook = sys.__excepthook__  # 2nd call?
+        break
+        #sys.excepthook =  mpiabort_excepthook
+        #sys.excepthook = sys.__excepthook__  # 2nd call?
       #if hdf_m35 is None:
       #  print(" Program Forcibly Terminate: Rank %d" % MPI.COMM_WORLD.Get_rank(), flush=True)
       #  MPI.COMM_WORLD.Abort()
@@ -407,12 +438,9 @@ def write_patches(patches, out_dir, patches_per_record):
     rank = MPI.COMM_WORLD.Get_rank()
     for i, patch in enumerate(patches):
         if i % patches_per_record == 0:
-            rec = "{}-{}_ocean_re3.tfrecord".format(rank,  ( i // patches_per_record ) )
-            #rec = "{}-{}_ocean.tfrecord".format(rank, i // patches_per_record)
-            #rec = "{}-{}_normed.tfrecord".format(rank, i // patches_per_record)
-            #rec = "{}-{}.tfrecord".format(rank, i // patches_per_record)
+            rec = "{}-{}_ocean.tfrecord".format(rank,  ( i // patches_per_record ) )
             print("Writing to", rec, flush=True)
-            f = tf.python_io.TFRecordWriter(os.path.join(out_dir, rec))
+            f = tf.io.TFRecordWriter(os.path.join(out_dir, rec))
 
         write_feature(f, *patch)
 
@@ -483,6 +511,7 @@ def get_args(verbose=False):
         help='basename of MOD35 or MYD35 name e.g. MYD35_L2.A2 ',
         default=0.3
     )
+    p.add_argument("--instrument", type=str)
     p.add_argument('--ocean_flag', action='store_true')
     
     # parse only one band info by int parser
@@ -505,7 +534,9 @@ def get_args(verbose=False):
     #)
 
     FLAGS = p.parse_args()
-    if verbose:
+    rank = comm.Get_rank()
+    if rank == 0:
+      if verbose:
         for f in FLAGS.__dict__:
             print("\t", f, (25 - len(f)) * " ", FLAGS.__dict__[f])
         print("\n")
@@ -524,6 +555,7 @@ if __name__ == "__main__":
     comm = MPI.COMM_WORLD
     size = comm.Get_size()
     rank = comm.Get_rank()
+    print('size and rank == ',size, rank, flush=True)
 
     FLAGS = get_args(verbose=rank == 0)
     os.makedirs(FLAGS.out_dir, exist_ok=True)
@@ -549,16 +581,12 @@ if __name__ == "__main__":
       global_mean = np.zeros((6))
       global_stdv = np.ones((6))
 
+    band = "6" if FLAGS.instrument.lower() == 'terra' else "5"
+
     # process start
-    #TODO make arg for ref_var & ems_var if using other modis dataset
-    #TODO modify arg to add multiple temp/altitude bands  
     swaths  = gen_sds(fnames, 
                       ref_var='EV_500_Aggr1km_RefSB', ems_var='EV_1KM_Emissive',
-                      ref_bands=["6","7"], ems_bands=FLAGS.ems_band) # Aqua: replace band 6 with band 7
-                      #ref_bands=["5","7"], ems_bands=FLAGS.ems_band) # Aqua: replace band 6 with band 7
-                      #ref_bands=["4","7"], ems_bands=FLAGS.ems_band) # Aqua: replace band 6 with band 7
-                      #ref_bands=["6","7"], ems_bands=FLAGS.ems_band) # Terra
-                      #ref_bands=["6","7"], ems_bands=["20"]+FLAGS.ems_band)
+                      ref_bands=[band,"7"], ems_bands=FLAGS.ems_band) # Aqua: replace band 6 with band 7
     
     patches = gen_patches(swaths, FLAGS.stride, FLAGS.shape, 
                           normalization=normalization, 
