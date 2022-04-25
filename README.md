@@ -1,5 +1,5 @@
 ### CLOUDS
-![icon](docs/images/Clouds-Logo.png = 250x250)  
+![icon](docs/images/Clouds-Logo.png)  
 
 A [rotation-invariant cloud clusering (RICC)](https://ieeexplore.ieee.org/document/9497325) is a data-driven unsupervised learning apporoach 
 that leverages rotaion-invariant autoencoder and hierarchical agglomerative clustering to automate the clustering of cloud patterns and textures 
