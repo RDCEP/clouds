@@ -1,8 +1,7 @@
 ## Clouds Project
 ![icon](docs/images/Clouds-Logo.png)  
 
-Clouds project provides  
-an unsupervised machine learning algorithm for automated clustering and pattern discovery in cloud imagery, 
+Clouds project provides an unsupervised machine learning algorithm for automated clustering and pattern discovery in cloud imagery, 
 and a dataset resulting from the algorithm that is applied to 22 years (2000-2021) of [Moderate Resolution Imaging Spectroradiometer (MODIS)](https://ladsweb.modaps.eosdis.nasa.gov) on NASA's Aqua and Terra satellites
 to contribute to the democratization of climate research.
 
