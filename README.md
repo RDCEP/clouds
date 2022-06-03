@@ -8,6 +8,15 @@ to contribute to the democratization of climate research.
 
 ---------------------------
 ## Download AICCA dataset
+
+You can download the AICCA patch and grid-cell dataset at following links:
+### AICCA - Patch dataset
+You need to register [Globus](https://www.globus.org/data-transfer), a high-speed data transfer service, to download from following link:  
+[AICCA_Patch](https://app.globus.org/file-manager?origin_id=dc1bfe8a-cbc9-11ec-b95a-0f43df60473d&origin_path=%2F)
+
+### AICCA - Grid-cell dataset
+Delivered soon.
+
 ### AICCA: AI-driven Cloud Classification Atlas
 A novel cloud classification dataset produced by applying modern unsupervised deep learning methods to identify robust and meaningful clusters of cloud patterns.
 AICCA delivers in a compact form (tens of gigabytes of class labels, with high spatial and
