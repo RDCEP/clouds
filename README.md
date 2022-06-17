@@ -14,7 +14,7 @@ You need to register [Globus](https://www.globus.org/data-transfer), a high-spee
 [AICCA_Patch](https://app.globus.org/file-manager?origin_id=dc1bfe8a-cbc9-11ec-b95a-0f43df60473d&origin_path=%2F)
 
 ### AICCA - Grid-cell dataset
-Delivered soon.
+[AICCA Grid cell](https://app.globus.org/file-manager?origin_id=085d7744-ee7f-11ec-b3bd-15403b7b75ed&origin_path=%2F)
 
 ### AICCA: AI-driven Cloud Classification Atlas
 A novel cloud classification dataset produced by applying modern unsupervised deep learning methods to identify robust and meaningful clusters of cloud patterns.
