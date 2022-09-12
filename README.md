@@ -12,9 +12,16 @@ to contribute to the democratization of climate research.
 
 You need to register [Globus](https://www.globus.org/data-transfer), a high-speed data transfer service, to download AICCA - patch and grid-cell dataset from following link:  
 ### AICCA - Patch dataset
+#### NetCDF version (only avaialble 2003 January and July)
+Version.1   
 [AICCA_Patch](https://app.globus.org/file-manager?origin_id=dc1bfe8a-cbc9-11ec-b95a-0f43df60473d&origin_path=%2F)
 
+#### CSV format (complete 2000 -- 2021)
+This CSV format version was supposed to a pre-stage for grid-cell dataset. But we are aware that the dataformat is easily used with Pandas and decided to publickly open this data.   
+[AICCA_Patch](https://app.globus.org/file-manager?origin_id=86f8615c-32e7-11ed-ba3e-d5fb255a47cc&origin_path=%2F)
+
 ### AICCA - Grid-cell dataset
+Version.1   
 [AICCA Grid cell](https://app.globus.org/file-manager?origin_id=085d7744-ee7f-11ec-b3bd-15403b7b75ed&origin_path=%2F)
 
 ### AICCA: AI-driven Cloud Classification Atlas
