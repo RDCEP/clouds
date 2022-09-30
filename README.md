@@ -12,7 +12,7 @@ to contribute to the democratization of climate research.
 
 You need to register [Globus](https://www.globus.org/data-transfer), a high-speed data transfer service, to download AICCA - patch and grid-cell dataset from following link:  
 ### AICCA - Patch dataset
-#### NetCDF version (only avaialble 2003 January and July)
+#### NetCDF version
 Version.1   
 [AICCA_Patch](https://app.globus.org/file-manager?origin_id=dc1bfe8a-cbc9-11ec-b95a-0f43df60473d&origin_path=%2F)
 
