@@ -33,19 +33,16 @@ AICCA enables data-driven diagnosis of patterns of cloud organization, provide i
 timescales of hours to decade
 
 ### Cite AICCA
-If you use AICCA dataset for your work, please cite the paper and dataset:
-- Paper
-'''
-@article{kurihana2021data,
+If you use AICCA dataset for your work, please cite the paper and dataset:   
+```
+@article{kurihana2022aicca,
   title={AICCA: AI-driven Cloud Classification Atlas},
   author={Kurihana, Takuya and Moyer, Elisabeth and Foster, Ian},
   journal={arXiv preprint arXiv:2209.15096},
   year={2022}
 }
-'''
+```
 
-- Dataset DOI 
-  coming soon
 
 ---------------------------
 ##  Machine Learning Source Code
