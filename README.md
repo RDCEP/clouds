@@ -39,10 +39,16 @@ timescales of hours to decade
 If you use AICCA dataset for your work, please cite the paper and dataset:   
 ```
 @article{kurihana2022aicca,
-  title={AICCA: AI-driven Cloud Classification Atlas},
-  author={Kurihana, Takuya and Moyer, Elisabeth and Foster, Ian},
-  journal={arXiv preprint arXiv:2209.15096},
-  year={2022}
+  AUTHOR = {Kurihana, Takuya and Moyer, Elisabeth J. and Foster, Ian T.},
+  TITLE = {AICCA: AI-Driven Cloud Classification Atlas},
+  JOURNAL = {Remote Sensing},
+  VOLUME = {14},
+  YEAR = {2022},
+  NUMBER = {22},
+  ARTICLE-NUMBER = {5690},
+  URL = {https://www.mdpi.com/2072-4292/14/22/5690},
+  ISSN = {2072-4292},
+  DOI = {10.3390/rs14225690}
 }
 ```
 
