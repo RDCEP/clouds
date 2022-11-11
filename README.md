@@ -9,14 +9,14 @@ to contribute to the democratization of climate research.
 
 ---------------------------
 ## Download AICCA dataset
+Clouds team is now temporarily limited AICCA data upon users on requests. Please contatct `tkurihana@uchicago.edu` 
 
 You need to register [Globus](https://www.globus.org/data-transfer), a high-speed data transfer service, to download AICCA - patch and grid-cell dataset from following link:  
  
 ### AICCA - Patch dataset  
 #### NetCDF version
 Version.1 (Complete 2000 -- 2021)   
-[AICCA_Patch](https://app.globus.org/file-manager?origin_id=dc1bfe8a-cbc9-11ec-b95a-0f43df60473d&origin_path=%2F)
-
+*Nov 3rd: Clouds team is now temporarily limited AICCA data for intenal only. 
 
 #### CSV format (Complete 2000 -- 2021)
 *Nov 3rd: Clouds team is now temporarily limited AICCA data for intenal only. 
