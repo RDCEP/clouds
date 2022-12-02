@@ -6,6 +6,11 @@ Clouds project provides an unsupervised machine learning algorithm for automated
 and a dataset resulting from the algorithm that is applied to 22 years (2000-2021) of [Moderate Resolution Imaging Spectroradiometer (MODIS)](https://ladsweb.modaps.eosdis.nasa.gov) on NASA's Aqua and Terra satellites
 to contribute to the democratization of climate research.
 
+Our project offers the AI-driven Cloud Classification Atlas [AICCA](https://www.mdpi.com/2072-4292/14/22/5690), an unsupervised deep learning-based novel cloud classification dataset. 
+About AICCA, please visit our [AICCA page](https://takglobus.github.io/AICCA-explorer/).
+
+Our unsupervised deep learning algorithm, rotation-invariant cloud clustering [RICC](https://ieeexplore.ieee.org/document/9497325) clusters 22 years of ocean satellite images from the Moderate Resolution Imaging Spectroradiometer (MODIS) on NASA's Aqua and Terra instruments—198 million patches, each roughly 100 km x 100 km (128 x 128 pixels)—into 42 AI-generated cloud classes. AICCA translates 801 TB of satellite images into 54.2 GB of class labels and cloud top and optical properties, a reduction by a factor of 15,000.
+
 
 ---------------------------
 ## Download AICCA dataset
