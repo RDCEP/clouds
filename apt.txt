@@ -1,6 +1,3 @@
-update
-upgrade --assume-yes
-python3-dev
 libproj-dev
 proj-data
 proj-bin  
