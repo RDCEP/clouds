@@ -162,10 +162,6 @@ Jinja2==2.11.3
 joblib==1.2.0
 jpeg4py==0.1.4
 jsonschema==4.3.3
-jupyter-client==6.1.12
-jupyter-console==6.1.0
-jupyter-core==5.1.0
-jupyterlab-widgets==3.0.4
 kaggle==1.5.12
 kaleido==0.2.1
 kapre==0.3.7
