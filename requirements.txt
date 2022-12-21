@@ -1,7 +1,5 @@
 numpy==1.23.0
-Cartopy==0.18.0
 pandas==1.5.2
 netCDF4==1.6.2
 matplotlib==3.6.2
-shapely==2.0.0
 plotly==5.11.0
