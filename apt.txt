@@ -1,5 +1,5 @@
 libproj-dev
 proj-data
 proj-bin  
-libgeos-dev
+libgeos-dev3.7.2
 python3-dev
