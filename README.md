@@ -14,7 +14,7 @@ Our unsupervised deep learning algorithm, rotation-invariant cloud clustering [R
 
 ---------------------------
 ## Download AICCA dataset
-Clouds team is now temporarily limited AICCA data upon users on requests. Please contatct `tkurihana@uchicago.edu` 
+Clouds team now temporarily limits AICCA data upon users on requests. Please contatct `tkurihana@uchicago.edu` 
 
 You need to register [Globus](https://www.globus.org/data-transfer), a high-speed data transfer service, to download AICCA - patch and grid-cell dataset from following link:  
  
